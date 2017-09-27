@@ -1,0 +1,30 @@
+local key = "worldboss"
+local CharacterInfo = CharacterInfo
+
+local function Updater(event)
+  local t = {}
+
+  CharacterInfo.UpdateChar(key,t)
+end
+
+local function Linegenerator(tooltip,data)
+
+end
+
+local function Modernize(data)
+  -- data is table of module table from character
+  -- always return table or don't use at all
+end
+
+local data = {
+  name = 'Currency',
+  key = key,
+  linegenerator = Linegenerator,
+  priority = 0,
+  updater = Updater,
+  event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},
+  weeklyReset = false,
+  -- modernize = Modernize
+}
+
+CharacterInfo.RegisterModule(data)

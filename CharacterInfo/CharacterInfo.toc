@@ -1,0 +1,24 @@
+## Interface: 70300
+## Title: CharacterInfo
+## Notes: Shows various information about your characters
+## Author: Exality
+## SavedVariables: CharacterInfo_DB, CharacterInfo_Config
+## Version: 1
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibQTip-1.0.lua
+Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
+
+CharacterInfo.lua
+Modules\Currency.lua
+Modules\Artifact.lua
+Modules\Coins.lua
+Modules\Dungeons.lua
+Modules\Emissaries.lua
+Modules\Missions.lua
+Modules\MythicKey.lua
+Modules\MythicPlus.lua
+Modules\Raids.lua
+Modules\WorldBosses.lua
+Modules\Mail.lua
