@@ -2,31 +2,31 @@ local key = "raids"
 local LFRencounters = {
   -- [dungeonID] = {name = "", totalEncounters = 2}
   -- Emerald Nightmare
-  [GetLFGDungeonInfo(1350)] = {
+  [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = {
     [1287] = {name = "Darkbough", totalEncounters = 3},
     [1288] = {name = "Tormented Guardians", totalEncounters = 3},
     [1289] = {name = "Rift of Aln", totalEncounters = 1}
   },
   -- Trials of Valor
-  [GetLFGDungeonInfo(1439)] = {
+  [GetLFGDungeonInfo(1439) or "Trials of Valor"] = {
     [1411] = {name = "Trials of Valor", totalEncounters = 3}
   },
   -- Nighthold
-  [GetLFGDungeonInfo(1353)] = {
+  [GetLFGDungeonInfo(1353) or "The Nighthold"] = {
     [1290] = {name = "Arcing Aqueducts", totalEncounters = 3},
     [1291] = {name = "Royal Athenaeum", totalEncounters = 3},
     [1292] = {name = "Nightspire", totalEncounters = 3},
     [1293] = {name = "Betrayer's Rise", totalEncounters = 1}
   },
   --Tomb of Sargeras
-  [GetLFGDungeonInfo(1527)] = {
+  [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {
     [1494] = {name = "The Gates of Hell", totalEncounters = 3},
     [1495] = {name = "Wailing Halls", totalEncounters = 3}, --?? inq +sist + deso
     [1496] = {name = "Chamber of the Avatar", totalEncounters = 2}, --?? maid + ava
     [1497] = {name = "Deceiver’s Fall", totalEncounters = 1} --?? KJ
   },
   -- Antorus
-  [GetLFGDungeonInfo(1712)] ={
+  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {
     [1610] = {name = "Light's Breach", totalEncounters = 3}, -- Light's Breach
     [1611] = {name = "Forbidden Descent", totalEncounters = 3}, -- Forbidden Descent
     [1612] = {name = "Hope's End", totalEncounters = 2}, -- Hope's End
@@ -34,13 +34,13 @@ local LFRencounters = {
   }
 }
 local ALLOWED_RAIDS = {
-  [GetLFGDungeonInfo(1350)] = true, -- EN
-  [GetLFGDungeonInfo(1439)] = true, -- ToV
-  [GetLFGDungeonInfo(1353)] = true, -- Nighthold
-  [GetLFGDungeonInfo(1527)] = true, -- ToS
-  [GetLFGDungeonInfo(1712)] = true, -- Antorus
+  [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = true, -- EN
+  [GetLFGDungeonInfo(1439) or "Trials of Valor"] = true, -- ToV
+  [GetLFGDungeonInfo(1353) or "The Nighthold"] = true, -- Nighthold
+  [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = true, -- ToS
+  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = true, -- Antorus
 }
-
+for i,v in pairs(ALLOWED_RAIDS) do print(i,v) end
 local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo = GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo
 local table, pairs = table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
@@ -94,7 +94,11 @@ local function Updater(event)
   CharacterInfo.UpdateChar(key,t)
 end
 
-local raidOrder = {GetLFGDungeonInfo(1712),GetLFGDungeonInfo(1527),GetLFGDungeonInfo(1353), GetLFGDungeonInfo(1439),GetLFGDungeonInfo(1350)}
+local raidOrder = {GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne",
+                   GetLFGDungeonInfo(1527) or "Tomb of Sargeras",
+                   GetLFGDungeonInfo(1353) or "The Nighthold",
+                   GetLFGDungeonInfo(1439) or "Trials of Valor",
+                   GetLFGDungeonInfo(1350) or "Emerald Nightmare"}
 local function Linegenerator(tooltip,data)
   if not data then return end
   local diffOrder = {"LFR","Normal","Heroic","Mythic"}
