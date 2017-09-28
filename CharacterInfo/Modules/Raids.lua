@@ -2,35 +2,43 @@ local key = "raids"
 local LFRencounters = {
   -- [dungeonID] = {name = "", totalEncounters = 2}
   -- Emerald Nightmare
-  ["The Emerald Nightmare"] = {
+  [GetLFGDungeonInfo(1350)] = {
     [1287] = {name = "Darkbough", totalEncounters = 3},
     [1288] = {name = "Tormented Guardians", totalEncounters = 3},
     [1289] = {name = "Rift of Aln", totalEncounters = 1}
   },
   -- Trials of Valor
-  ["Trials of Valor"] = {
+  [GetLFGDungeonInfo(1439)] = {
     [1411] = {name = "Trials of Valor", totalEncounters = 3}
   },
   -- Nighthold
-  ["The Nighthold"] = {
+  [GetLFGDungeonInfo(1353)] = {
     [1290] = {name = "Arcing Aqueducts", totalEncounters = 3},
     [1291] = {name = "Royal Athenaeum", totalEncounters = 3},
     [1292] = {name = "Nightspire", totalEncounters = 3},
     [1293] = {name = "Betrayer's Rise", totalEncounters = 1}
   },
   --Tomb of Sargeras
-  ["Tomb of Sargeras"] = {
+  [GetLFGDungeonInfo(1527)] = {
     [1494] = {name = "The Gates of Hell", totalEncounters = 3},
     [1495] = {name = "Wailing Halls", totalEncounters = 3}, --?? inq +sist + deso
     [1496] = {name = "Chamber of the Avatar", totalEncounters = 2}, --?? maid + ava
     [1497] = {name = "Deceiver’s Fall", totalEncounters = 1} --?? KJ
+  },
+  -- Antorus
+  [GetLFGDungeonInfo(1712)] ={
+    [1610] = {name = "Light's Breach", totalEncounters = 3}, -- Light's Breach
+    [1611] = {name = "Forbidden Descent", totalEncounters = 3}, -- Forbidden Descent
+    [1612] = {name = "Hope's End", totalEncounters = 2}, -- Hope's End
+    [1613] = {name = "Seat of the Pantheon", totalEncounters = 1}, -- Seat of the Pantheon
   }
 }
 local ALLOWED_RAIDS = {
-  ['The Nighthold'] = true,
-  ["Trial of Valor"] = true,
-  ["The Emerald Nightmare"] = true,
-  ["Tomb of Sargeras"] = true
+  [GetLFGDungeonInfo(1350)] = true, -- EN
+  [GetLFGDungeonInfo(1439)] = true, -- ToV
+  [GetLFGDungeonInfo(1353)] = true, -- Nighthold
+  [GetLFGDungeonInfo(1527)] = true, -- ToS
+  [GetLFGDungeonInfo(1712)] = true, -- Antorus
 }
 
 local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo = GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo
@@ -86,9 +94,9 @@ local function Updater(event)
   CharacterInfo.UpdateChar(key,t)
 end
 
+local raidOrder = {GetLFGDungeonInfo(1712),GetLFGDungeonInfo(1527),GetLFGDungeonInfo(1353), GetLFGDungeonInfo(1439),GetLFGDungeonInfo(1350)}
 local function Linegenerator(tooltip,data)
   if not data then return end
-  local raidOrder = {"Tomb of Sargeras","The Nighthold", "Trial of Valor","The Emerald Nightmare"}
   local diffOrder = {"LFR","Normal","Heroic","Mythic"}
   local diffShortened = {
             LFR = "LFR",
