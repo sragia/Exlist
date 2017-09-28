@@ -56,7 +56,9 @@ local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmar
 local function Updater(event)
   if not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
   GetTime() - lastUpdate < 60 or -- throtle update every 10 seconds max
-  not WorldMapButton:IsShown() then -- only update when map is open
+  not WorldMapButton:IsShown() or -- only update when map is open
+  IsInRaid() or -- only update when outside of instances
+  select(2,IsInInstance()) == "none" then
     return
   end
   lastUpdate = GetTime()
