@@ -50,6 +50,7 @@ local string,table = string,table
 local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo = C_TaskQuest, C_WorldMap ,EJ_GetCreatureInfo
 local pairs,time,select = pairs,time,select
 local GetTime = GetTime
+local IsInRaid, IsInInstance = IsInRaid, IsInInstance
 local GetCurrentMapAreaID, SetMapByID = GetCurrentMapAreaID, SetMapByID
 local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmarkInfo
 
@@ -58,7 +59,7 @@ local function Updater(event)
   GetTime() - lastUpdate < 60 or -- throtle update every 10 seconds max
   not WorldMapButton:IsShown() or -- only update when map is open
   IsInRaid() or -- only update when outside of instances
-  select(2,IsInInstance()) == "none" then
+  select(2,IsInInstance()) ~= "none" then
     return
   end
   lastUpdate = GetTime()
