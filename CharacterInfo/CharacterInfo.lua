@@ -44,12 +44,13 @@ local InCombatLockdown = InCombatLockdown
 local strsplit = strsplit
 -- local
 local MAX_CHARACTER_LEVEL = 110
+local defaultFont = [[Interface\Addons\CharacterInfo\Media\Font\font.ttf]]
 local settings = { -- default settings
   minLevel = 80,
   fonts = {
-    big = { size = 15, fontName = GameTooltipText:GetFont()},
-    medium = { size = 13, fontName = GameTooltipText:GetFont()},
-    small = { size = 11, fontName = GameTooltipText:GetFont()}
+    big = { size = 15, fontName = defaultFont},
+    medium = { size = 13, fontName = defaultFont},
+    small = { size = 11, fontName = defaultFont}
   },
   tooltipHeight = 600,
   delay = 0.2,
@@ -61,12 +62,14 @@ local settings = { -- default settings
 -- fonts
 local fontSet = settings.fonts
 local hugeFont = CreateFont("CharacterInfo_HugeFont")
-hugeFont:SetFont(GameTooltipText:GetFont(), fontSet.big.size)
+--hugeFont:CopyFontObject(GameTooltipText)
+hugeFont:SetFont(defaultFont, fontSet.big.size)
 local smallFont = CreateFont("CharacterInfo_SmallFont")
-smallFont:SetFont(GameTooltipText:GetFont(), fontSet.small.size)
+---smallFont:CopyFontObject(GameTooltipText)
+smallFont:SetFont(defaultFont, fontSet.small.size)
 local mediumFont = CreateFont("CharacterInfo_MediumFont")
-mediumFont:SetFont(GameTooltipText:GetFont(), fontSet.medium.size)
-
+--mediumFont:CopyFontObject(GameTooltipText)
+mediumFont:SetFont(defaultFont, fontSet.medium.size)
 local monthNames = {'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'}
 
 -- lua api
@@ -1269,9 +1272,9 @@ function CharacterInfo_RefreshAppearance()
   butTool:SetMovable(not settings.lockIcon)
   butTool:RegisterForDrag("LeftButton")
   butTool:SetScript("OnDragStart", not settings.lockIcon and butTool.StartMoving or function() end)
-  hugeFont:SetFont(GameTooltipText:GetFont(), settings.fonts.big.size)
-  smallFont:SetFont(GameTooltipText:GetFont(), settings.fonts.small.size)
-  mediumFont:SetFont(GameTooltipText:GetFont(), settings.fonts.medium.size)
+  hugeFont:SetFont(defaultFont, settings.fonts.big.size)
+  smallFont:SetFont(defaultFont, settings.fonts.small.size)
+  mediumFont:SetFont(defaultFont, settings.fonts.medium.size)
   butTool:SetScale(settings.iconScale)
 end
 
