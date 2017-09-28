@@ -13,10 +13,11 @@ local worldBossIDs = {
   [43512] = {eid = 1790}, -- Ana-Mouz
   [43985] = {eid = 1795}, -- Flotsam
   [44287] = {eid = 1796}, -- Withered Jim
-  [47061] = {eid = 1956}, -- Apocron
-  [46947] = {eid = 1883}, -- Brutalus
-  [46948] = {eid = 1884}, -- Malificus
-  [46945] = {eid = 1885}, -- Si'vash
+  -- endTime is 0 for know until I decide to somehow get their timeleft
+  [47061] = {eid = 1956, endTime = 0}, -- Apocron
+  [46947] = {eid = 1883, endTime = 0}, -- Brutalus
+  [46948] = {eid = 1884, endTime = 0}, -- Malificus
+  [46945] = {eid = 1885, endTime = 0}, -- Si'vash
 }
 local BrokenIslesZones = {
 	1015, -- Aszuna
@@ -34,8 +35,8 @@ local ArgusZones = {
 local greaterInvasionPOIId = {
   [5375] = {questId = 49167, eid = 2011}, -- Mistress Alluradel
   [5376] = {questId = 49165, eid = 2013}, -- Occularus
-  [5377] = {questId = 49170, eid = 2015}, -- Pit Lord Vilemus
-  [5379] = {questId = 49172, eid = 2012}, -- Inquisitor Meto
+  [5377] = {questId = 49168, eid = 2015}, -- Pit Lord Vilemus
+  [5379] = {questId = 49166, eid = 2012}, -- Inquisitor Meto
   [5380] = {questId = 49171, eid = 2014}, -- Sotanathor
   [5381] = {questId = 49169, eid = 2010, name=EJ_GetEncounterInfo(2010)}, -- Matron Foluna
 }
@@ -73,7 +74,7 @@ local function Updater(event)
         t[info.questId] = {
           name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
           defeated = false,
-          endTime = timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60)
+          endTime = info.endTime or (timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60))
         }
       end
     end
@@ -84,7 +85,7 @@ local function Updater(event)
     for j=1,GetNumMapLandmarks() do
       local _,name,desc,_,_,_,_,_,_,_,poiId = GetMapLandmarkInfo(j)
       if greaterInvasionPOIId[poiId] and not t[greaterInvasionPOIId[poiId].questId] then
-        local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId) or 0
+        local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId) or CharacterInfo.GetNextWeeklyResetTime()
         t[greaterInvasionPOIId[poiId].questId] = {
           name = greaterInvasionPOIId[poiId].name or select(2,EJ_GetCreatureInfo(1,greaterInvasionPOIId[poiId].eid)),
           defeated = false,
@@ -108,7 +109,7 @@ local function Updater(event)
       else
         t[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = 0,
+          endTime = info.endTime or CharacterInfo.GetNextWeeklyResetTime(),
           defeated = true
         }
       end
@@ -121,7 +122,7 @@ local function Updater(event)
       else
         t[info.questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = 0,
+          endTime = CharacterInfo.GetNextWeeklyResetTime(),
           defeated = true
         }
       end
