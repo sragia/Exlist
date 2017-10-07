@@ -77,7 +77,7 @@ local function Updater(event)
         t[info.questId] = {
           name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
           defeated = false,
-          endTime = info.endTime or (timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60))
+          endTime = worldBossIDs[info.questId].endTime or (timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60))
         }
       end
     end
@@ -100,7 +100,7 @@ local function Updater(event)
   SetMapByID(currMapId)
   -- cleanup table
   for questId,info in pairs(t) do
-    if info.endTime ~= 0 and info.endTime < timeNow then
+    if (info.endTime ~= 0 and info.endTime < timeNow) or info.endTime > 1.5*CharacterInfo.GetNextWeeklyResetTime() then
       t[questId] = nil
     end
   end
@@ -133,6 +133,7 @@ local function Updater(event)
   end
   CharacterInfo.UpdateChar(key,t)
 end
+
 local function Linegenerator(tooltip,data)
   if not data then return end
   local availableWB = 0
