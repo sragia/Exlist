@@ -34,7 +34,7 @@ local ArgusZones = {
 }
 local greaterInvasionPOIId = {
   [5375] = {questId = 49167, eid = 2011}, -- Mistress Alluradel
-  [5376] = {questId = 49165, eid = 2013}, -- Occularus
+  [5376] = {questId = 49170, eid = 2013}, -- Occularus
   [5377] = {questId = 49168, eid = 2015}, -- Pit Lord Vilemus
   [5379] = {questId = 49166, eid = 2012}, -- Inquisitor Meto
   [5380] = {questId = 49171, eid = 2014}, -- Sotanathor
