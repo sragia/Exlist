@@ -62,13 +62,14 @@ end
 local function GetAPperDay(lastCheck, aptable)
   if not IsAddOnLoaded("LibArtifactData-1.0") then LoadAddOn("LibArtifactData-1.0") end
   if not LAD:GetActiveArtifactID() then return end
-  local todayDate = date("*t", time()).day
+  local todayDate = date("*t", time()).yday
   local currentAP = LAD:GetAcquiredArtifactPower(LAD:GetActiveArtifactID())
   aptable = aptable or {}
   local tableSize = #aptable
   if aptable then
-    if todayDate ~= lastCheck then
-      -- first check of the day
+    local dayDiff = todayDate-lastCheck
+    if dayDiff > 350 then
+      -- just dont deal with new year, too much work
       if tableSize == 7 then
         for i = 1, tableSize - 1 do
           aptable[i] = aptable[i + 1]
@@ -76,6 +77,23 @@ local function GetAPperDay(lastCheck, aptable)
         aptable[7] = currentAP
       else
         table.insert(aptable, currentAP)
+      end
+    elseif dayDiff > 0 then
+      -- first check of the day
+      for c=1,dayDiff do
+        local value = currentAP
+        if c < dayDiff then
+          -- skipped a day
+          value = 0
+        end
+        if tableSize == 7 then
+          for i = 1, tableSize - 1 do
+            aptable[i] = aptable[i + 1]
+          end
+          aptable[7] = value
+        else
+          table.insert(aptable, value)
+        end
       end
     end
   else
