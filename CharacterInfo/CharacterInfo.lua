@@ -44,6 +44,7 @@ local InCombatLockdown = InCombatLockdown
 local strsplit = strsplit
 -- local
 local MAX_CHARACTER_LEVEL = 110
+local MAX_PROFESSION_LEVEL = 800
 local defaultFont = [[Interface\Addons\CharacterInfo\Media\Font\font.ttf]]
 local settings = { -- default settings
   minLevel = 80,
@@ -339,13 +340,25 @@ local function UpdateCharacterGear()
   end
   CharacterInfo.UpdateChar("gear",t)
 end
+local function UpdateCharacterProfessions()
+  local profIndexes = {GetProfessions()}
+  local t = {}
+  for i=1,#profIndexes do
+    if profIndexes[i] then
+      local name, texture, rank, maxRank = GetProfessionInfo(profIndexes[i])
+      table.insert(t,{name=name,icon=texture,curr=rank,max=maxRank})
+    end
+  end
+  CharacterInfo.UpdateChar("professions",t)
+end
 
 local UpdateCharacterSpecifics = function(event)
   if event == "UNIT_INVENTORY_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
     UpdateCharacterGear()
-  elseif event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_ENTERING_WORLD" then
-    UpdateCharacterTalents()
+  --elseif event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_ENTERING_WORLD" then
+    --UpdateCharacterTalents()
   end
+  UpdateCharacterProfessions()
   local name = UnitName('player')
   local level = UnitLevel('player')
   local _, class = UnitClass('player')
@@ -399,6 +412,22 @@ local function GetRealmCharInfo(realm)
   return charInfo, charNum
 end
 
+local function AttachStatusBar(frame)
+  local statusBar = CreateFrame("StatusBar", nil, frame)
+  statusBar:SetStatusBarTexture("Interface\\AddOns\\CharacterInfo\\Media\\Texture\\statusBar")
+  statusBar:GetStatusBarTexture():SetHorizTile(false)
+  local bg = {
+    bgFile = "Interface\\AddOns\\CharacterInfo\\Media\\Texture\\statusBar"
+  }
+  statusBar:SetBackdrop(bg)
+  statusBar:SetBackdropColor(.1, .1, .1, .8)
+  statusBar:SetStatusBarColor(CharacterInfo.ColorHexToDec("ffffff"))
+  statusBar:SetMinMaxValues(0, 100)
+  statusBar:SetValue(0)
+  statusBar:SetHeight(5)
+--  print('createdNewStatusBar')
+  return statusBar
+end
 
 -- Modules/API
 -- Info attaching to tooltip
@@ -515,9 +544,19 @@ function CharacterInfo.DisposeSideTooltip()
   -- returns function that can be used for script
   return function(self)
     QTip:Release(self.sideTooltip)
+  --  texplore(self)
     if self.statusBar then
       self.statusBar:Hide()
       self.statusBar = nil
+    elseif self.sideTooltip.statusBars then
+    --  print('disposing statusBars')
+      for i=1,#self.sideTooltip.statusBars do
+        local statusBar = self.sideTooltip.statusBars[i]
+        if statusBar then
+          statusBar:Hide()
+          statusBar = nil
+        end
+      end
     end
     self.sideTooltip = nil
   end
@@ -709,8 +748,29 @@ local hasEnchantSlot = {
   Ring = true,
   Back = true
 }
+local profColors = {
+  {val = 75, color = "c6c3b4"},
+  {val = 150, color = "dbd3ab"},
+  {val = 225, color = "e2d388"},
+  {val = 300, color = "efd96b"},
+  {val = 400, color = "ffe254"},
+  {val = 500, color = "ffde3d"},
+  {val = 600, color = "ffd921"},
+  {val = 700, color = "ffd50c"},
+  {val = 800, color = "ffae00"}
+}
+local function ProfessionValueColor(value)
+  for i=1,#profColors do
+    if value <= profColors[i].val then
+      return profColors[i].color
+    end
+  end
+  return "FFFFFF"
+end
+
 local function GearTooltip(self,info)
   local geartooltip = QTip:Acquire("CharInf_GearTip",7,"CENTER","LEFT","LEFT","LEFT","LEFT","LEFT","LEFT")
+  geartooltip.statusBars = {}
   self.sideTooltip = geartooltip
   geartooltip:SetHeaderFont(hugeFont)
   local specIcon = info.spec and info.class .. info.spec or "SpecNone"
@@ -743,7 +803,7 @@ local function GearTooltip(self,info)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
   end
-  if info.talents then
+  --[[if info.talents then
     line = geartooltip:AddHeader()
     geartooltip:SetCell(line,1,WrapTextInColorCode("Talents","ffffb600"),"CENTER",7)
     local selectedColor = "ffffaa00"
@@ -761,6 +821,27 @@ local function GearTooltip(self,info)
       geartooltip:SetCell(line,2,talentstr[1],"LEFT",2)
       geartooltip:SetCell(line,4,talentstr[2],"LEFT",2)
       geartooltip:SetCell(line,6,talentstr[3],"LEFT",2)
+    end
+    geartooltip:AddSeparator(1,.8,.8,.8,1)
+  end]]
+  if info.professions then
+    -- professsions
+    line = geartooltip:AddHeader()
+    geartooltip:SetCell(line,1,WrapTextInColorCode("Professions","ffffb600"),"CENTER",7)
+    local p = info.professions
+    local tipWidth = geartooltip:GetWidth()
+    for i=1,#p do
+      line = geartooltip:AddLine()
+      geartooltip:SetCell(line,1,string.format("|T%s:20|t%s",p[i].icon,p[i].name),"LEFT")
+      geartooltip:SetCell(line,2,string.format("|cff%s%s|r",ProfessionValueColor(p[i].curr),p[i].curr),"RIGHT",6)
+
+      local statusBar = AttachStatusBar(geartooltip.lines[line].cells[2])
+      table.insert(geartooltip.statusBars,statusBar)
+      statusBar:SetMinMaxValues(0,MAX_PROFESSION_LEVEL)
+      statusBar:SetValue(p[i].curr)
+      statusBar:SetWidth(tipWidth)
+      statusBar:SetStatusBarColor(CharacterInfo.ColorHexToDec(ProfessionValueColor(p[i].curr)))
+      statusBar:SetPoint("LEFT",geartooltip.lines[line].cells[2],"LEFT",5,0)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
   end
@@ -784,6 +865,10 @@ local function GearTooltip(self,info)
   geartooltip:SetBackdrop(backdrop)
   geartooltip:SetBackdropColor(0, 0, 0, .9);
   geartooltip:SetBackdropBorderColor(.2, .2, .2, 1)
+  local tipWidth = geartooltip:GetWidth()
+  for i=1,#geartooltip.statusBars do
+    geartooltip.statusBars[i]:SetWidth(tipWidth+tipWidth/3)
+  end
 end
 
 -- DISPLAY INFO
