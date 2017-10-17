@@ -22,6 +22,7 @@ local mapTimes = {
 }
 
 local function Updater(event)
+  CM.RequestMapInfo() -- request update
   local mapIDs = CM.GetMapTable()
   local bestLvl = 0
   local bestLvlMap = ""
@@ -81,7 +82,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = 4,
   updater = Updater,
-  event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE"},
+  event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD"},
   weeklyReset = true
 }
 
