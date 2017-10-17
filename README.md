@@ -4,16 +4,16 @@ Mainly built to allow checking various things on your other characters without h
 ![alt text](https://i.imgur.com/fO9faFQ.png "Main Tooltip")
 
 ## Features (Tracking)
-⋅⋅* Gear and Professions
-⋅⋅* Currency
-⋅⋅* Artifact
-⋅⋅* M+ Key
-⋅⋅* M+ done this week
-⋅⋅* Seals
-⋅⋅* Emissaries
-⋅⋅* Order Hall Missions
-⋅⋅* Raid Lockouts (LFR/N/HC/M)
-⋅⋅* Mythic Dungeons Lockouts
-⋅⋅* World Bosses (Available+Killed)
-⋅⋅* Incoming Mail
-⋅⋅* Adding Note to Character
+* Gear and Professions
+* Currency
+* Artifact
+* M+ Key
+* M+ done this week
+* Seals
+* Emissaries
+* Order Hall Missions
+* Raid Lockouts (LFR/N/HC/M)
+* Mythic Dungeons Lockouts
+* World Bosses (Available+Killed)
+* Incoming Mail
+* Adding Note to Character
