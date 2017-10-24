@@ -3,7 +3,7 @@ local CG = C_Garrison
 local LE_FOLLOWER_TYPE_GARRISON_7_0 = LE_FOLLOWER_TYPE_GARRISON_7_0
 local time, table, strlen, string, type, math = time, table, strlen, string, type, math
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
-local GetItemInfo,GetCurrencyInfo = GetItemInfo, GetCurrencyInfo
+local GetCurrencyInfo = GetCurrencyInfo
 local GetMoneyString = GetMoneyString
 local CharacterInfo = CharacterInfo
 
@@ -30,10 +30,10 @@ local function Updater(event)
           reward.name = r[i].title
         elseif r[i].itemID then
           -- item
-          local name,_,_,_,_,_,_,_,_,icon = GetItemInfo(r[i].itemID)
+          local itemInfo = CharacterInfo.GetCachedItemInfo(r[i].itemID)
           reward.quantity = r[i].quantity
-          reward.name = name
-          reward.icon = icon
+          reward.name = itemInfo.name
+          reward.icon = itemInfo.texture
         elseif r[i].currencyID then
           local name,_,icon = GetCurrencyInfo(r[i].currencyID)
           reward.quantity = r[i].quantity
@@ -64,10 +64,10 @@ local function Updater(event)
           reward.name = r[i].title
         elseif r[i].itemID then
           -- item
-          local name,_,_,_,_,_,_,_,_,icon = GetItemInfo(r[i].itemID)
+          local itemInfo = CharacterInfo.GetCachedItemInfo(r[i].itemID)
           reward.quantity = r[i].quantity
-          reward.name = name
-          reward.icon = icon
+          reward.name = itemInfo.name
+          reward.icon = itemInfo.texture
         elseif r[i].currencyID then
           local name,_,icon = GetCurrencyInfo(r[i].currencyID)
           reward.quantity = r[i].quantity

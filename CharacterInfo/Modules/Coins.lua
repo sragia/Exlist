@@ -14,7 +14,8 @@ local function Updater(event)
   local quests = {}
   for id, _ in pairs(coinsQuests) do
     if IsQuestFlaggedCompleted(id) then
-      table.insert(quests,CharacterInfo.QuestTitleFromID[id])
+      local title = CharacterInfo.QuestInfo(id)
+      table.insert(quests,title)
       count = count + 1
     end
   end

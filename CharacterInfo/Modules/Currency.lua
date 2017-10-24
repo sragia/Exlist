@@ -38,11 +38,11 @@ local function Updater(event)
   end
   for i = 1, #ITEMS do
     local amount = GetItemCount(ITEMS[i],true)
-    local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(ITEMS[i])
+    local itemInfo = CharacterInfo.GetCachedItemInfo(ITEMS[i])
     local temp = {
-      name = name,
+      name = itemInfo.name,
       amount = amount,
-      texture = texture
+      texture = itemInfo.texture
     }
     table.insert(t.currency, temp)
 

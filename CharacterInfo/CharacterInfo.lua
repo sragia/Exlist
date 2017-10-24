@@ -155,7 +155,7 @@ function CharacterInfo.TimeLeftColor(timeLeft, times, col)
 end
 
 -- To find quest name from questID
-local MyScanningTooltip = CreateFrame("GameTooltip", "MyScanningTooltip", UIParent, "GameTooltipTemplate")
+local MyScanningTooltip = CreateFrame("GameTooltip", "ChInfoScanningTooltip", UIParent, "GameTooltipTemplate")
 
 CharacterInfo.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
          MyScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
@@ -167,6 +167,16 @@ CharacterInfo.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
             return title
          end
 end })
+
+function CharacterInfo.QuestInfo(questid)
+  if not questid or questid == 0 then return nil end
+  MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
+  MyScanningTooltip:SetHyperlink("\124cffffff00\124Hquest:"..questid..":90\124h[]\124h\124r")
+  local l = _G[MyScanningTooltip:GetName().."TextLeft1"]
+  l = l and l:GetText()
+  if not l or #l == 0 then return nil end -- cache miss
+  return l, "\124cffffff00\124Hquest:"..questid..":90\124h["..l.."]\124h\124r"
+end
 
 CharacterInfo.FormatTimeMilliseconds = function(time)
   local minutes = math.floor((time/1000)/60)
@@ -216,6 +226,21 @@ function CharacterInfo.UpdateChar(key,data,charname,charrealm)
   db[charrealm][charname] = db[charrealm][charname] or {}
   local charToUpdate = db[charrealm][charname]
   charToUpdate[key] = data
+end
+
+function CharacterInfo.GetCachedItemInfo(itemId)
+  if config_db.item_cache and config_db.item_cache[itemId] then
+    return config_db.item_cache[itemId]
+  else
+    local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(itemId)
+    local t = {name = name, texture = texture}
+    if name and texture then
+      -- only save if GetItemInfo actually gave info
+      config_db.item_cache = config_db.item_cache or {}
+      config_db.item_cache[itemId] = t
+    end
+    return t
+  end
 end
 
 -- charinfo updater functions
