@@ -11,6 +11,10 @@ local function Linegenerator(tooltip,data)
 
 end
 
+local function GlobalLineGenerator(tooltip,data)
+
+end
+
 local function Modernize(data)
   -- data is table of module table from character
   -- always return table or don't use at all
@@ -20,6 +24,7 @@ local data = {
   name = 'Currency',
   key = key,
   linegenerator = Linegenerator,
+  globallgenerator = GlobalLineGenerator,
   priority = 0,
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},

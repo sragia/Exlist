@@ -9,12 +9,15 @@ local db = {}
 local config_db = {}
 CharacterInfo_Config = CharacterInfo_Config or {}
 local debugMode = false
-CHARINFO_DEBUGVAR = 0
+
 CharacterInfo = {}
 local registeredUpdaters = {
  --[event] = func or {func,func}
 }
 local registeredLineGenerators = {
+  -- [name] = {func = func, prio = prio}
+}
+local globalLineGenerators ={
   -- [name] = {func = func, prio = prio}
 }
 local registeredModules = {
@@ -60,6 +63,16 @@ local settings = { -- default settings
   allowedModules = {},
   lockIcon = false,
 }
+local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
+  edgeFile = "Interface\\BUTTONS\\WHITE8X8.blp",
+  tile = false,
+  tileSize = 0,
+  edgeSize = 1,
+  insets = {
+    left = 0,
+    right = 0,
+    top = 0,
+bottom = 0 }}
 -- fonts
 local fontSet = settings.fonts
 local hugeFont = CreateFont("CharacterInfo_HugeFont")
@@ -190,18 +203,20 @@ local function AddMissingCharactersToSettings()
   local t = settings.allowedCharacters
   for i, v in pairs(db) do
     -- i=server
-    for b, c in pairs(v) do
-      --b = name
-      local s = b.."-"..i
-      if (t[s] == nil or type(t[s]) ~= "table") or (not t[s].ilvl) then
-        t[s] = {
-          enabled = true,
-          name = b,
-          classClr = v[b].class and RAID_CLASS_COLORS[v[b].class].colorStr or b == UnitName('player') and RAID_CLASS_COLORS[select(2, UnitClass('player'))].colorStr or "FFFFFFFF",
-          ilvl = v[b].iLvl or 0
-        }
-      else
-        t[s].ilvl = v[b].iLvl
+    if i ~= "global" then
+      for b, c in pairs(v) do
+        --b = name
+        local s = b.."-"..i
+        if (t[s] == nil or type(t[s]) ~= "table") or (not t[s].ilvl) then
+          t[s] = {
+            enabled = true,
+            name = b,
+            classClr = v[b].class and RAID_CLASS_COLORS[v[b].class].colorStr or b == UnitName('player') and RAID_CLASS_COLORS[select(2, UnitClass('player'))].colorStr or "FFFFFFFF",
+            ilvl = v[b].iLvl or 0
+          }
+        else
+          t[s].ilvl = v[b].iLvl
+        end
       end
     end
   end
@@ -269,10 +284,12 @@ local WipeKey = function(key)
   -- if i need to delete 1 key info from all characters on all realms
   if debugMode then print('wiped ' .. key) end
   for realm in pairs(db) do
-    for name in pairs(db[realm]) do
-      for keys in pairs(db[realm][name]) do
-        if keys == key then
-          db[realm][name][key] = nil
+    if realm ~= "global" then
+      for name in pairs(db[realm]) do
+        for keys in pairs(db[realm][name]) do
+          if keys == key then
+            db[realm][name][key] = nil
+          end
         end
       end
     end
@@ -404,8 +421,10 @@ local function GetRealms()
   local realms = {}
   local n = 1
   for i in pairs(db) do
-    realms[n] = i
-    n = n + 1
+    if i ~= "global" then
+      realms[n] = i
+      n = n + 1
+    end
   end
   local numRealms = #realms
   local function itemsInTable(table)
@@ -527,17 +546,7 @@ function CharacterInfo.CreateSideTooltip(statusbar)
     sideTooltip:SetClampedToScreen(true)
     local parentFrameLevel = self:GetFrameLevel(self)
     sideTooltip:SetFrameLevel(parentFrameLevel + 5)
-    local backdrop = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
-      edgeFile = "Interface\\BUTTONS\\WHITE8X8.blp",
-      tile = false,
-      tileSize = 0,
-      edgeSize = 1,
-      insets = {
-        left = 0,
-        right = 0,
-        top = 0,
-    bottom = 0 }}
-    sideTooltip:SetBackdrop(backdrop)
+    sideTooltip:SetBackdrop(DEFAULT_BACKDROP)
     sideTooltip:SetBackdropColor(0, 0, 0, .9);
     sideTooltip:SetBackdropBorderColor(.2, .2, .2, 1)
     if statusbar then
@@ -635,6 +644,10 @@ function CharacterInfo.RegisterModule(data)
   end
   -- add line generator
   table.insert(registeredLineGenerators,{name = data.name, func = data.linegenerator, prio = data.priority, key = data.key})
+  -- add global line generator
+  if data.globallgenerator then
+    table.insert(globalLineGenerators,{name=data.name,func = data.globallgenerator,prio=data.priority,key=data.key})
+  end
   -- Add module name to list
   table.insert(registeredModules,data.name)
   if data.weeklyReset then
@@ -645,7 +658,9 @@ end
 function CharacterInfo.GetRealmNames()
   local t = {}
   for i in pairs(db) do
-    t[#t+1] = i
+    if i ~= "global" then
+      t[#t+1] = i
+    end
   end
   return t
 end
@@ -686,10 +701,12 @@ end
 local function ModernizeCharacters()
   if #modernizeFunctions < 1 then return end
   for realm in pairs(db) do
-    for character in pairs(db[realm]) do
-      for i=1,#modernizeFunctions do
-        if db[realm][character][modernizeFunctions[i].key] then
-          db[realm][character][modernizeFunctions[i].key] = modernizeFunctions[i].func(db[realm][character][modernizeFunctions[i].key])
+    if realm ~= "global" then
+      for character in pairs(db[realm]) do
+        for i=1,#modernizeFunctions do
+          if db[realm][character][modernizeFunctions[i].key] then
+            db[realm][character][modernizeFunctions[i].key] = modernizeFunctions[i].func(db[realm][character][modernizeFunctions[i].key])
+          end
         end
       end
     end
@@ -896,6 +913,9 @@ local function GearTooltip(self,info)
   end
 end
 
+
+
+
 -- DISPLAY INFO
 local butTool = CreateFrame("Frame", "CharacterInfo_Tooltip", UIParent)
 local bg = butTool:CreateTexture("CharInf_BG", "HIGH")
@@ -986,22 +1006,46 @@ local function OnEnter(self)
       end
     end
   end
+  -- global data
+  local gData = db.global and db.global.global or nil
+  if gData and #globalLineGenerators > 0 then
+    local gTip = QTip:Acquire("CharacterInfo_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
+    self.globalTooltip = gTip
+    for i=1, #globalLineGenerators do
+      globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
+    end
+    gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
+    gTip:Show()
+    local parentFrameLevel = tooltip:GetFrameLevel(tooltip)
+    gTip:SetFrameLevel(parentFrameLevel)
+    gTip.parent = self
+    gTip.time = 0
+    gTip.elapsed = 0
+    gTip:SetScript("OnUpdate",function(self, elapsed)
+      self.time = self.time + elapsed
+      if self.time > 0.1 then
+        if self.parent:IsMouseOver() or tooltip:IsMouseOver() then
+          self.elapsed = 0
+        else
+          self.elapsed = self.elapsed + self.time
+          if self.elapsed > settings.delay then
+              QTip:Release(self)
+          end
+        end
+        self.time = 0
+      end
+    end)
+    gTip:SetBackdrop(DEFAULT_BACKDROP)
+    gTip:SetBackdropColor(0, 0, 0, .9);
+    gTip:SetBackdropBorderColor(.2, .2, .2, 1)
+  end
+
   -- Tooltip visuals
   tooltip:SmartAnchorTo(self)
   tooltip:SetScale(1)
   tooltip:SetAutoHideDelay(settings.delay, self)
   tooltip:Show()
-  local backdrop = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
-    edgeFile = "Interface\\BUTTONS\\WHITE8X8.blp",
-    tile = false,
-    tileSize = 0,
-    edgeSize = 1,
-    insets = {
-      left = 0,
-      right = 0,
-      top = 0,
-  bottom = 0 }}
-  tooltip:SetBackdrop(backdrop)
+  tooltip:SetBackdrop(DEFAULT_BACKDROP)
   tooltip:SetBackdropColor(0, 0, 0, .9);
   tooltip:SetBackdropBorderColor(.2, .2, .2, 1)
   tooltip:UpdateScrolling(settings.tooltipHeight)
@@ -1404,6 +1448,8 @@ local function init()
     CharacterInfo_Config.settings.lockIcon = settings.lockIcon
   end
   db = CharacterInfo.copyTable(CharacterInfo_DB)
+  db.global = db.global or {}
+  db.global.global = db.global.global or {}
   CharacterInfo.DB = db
   config_db = CharacterInfo.copyTable(CharacterInfo_Config)
   settings = config_db.settings

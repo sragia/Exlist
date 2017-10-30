@@ -1,9 +1,10 @@
 local key = "emissary"
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local time = time
+local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local C_TaskQuest, C_Timer = C_TaskQuest, C_Timer
 local GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo = GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo
-local table = table
+local table,pairs = table,pairs
 local CharacterInfo = CharacterInfo
 
 
@@ -21,24 +22,71 @@ local function TimeLeftColor(timeLeft, times, col)
   return WrapTextInColorCode(SecondsToTime(timeLeft), colors[#colors])
 end
 
+local function spairs(t, order)
+  -- collect the keys
+  local keys = {}
+  for k in pairs(t) do keys[#keys + 1] = k end
+
+  -- if order function given, sort by it by passing the table and keys a, b,
+  -- otherwise just sort the keys
+  if order then
+    table.sort(keys, function(a, b) return order(t, a, b) end)
+  else
+    table.sort(keys)
+  end
+
+  -- return the iterator function
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], t[keys[i]]
+    end
+  end
+end
+
 local function Updater(event)
   if event == "PLAYER_ENTERING_WORLD" then C_Timer.After(20,function() CharacterInfo.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
   elseif event == "QUEST_TURNED_IN" or event ==  "QUEST_REMOVED" then C_Timer.After(5,function() CharacterInfo.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
   end
+  local timeNow = time()
   local emissaries = {
   }
-  local timeNow = time()
-  for i = 1, GetNumQuestLogEntries() do
-    local title, _, _, _, _, _, _, questID, _, _, _, _, _, isBounty = GetQuestLogTitle(i)
-    if isBounty then
-      local text, _, completed, current, total = GetQuestObjectiveInfo(questID, 1, false)
-      local timeleft = C_TaskQuest.GetQuestTimeLeftMinutes(questID)
-      local t = {name = title, current = current, total = total, endTime = timeNow + (timeleft * 60)}
-      table.insert(emissaries, t)
+  local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
+  local trackedBounties = 0 -- if we already know all bounties
+  for questId,info in pairs(gt) do
+    -- cleanup
+    if info.endTime < timeNow then
+      gt[questId] = nil
+    else
+      trackedBounties = trackedBounties + 1
+    end
+  end
+  if trackedBounties >= 3 then
+    -- no need to look through all quests
+    for questId, info in pairs(gt) do
+      if not IsQuestFlaggedCompleted(questId) then
+        local _, _, _, current, total = GetQuestObjectiveInfo(questId, 1, false)
+        local t = {name = info.title, current = current, total = total, endTime = info.endTime}
+        table.insert(emissaries, t)
+      end
+    end
+  else
+    for i = 1, GetNumQuestLogEntries() do
+      local title, _, _, _, _, _, _, questID, _, _, _, _, _, isBounty = GetQuestLogTitle(i)
+      if isBounty then
+        local text, _, completed, current, total = GetQuestObjectiveInfo(questID, 1, false)
+        local timeleft = C_TaskQuest.GetQuestTimeLeftMinutes(questID)
+        local endTime = timeNow + timeleft * 60
+        local t = {name = title, current = current, total = total, endTime = endTime}
+        gt[questID] = {title = title, endTime = endTime}
+        table.insert(emissaries, t)
+      end
     end
   end
   table.sort(emissaries, function(a, b) return a.endTime < b.endTime end)
   CharacterInfo.UpdateChar(key,emissaries)
+  CharacterInfo.UpdateChar(key,gt,"global","global")
 end
 
 local function Linegenerator(tooltip,data)
@@ -65,10 +113,20 @@ local function Linegenerator(tooltip,data)
   end
 end
 
+local function GlobalLineGenerator(tooltip,data)
+  local timeNow = time()
+  CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Emissaries","ffffd200")})
+
+  for questId,info in spairs(data,function(t,a,b) return t[a].endTime < t[b].endTime end) do
+    CharacterInfo.AddLine(tooltip,{info.title,TimeLeftColor(info.endTime - timeNow,{36000, 72000})})
+  end
+end
+
 local data = {
 name = 'Emissary',
 key = key,
 linegenerator = Linegenerator,
+globallgenerator = GlobalLineGenerator,
 priority = 5,
 updater = Updater,
 event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED"},
