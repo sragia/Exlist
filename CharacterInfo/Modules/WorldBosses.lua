@@ -40,6 +40,20 @@ local greaterInvasionPOIId = {
   [5380] = {questId = 49171, eid = 2014}, -- Sotanathor
   [5381] = {questId = 49169, eid = 2010, name=EJ_GetEncounterInfo(2010)}, -- Matron Foluna
 }
+local invasionPointPOIId = {
+  [5350] = true, -- Sangua
+  [5359] = true, -- Cen'gar
+  [5360] = true, -- Val
+  [5366] = true, -- Bonich
+  [5367] = true, -- Aurinor
+  [5368] = true, -- Naigtal
+  [5369] = true, -- Sangua
+  [5370] = true, -- Cen'gar
+  [5371] = true, -- Bonich
+  [5372] = true, -- Bonich
+  [5373] = true, -- Aurinor
+  [5374] = true, -- Naigtal
+}
 local lastUpdate = 0
 
 -- localize
@@ -54,6 +68,29 @@ local IsInRaid, IsInInstance = IsInRaid, IsInInstance
 local GetCurrentMapAreaID, SetMapByID = GetCurrentMapAreaID, SetMapByID
 local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmarkInfo
 
+local function spairs(t, order)
+  -- collect the keys
+  local keys = {}
+  for k in pairs(t) do keys[#keys + 1] = k end
+
+  -- if order function given, sort by it by passing the table and keys a, b,
+  -- otherwise just sort the keys
+  if order then
+    table.sort(keys, function(a, b) return order(t, a, b) end)
+  else
+    table.sort(keys)
+  end
+
+  -- return the iterator function
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], t[keys[i]]
+    end
+  end
+end
+
 local function Updater(event)
   if not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
   GetTime() - lastUpdate < 60 or -- throtle update every 10 seconds max
@@ -66,6 +103,7 @@ local function Updater(event)
   local realm = GetRealmName()
   local name = UnitName('player')
   local t = CharacterInfo.GetCharacterTableKey(realm,name,key)
+  local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
   local timeNow = time()
   local currMapId = GetCurrentMapAreaID()
   -- broken isles world bosses
@@ -94,6 +132,13 @@ local function Updater(event)
           defeated = false,
           endTime = timeNow + timeLeft*60
         }
+      elseif invasionPointPOIId[poiId] and not gt[poiId] then -- assuming that same invasion isn't up in 2 places
+        local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId)
+        gt[poiId] = {
+          name = desc,
+          endTime = timeNow + timeLeft * 60,
+          map = GetMapNameByID(ArgusZones[i])
+        }
       end
     end
   end
@@ -102,6 +147,11 @@ local function Updater(event)
   for questId,info in pairs(t) do
     if (info.endTime ~= 0 and info.endTime < timeNow) or info.endTime > 1.5*CharacterInfo.GetNextWeeklyResetTime() then
       t[questId] = nil
+    end
+  end
+  for poiId,info in pairs(gt) do
+    if info.endTime < timeNow then
+      gt[poiId] = nil
     end
   end
   -- check if have killed before update
@@ -132,6 +182,7 @@ local function Updater(event)
     end
   end
   CharacterInfo.UpdateChar(key,t)
+  CharacterInfo.UpdateChar(key,gt,'global','global')
 end
 
 local function Linegenerator(tooltip,data)
@@ -156,10 +207,20 @@ local function Linegenerator(tooltip,data)
   end
 end
 
+local function GlobalLineGenerator(tooltip,data)
+  local timeNow = time()
+  CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")})
+
+  for questId,info in spairs(data,function(t,a,b) return t[a].endTime < t[b].endTime end) do
+    CharacterInfo.AddLine(tooltip,{info.name,CharacterInfo.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map,"ffc1c1c1")})
+  end
+end
+
 local data = {
   name = 'World Bosses',
   key = key,
   linegenerator = Linegenerator,
+  globallgenerator = GlobalLineGenerator,
   priority = 50,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","QUEST_LOG_UPDATE"},
