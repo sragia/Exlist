@@ -90,6 +90,22 @@ local function spairs(t, order)
     end
   end
 end
+local function GetBrokenShoreBuildings()
+  local t = {}
+  for i=1,4,1 do
+     local name = C_ContributionCollector.GetName(i);
+     if (name ~= "") then
+        -- get status
+        local state, contribed, timeNext = C_ContributionCollector.GetState(i);
+        if state == 2 or state == 3 then
+          t[i] = {name = name,state = state, timeEnd = timeNext}
+        else
+          t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100)}
+        end
+     end
+  end
+  return t
+end
 
 local function Updater(event)
   if not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
@@ -104,8 +120,12 @@ local function Updater(event)
   local name = UnitName('player')
   local t = CharacterInfo.GetCharacterTableKey(realm,name,key)
   local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
+  gt.invasions = gt.invasions or {}
+  gt.brokenshore = gt.brokenshore or {}
   local timeNow = time()
   local currMapId = GetCurrentMapAreaID()
+  -- update brokenshore building
+  gt.brokenshore = GetBrokenShoreBuildings()
   -- broken isles world bosses
   for i=1,#BrokenIslesZones do
     SetMapByID(BrokenIslesZones[i])
@@ -115,11 +135,12 @@ local function Updater(event)
         t[info.questId] = {
           name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
           defeated = false,
-          endTime = worldBossIDs[info.questId].endTime or (timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60))
+          endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and gt.brokenshore[4].timeEnd or (timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60))
         }
       end
     end
   end
+
   -- argus greater invasions
   for i=1,#ArgusZones do
     SetMapByID(ArgusZones[i])
@@ -132,9 +153,9 @@ local function Updater(event)
           defeated = false,
           endTime = timeNow + timeLeft*60
         }
-      elseif invasionPointPOIId[poiId] and not gt[poiId] then -- assuming that same invasion isn't up in 2 places
+      elseif invasionPointPOIId[poiId] and not gt.invasions[poiId] then -- assuming that same invasion isn't up in 2 places
         local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId)
-        gt[poiId] = {
+        gt.invasions[poiId] = {
           name = desc,
           endTime = timeNow + timeLeft * 60,
           map = GetMapNameByID(ArgusZones[i])
@@ -149,9 +170,9 @@ local function Updater(event)
       t[questId] = nil
     end
   end
-  for poiId,info in pairs(gt) do
+  for poiId,info in pairs(gt.invasions) do
     if info.endTime < timeNow then
-      gt[poiId] = nil
+      gt.invasions[poiId] = nil
     end
   end
   -- check if have killed before update
@@ -210,9 +231,14 @@ end
 local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
   CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")})
-
-  for questId,info in spairs(data,function(t,a,b) return t[a].endTime < t[b].endTime end) do
-    CharacterInfo.AddLine(tooltip,{info.name,CharacterInfo.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map,"ffc1c1c1")})
+  for questId,info in spairs((data.invasions or {}),function(t,a,b) return t[a].endTime < t[b].endTime end) do
+    if info.endTime > timeNow then
+      CharacterInfo.AddLine(tooltip,{info.name,CharacterInfo.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map,"ffc1c1c1")})
+    end
+  end
+  CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
+  for i,info in pairs(data.brokenshore or {}) do
+    CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress})
   end
 end
 
