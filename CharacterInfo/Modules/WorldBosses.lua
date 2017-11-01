@@ -13,7 +13,6 @@ local worldBossIDs = {
   [43512] = {eid = 1790}, -- Ana-Mouz
   [43985] = {eid = 1795}, -- Flotsam
   [44287] = {eid = 1796}, -- Withered Jim
-  -- endTime is 0 for know until I decide to somehow get their timeleft
   [47061] = {eid = 1956, endTime = 0}, -- Apocron
   [46947] = {eid = 1883, endTime = 0}, -- Brutalus
   [46948] = {eid = 1884, endTime = 0}, -- Malificus
@@ -98,7 +97,8 @@ local function GetBrokenShoreBuildings()
         -- get status
         local state, contribed, timeNext = C_ContributionCollector.GetState(i);
         if state == 2 or state == 3 then
-          t[i] = {name = name,state = state, timeEnd = timeNext}
+          local bonustime = state == 2 and 86400 or 0
+          t[i] = {name = name,state = state, timeEnd = timeNext + bonustime}
         else
           t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100)}
         end
@@ -238,7 +238,7 @@ local function GlobalLineGenerator(tooltip,data)
   end
   CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
   for i,info in pairs(data.brokenshore or {}) do
-    CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress})
+    CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or "")})
   end
 end
 
