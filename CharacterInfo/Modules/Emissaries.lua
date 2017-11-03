@@ -105,7 +105,7 @@ local function Linegenerator(tooltip,data)
     local timeLeftColor
     for i = 1, #data do
       if data[i] and data[i].endTime > timeNow then
-      table.insert(sideTooltip.body, {data[i].name.."("..TimeLeftColor(data[i].endTime - timeNow, {36000, 72000})..")", data[i].current .. "/" .. data[i].total})
+      table.insert(sideTooltip.body, {data[i].name.."("..TimeLeftColor(data[i].endTime - timeNow, {36000, 72000})..")", (data[i].current or 0) .. "/" .. (data[i].total or 0)})
       end
     end
     CharacterInfo.AddScript(tooltip,lineNum,nil,"OnEnter", CharacterInfo.CreateSideTooltip(), sideTooltip)

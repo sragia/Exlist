@@ -96,10 +96,10 @@ local function GetBrokenShoreBuildings()
      if (name ~= "") then
         -- get status
         local state, contribed, timeNext = C_ContributionCollector.GetState(i);
-        if state == 2 or state == 3 then
+        if (state == 2 or state == 3) and timeNext then
           local bonustime = state == 2 and 86400 or 0
           t[i] = {name = name,state = state, timeEnd = timeNext + bonustime}
-        else
+        elseif contribed then
           t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100)}
         end
      end
