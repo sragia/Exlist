@@ -155,11 +155,13 @@ local function Updater(event)
         }
       elseif invasionPointPOIId[poiId] and not gt.invasions[poiId] then -- assuming that same invasion isn't up in 2 places
         local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId)
-        gt.invasions[poiId] = {
-          name = desc,
-          endTime = timeNow + timeLeft * 60,
-          map = GetMapNameByID(ArgusZones[i])
-        }
+        if timeLeft then
+          gt.invasions[poiId] = {
+            name = desc,
+            endTime = timeNow + timeLeft * 60,
+            map = GetMapNameByID(ArgusZones[i])
+          }
+        end
       end
     end
   end
