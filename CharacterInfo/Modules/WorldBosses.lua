@@ -60,11 +60,11 @@ local UnitLevel,GetRealmName,UnitName = UnitLevel,GetRealmName,UnitName
 local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local WrapTextInColorCode = WrapTextInColorCode
 local string,table = string,table
-local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo = C_TaskQuest, C_WorldMap ,EJ_GetCreatureInfo
+local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo,C_ContributionCollector = C_TaskQuest, C_WorldMap ,EJ_GetCreatureInfo, C_ContributionCollector
 local pairs,time,select = pairs,time,select
 local GetTime = GetTime
 local IsInRaid, IsInInstance = IsInRaid, IsInInstance
-local GetCurrentMapAreaID, SetMapByID = GetCurrentMapAreaID, SetMapByID
+local GetCurrentMapAreaID, SetMapByID,GetMapNameByID = GetCurrentMapAreaID, SetMapByID,GetMapNameByID
 local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmarkInfo
 
 local function spairs(t, order)
@@ -107,56 +107,31 @@ local function GetBrokenShoreBuildings()
   return t
 end
 
-local function Updater(event)
-  if not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
-  GetTime() - lastUpdate < 60 or -- throtle update every 10 seconds max
-  not WorldMapButton:IsShown() or -- only update when map is open
-  IsInRaid() or -- only update when outside of instances
-  select(2,IsInInstance()) ~= "none" then
-    return
-  end
-  lastUpdate = GetTime()
-  local realm = GetRealmName()
-  local name = UnitName('player')
-  local t = CharacterInfo.GetCharacterTableKey(realm,name,key)
-  local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
-  gt.invasions = gt.invasions or {}
-  gt.brokenshore = gt.brokenshore or {}
+local function ScanArgus()
+  local t = {
+  --  worldBoss = {},
+  --  invasions = {}
+  }
   local timeNow = time()
   local currMapId = GetCurrentMapAreaID()
-  -- update brokenshore building
-  gt.brokenshore = GetBrokenShoreBuildings()
-  -- broken isles world bosses
-  for i=1,#BrokenIslesZones do
-    SetMapByID(BrokenIslesZones[i])
-    local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(BrokenIslesZones[i])
-    for _,info in pairs(wqs or {}) do
-      if worldBossIDs[info.questId] then
-        t[info.questId] = {
-          name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
-          defeated = false,
-          endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and gt.brokenshore[4].timeEnd or (timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60))
-        }
-      end
-    end
-  end
 
-  -- argus greater invasions
   for i=1,#ArgusZones do
     SetMapByID(ArgusZones[i])
     for j=1,GetNumMapLandmarks() do
       local _,name,desc,_,_,_,_,_,_,_,poiId = GetMapLandmarkInfo(j)
-      if greaterInvasionPOIId[poiId] and not t[greaterInvasionPOIId[poiId].questId] then
+      if greaterInvasionPOIId[poiId] then
         local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId) or CharacterInfo.GetNextWeeklyResetTime()
-        t[greaterInvasionPOIId[poiId].questId] = {
+        t.worldBoss = {
+          questId = greaterInvasionPOIId[poiId].questId,
           name = greaterInvasionPOIId[poiId].name or select(2,EJ_GetCreatureInfo(1,greaterInvasionPOIId[poiId].eid)),
-          defeated = false,
-          endTime = timeNow + timeLeft*60
+          endTime = timeNow + timeLeft*60,
+          eid = greaterInvasionPOIId[poiId].eid,
         }
-      elseif invasionPointPOIId[poiId] and not gt.invasions[poiId] then -- assuming that same invasion isn't up in 2 places
+      elseif invasionPointPOIId[poiId] then -- assuming that same invasion isn't up in 2 places
         local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId)
         if timeLeft then
-          gt.invasions[poiId] = {
+          t.invasions = t.invasions or {}
+          t.invasions[poiId] = {
             name = desc,
             endTime = timeNow + timeLeft * 60,
             map = GetMapNameByID(ArgusZones[i])
@@ -166,44 +141,159 @@ local function Updater(event)
     end
   end
   SetMapByID(currMapId)
-  -- cleanup table
-  for questId,info in pairs(t) do
-    if (info.endTime ~= 0 and info.endTime < timeNow) or info.endTime > 1.5*CharacterInfo.GetNextWeeklyResetTime() then
-      t[questId] = nil
-    end
-  end
-  for poiId,info in pairs(gt.invasions) do
-    if info.endTime < timeNow then
-      gt.invasions[poiId] = nil
-    end
-  end
-  -- check if have killed before update
-  for questId,info in pairs(worldBossIDs) do
-    if IsQuestFlaggedCompleted(questId) then
-      if t[questId] then
-        t[questId].defeated = true
-      else
-        t[questId] = {
-          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = info.endTime or CharacterInfo.GetNextWeeklyResetTime(),
-          defeated = true
-        }
+  return t
+end
+
+local function ScanIsles(bs)
+  local t = {}
+  local currMapId = GetCurrentMapAreaID()
+  local timeNow = time()
+
+  for i=1,#BrokenIslesZones do
+    SetMapByID(BrokenIslesZones[i])
+    local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(BrokenIslesZones[i])
+    for _,info in pairs(wqs or {}) do
+      if worldBossIDs[info.questId] then
+        table.insert(t,{
+          name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
+          endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and bs[4].timeEnd or (timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60)),
+          questId = info.questId
+        })
       end
     end
   end
-  for poi,info in pairs(greaterInvasionPOIId) do
-    if IsQuestFlaggedCompleted(info.questId) then
-      if t[info.questId] then
-        t[info.questId].defeated = true
-      else
+  SetMapByID(currMapId)
+  return t
+end
+
+local function Updater(event)
+  if not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
+  GetTime() - lastUpdate < 60 or -- throtle update every 10 seconds max
+  not WorldMapButton:IsShown() or -- only update when map is open
+  IsInRaid() or -- only update when outside of instances
+  select(2,IsInInstance()) ~= "none" then
+    return
+  end
+  lastUpdate = GetTime()
+  local t = {}
+  local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
+  gt.invasions = gt.invasions or {}
+  gt.brokenshore = gt.brokenshore or {}
+  gt.worldbosses = gt.worldbosses or {}
+  local timeNow = time()
+  -- update brokenshore building
+  gt.brokenshore = GetBrokenShoreBuildings()
+  local argusScan, islesScan
+
+  -- Argus World Boss
+  if gt.worldbosses.argus and #gt.worldbosses.argus > 0 then
+      -- argus world boss already in DB, just check if it's not killed
+        local argusDB = gt.worldbosses.argus
+        if argusDB[1] then
+          t[argusDB[1].questId] = {
+            name = argusDB[1].name or "",
+            defeated = IsQuestFlaggedCompleted(argusDB[1].questId),
+            endTime = argusDB[1].endTime
+          }
+        end
+  else
+    -- no argus bosses found in db, look for it
+    -- first go through questIds to check if you have already killed it
+    gt.worldbosses.argus = {}
+    local argusDB = gt.worldbosses.argus
+    local added = false
+    for _,info in pairs(greaterInvasionPOIId) do
+      if IsQuestFlaggedCompleted(info.questId) then
+        -- have killed
         t[info.questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
+          defeated = true,
+          endTime = CharacterInfo.GetNextWeeklyResetTime()
+        }
+        table.insert(argusDB,{
+          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
           endTime = CharacterInfo.GetNextWeeklyResetTime(),
-          defeated = true
+          questId = info.questId
+        })
+        added = true
+      end
+    end
+
+    if not added then
+      -- haven't killed it yet
+      argusScan = argusScan or ScanArgus()
+      if argusScan.worldBoss then
+        local info = argusScan.worldBoss
+        t[info.questId] = {
+          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
+          defeated = false,
+          endTime = info.endTime
+        }
+        table.insert(argusDB,{
+          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
+          endTime = info.endTime,
+          questId = info.questId
+        })
+      end
+    else
+    end
+  end
+
+  -- Isles World Bosses
+  if gt.worldbosses.isles and #gt.worldbosses.isles >= 2 then
+    -- There won't be more than 2 bosses up in isles so if we have at least 2 in DB that's enough
+    local islesDB = gt.worldbosses.isles
+    for i=1,#islesDB do
+      t[islesDB[i].questId] = {
+        name = islesDB[i].name or "",
+        defeated = IsQuestFlaggedCompleted(islesDB[i].questId),
+        endTime = islesDB[i].endTime
+      }
+    end
+  else
+    local add = 0
+    gt.worldbosses.isles = gt.worldbosses.isles or {}
+    local islesDB = gt.worldbosses.isles
+    -- killed first
+    for questId,info in pairs(worldBossIDs) do
+      if IsQuestFlaggedCompleted(questId) then
+        add = add + 1
+        t[questId] = {
+          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
+          defeated = true,
+          endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and gt.brokenshore[4].timeEnd or CharacterInfo.GetNextWeeklyResetTime(),
+        }
+        table.insert(islesDB, {
+          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
+          endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and gt.brokenshore[4].timeEnd or CharacterInfo.GetNextWeeklyResetTime(),
+          questId = questId
+        })
+      end
+    end
+    if add < 2 then
+      -- fuck it just scan it
+      islesScan = ScanIsles(gt.brokenshore)
+      for i=1,#islesScan do
+        local info = islesScan[i]
+        t[info.questId] = {
+          name = info.name or "",
+          defeated = false,
+          endTime = info.endTime
+        }
+        islesDB[i] = {
+          name = info.name,
+          endTime = info.endTime,
+          questId = info.questId
         }
       end
     end
   end
+
+  -- Invasions
+  -- Add
+  argusScan = argusScan or ScanArgus()
+  gt.invasions = argusScan.invasions
+
   CharacterInfo.UpdateChar(key,t)
   CharacterInfo.UpdateChar(key,gt,'global','global')
 end
@@ -241,6 +331,14 @@ local function GlobalLineGenerator(tooltip,data)
   CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
   for i,info in pairs(data.brokenshore or {}) do
     CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or "")})
+  end
+  if data.worldbosses then
+    CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")})
+    for _,info in pairs(data.worldbosses) do
+      for b=1,#info do
+        CharacterInfo.AddLine(tooltip,{info[b].name,CharacterInfo.TimeLeftColor(info[b].endTime - timeNow)})
+      end
+    end
   end
 end
 
