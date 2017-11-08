@@ -184,7 +184,6 @@ local function Updater(event)
   -- update brokenshore building
   gt.brokenshore = GetBrokenShoreBuildings()
   local argusScan, islesScan
-
   -- Argus World Boss
   if gt.worldbosses.argus and #gt.worldbosses.argus > 0 then
       -- argus world boss already in DB, just check if it's not killed
@@ -240,15 +239,43 @@ local function Updater(event)
   end
 
   -- Isles World Bosses
-  if gt.worldbosses.isles and #gt.worldbosses.isles >= 2 then
+  local NDup = gt.brokenshore[4] and gt.brokenshore[4].state == 2 or gt.brokenshore[4].state == 3
+  if gt.worldbosses.isles and #gt.worldbosses.isles > 0 then
     -- There won't be more than 2 bosses up in isles so if we have at least 2 in DB that's enough
     local islesDB = gt.worldbosses.isles
-    for i=1,#islesDB do
-      t[islesDB[i].questId] = {
-        name = islesDB[i].name or "",
-        defeated = IsQuestFlaggedCompleted(islesDB[i].questId),
-        endTime = islesDB[i].endTime
-      }
+    if #islesDB >= 2 and NDup then
+      -- 2 bosses in DB and ND is up
+      for i=1,#islesDB do
+        t[islesDB[i].questId] = {
+          name = islesDB[i].name or "",
+          defeated = IsQuestFlaggedCompleted(islesDB[i].questId),
+          endTime = islesDB[i].endTime
+        }
+      end
+    elseif #islesDB <= 1 and NDup then
+      -- ND up but only 1 boss cached
+      islesScan = islesScan or ScanIsles(gt.brokenshore)
+      for i=1,#islesScan do
+        local info = islesScan[i]
+        t[info.questId] = {
+          name = info.name or "",
+          defeated = IsQuestFlaggedCompleted(info.questId),
+          endTime = info.endTime
+        }
+        islesDB[i] = {
+          name = info.name,
+          endTime = info.endTime,
+          questId = info.questId
+        }
+      end
+    else
+      for i=1,#islesDB do
+        t[islesDB[i].questId] = {
+          name = islesDB[i].name or "",
+          defeated = IsQuestFlaggedCompleted(islesDB[i].questId),
+          endTime = islesDB[i].endTime
+        }
+      end
     end
   else
     local add = 0
@@ -272,7 +299,7 @@ local function Updater(event)
     end
     if add < 2 then
       -- fuck it just scan it
-      islesScan = ScanIsles(gt.brokenshore)
+      islesScan = islesScan or  ScanIsles(gt.brokenshore)
       for i=1,#islesScan do
         local info = islesScan[i]
         t[info.questId] = {
