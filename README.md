@@ -17,3 +17,5 @@ Mainly built to allow checking various things on your other characters without h
 * World Bosses (Available+Killed)
 * Incoming Mail
 * Adding Note to Character
+* Argus Invasion Points
+* Broken Shore Buildings
