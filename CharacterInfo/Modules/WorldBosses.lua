@@ -89,6 +89,7 @@ local function spairs(t, order)
     end
   end
 end
+
 local function GetBrokenShoreBuildings()
   local t = {}
   for i=1,4,1 do
@@ -108,6 +109,7 @@ local function GetBrokenShoreBuildings()
 end
 
 local function ScanArgus()
+  if CharacterInfo.debugMode then print("Scanning Argus -",key) end
   local t = {
   --  worldBoss = {},
   --  invasions = {}
@@ -145,6 +147,7 @@ local function ScanArgus()
 end
 
 local function ScanIsles(bs)
+  if CharacterInfo.debugMode then print("Scanning Broken Isles -",key) end
   local t = {}
   local currMapId = GetCurrentMapAreaID()
   local timeNow = time()
@@ -168,10 +171,22 @@ end
 
 local function Updater(event)
   if not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
-  GetTime() - lastUpdate < 60 or -- throtle update every 10 seconds max
-  not WorldMapButton:IsShown() or -- only update when map is open
+  GetTime() - lastUpdate < 5 or -- throtle update every 10 seconds max
   IsInRaid() or -- only update when outside of instances
   select(2,IsInInstance()) ~= "none" then
+    -- scan trough WBs and check their status on every 5 sec max
+    if GetTime() - lastUpdate > 5 then
+      local t = CharacterInfo.GetCharacterTableKey((GetRealmName()),(UnitName("player")),key)
+      local changed = false
+      for questId,info in pairs(t) do
+        if not info.defeated and IsQuestFlaggedCompleted(questId) then
+          t[questId].defeated = true
+          changed = true
+        end
+      end
+      if changed then CharacterInfo.UpdateChar(key,t) end
+    end
+
     return
   end
   lastUpdate = GetTime()
@@ -317,9 +332,20 @@ local function Updater(event)
   end
 
   -- Invasions
-  -- Add
-  argusScan = argusScan or ScanArgus()
-  gt.invasions = argusScan.invasions
+  local count = 0
+  -- cleanup table and count elements in it
+  for poiId,info in pairs(gt.invasions or {}) do
+    if info.endTime < timeNow then
+      gt.invasions[poiId] = nil
+    else
+      count = count + 1
+    end
+  end
+  if count < 3 then
+    -- only update if there's already all 3 invasions up
+    argusScan = argusScan or ScanArgus()
+    gt.invasions = argusScan.invasions
+  end
 
   CharacterInfo.UpdateChar(key,t)
   CharacterInfo.UpdateChar(key,gt,'global','global')
@@ -376,7 +402,7 @@ local data = {
   globallgenerator = GlobalLineGenerator,
   priority = 50,
   updater = Updater,
-  event = {"PLAYER_ENTERING_WORLD","QUEST_LOG_UPDATE"},
+  event = {"PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN","EJ_DIFFICULTY_UPDATE"},
   weeklyReset = true
 }
 

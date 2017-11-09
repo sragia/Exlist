@@ -197,6 +197,17 @@ CharacterInfo.FormatTimeMilliseconds = function(time)
   local milliseconds = time-(minutes*60000)-(seconds*1000)
   return string.format("%02d:%02d:%02d",minutes,seconds,milliseconds)
 end
+
+function CharacterInfo.GetTableNum(t)
+  if type(t) ~= "table" then
+    return 0
+  end
+  local count = 0
+  for i in pairs(t) do
+    count = count + 1
+  end
+  return count
+end
 --------------
 local function AddMissingCharactersToSettings()
   if not settings.allowedCharacters then settings.allowedCharacters = {} end
@@ -1659,7 +1670,12 @@ frame:SetScript("OnEvent", frame.OnEvent)
 function CharacterInfo.SendFakeEvent(event)
    frame.OnEvent(nil,event)
  end
---for testing purposes
+
+ local function func(...)
+    CharacterInfo.SendFakeEvent("WORLD_MAP_OPEN")
+ end
+
+ hooksecurefunc(WorldMapFrame,"Show",func)
 
 function CharacterInfo_PrintUpdates()
   local realms, numRealms = GetRealms()
