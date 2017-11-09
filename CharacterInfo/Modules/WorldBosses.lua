@@ -54,6 +54,7 @@ local invasionPointPOIId = {
   [5374] = true, -- Naigtal
 }
 local lastUpdate = 0
+local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 
 -- localize
 local UnitLevel,GetRealmName,UnitName = UnitLevel,GetRealmName,UnitName
@@ -99,7 +100,9 @@ local function GetBrokenShoreBuildings()
         local state, contribed, timeNext = C_ContributionCollector.GetState(i);
         if (state == 2 or state == 3) and timeNext then
           local bonustime = state == 2 and 86400 or 0
-          t[i] = {name = name,state = state, timeEnd = timeNext + bonustime}
+          local _,reward = C_ContributionCollector.GetBuffs(i)
+          local name,_,icon = GetSpellInfo(reward)
+          t[i] = {name = name,state = state, timeEnd = timeNext + bonustime, rewards = {name = name, icon = icon}}
         elseif contribed then
           t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100)}
         end
@@ -189,7 +192,7 @@ local function Updater(event)
 
     return
   end
-  if event == "PLAYER_ENTERING_WORLD" or event == "EJ_DIFFICULTY_UPDATE" then 
+  if event == "PLAYER_ENTERING_WORLD" or event == "EJ_DIFFICULTY_UPDATE" then
     C_Timer.After(1,function() CharacterInfo.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end) -- delay update
     return
   end
@@ -390,7 +393,8 @@ local function GlobalLineGenerator(tooltip,data)
   if data.brokenshore then
       CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
     for i,info in pairs(data.brokenshore or {}) do
-      CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or "")})
+      CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
+      info.rewards and string.format("|T%s:15|t %s",info.rewards.icon or unknownIcon,info.rewards.name or ""))})
     end
   end
   if data.worldbosses then
