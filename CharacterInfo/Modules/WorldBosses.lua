@@ -102,7 +102,7 @@ local function GetBrokenShoreBuildings()
           local bonustime = state == 2 and 86400 or 0
           local _,reward = C_ContributionCollector.GetBuffs(i)
           local name,_,icon = GetSpellInfo(reward)
-          t[i] = {name = name,state = state, timeEnd = timeNext + bonustime, rewards = {name = name, icon = icon}}
+          t[i] = {name = name,state = state, timeEnd = timeNext + bonustime, rewards = {name = name, icon = icon, spellId = reward}}
         elseif contribed then
           t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100)}
         end
@@ -393,8 +393,18 @@ local function GlobalLineGenerator(tooltip,data)
   if data.brokenshore then
       CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
     for i,info in pairs(data.brokenshore or {}) do
-      CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
+      local line = CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
       info.rewards and string.format("|T%s:15|t %s",info.rewards.icon or unknownIcon,info.rewards.name or ""))})
+      if info.rewards then
+        CharacterInfo.AddScript(tooltip,line,3,"OnEnter",function(self)
+          GameTooltip:SetOwner(self)
+          GameTooltip:SetFrameLevel(self:GetFrameLevel()+10)
+          GameTooltip:ClearLines()
+          GameTooltip:SetSpellByID(info.rewards.spellId)
+          GameTooltip:Show()
+         end)
+         CharacterInfo.AddScript(tooltip,line,3,"OnLeave",GameTooltip_Hide)
+      end
     end
   end
   if data.worldbosses then

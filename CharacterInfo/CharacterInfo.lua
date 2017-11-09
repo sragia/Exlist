@@ -1019,7 +1019,7 @@ local function OnEnter(self)
   local gData = db.global and db.global.global or nil
   if gData and #globalLineGenerators > 0 then
     local gTip = QTip:Acquire("CharacterInfo_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
-    self.globalTooltip = gTip
+    tooltip.globalTooltip = gTip
     for i=1, #globalLineGenerators do
       globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
     end
@@ -1033,7 +1033,7 @@ local function OnEnter(self)
     gTip:SetScript("OnUpdate",function(self, elapsed)
       self.time = self.time + elapsed
       if self.time > 0.1 then
-        if self.parent:IsMouseOver() or tooltip:IsMouseOver() then
+        if self.parent:IsMouseOver() or tooltip:IsMouseOver() or self:IsMouseOver() then
           self.elapsed = 0
         else
           self.elapsed = self.elapsed + self.time
@@ -1052,7 +1052,24 @@ local function OnEnter(self)
   -- Tooltip visuals
   tooltip:SmartAnchorTo(self)
   tooltip:SetScale(1)
-  tooltip:SetAutoHideDelay(settings.delay, self)
+  --tooltip:SetAutoHideDelay(settings.delay, self)
+  tooltip.parent = self
+  tooltip.time = 0
+  tooltip.elapsed = 0
+  tooltip:SetScript("OnUpdate",function(self, elapsed)
+    self.time = self.time + elapsed
+    if self.time > 0.1 then
+      if self.globalTooltip:IsMouseOver() or self:IsMouseOver() or self.parent:IsMouseOver() then
+        self.elapsed = 0
+      else
+        self.elapsed = self.elapsed + self.time
+        if self.elapsed > settings.delay then
+            QTip:Release(self)
+        end
+      end
+      self.time = 0
+    end
+  end)
   tooltip:Show()
   tooltip:SetBackdrop(DEFAULT_BACKDROP)
   tooltip:SetBackdropColor(0, 0, 0, .9);
