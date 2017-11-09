@@ -295,12 +295,10 @@ local WipeKey = function(key)
   -- if i need to delete 1 key info from all characters on all realms
   if debugMode then print('wiped ' .. key) end
   for realm in pairs(db) do
-    if realm ~= "global" then
-      for name in pairs(db[realm]) do
-        for keys in pairs(db[realm][name]) do
-          if keys == key then
-            db[realm][name][key] = nil
-          end
+    for name in pairs(db[realm]) do
+      for keys in pairs(db[realm][name]) do
+        if keys == key then
+          db[realm][name][key] = nil
         end
       end
     end

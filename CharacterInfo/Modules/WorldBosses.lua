@@ -60,7 +60,7 @@ local UnitLevel,GetRealmName,UnitName = UnitLevel,GetRealmName,UnitName
 local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local WrapTextInColorCode = WrapTextInColorCode
 local string,table = string,table
-local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo,C_ContributionCollector = C_TaskQuest, C_WorldMap ,EJ_GetCreatureInfo, C_ContributionCollector
+local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo,C_ContributionCollector, C_Timer = C_TaskQuest, C_WorldMap ,EJ_GetCreatureInfo, C_ContributionCollector, C_Timer
 local pairs,time,select = pairs,time,select
 local GetTime = GetTime
 local IsInRaid, IsInInstance = IsInRaid, IsInInstance
@@ -187,6 +187,10 @@ local function Updater(event)
       if changed then CharacterInfo.UpdateChar(key,t) end
     end
 
+    return
+  end
+  if event == "PLAYER_ENTERING_WORLD" or event == "EJ_DIFFICULTY_UPDATE" then 
+    C_Timer.After(1,function() CharacterInfo.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end) -- delay update
     return
   end
   lastUpdate = GetTime()
@@ -375,15 +379,19 @@ end
 
 local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
-  CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")})
-  for questId,info in spairs((data.invasions or {}),function(t,a,b) return t[a].endTime < t[b].endTime end) do
-    if info.endTime > timeNow then
-      CharacterInfo.AddLine(tooltip,{info.name,CharacterInfo.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map,"ffc1c1c1")})
+  if data.invasions then
+    CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")})
+    for questId,info in spairs((data.invasions or {}),function(t,a,b) return t[a].endTime < t[b].endTime end) do
+      if info.endTime > timeNow then
+        CharacterInfo.AddLine(tooltip,{info.name,CharacterInfo.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map,"ffc1c1c1")})
+      end
     end
   end
-  CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
-  for i,info in pairs(data.brokenshore or {}) do
-    CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or "")})
+  if data.brokenshore then
+      CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
+    for i,info in pairs(data.brokenshore or {}) do
+      CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or "")})
+    end
   end
   if data.worldbosses then
     CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")})
@@ -402,7 +410,7 @@ local data = {
   globallgenerator = GlobalLineGenerator,
   priority = 50,
   updater = Updater,
-  event = {"PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN","EJ_DIFFICULTY_UPDATE"},
+  event = {"PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN","EJ_DIFFICULTY_UPDATE","PLAYER_ENTERING_WORLD_DELAYED"},
   weeklyReset = true
 }
 
