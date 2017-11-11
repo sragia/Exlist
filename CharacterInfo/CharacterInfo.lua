@@ -1023,7 +1023,12 @@ local function OnEnter(self)
     for i=1, #globalLineGenerators do
       globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
     end
-    gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
+    local point = self:GetPoint()
+    if point:find("RIGHT") then
+      gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
+    else
+      gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
+    end
     gTip:Show()
     local parentFrameLevel = tooltip:GetFrameLevel(tooltip)
     gTip:SetFrameLevel(parentFrameLevel)
