@@ -1024,7 +1024,7 @@ local function OnEnter(self)
       globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
     end
     local point = self:GetPoint()
-    if point:find("RIGHT") then
+    if config_db.config.point and config_db.config.point:find("RIGHT") then
       gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
     else
       gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
