@@ -15,9 +15,9 @@ Modules\Currency.lua
 Modules\Artifact.lua
 Modules\Coins.lua
 Modules\Dungeons.lua
+Modules\MythicKey.lua
 Modules\Emissaries.lua
 Modules\Missions.lua
-Modules\MythicKey.lua
 Modules\MythicPlus.lua
 Modules\Raids.lua
 Modules\WorldBosses.lua
