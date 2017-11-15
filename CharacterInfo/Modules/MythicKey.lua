@@ -8,18 +8,18 @@ local string, strsplit, time = string, strsplit, time
 local WrapTextInColorCode = WrapTextInColorCode
 local CharacterInfo = CharacterInfo
 
+local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
+local lastUpdate = GetTime()
 local function Updater(event)
-  local name = UnitName('player')
-  local realm = GetRealmName()
 
-  if CharacterInfo.DB
-  and CharacterInfo.DB[realm]
-  and CharacterInfo.DB[realm][name]
-  and CharacterInfo.DB[realm][name].mythicKey
-  and CharacterInfo.DB[realm][name].mythicKey.timeChecked
-  and time() - CharacterInfo.DB[realm][name].mythicKey.timeChecked < 60 then
-  return end -- BAG_UPDATE updated too much, limit it to every minute
-  local gt = CharacterInfo.GetCharacterTableKey(key,"global","global")
+  if GetTime() - lastUpdate < 60 then return end
+
+  lastUpdate = GetTime()
+  local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
+  if CharacterInfo.debugMode then
+    print(key, ' GlobalTable:')
+    for i,v in pairs(gt) do print(i,v) end
+  end
   for bag = 0, NUM_BAG_SLOTS do
     for slot = 1, GetContainerNumSlots(bag) do
       local s = GetContainerItemLink(bag, slot)
@@ -31,6 +31,7 @@ local function Updater(event)
           if not gt[i] and affixes[i] and affixes[i] ~= "" then
             local id = string.match(affixes[i],"%d+")
             local name, _, icon = CM.GetAffixInfo(tonumber(id))
+            if CharacterInfo.debugMode then print("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i) end
             gt[i] = {name = name, icon = icon}
           end
         end
@@ -38,7 +39,6 @@ local function Updater(event)
           ["dungeon"] = map,
           ["level"] = level,
           ["itemLink"] = s,
-          ["timeChecked"] = time()
         }
         CharacterInfo.UpdateChar(key,table)
         CharacterInfo.UpdateChar(key,gt,"global","global")
@@ -66,7 +66,7 @@ local function GlobalLineGenerator(tooltip,data)
       CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Mythic+ Affixes","ffffd200")})
       added = true
     end
-    CharacterInfo.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon,data[i].name)})
+    CharacterInfo.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or "Unknown")})
   end
 end
 

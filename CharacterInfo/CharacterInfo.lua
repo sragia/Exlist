@@ -9,8 +9,8 @@ local db = {}
 local config_db = {}
 CharacterInfo_Config = CharacterInfo_Config or {}
 local debugMode = false
-
 CharacterInfo = {}
+CharacterInfo.debugMode = debugMode
 local registeredUpdaters = {
  --[event] = func or {func,func}
 }

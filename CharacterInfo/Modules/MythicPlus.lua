@@ -27,10 +27,12 @@ local function Updater(event)
   local bestLvl = 0
   local bestLvlMap = ""
   local mapsDone = {}
+  local affixes
   for i = 1, #mapIDs do
-    local _, bestTime, level = CM.GetMapPlayerStats(mapIDs[i])
+    local _, bestTime, level, affixIDs = CM.GetMapPlayerStats(mapIDs[i])
     if level and level > bestLvl then
       -- currently best map
+      affixes = affixIDs
       bestLvl = level
       bestLvlMap = CM.GetMapInfo(mapIDs[i])
       table.insert(mapsDone,{mapId = mapIDs[i], name = bestLvlMap,level = level, time = bestTime})
@@ -40,6 +42,16 @@ local function Updater(event)
     end
   end
   table.sort(mapsDone,function(a,b) return a.level > b.level end)
+  -- add affixes to global table
+  local savedAffixes = CharacterInfo.GetCharacterTableKey("mythicKey",'global','global')
+  if #savedAffixes < 3 and affixes then
+    for i=1,#affixes do
+      local name, _, icon = CM.GetAffixInfo(affixes[i])
+      if CharacterInfo.debugMode then print("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i) end
+      savedAffixes[i] = {name = name, icon = icon}
+    end
+    CharacterInfo.UpdateChar("mythicKey",savedAffixes,'global','global')
+  end
   local t= {
     ["bestLvl"] = bestLvl,
     ["bestLvlMap"] = bestLvlMap,
