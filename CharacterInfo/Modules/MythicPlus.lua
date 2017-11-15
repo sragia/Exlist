@@ -46,9 +46,9 @@ local function Updater(event)
   local savedAffixes = CharacterInfo.GetCharacterTableKey("mythicKey",'global','global')
   if #savedAffixes < 3 and affixes then
     for i=1,#affixes do
-      local name, _, icon = CM.GetAffixInfo(affixes[i])
+      local name, desc, icon = CM.GetAffixInfo(affixes[i])
       if CharacterInfo.debugMode then print("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i) end
-      savedAffixes[i] = {name = name, icon = icon}
+      savedAffixes[i] = {name = name, icon = icon, desc = desc}
     end
     CharacterInfo.UpdateChar("mythicKey",savedAffixes,'global','global')
   end

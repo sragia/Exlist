@@ -30,9 +30,9 @@ local function Updater(event)
         for i=1,3 do
           if not gt[i] and affixes[i] and affixes[i] ~= "" then
             local id = string.match(affixes[i],"%d+")
-            local name, _, icon = CM.GetAffixInfo(tonumber(id))
+            local name, desc, icon = CM.GetAffixInfo(tonumber(id))
             if CharacterInfo.debugMode then print("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i) end
-            gt[i] = {name = name, icon = icon}
+            gt[i] = {name = name, icon = icon, desc = desc}
           end
         end
         local table = {
@@ -66,7 +66,18 @@ local function GlobalLineGenerator(tooltip,data)
       CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Mythic+ Affixes","ffffd200")})
       added = true
     end
-    CharacterInfo.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or "Unknown")})
+    local line = CharacterInfo.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or "Unknown")})
+    if data[i].desc then
+      CharacterInfo.AddScript(tooltip,line,nil,"OnEnter",function(self)
+        GameTooltip:SetOwner(self)
+        GameTooltip:SetFrameLevel(self:GetFrameLevel()+10)
+        GameTooltip:ClearLines()
+        GameTooltip:SetWidth(300)
+        GameTooltip:SetText(data[i].desc,nil,nil,nil,nil,true)
+        GameTooltip:Show()
+       end)
+       CharacterInfo.AddScript(tooltip,line,nil,"OnLeave",GameTooltip_Hide)
+    end
   end
 end
 
