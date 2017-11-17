@@ -101,8 +101,8 @@ local function GetBrokenShoreBuildings()
         if (state == 2 or state == 3) and timeNext then
           local bonustime = state == 2 and 86400 or 0
           local _,reward = C_ContributionCollector.GetBuffs(i)
-          local name,_,icon = GetSpellInfo(reward)
-          t[i] = {name = name,state = state, timeEnd = timeNext + bonustime, rewards = {name = name, icon = icon, spellId = reward}}
+          local spellname,_,icon = GetSpellInfo(reward)
+          t[i] = {name = name,state = state, timeEnd = timeNext + bonustime, rewards = {name = spellname, icon = icon, spellId = reward}}
         elseif contribed then
           t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100)}
         end
