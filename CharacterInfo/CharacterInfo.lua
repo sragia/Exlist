@@ -153,6 +153,14 @@ function CharacterInfo.ColorHexToDec(hex)
   return (values[1]/ 255),(values[2]/ 255),(values[3]/ 255)
 end
 
+function CharacterInfo.ColorDecToHex(col1,col2,col3)
+  col1 = col1 or 0
+  col2 = col2 or 0
+  col3 = col3 or 0
+  local hexColor = string.format("%02x%02x%02x",col1*255,col2*255,col3*255)
+  return hexColor
+end
+
 function CharacterInfo.TimeLeftColor(timeLeft, times, col)
   -- times (opt) = {red,orange} upper limit
   -- i.e {100,1000} = 0-100 Green 100-1000 Orange 1000-inf Green
@@ -1646,9 +1654,8 @@ local function ResetHandling()
   end
   config_db.resetTime = GetNextWeeklyResetTime()
 end
-
 -- Updaters
-function frame:OnEvent(event, arg1)
+function frame:OnEvent(event, ...)
   --print(event,arg1)
   if event == "PLAYER_LOGOUT" then
     -- save things
@@ -1672,11 +1679,11 @@ function frame:OnEvent(event, arg1)
       if not settings.allowedModules[registeredUpdaters[event][i].name] then return end
       if debugMode then
         local started = debugprofilestop()
-        registeredUpdaters[event][i].func(event)
+        registeredUpdaters[event][i].func(event,...)
         print(registeredUpdaters[event][i].name .. ' finished: ' .. debugprofilestop() - started)
         GetLastUpdateTime()
       else
-        registeredUpdaters[event][i].func(event)
+        registeredUpdaters[event][i].func(event,...)
         GetLastUpdateTime()
       end
     end

@@ -22,3 +22,4 @@ Modules\MythicPlus.lua
 Modules\Raids.lua
 Modules\WorldBosses.lua
 Modules\Mail.lua
+Modules\RaiderIOScores.lua
