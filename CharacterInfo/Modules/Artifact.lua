@@ -65,6 +65,7 @@ local function GetAPperDay(lastCheck, aptable)
   local todayDate = date("*t", time()).yday
   local currentAP = LAD:GetAcquiredArtifactPower(LAD:GetActiveArtifactID())
   aptable = aptable or {}
+  lastCheck = lastCheck or 0
   local tableSize = #aptable
   if aptable then
     local dayDiff = todayDate-lastCheck
