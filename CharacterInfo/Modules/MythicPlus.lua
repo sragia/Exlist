@@ -43,11 +43,11 @@ local function Updater(event)
   end
   table.sort(mapsDone,function(a,b) return a.level > b.level end)
   -- add affixes to global table
-  local savedAffixes = CharacterInfo.GetCharacterTableKey("mythicKey",'global','global')
+  local savedAffixes = CharacterInfo.GetCharacterTableKey('global','global',"mythicKey")
   if #savedAffixes < 3 and affixes then
     for i=1,#affixes do
       local name, desc, icon = CM.GetAffixInfo(affixes[i])
-      if CharacterInfo.debugMode then print("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i) end
+      if CharacterInfo.debugMode then print("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i,"key:",key) end
       savedAffixes[i] = {name = name, icon = icon, desc = desc}
     end
     CharacterInfo.UpdateChar("mythicKey",savedAffixes,'global','global')

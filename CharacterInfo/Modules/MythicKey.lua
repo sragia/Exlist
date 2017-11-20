@@ -31,7 +31,7 @@ local function Updater(event)
           if not gt[i] and affixes[i] and affixes[i] ~= "" then
             local id = string.match(affixes[i],"%d+")
             local name, desc, icon = CM.GetAffixInfo(tonumber(id))
-            if CharacterInfo.debugMode then print("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i) end
+            if CharacterInfo.debugMode then print("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i," key:",key) end
             gt[i] = {name = name, icon = icon, desc = desc}
           end
         end
