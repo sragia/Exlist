@@ -1,10 +1,12 @@
 local key = "dungeons"
-local NUMBER_OF_DUNGEONS_LEGION = 12
+local NUMBER_OF_DUNGEONS_LEGION = 13
 local GetNumSavedInstances, GetSavedInstanceInfo = GetNumSavedInstances, GetSavedInstanceInfo
 local WrapTextInColorCode = WrapTextInColorCode
 local pairs, table = pairs, table
 local CharacterInfo = CharacterInfo
-
+--[[ TODO:
+  LOCALIZE THIS
+]]
 local function Updater(event)
   local dungeonList = {
     ['Assault on Violet Hold'] = false,
@@ -18,7 +20,8 @@ local function Updater(event)
     ["Neltharion's Lair"] = false,
     ['Return to Karazhan'] = false,
     ['The Arcway'] = false,
-    ['Vault of the Wardens'] = false
+    ['Vault of the Wardens'] = false,
+    ['Seat of the Triumvirate'] = false
   }
   local t = {
     ['done'] = 0,

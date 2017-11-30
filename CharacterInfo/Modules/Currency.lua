@@ -9,6 +9,7 @@ local CURRENCIES = {
 local ITEMS = {
   124124, -- Blood of Sargeras
   153190, -- Fel-Spotted Egg
+  151568, -- Primal Sargerite
 }
 local GetMoney, GetCurrencyInfo, GetItemCount = GetMoney, GetCurrencyInfo, GetItemCount
 local GetItemInfo = GetItemInfo

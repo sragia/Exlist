@@ -9,11 +9,9 @@ local WrapTextInColorCode = WrapTextInColorCode
 local CharacterInfo = CharacterInfo
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
-local lastUpdate = GetTime()
+local lastUpdate = 0
 local function Updater(event)
-
-  if GetTime() - lastUpdate < 60 then return end
-
+  if GetTime() - lastUpdate < 5 then return end
   lastUpdate = GetTime()
   local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
   if CharacterInfo.debugMode then
