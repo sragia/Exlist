@@ -306,10 +306,17 @@ local WipeKey = function(key)
     for name in pairs(db[realm]) do
       for keys in pairs(db[realm][name]) do
         if keys == key then
+          if debugMode then
+            print('|cFF995813cCharacterInfo|r - wiping ',key)
+          end
           db[realm][name][key] = nil
+          return
         end
       end
     end
+  end
+  if debugMode then
+    print('|cFF995813cCharacterInfo|r - (WIPE) Key (',key,') not found.')
   end
 end
 

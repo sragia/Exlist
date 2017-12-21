@@ -125,11 +125,10 @@ local function ScanArgus()
     for j=1,GetNumMapLandmarks() do
       local _,name,desc,_,_,_,_,_,_,_,poiId = GetMapLandmarkInfo(j)
       if greaterInvasionPOIId[poiId] then
-        local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId) or CharacterInfo.GetNextWeeklyResetTime()
         t.worldBoss = {
           questId = greaterInvasionPOIId[poiId].questId,
           name = greaterInvasionPOIId[poiId].name or select(2,EJ_GetCreatureInfo(1,greaterInvasionPOIId[poiId].eid)),
-          endTime = timeNow + timeLeft*60,
+          endTime = CharacterInfo.GetNextWeeklyResetTime() or 0,
           eid = greaterInvasionPOIId[poiId].eid,
         }
       elseif invasionPointPOIId[poiId] then -- assuming that same invasion isn't up in 2 places
@@ -162,7 +161,7 @@ local function ScanIsles(bs)
       if worldBossIDs[info.questId] then
         table.insert(t,{
           name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
-          endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and bs[4].timeEnd or (timeNow + (C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)*60)),
+          endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and bs[4].timeEnd or CharacterInfo.GetNextWeeklyResetTime(),
           questId = info.questId
         })
       end
@@ -368,7 +367,7 @@ local function Updater(event)
   if count < 3 then
     -- only update if there's already all 3 invasions up
     argusScan = argusScan or ScanArgus()
-    for mapId,info in pairs(argusScan.invasions) do
+    for mapId,info in pairs(argusScan.invasions or {}) do
       gt.invasions[mapId] = info
     end
   end
@@ -384,12 +383,11 @@ local function Linegenerator(tooltip,data)
   local strings = {}
   local timeNow = time()
   for spellId,info in pairs(data) do
-    if info.endTime == 0 or info.endTime > timeNow then
-      availableWB = availableWB + 1
-      killed = info.defeated and killed + 1 or killed
-      table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime ~= 0 and CharacterInfo.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode("Unknown","fff49e42")),
+    availableWB = availableWB + 1
+    killed = info.defeated and killed + 1 or killed
+    table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime > timeNow and CharacterInfo.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode("Not Available","fff49e42")),
                                           info.defeated and WrapTextInColorCode("Defeated","ffff0000") or WrapTextInColorCode("Available","ff00ff00")})
-    end
+
   end
   if availableWB > 0 then
     local line = CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("World Bosses:","ffc1c1c1"),string.format("%i/%i",killed,availableWB)})
@@ -431,7 +429,9 @@ local function GlobalLineGenerator(tooltip,data)
     CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")})
     for _,info in pairs(data.worldbosses) do
       for b in pairs(info) do
-        CharacterInfo.AddLine(tooltip,{info[b].name,CharacterInfo.TimeLeftColor(info[b].endTime - timeNow)})
+        if info[b].endTime > timeNow then
+          CharacterInfo.AddLine(tooltip,{info[b].name,CharacterInfo.TimeLeftColor(info[b].endTime - timeNow)})
+        end
       end
     end
   end

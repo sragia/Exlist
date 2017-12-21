@@ -3,34 +3,34 @@ local LFRencounters = {
   -- [dungeonID] = {name = "", totalEncounters = 2}
   -- Emerald Nightmare
   [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = {
-    [1287] = {name = "Darkbough", totalEncounters = 3},
-    [1288] = {name = "Tormented Guardians", totalEncounters = 3},
-    [1289] = {name = "Rift of Aln", totalEncounters = 1}
+    [1287] = {name = "Darkbough", totalEncounters = 3, order = 1},
+    [1288] = {name = "Tormented Guardians", totalEncounters = 3, order = 2},
+    [1289] = {name = "Rift of Aln", totalEncounters = 1, order = 3}
   },
   -- Trials of Valor
   [GetLFGDungeonInfo(1439) or "Trials of Valor"] = {
-    [1411] = {name = "Trials of Valor", totalEncounters = 3}
+    [1411] = {name = "Trials of Valor", totalEncounters = 3, order = 1}
   },
   -- Nighthold
   [GetLFGDungeonInfo(1353) or "The Nighthold"] = {
-    [1290] = {name = "Arcing Aqueducts", totalEncounters = 3},
-    [1291] = {name = "Royal Athenaeum", totalEncounters = 3},
-    [1292] = {name = "Nightspire", totalEncounters = 3},
-    [1293] = {name = "Betrayer's Rise", totalEncounters = 1}
+    [1290] = {name = "Arcing Aqueducts", totalEncounters = 3, order = 1},
+    [1291] = {name = "Royal Athenaeum", totalEncounters = 3, order = 2},
+    [1292] = {name = "Nightspire", totalEncounters = 3, order = 3},
+    [1293] = {name = "Betrayer's Rise", totalEncounters = 1, order = 4}
   },
   --Tomb of Sargeras
   [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {
-    [1494] = {name = "The Gates of Hell", totalEncounters = 3},
-    [1495] = {name = "Wailing Halls", totalEncounters = 3}, --?? inq +sist + deso
-    [1496] = {name = "Chamber of the Avatar", totalEncounters = 2}, --?? maid + ava
-    [1497] = {name = "Deceiver’s Fall", totalEncounters = 1} --?? KJ
+    [1494] = {name = "The Gates of Hell", totalEncounters = 3, order = 1},
+    [1495] = {name = "Wailing Halls", totalEncounters = 3, order = 2}, --?? inq +sist + deso
+    [1496] = {name = "Chamber of the Avatar", totalEncounters = 2, order = 3}, --?? maid + ava
+    [1497] = {name = "Deceiver’s Fall", totalEncounters = 1, order = 4} --?? KJ
   },
   -- Antorus
   [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {
-    [1610] = {name = "Light's Breach", totalEncounters = 3}, -- Light's Breach
-    [1611] = {name = "Forbidden Descent", totalEncounters = 3}, -- Forbidden Descent
-    [1612] = {name = "Hope's End", totalEncounters = 2}, -- Hope's End
-    [1613] = {name = "Seat of the Pantheon", totalEncounters = 1}, -- Seat of the Pantheon
+    [1610] = {name = "Light's Breach", totalEncounters = 3, order = 1}, -- Light's Breach
+    [1611] = {name = "Forbidden Descent", totalEncounters = 3, order = 2}, -- Forbidden Descent
+    [1612] = {name = "Hope's End", totalEncounters = 2, order = 3}, -- Hope's End
+    [1613] = {name = "Seat of the Pantheon", totalEncounters = 1, order = 4}, -- Seat of the Pantheon
   }
 }
 local ALLOWED_RAIDS = {
@@ -45,6 +45,29 @@ local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo,
 local table, pairs = table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
 local CharacterInfo = CharacterInfo
+
+local function spairs(t, order)
+  -- collect the keys
+  local keys = {}
+  for k in pairs(t) do keys[#keys + 1] = k end
+
+  -- if order function given, sort by it by passing the table and keys a, b,
+  -- otherwise just sort the keys
+  if order then
+    table.sort(keys, function(a, b) return order(t, a, b) end)
+  else
+    table.sort(keys)
+  end
+
+  -- return the iterator function
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], t[keys[i]]
+    end
+  end
+end
 
 local function Updater(event)
   local t = {}
@@ -77,12 +100,13 @@ local function Updater(event)
     t[raid] = t[raid] or {}
     t[raid].LFR = t[raid].LFR or {}
     t[raid].LFR = {bosses = {}}
-    for id, lfr in pairs(c) do
+    for id, lfr in spairs(c,function(t,a,b) return t[a].order < t[b].order end) do
       total = total + lfr.totalEncounters
       for i = 1, lfr.totalEncounters do
         local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
         killed = isKilled and killed + 1 or killed
         t[raid].LFR.bosses[id] = t[raid].LFR.bosses[id] or {}
+        t[raid].LFR.bosses[id].order = lfr.order
         t[raid].LFR.bosses[id][lfr.name] = t[raid].LFR.bosses[id][lfr.name] or {}
         table.insert(t[raid].LFR.bosses[id][lfr.name], {name = bossName, killed = isKilled})
       end
@@ -134,13 +158,16 @@ local function Linegenerator(tooltip,data)
           -- Side Tooltip Data
           if difIndex == 1 then
             -- LFR
-            for id in pairs(raidInfo.bosses) do
+            for id in spairs(raidInfo.bosses,function(t,a,b) return t[a].order < t[b].order end) do
+              if CharacterInfo.debugMode then print("Adding LFR id:",id," -",key) end
               for name,b in pairs(raidInfo.bosses[id]) do
-                table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,"ffc1c1c1"),""})
-                for i=1,#b do
-                  table.insert(sideTooltipTable.body,{b[i].name,
-                  b[i].killed and WrapTextInColorCode("Defeated","ffff0000") or
-                  WrapTextInColorCode("Available","ff00ff00")})
+                if type(b) == "table" then
+                  table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,"ffc1c1c1"),""})
+                  for i=1,#b do
+                    table.insert(sideTooltipTable.body,{b[i].name,
+                    b[i].killed and WrapTextInColorCode("Defeated","ffff0000") or
+                    WrapTextInColorCode("Available","ff00ff00")})
+                  end
                 end
               end
             end
