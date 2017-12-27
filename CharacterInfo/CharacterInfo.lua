@@ -8,7 +8,7 @@ local QTip = LibStub("LibQTip-1.0")
 local db = {}
 local config_db = {}
 CharacterInfo_Config = CharacterInfo_Config or {}
-local debugMode = false
+local debugMode = false 
 CharacterInfo = {}
 CharacterInfo.debugMode = debugMode
 local registeredUpdaters = {
@@ -102,6 +102,7 @@ frame:RegisterEvent("VARIABLES_LOADED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
+frame:RegisterEvent("CHINFO_DELAY")
 
 -- utility
 CharacterInfo.ShortenNumber = function(number, digits)
@@ -307,16 +308,15 @@ local WipeKey = function(key)
       for keys in pairs(db[realm][name]) do
         if keys == key then
           if debugMode then
-            print('|cFF995813cCharacterInfo|r - wiping ',key)
+            print('|cFF995813CharacterInfo|r - wiping ',key, ' Fromn:',name,'-',realm)
           end
           db[realm][name][key] = nil
-          return
         end
       end
     end
   end
   if debugMode then
-    print('|cFF995813cCharacterInfo|r - (WIPE) Key (',key,') not found.')
+    print('|cFF995813CharacterInfo|r - Wiping Key (',key,') completed.')
   end
 end
 
@@ -1662,6 +1662,12 @@ local function ResetHandling()
   config_db.resetTime = GetNextWeeklyResetTime()
 end
 -- Updaters
+
+function CharacterInfo.SendFakeEvent(event) end
+
+local delay = true
+local delayedEvents = {}
+local running = false
 function frame:OnEvent(event, ...)
   --print(event,arg1)
   if event == "PLAYER_LOGOUT" then
@@ -1678,6 +1684,35 @@ function frame:OnEvent(event, ...)
     init()
     SetTooltipBut()
 	C_Timer.After(10,function() ResetHandling() end)
+  end
+  if event == "CHINFO_DELAY" then
+    delay = false
+    for c=1,#delayedEvents do
+      local event = delayedEvents[c]
+      if registeredUpdaters[event] then
+        for i=1,#registeredUpdaters[event] do
+          if not settings.allowedModules[registeredUpdaters[event][i].name] then return end
+          if debugMode then
+            local started = debugprofilestop()
+            registeredUpdaters[event][i].func(event,...)
+            print(registeredUpdaters[event][i].name .. ' (delayed) finished: ' .. debugprofilestop() - started)
+            GetLastUpdateTime()
+          else
+            registeredUpdaters[event][i].func(event,...)
+            GetLastUpdateTime()
+          end
+        end
+      end
+    end
+    return
+  end
+  if delay then
+    if not running then
+      C_Timer.After(4,function() CharacterInfo.SendFakeEvent("CHINFO_DELAY") end)
+      running = true
+    end
+    table.insert(delayedEvents,event)
+    return
   end
   if InCombatLockdown() then return end -- Don't update in combat
   if debugMode then print('Event ',event) end
