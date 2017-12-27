@@ -153,7 +153,7 @@ local function ScanIsles(bs)
   local t = {}
   local currMapId = GetCurrentMapAreaID()
   local timeNow = time()
-
+  bs = bs or GetBrokenShoreBuildings()
   for i=1,#BrokenIslesZones do
     SetMapByID(BrokenIslesZones[i])
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(BrokenIslesZones[i])
