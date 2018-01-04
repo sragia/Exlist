@@ -8,7 +8,7 @@ local QTip = LibStub("LibQTip-1.0")
 local db = {}
 local config_db = {}
 CharacterInfo_Config = CharacterInfo_Config or {}
-local debugMode = false 
+local debugMode = false
 CharacterInfo = {}
 CharacterInfo.debugMode = debugMode
 local registeredUpdaters = {
@@ -182,13 +182,50 @@ local MyScanningTooltip = CreateFrame("GameTooltip", "ChInfoScanningTooltip", UI
 CharacterInfo.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
          MyScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
          MyScanningTooltip:SetHyperlink("quest:"..id)
-         local title = MyScanningTooltipTextLeft1:GetText()
+         local title = ChInfoScanningTooltipTextLeft1:GetText()
          MyScanningTooltip:Hide()
          if title and title ~= RETRIEVING_DATA then
             t[id] = title
             return title
          end
 end })
+
+function CharacterInfo.GetItemEnchant(itemLink)
+  MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
+  MyScanningTooltip:SetHyperlink(itemLink)
+  local enchantKey = ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)')
+  for i=1,MyScanningTooltip:NumLines() do
+    if _G["ChInfoScanningTooltipTextLeft"..i]:GetText() and _G["ChInfoScanningTooltipTextLeft"..i]:GetText():match(enchantKey) then
+      -- name,id
+      local name = _G["ChInfoScanningTooltipTextLeft"..i]:GetText()
+      name = name:match("^%w+: (.*)")
+      local _,_,enchantId = strsplit(":",itemLink)
+      return name, enchantId
+    end
+  end
+end
+function CharacterInfo.GetItemGems(itemLink)
+  local t = {}
+  for i=1,MAX_NUM_SOCKETS do
+    local name,iLink = GetItemGem(itemLink,i)
+    if iLink then
+      local icon = select(10,GetItemInfo(iLink))
+      table.insert(t,{name = name,icon = icon})
+    end
+  end
+  MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
+  MyScanningTooltip:SetHyperlink(itemLink)
+  for i=1,MAX_NUM_SOCKETS do
+    local tex = _G["ChInfoScanningTooltipTexture"..i]:GetTexture()
+    if tex then
+      tex = tostring(tex)
+      if tex:find("Interface\\ItemSocketingFrame\\UI--Empty") then
+        table.insert(t,{name = "|cFFccccccEmpty Slot",icon = tex})
+      end
+    end
+  end
+  return t
+end
 
 function CharacterInfo.QuestInfo(questid)
   if not questid or questid == 0 then return nil end
@@ -379,19 +416,14 @@ local function UpdateCharacterGear()
     local iLink = GetInventoryItemLink('player',order[i])
     if iLink then
       local itemName, itemLink, itemRarity, itemLevel, _, _, _, _, _, itemTexture, _ = GetItemInfo(iLink)
-      local _,enchantId,gem,gemId
       local relics = {}
+      local enchant,gem
       if not (order[i] == 16 or order[i] == 17 or order[i] == 18) then
-        -- check for enhancements (gem/enchant)
-        _,_,enchantId,gemId = strsplit(":",iLink)
-        enchantId = tonumber(enchantId)
-        gemId = tonumber(gemId)
-        if gemId then
-          gem = GetItemInfo(gemId)
-        end
+        enchant = CharacterInfo.GetItemEnchant(iLink)
+        gem = CharacterInfo.GetItemGems(iLink)
       end
       table.insert(t,{slot = slotNames[order[i]], name = itemName,itemTexture = itemTexture, itemLink = itemLink,
-                      ilvl = itemLevel, enchant = enchantNames[enchantId], gem = gem})
+                      ilvl = itemLevel, enchant = enchant, gem = gem})
     end
   end
   if HasArtifactEquipped() then
@@ -839,6 +871,7 @@ local function GearTooltip(self,info)
   geartooltip.statusBars = {}
   self.sideTooltip = geartooltip
   geartooltip:SetHeaderFont(hugeFont)
+  local fontName, fontHeight, fontFlags = geartooltip:GetFont()
   local specIcon = info.spec and info.class .. info.spec or "SpecNone"
   -- character name header
   local header = "|TInterface\\AddOns\\CharacterInfo\\Media\\Icons\\" .. specIcon ..":25:25|t "..
@@ -855,17 +888,26 @@ local function GearTooltip(self,info)
     for i=1,#gear do
       local enchantements = ""
       if gear[i].enchant or gear[i].gem then
-        if gear[i].enchant and gear[i].gem then
-          enchantements = string.format("%s%s\n%s","|cff00ff00",gear[i].enchant or "",gear[i].gem or "")
-        else
-          enchantements = string.format("%s%s","|cff00ff00",gear[i].enchant or gear[i].gem )
+        if type(gear[i].gem) == 'table' then
+          if gear[i].enchant then
+            enchantements = string.format("%s%s","|cff00ff00",gear[i].enchant or "")
+          end
+          for b=1,#gear[i].gem do
+            if enchantements ~= "" then
+              enchantements = string.format("%s\n|T%s:20|t%s",enchantements,gear[i].gem[b].icon,gear[i].gem[b].name)
+            else
+              enchantements = string.format("|T%s:20|t%s",gear[i].gem[b].icon,gear[i].gem[b].name)
+            end
+          end
         end
       elseif hasEnchantSlot[gear[i].slot] then
         enchantements = WrapTextInColorCode("No Enchant!","ffff0000")
       end
       local line = geartooltip:AddLine(gear[i].slot)
       geartooltip:SetCell(line,2,string.format("|c%s%i|r   |T%s:20|t %s",setIlvlColor(gear[i].ilvl),gear[i].ilvl or 0,gear[i].itemTexture or "",gear[i].itemLink or ""),"LEFT",3)
+      geartooltip:SetFont(smallFont)
       geartooltip:SetCell(line,5,enchantements,"LEFT",3)
+      geartooltip:SetFont(fontName, fontHeight, fontFlags)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
   end
