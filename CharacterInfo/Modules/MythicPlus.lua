@@ -5,20 +5,20 @@ local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table = table
 
 local mapTimes = {
-  --[mapId] = {+1Time,+2Time,+3Time} in miliseconds
-  [197] = {2100000,1680000,1260000}, -- Eye of Azshara
-  [198] = {1800000,1440000,1080000}, -- Darkheart Thicket
-  [199] = {2340000,1872000,1405000}, -- BRH
-  [200] = {2700000,2160000,1620000}, -- HoV
-  [206] = {1980000,1584000,1188000}, -- Nelth
-  [207] = {1980000,1584000,1188000}, -- VotW
-  [208] = {1440000,1152000,864000}, -- Maw
-  [209] = {2700000,2160000,1620000}, -- Arc
-  [210] = {1800000,1440000,1080000}, -- CoS
-  [227] = {2340000,1872000,1404000}, -- Kara: Lower
-  [233] = {2100000,1680000,1260000}, -- Cath
-  [234] = {2100000,1680000,1260000}, -- Kara: Upper
-  [239] = {2100000,1680000,1260000}, -- Seat
+  --[mapId] = {+3Time,+2Time,+1Time} in seconds
+  [197] = {2100,1680,1260}, -- Eye of Azshara
+  [198] = {1800,1440,1080}, -- Darkheart Thicket
+  [199] = {2340,1872,1405}, -- BRH
+  [200] = {2700,2160,1620}, -- HoV
+  [206] = {1980,1584,1188}, -- Nelth
+  [207] = {1980,1584,1188}, -- VotW
+  [208] = {1440,1152,864},  -- Maw
+  [209] = {2700,2160,1620}, -- Arc
+  [210] = {1800,1440,1080}, -- CoS
+  [227] = {2340,1872,1404}, -- Kara: Lower
+  [233] = {2100,1680,1260}, -- Cath
+  [234] = {2100,1680,1260}, -- Kara: Upper
+  [239] = {2100,1680,1260}, -- Seat
 }
 
 local function Updater(event)
@@ -64,9 +64,10 @@ local function MythicPlusTimeString(time,mapId)
   if not time or not mapId then return end
   local times = mapTimes[mapId] or {}
   local rstring = ""
+  local secTime = time/1000
   local colors = {"ffbfbfbf","fffaff00","fffbdb00","fffacd0c"}
   for i=1, #times do
-    if time > times[i] then
+    if secTime > times[i] then
       if i == 1 then return WrapTextInColorCode("(Depleted) " .. CharacterInfo.FormatTimeMilliseconds(time),colors[i])
       else return WrapTextInColorCode("(+".. (i-1) .. ") " .. CharacterInfo.FormatTimeMilliseconds(time),colors[i]) end
     end
