@@ -159,11 +159,14 @@ local function ScanIsles(bs)
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(BrokenIslesZones[i])
     for _,info in pairs(wqs or {}) do
       if worldBossIDs[info.questId] then
-        table.insert(t,{
-          name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
-          endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and bs[4].timeEnd or CharacterInfo.GetNextWeeklyResetTime(),
-          questId = info.questId
-        })
+        local endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and (bs[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime()
+        if endTime > 0 then
+          table.insert(t,{
+            name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
+            endTime = endTime,
+            questId = info.questId
+          })
+        end
       end
     end
   end
@@ -270,11 +273,11 @@ local function Updater(event)
         t[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
           defeated = true,
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and gt.brokenshore[4] and gt.brokenshore[4].timeEnd or CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime(),
         }
         islesDB[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and gt.brokenshore[4] and gt.brokenshore[4].timeEnd or CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime(),
           questId = questId
         }
       end
@@ -326,11 +329,11 @@ local function Updater(event)
         t[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
           defeated = true,
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and gt.brokenshore[4] and gt.brokenshore[4].timeEnd or CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime(),
         }
         islesDB[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and gt.brokenshore[4] and gt.brokenshore[4].timeEnd or CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime(),
           questId = questId
         }
       end

@@ -19,3 +19,4 @@ Mainly built to allow checking various things on your other characters without h
 * Adding Note to Character
 * Argus Invasion Points
 * Broken Shore Buildings
+* M+ Affixes
