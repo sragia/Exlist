@@ -1,5 +1,6 @@
 --[[
   TODO:
+  Check VSCode
 ]]
 
 local addonName, addonTable = ...
