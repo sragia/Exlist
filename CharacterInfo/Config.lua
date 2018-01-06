@@ -298,6 +298,7 @@ CharacterInfo.SetupConfig = function()
             order = n,
             name = "Order",
             width = "half",
+            disabled = function() return not characters[char].enabled end,
             get = function()
                 if characters[char].enabled then
                     return tostring(characters[char].order or 0)
