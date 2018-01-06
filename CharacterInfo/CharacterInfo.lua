@@ -4,6 +4,7 @@
 
 local addonName, addonTable = ...
 local QTip = LibStub("LibQTip-1.0")
+local LSM = LibStub("LibSharedMedia-3.0")
 -- SavedVariables localized
 local db = {}
 local config_db = {}
@@ -48,21 +49,7 @@ local strsplit = strsplit
 -- local
 local MAX_CHARACTER_LEVEL = 110
 local MAX_PROFESSION_LEVEL = 800
-local defaultFont = [[Interface\Addons\CharacterInfo\Media\Font\font.ttf]]
-local settings = { -- default settings
-  minLevel = 80,
-  fonts = {
-    big = { size = 15, fontName = defaultFont},
-    medium = { size = 13, fontName = defaultFont},
-    small = { size = 11, fontName = defaultFont}
-  },
-  tooltipHeight = 600,
-  delay = 0.2,
-  iconScale = .8,
-  allowedCharacters = {},
-  allowedModules = {},
-  lockIcon = false,
-}
+LSM:Register("font","PT_Sans_Narrow",[[Interface\Addons\CharacterInfo\Media\Font\font.ttf]])
 local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
   edgeFile = "Interface\\BUTTONS\\WHITE8X8.blp",
   tile = false,
@@ -73,17 +60,44 @@ local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
     right = 0,
     top = 0,
 bottom = 0 }}
+local settings = { -- default settings
+  minLevel = 80,
+  fonts = {
+    big = { size = 15},
+    medium = { size = 13},
+    small = { size = 11}
+  },
+  Font = "PT_Sans_Narrow",
+  tooltipHeight = 600,
+  delay = 0.2,
+  iconScale = .8,
+  allowedCharacters = {},
+  reorder = true,
+  characterOrder = {},
+  allowedModules = {},
+  lockIcon = false,
+  backdrop = {
+    color = {r = 0,g = 0, b = 0, a = .9},
+    borderColor = {r = .2,b = .2,g = .2,a = 1}
+  }
+}
+
+--[[
+    geartooltip:SetBackdropColor(0, 0, 0, .9);
+  geartooltip:SetBackdropBorderColor(.2, .2, .2, 1)
+]]
 -- fonts
 local fontSet = settings.fonts
+local font = LSM:Fetch("font",settings.Font)
 local hugeFont = CreateFont("CharacterInfo_HugeFont")
 --hugeFont:CopyFontObject(GameTooltipText)
-hugeFont:SetFont(defaultFont, fontSet.big.size)
+hugeFont:SetFont(font, fontSet.big.size)
 local smallFont = CreateFont("CharacterInfo_SmallFont")
 ---smallFont:CopyFontObject(GameTooltipText)
-smallFont:SetFont(defaultFont, fontSet.small.size)
+smallFont:SetFont(font, fontSet.small.size)
 local mediumFont = CreateFont("CharacterInfo_MediumFont")
 --mediumFont:CopyFontObject(GameTooltipText)
-mediumFont:SetFont(defaultFont, fontSet.medium.size)
+mediumFont:SetFont(font, fontSet.medium.size)
 local monthNames = {'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'}
 
 -- lua api
@@ -96,7 +110,6 @@ local type,pairs,table = type,pairs,table
 local print,select,date,math,time = print,select,date,math,time
 -- register events
 local frame = CreateFrame("FRAME")
-frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterEvent("VARIABLES_LOADED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -268,6 +281,7 @@ local function AddMissingCharactersToSettings()
           t[s] = {
             enabled = true,
             name = b,
+            order = 100,
             classClr = v[b].class and RAID_CLASS_COLORS[v[b].class].colorStr or b == UnitName('player') and RAID_CLASS_COLORS[select(2, UnitClass('player'))].colorStr or "FFFFFFFF",
             ilvl = v[b].iLvl or 0
           }
@@ -575,6 +589,7 @@ function CharacterInfo.CreateSideTooltip(statusbar)
     local sideTooltip = QTip:Acquire("CharInf_Side", 2, "LEFT", "RIGHT")
     self.sideTooltip = sideTooltip
     sideTooltip:SetHeaderFont(hugeFont)
+    sideTooltip:SetFont(smallFont)
     sideTooltip:AddHeader(info.title or "")
     local body = info.body
     for i = 1, #body do
@@ -603,8 +618,9 @@ function CharacterInfo.CreateSideTooltip(statusbar)
     local parentFrameLevel = self:GetFrameLevel(self)
     sideTooltip:SetFrameLevel(parentFrameLevel + 5)
     sideTooltip:SetBackdrop(DEFAULT_BACKDROP)
-    sideTooltip:SetBackdropColor(0, 0, 0, .9);
-    sideTooltip:SetBackdropBorderColor(.2, .2, .2, 1)
+    local c = settings.backdrop
+    sideTooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
+    sideTooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
     if statusbar then
       statusbar.total = statusbar.total or 100
       statusbar.curr = statusbar.curr or 0
@@ -769,8 +785,24 @@ local function ModernizeCharacters()
   end
 end
 
-local function AddNote(tooltip,data,realm)
-  local name = data.name
+local function GetCharacterOrder()
+  if not settings.reorder then
+    return settings.characterOrder
+  end
+  local t ={}
+  for i,v in pairs(settings.allowedCharacters) do
+    if v.enabled then
+      table.insert(t,{name = v.name,realm = i:match("^.*-(.*)"),order = v.order or 0})
+    end
+  end
+  table.sort(t,function(a,b) return a.order<b.order end)
+  settings.characterOrder = t
+  settings.reorder = false
+  return t
+end
+
+
+local function AddNote(tooltip,data,realm,name)
   if data.note then
     -- show note
     StaticPopupDialogs["DeleteNotePopup_"..name..realm] = {
@@ -871,6 +903,7 @@ local function GearTooltip(self,info)
   geartooltip.statusBars = {}
   self.sideTooltip = geartooltip
   geartooltip:SetHeaderFont(hugeFont)
+  geartooltip:SetFont(smallFont)
   local fontName, fontHeight, fontFlags = geartooltip:GetFont()
   local specIcon = info.spec and info.class .. info.spec or "SpecNone"
   -- character name header
@@ -905,9 +938,9 @@ local function GearTooltip(self,info)
       end
       local line = geartooltip:AddLine(gear[i].slot)
       geartooltip:SetCell(line,2,string.format("|c%s%i|r   |T%s:20|t %s",setIlvlColor(gear[i].ilvl),gear[i].ilvl or 0,gear[i].itemTexture or "",gear[i].itemLink or ""),"LEFT",3)
-      geartooltip:SetFont(smallFont)
+      geartooltip:SetFont(fontName, fontHeight and fontHeight-2 or 10, fontFlags)
       geartooltip:SetCell(line,5,enchantements,"LEFT",3)
-      geartooltip:SetFont(fontName, fontHeight, fontFlags)
+      geartooltip:SetFont(smallFont)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
   end
@@ -971,8 +1004,9 @@ local function GearTooltip(self,info)
       top = 0,
   bottom = 0 }}
   geartooltip:SetBackdrop(backdrop)
-  geartooltip:SetBackdropColor(0, 0, 0, .9);
-  geartooltip:SetBackdropBorderColor(.2, .2, .2, 1)
+  local c = settings.backdrop
+  geartooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
+  geartooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
   local tipWidth = geartooltip:GetWidth()
   for i=1,#geartooltip.statusBars do
     geartooltip.statusBars[i]:SetWidth(tipWidth+tipWidth/3)
@@ -1029,53 +1063,45 @@ local function OnEnter(self)
   if QTip:IsAcquired("CharacterInfo_Tooltip") then return end
   local tooltip = QTip:Acquire("CharacterInfo_Tooltip", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
   self.tooltip = tooltip
-  local rData, rNum = GetRealms()
   -- sort line generators
   table.sort(registeredLineGenerators,function(a,b) return a.prio < b.prio end)
 
-  for rIndex = 1, rNum do
-    -- Realms
-    local cData, cNum = GetRealmCharInfo(rData[rIndex])
-    if cNum > 0 then
-      -- check if realm has characters that met requirements
-      tooltip:SetHeaderFont(hugeFont)
-      tooltip:AddHeader(WrapTextInColorCode(rData[rIndex],"ffffd200"))
-      tooltip:AddSeparator(3, 1, 0.8039, 0.3098)
-    end
-    for cIndex = 1, cNum do
-      -- character
-      tooltip:SetHeaderFont(mediumFont)
-      tooltip:SetFont(smallFont)
-      if settings.allowedCharacters[cData[cIndex].name .. "-" .. rData[rIndex]].enabled then
-        -- make sure character is allowed
-        local specIcon = cData[cIndex].spec and cData[cIndex].class .. cData[cIndex].spec or "SpecNone"
-        -- character name header
-        local l = tooltip:AddHeader("|TInterface\\AddOns\\CharacterInfo\\Media\\Icons\\" .. specIcon ..":25:25|t "..
-          "|c" .. RAID_CLASS_COLORS[cData[cIndex].class].colorStr .. cData[cIndex].name .. "|r " ..
-        (cData[cIndex].level or 0) .. ' level')
-        tooltip:SetCell(l, 2, string.format("%i", cData[cIndex].iLvl or 0).. ' ilvl', "RIGHT",4,nil,nil,5)
-
-        tooltip:SetLineScript(l,"OnEnter",GearTooltip,cData[cIndex])
-        tooltip:SetLineScript(l,"OnLeave",CharacterInfo.DisposeSideTooltip())
-        -- Line generators
-        for i = 1, #registeredLineGenerators do
-          if settings.allowedModules[registeredLineGenerators[i].name] then
-            registeredLineGenerators[i].func(tooltip,cData[cIndex][registeredLineGenerators[i].key])
-          end
-        end
-        -- Add Note to character
-        AddNote(tooltip,cData[cIndex],rData[rIndex])
-        --Separator for each character
-        if cIndex < cNum then
-          tooltip:AddSeparator(1, 1, 1, 1, .85)
-        end
+  local charOrder = GetCharacterOrder()
+  -- character info main tooltip
+  for i=1,#charOrder do
+    local name = charOrder[i].name
+    local realm = charOrder[i].realm
+    local charData = CharacterInfo.GetCharacterTable(realm,name)
+    charData.name = name
+    -- header
+    local specIcon = charData.spec and charData.class .. charData.spec or "SpecNone"
+    tooltip:SetHeaderFont(mediumFont)
+    local l = tooltip:AddHeader("|TInterface\\AddOns\\CharacterInfo\\Media\\Icons\\" .. specIcon ..":25:25|t "..
+    "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
+    tooltip:SetHeaderFont(smallFont)
+    tooltip:SetHeaderFont(mediumFont)
+    tooltip:SetCell(l, 2, string.format("%i ilvl", charData.iLvl or 0), "RIGHT",4,nil,nil,5)
+    tooltip:SetLineScript(l,"OnEnter",GearTooltip,charData)
+    tooltip:SetLineScript(l,"OnLeave",CharacterInfo.DisposeSideTooltip())
+    tooltip:SetFont(smallFont)
+    tooltip:AddLine(string.format("|c%s%s - Level %i","ffffd200",realm,charData.level))
+    tooltip:AddLine()
+    -- info
+    for i = 1, #registeredLineGenerators do
+      if settings.allowedModules[registeredLineGenerators[i].name] then
+        registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key])
       end
+    end
+    AddNote(tooltip,charData,realm,name)
+    if i < #charOrder then
+      tooltip:AddSeparator(1, 1, 1, 1, .85)
     end
   end
   -- global data
   local gData = db.global and db.global.global or nil
   if gData and #globalLineGenerators > 0 then
     local gTip = QTip:Acquire("CharacterInfo_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
+    gTip:SetFont(smallFont)
     tooltip.globalTooltip = gTip
     for i=1, #globalLineGenerators do
       globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
@@ -1107,8 +1133,9 @@ local function OnEnter(self)
       end
     end)
     gTip:SetBackdrop(DEFAULT_BACKDROP)
-    gTip:SetBackdropColor(0, 0, 0, .9);
-    gTip:SetBackdropBorderColor(.2, .2, .2, 1)
+    local c = settings.backdrop
+    gTip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
+    gTip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
   end
 
   -- Tooltip visuals
@@ -1134,8 +1161,9 @@ local function OnEnter(self)
   end)
   tooltip:Show()
   tooltip:SetBackdrop(DEFAULT_BACKDROP)
-  tooltip:SetBackdropColor(0, 0, 0, .9);
-  tooltip:SetBackdropBorderColor(.2, .2, .2, 1)
+  local c = settings.backdrop
+  tooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
+  tooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
   tooltip:UpdateScrolling(settings.tooltipHeight)
 end
 
@@ -1166,345 +1194,9 @@ end
 
 -- config --
 
--- control creating functions shamefully stolen from ls- toasts
--- refreshing controls
-local function RegisterControlForRefresh(parent, control)
-  if not parent or not control then
-    return
-  end
-
-  parent.controls = parent.controls or {}
-  table.insert(parent.controls, control)
-end
-
-local function RefreshOptions(panel)
-  for _, control in pairs(panel.controls) do
-    if control.RefreshValue then
-      control:RefreshValue()
-    end
-  end
-end
--- sliders
-local function Slider_RefreshValue(self)
-  local value = self:GetValue()
-
-  self.value = value
-  self:SetDisplayValue(value)
-  self.CurrentValue:SetText(value)
-end
-
-local function Slider_OnValueChanged(self, value, userInput)
-  if userInput then
-    value = tonumber(string.format("%.2f", value))
-
-    if value ~= self.value then
-      self:SetValue(value)
-      self:RefreshValue()
-    end
-  end
-end
-
-local function CreateConfigSlider(panel, params)
-  params = params or {}
-
-  local object = _G.CreateFrame("Slider", params.name, params.parent or panel, "OptionsSliderTemplate")
-  object.type = "Slider"
-  object:SetMinMaxValues(params.min, params.max)
-  object:SetValueStep(params.step)
-  object:SetObeyStepOnDrag(true)
-  object.SetDisplayValue = object.SetValue -- default
-  object.GetValue = params.get
-  object.SetValue = params.set
-  object.RefreshValue = Slider_RefreshValue
-  object:SetScript("OnValueChanged", Slider_OnValueChanged)
-
-  local text = _G[object:GetName().."Text"]
-  text:SetText(params.text)
-  text:SetVertexColor(1, 0.82, 0)
-  object.Text = text
-
-  local lowText = _G[object:GetName().."Low"]
-  lowText:SetText(params.min)
-  object.LowValue = lowText
-
-  local curText = object:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-  curText:SetPoint("TOP", object, "BOTTOM", 0, 3)
-  object.CurrentValue = curText
-
-  local highText = _G[object:GetName().."High"]
-  highText:SetText(params.max)
-  object.HighValue = highText
-
-  RegisterControlForRefresh(panel, object)
-
-  return object
-end
-
--- dropdowns
-local function DropDownMenu_RefreshValue(self)
-  _G.UIDropDownMenu_Initialize(self, self.initialize)
-  _G.UIDropDownMenu_SetSelectedValue(self, self:GetValue())
-end
-
-local function CreateConfigDropDownMenu(panel, params)
-  params = params or {}
-
-  local object = _G.CreateFrame("Frame", params.name, params.parent or panel, "UIDropDownMenuTemplate")
-  object.type = "DropDownMenu"
-  object.SetValue = params.set
-  object.GetValue = params.get
-  object.RefreshValue = DropDownMenu_RefreshValue
-  _G.UIDropDownMenu_Initialize(object, params.init)
-  _G.UIDropDownMenu_SetWidth(object, params.width or 128)
-
-  local text = object:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-  text:SetPoint("BOTTOMLEFT", object, "TOPLEFT", 16, 3)
-  text:SetJustifyH("LEFT")
-  text:SetText(params.text)
-  object.Label = text
-
-  RegisterControlForRefresh(panel, object)
-
-  return object
-end
-
--- divider
-local function CreateConfigDivider(panel, params)
-  params = params or {}
-
-  local object = panel:CreateTexture(nil, "ARTWORK")
-  object:SetHeight(4)
-  object:SetPoint("LEFT", 10, 0)
-  object:SetPoint("RIGHT", - 10, 0)
-  object:SetTexture("Interface\\AchievementFrame\\UI-Achievement-RecentHeader")
-  object:SetTexCoord(0, 1, 0.0625, 0.65625)
-  object:SetAlpha(0.5)
-
-  local label = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalMed2")
-  label:SetWordWrap(false)
-  label:SetPoint("LEFT", object, "LEFT", 12, 1)
-  label:SetPoint("RIGHT", object, "RIGHT", - 12, 1)
-  label:SetText(params.text)
-  object.Text = label
-
-  return object
-end
-
--- checkbox
-local function CheckButton_RefreshValue(self)
-  self:SetChecked(self:GetValue())
-end
-
-local function CheckButton_OnClick(self)
-  self:SetValue(self:GetChecked())
-end
-
-local function CheckButton_OnEnter(self)
-  _G.GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-  _G.GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
-  _G.GameTooltip:Show()
-end
-
-local function CheckButton_OnLeave()
-  _G.GameTooltip:Hide()
-end
-
-local function CreateConfigCheckButton(panel, params)
-  params = params or {}
-
-  local object = _G.CreateFrame("CheckButton", params.name, params.parent or panel, "InterfaceOptionsCheckButtonTemplate")
-  object:SetHitRectInsets(0, 0, 0, 0)
-  object.type = "Button"
-  object.GetValue = params.get
-  object.SetValue = params.set
-  object.RefreshValue = CheckButton_RefreshValue
-  object:SetScript("OnClick", params.click or CheckButton_OnClick)
-  object.Text:SetText(params.text)
-
-  if params.tooltip_text then
-    object.tooltipText = params.tooltip_text
-    object:SetScript("OnEnter", CheckButton_OnEnter)
-    object:SetScript("OnLeave", CheckButton_OnLeave)
-  end
-
-  RegisterControlForRefresh(panel, object)
-
-  return object
-end
-
--- create and populate config page
-local function setupConfigPage()
-  local panel = CreateFrame("Frame", "CharacterInfoConfigPanel", InterfaceOptionsFramePanelContainer)
-  panel.name = "CharacterInfo"
-  panel:Hide()
-  local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-  title:SetPoint("TOPLEFT", 16, - 16)
-  title:SetJustifyH("LEFT")
-  title:SetJustifyV("TOP")
-  title:SetText('CharacterInfo')
-  -- icon lock
-  local lockIconCheck = CreateConfigCheckButton(panel, {
-    name = "$parentLockIconToggle",
-    text = "Lock Icon",
-    get = function() return settings.lockIcon end,
-    set = function(_, value)
-      settings.lockIcon = value
-      CharacterInfo_RefreshAppearance()
-    end,
-  })
-  lockIconCheck:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, - 25)
-  -- icon scale slider
-  local scaleSlider = CreateConfigSlider(panel, {
-    name = "$parentScaleSlider",
-    text = "Icon scale",
-    min = 0.1,
-    max = 1,
-    step = 0.05,
-    get = function() return settings.iconScale end,
-    set = function(_, value)
-      settings.iconScale = value
-      CharacterInfo_RefreshAppearance()
-    end,
-  })
-  scaleSlider:SetPoint("TOPLEFT", lockIconCheck, "BOTTOMLEFT", 5, - 17)
-  -- font divider
-  local fontDivider = CreateConfigDivider(panel, {text = "Fonts"})
-  fontDivider:SetPoint("TOP", scaleSlider, "BOTTOM", 5, - 20)
-  -- tooltip max height
-  local tooltipHeightSlider = CreateConfigSlider(panel, {
-    name = "$parentTooltipMaxHeight",
-    text = "Tooltip Max Height",
-    min = 100,
-    max = 1600,
-    step = 20,
-    get = function() return settings.tooltipHeight end,
-    set = function(_, value) settings.tooltipHeight = value end,
-  })
-  tooltipHeightSlider:SetPoint("BOTTOM", fontDivider, "TOP", 0, 20)
-  -- min level to track
-  local minLevelSlider = CreateConfigSlider(panel, {
-    name = "$parentMinLevelSlider",
-    text = "Tracking (min character level)",
-    min = 0,
-    max = MAX_CHARACTER_LEVEL,
-    step = 1,
-    get = function() return settings.minLevel end,
-    set = function(_, value) settings.minLevel = value end,
-  })
-  minLevelSlider:SetPoint("BOTTOMRIGHT", fontDivider, "TOPRIGHT", - 10, 20)
-  -- Module Selector
-  local ModuleButton = CreateFrame("Button", "CharInfo_ModuleSelector", panel, "UIPanelButtonTemplate")
-  ModuleButton:SetPoint("BOTTOM",minLevelSlider,"TOP",10,30)
-  ModuleButton:SetSize(120,20)
-  ModuleButton:SetText("Modules")
-  ModuleButton:RegisterForClicks("LeftButtonUp")
-  local moduleDropdown = CreateFrame("Frame", "ModuleDropDown", panel, "UIDropDownMenuTemplate")
-  local function DropdownInit(frame, level, menu)
-    local info = _G.UIDropDownMenu_CreateInfo()
-    local t = settings.allowedModules
-    for i=1,#registeredModules do
-      info.text = registeredModules[i]
-      info.isNotRadio = true
-      info.checked = function() return t[registeredModules[i]] end
-      info.func =  function() t[registeredModules[i]] = not t[registeredModules[i]] end
-      info.keepShownOnClick = true
-      _G.UIDropDownMenu_AddButton(info)
-    end
-  end
-  _G.UIDropDownMenu_Initialize(moduleDropdown,DropdownInit,"MENU")
-  ModuleButton:SetScript("OnClick",function(self,button,down)
-    _G.ToggleDropDownMenu(1,nil,moduleDropdown,minLevelSlider,20,45) end)
-  -- fonts
-  local hugeFontSlider = CreateConfigSlider(panel, {
-    name = "$parentHugeFontSlider",
-    text = "Big Font (like server name)",
-    min = 5,
-    max = 30,
-    step = 1,
-    get = function() return settings.fonts.big.size end,
-    set = function(_, value)
-      settings.fonts.big.size = value
-      CharacterInfo_RefreshAppearance()
-    end,
-  })
-  hugeFontSlider:SetPoint("TOPLEFT", fontDivider, "BOTTOMLEFT", 10, -30)
-  local mediumFontSlider = CreateConfigSlider(panel, {
-    name = "$parentMediumFontSlider",
-    text = "Medium Font (like character name)",
-    min = 5,
-    max = 30,
-    step = 1,
-    get = function() return settings.fonts.medium.size end,
-    set = function(_, value)
-      settings.fonts.medium.size = value
-      CharacterInfo_RefreshAppearance()
-    end,
-  })
-  mediumFontSlider:SetPoint("TOP", fontDivider, "BOTTOM", 0, -30)
-  local smallFontSlider = CreateConfigSlider(panel, {
-    name = "$parentSmallFontSlider",
-    text = "Small Font (information)",
-    min = 5,
-    max = 30,
-    step = 1,
-    get = function() return settings.fonts.small.size end,
-    set = function(_, value)
-      settings.fonts.small.size = value
-      CharacterInfo_RefreshAppearance()
-    end,
-  })
-  smallFontSlider:SetPoint("TOPRIGHT", fontDivider, "BOTTOMRIGHT", - 10, - 30)
-  -- characters
-  local charDivider = CreateConfigDivider(panel, {text = "Characters"})
-  charDivider:SetPoint("TOP", mediumFontSlider, "BOTTOM", 0, - 20)
-  local charSubtext = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-  charSubtext:SetPoint("TOPLEFT", charDivider, "BOTTOMLEFT", 10, - 8)
-  charSubtext:SetHeight(20)
-  charSubtext:SetJustifyH("LEFT")
-  charSubtext:SetJustifyV("TOP")
-  charSubtext:SetNonSpaceWrap(true)
-  charSubtext:SetMaxLines(2)
-  charSubtext:SetText("Enable which characters to show.")
-
-
-  local counter = 1
-  local charToggles = {}
-  --texplore(settings.allowedCharacters)
-  for i, v in spairs(settings.allowedCharacters, function(t, a, b) return t[a].ilvl > t[b].ilvl end) do
-    -- i= name-server v= tabl
-    local temp = CreateConfigCheckButton(panel, {
-      name = "$parent"..counter .."Toggle",
-      text = WrapTextInColorCode(i, v.classClr),
-      get = function() return settings.allowedCharacters[i].enabled end,
-      set = function(_, value)
-        settings.allowedCharacters[i].enabled = value
-      end,
-    })
-    table.insert(charToggles, temp)
-    if counter == 1 then
-      temp:SetPoint("TOPLEFT", charSubtext, "BOTTOMLEFT", 0, - 5)
-    elseif counter > 5 and (counter - 1)%5 == 0 then
-      temp:SetPoint("LEFT", charToggles[counter - 5], "RIGHT", 150, 0)
-    else
-      temp:SetPoint("TOPLEFT", charToggles[counter - 1], "BOTTOMLEFT", 0, - 5)
-    end
-    counter = counter + 1
-  end
-
-  RefreshOptions(panel)
-  -- add panel to interface
-  InterfaceOptions_AddCategory(panel, true)
-  InterfaceAddOnsList_Update()
-  InterfaceOptionsOptionsFrame_RefreshAddOns()
-end
-
 local function OpenConfig(self, button)
-  if _G.CharacterInfoConfigPanel:IsShown() then
-    _G.InterfaceOptionsFrame_OpenToCategory(_G.CharacterInfoConfigPanel)
-  else
-    _G.InterfaceOptionsFrameOkay_OnClick(_G.CharacterInfoConfigPanel)
-    _G.InterfaceOptionsFrame_OpenToCategory(_G.CharacterInfoConfigPanel)
-  end
+    InterfaceOptionsFrame_OpenToCategory(addonName)
+		InterfaceOptionsFrame_OpenToCategory(addonName)
 end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
@@ -1514,9 +1206,10 @@ function CharacterInfo_RefreshAppearance()
   butTool:SetMovable(not settings.lockIcon)
   butTool:RegisterForDrag("LeftButton")
   butTool:SetScript("OnDragStart", not settings.lockIcon and butTool.StartMoving or function() end)
-  hugeFont:SetFont(defaultFont, settings.fonts.big.size)
-  smallFont:SetFont(defaultFont, settings.fonts.small.size)
-  mediumFont:SetFont(defaultFont, settings.fonts.medium.size)
+  local font = LSM:Fetch("font",settings.Font)
+  hugeFont:SetFont(font, settings.fonts.big.size)
+  smallFont:SetFont(font, settings.fonts.small.size)
+  mediumFont:SetFont(font, settings.fonts.medium.size)
   butTool:SetScale(settings.iconScale)
 end
 
@@ -1526,14 +1219,20 @@ local function IsNewCharacter()
   local realm = GetRealmName()
   return db[realm] == nil or db[realm][name] == nil
 end
-
+function CharacterInfo.SetupConfig()
+end
 local function init()
   CharacterInfo_DB = CharacterInfo_DB or db
   CharacterInfo_Config = CharacterInfo_Config or config_db
   if not CharacterInfo_Config.settings then
     CharacterInfo_Config.settings = settings
-  elseif not CharacterInfo_Config.settings.lockIcon then
-    CharacterInfo_Config.settings.lockIcon = settings.lockIcon
+  else
+   -- set Defaults
+    for i,v in pairs(settings) do
+      if not CharacterInfo_Config.settings[i] then
+        CharacterInfo_Config.settings[i] = v
+      end
+   end
   end
   db = CharacterInfo.copyTable(CharacterInfo_DB)
   db.global = db.global or {}
@@ -1541,6 +1240,7 @@ local function init()
   CharacterInfo.DB = db
   config_db = CharacterInfo.copyTable(CharacterInfo_Config)
   settings = config_db.settings
+  CharacterInfo.ConfigDB = config_db
   ModernizeCharacters()
   CharacterInfo_RefreshAppearance()
   if IsNewCharacter() then
@@ -1549,12 +1249,12 @@ local function init()
       UpdateCharacterSpecifics()
       AddMissingCharactersToSettings()
       AddModulesToSettings()
-      setupConfigPage()
+      CharacterInfo.SetupConfig()
     end)
   else
     AddMissingCharactersToSettings()
     AddModulesToSettings()
-    setupConfigPage()
+    CharacterInfo.SetupConfig()
   end
 end
 
@@ -1706,7 +1406,6 @@ end
 -- Updaters
 
 function CharacterInfo.SendFakeEvent(event) end
-
 local delay = true
 local delayedEvents = {}
 local running = false
@@ -1799,6 +1498,7 @@ function CharacterInfo_PrintUpdates()
     end
   end
 end
+
 SLASH_CHARINF1, SLASH_CHARINF2 = '/CHINFO', '/characterinfo'; -- 3.
 function SlashCmdList.CHARINF(msg, editbox) -- 4.
   local args = {strsplit(" ",msg)}
