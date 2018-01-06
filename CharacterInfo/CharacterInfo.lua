@@ -905,7 +905,8 @@ local function GearTooltip(self,info)
   geartooltip:SetHeaderFont(hugeFont)
   geartooltip:SetFont(smallFont)
   local fontName, fontHeight, fontFlags = geartooltip:GetFont()
-  local specIcon = info.spec and info.class .. info.spec or "SpecNone"
+  local specIcon = info.spec and info.class .. string.gsub(info.spec," ","") or "SpecNone"
+  --print(specIcon)
   -- character name header
   local header = "|TInterface\\AddOns\\CharacterInfo\\Media\\Icons\\" .. specIcon ..":25:25|t "..
     "|c" .. RAID_CLASS_COLORS[info.class].colorStr .. info.name .. "|r " ..
@@ -1075,7 +1076,7 @@ local function OnEnter(self)
     local charData = CharacterInfo.GetCharacterTable(realm,name)
     charData.name = name
     -- header
-    local specIcon = charData.spec and charData.class .. charData.spec or "SpecNone"
+    local specIcon = charData.spec and charData.class .. string.gsub(charData.spec," ","") or "SpecNone"
     tooltip:SetHeaderFont(mediumFont)
     local l = tooltip:AddHeader("|TInterface\\AddOns\\CharacterInfo\\Media\\Icons\\" .. specIcon ..":25:25|t "..
     "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
