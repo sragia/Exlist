@@ -1,5 +1,5 @@
 local key = "mail"
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 local WrapTextInColorCode = WrapTextInColorCode
 local HasNewMail, GetLatestThreeSenders = HasNewMail, GetLatestThreeSenders
 local table = table
@@ -11,18 +11,18 @@ local function Updater(event)
     t.new = true
     t.senders = senders
   end
-  CharacterInfo.UpdateChar(key,t)
+  Exlist.UpdateChar(key,t)
 end
 
 local function Linegenerator(tooltip,data)
   if not data or not data.new then return end
-  local line = CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Got Mail!","FF00FF00")})
+  local line = Exlist.AddLine(tooltip,{WrapTextInColorCode("Got Mail!","FF00FF00")})
   local t = {title = WrapTextInColorCode("Senders","ffffd200"), body = {}}
   for i=1, #data.senders do
     table.insert(t.body,{data.senders[i]})
   end
-  CharacterInfo.AddScript(tooltip,line,nil,"OnEnter",CharacterInfo.CreateSideTooltip(),t)
-  CharacterInfo.AddScript(tooltip,line,nil,"OnLeave",CharacterInfo.DisposeSideTooltip())
+  Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),t)
+  Exlist.AddScript(tooltip,line,nil,"OnLeave",Exlist.DisposeSideTooltip())
 end
 
 local function Modernize(data)
@@ -41,4 +41,4 @@ local data = {
   -- modernize = Modernize
 }
   
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

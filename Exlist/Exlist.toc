@@ -1,8 +1,8 @@
 ## Interface: 70300
-## Title: CharacterInfo
+## Title: Exlist
 ## Notes: Shows various information about your characters
 ## Author: Exality
-## SavedVariables: CharacterInfo_DB, CharacterInfo_Config
+## SavedVariables: Exlist_DB, Exlist_Config
 ## Version: 1
 
 Libs\LibStub\LibStub.lua
@@ -17,7 +17,7 @@ Libs\LibSharedMedia-3.0\lib.xml
 
 
 
-CharacterInfo.lua
+Exlist.lua
 Config.lua
 Modules\Currency.lua
 Modules\Artifact.lua

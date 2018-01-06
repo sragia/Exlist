@@ -1,5 +1,5 @@
 local key = "raiderIO"
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 local CM = C_ChallengeMode
 local table,print= table,print
 local WrapTextInColorCode = WrapTextInColorCode
@@ -23,7 +23,7 @@ local DUNGEON_NAME = {
 
 local function Updater(event,...)
   if not RaiderIO then
-      if CharacterInfo.debugMode then print("RaiderIO not installed -",key) end
+      if Exlist.debugMode then print("RaiderIO not installed -",key) end
     return
   elseif event == "ADDON_LOADED" and ... ~= "RaiderIO" then
     return
@@ -34,7 +34,7 @@ local function Updater(event,...)
   local playerInfo = RaiderIO.GetScore('player')
   if playerInfo then
     local score = playerInfo.allScore
-    local scoreColor = CharacterInfo.ColorDecToHex(RaiderIO.GetScoreColor(score))
+    local scoreColor = Exlist.ColorDecToHex(RaiderIO.GetScoreColor(score))
     local dungeonLvls = {}
     local d = playerInfo.dungeons
     for i=1,#d do
@@ -47,22 +47,22 @@ local function Updater(event,...)
       dungeons = dungeonLvls,
       scoreColor = scoreColor,
     }
-    CharacterInfo.UpdateChar(key,t)
-  elseif CharacterInfo.debugMode then
+    Exlist.UpdateChar(key,t)
+  elseif Exlist.debugMode then
     print("Did not find any data -",key)
   end
 end
 
 local function Linegenerator(tooltip,data)
   if not data then return end
-  local line = CharacterInfo.AddLine(tooltip,{"RaiderIO M+ score",data.score})
+  local line = Exlist.AddLine(tooltip,{"RaiderIO M+ score",data.score})
   local s = {}
   for i=1,#data.dungeons do
     s[i] = {data.dungeons[i].name,data.dungeons[i].lvl}
   end
   local sideTooltip = {body = s,title=WrapTextInColorCode(string.format("%s - %s",data.playerName,data.score),"ffffd200")}
-  CharacterInfo.AddScript(tooltip,line,nil,"OnEnter",CharacterInfo.CreateSideTooltip(),sideTooltip)
-  CharacterInfo.AddScript(tooltip,line,nil,"OnLeave",CharacterInfo.DisposeSideTooltip())
+  Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
+  Exlist.AddScript(tooltip,line,nil,"OnLeave",Exlist.DisposeSideTooltip())
 
 
 end
@@ -83,4 +83,4 @@ local data = {
   -- modernize = Modernize
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

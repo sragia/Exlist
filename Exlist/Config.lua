@@ -1,5 +1,5 @@
 local name = ...
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 local AceGUI = LibStub("AceGUI-3.0")
 local AceConfReg = LibStub("AceConfigRegistry-3.0")
 local AceConfDia = LibStub("AceConfigDialog-3.0")
@@ -44,11 +44,11 @@ local options = {
 			name = "Lock Icon",
 			type = "toggle",
 			get = function()
-				return CharacterInfo.ConfigDB.settings.lockIcon
+				return Exlist.ConfigDB.settings.lockIcon
 			end,
             set = function(info, v)
-                CharacterInfo.ConfigDB.settings.lockIcon = v
-                CharacterInfo_RefreshAppearance()
+                Exlist.ConfigDB.settings.lockIcon = v
+                Exlist_RefreshAppearance()
 			end,
         },
         iconscale = {
@@ -61,11 +61,11 @@ local options = {
 			bigStep = 0.01,
 			width = "normal",
 			get = function(info)
-				return CharacterInfo.ConfigDB.settings.iconScale or 1
+				return Exlist.ConfigDB.settings.iconScale or 1
 			end,
 			set = function(info, v)
-				CharacterInfo.ConfigDB.settings.iconScale = v
-				CharacterInfo_RefreshAppearance()
+				Exlist.ConfigDB.settings.iconScale = v
+				Exlist_RefreshAppearance()
 			end,
         },
         spacer1 ={
@@ -85,11 +85,11 @@ local options = {
                     dialogControl = "LSM30_Font",
                     values = AceGUIWidgetLSMlists.font,
                     get = function()
-                        return CharacterInfo.ConfigDB.settings.Font
+                        return Exlist.ConfigDB.settings.Font
                     end,
                     set = function(info, v)
-                        CharacterInfo.ConfigDB.settings.Font = v
-                        CharacterInfo_RefreshAppearance()
+                        Exlist.ConfigDB.settings.Font = v
+                        Exlist_RefreshAppearance()
                     end
                 },
                 spacer2 ={
@@ -108,11 +108,11 @@ local options = {
                     bigStep = 1,
                     width = "normal",
                     get = function(info)
-                        return CharacterInfo.ConfigDB.settings.fonts.small.size or 12
+                        return Exlist.ConfigDB.settings.fonts.small.size or 12
                     end,
                     set = function(info, v)
-                        CharacterInfo.ConfigDB.settings.fonts.small.size = v
-                        CharacterInfo_RefreshAppearance()
+                        Exlist.ConfigDB.settings.fonts.small.size = v
+                        Exlist_RefreshAppearance()
                     end,
                 },
                 mediumFontSize = {
@@ -125,11 +125,11 @@ local options = {
                     bigStep = 1,
                     width = "normal",
                     get = function(info)
-                        return CharacterInfo.ConfigDB.settings.fonts.medium.size or 12
+                        return Exlist.ConfigDB.settings.fonts.medium.size or 12
                     end,
                     set = function(info, v)
-                        CharacterInfo.ConfigDB.settings.fonts.medium.size = v
-                        CharacterInfo_RefreshAppearance()
+                        Exlist.ConfigDB.settings.fonts.medium.size = v
+                        Exlist_RefreshAppearance()
                     end,
                 },
                 bigFontSize = {
@@ -142,11 +142,11 @@ local options = {
                     bigStep = 1,
                     width = "normal",
                     get = function(info)
-                        return CharacterInfo.ConfigDB.settings.fonts.big.size or 12
+                        return Exlist.ConfigDB.settings.fonts.big.size or 12
                     end,
                     set = function(info, v)
-                        CharacterInfo.ConfigDB.settings.fonts.big.size = v
-                        CharacterInfo_RefreshAppearance()
+                        Exlist.ConfigDB.settings.fonts.big.size = v
+                        Exlist_RefreshAppearance()
                     end,
                 },
             }
@@ -170,10 +170,10 @@ local options = {
                     step = 10,
                     bigStep = 10,
                     get = function(self)
-                        return CharacterInfo.ConfigDB.settings.tooltipHeight or 600
+                        return Exlist.ConfigDB.settings.tooltipHeight or 600
                     end,
                     set = function(self,v)
-                        CharacterInfo.ConfigDB.settings.tooltipHeight = v
+                        Exlist.ConfigDB.settings.tooltipHeight = v
                     end
                 },
                 bgColor = {
@@ -183,7 +183,7 @@ local options = {
                     width = "half",
                     hasAlpha = true,
                     get = function(self)
-                        local c = CharacterInfo.ConfigDB.settings.backdrop.color
+                        local c = Exlist.ConfigDB.settings.backdrop.color
                         return c.r, c.g, c.b, c.a
                     end,
                     set = function(self,r,g,b,a)
@@ -193,7 +193,7 @@ local options = {
                             b = b,
                             a = a
                         }
-                        CharacterInfo.ConfigDB.settings.backdrop.color = c
+                        Exlist.ConfigDB.settings.backdrop.color = c
                     end
                 },
                 borderColor = {
@@ -203,7 +203,7 @@ local options = {
                     width = "half",
                     hasAlpha = true,
                     get = function(self)
-                        local c = CharacterInfo.ConfigDB.settings.backdrop.borderColor
+                        local c = Exlist.ConfigDB.settings.backdrop.borderColor
                         return c.r, c.g, c.b, c.a
                     end,
                     set = function(self,r,g,b,a)
@@ -213,7 +213,7 @@ local options = {
                             b = b,
                             a = a
                         }
-                        CharacterInfo.ConfigDB.settings.backdrop.borderColor = c
+                        Exlist.ConfigDB.settings.backdrop.borderColor = c
                     end
                 }
             }
@@ -249,8 +249,8 @@ local charOptions = {
     }
 
 }
-CharacterInfo.SetupConfig = function()
-    local modules = CharacterInfo.ConfigDB.settings.allowedModules
+Exlist.SetupConfig = function()
+    local modules = Exlist.ConfigDB.settings.allowedModules
     local n = 1
     for i,v in pairs(modules) do
         n = n + 1
@@ -268,7 +268,7 @@ CharacterInfo.SetupConfig = function()
         }
         moduleOptions.args[i] = t
     end
-    local characters = CharacterInfo.ConfigDB.settings.allowedCharacters
+    local characters = Exlist.ConfigDB.settings.allowedCharacters
     n = 1
     for char,v in spairs(characters,function(t,a,b) 
         if not t[a].enabled then return false
@@ -288,7 +288,7 @@ CharacterInfo.SetupConfig = function()
             end,
             set = function(info,value)
                 characters[char].enabled = value
-                CharacterInfo.ConfigDB.settings.reorder = true
+                Exlist.ConfigDB.settings.reorder = true
             end
         }
         charOptions.args[char.."name"] = t1
@@ -310,7 +310,7 @@ CharacterInfo.SetupConfig = function()
                 value = tonumber(value)
                 if value then
                     characters[char].order = value
-                    CharacterInfo.ConfigDB.settings.reorder = true
+                    Exlist.ConfigDB.settings.reorder = true
                 end
             end,
         }
@@ -328,4 +328,4 @@ CharacterInfo.SetupConfig = function()
     RegisterAdditionalOptions("Modules",moduleOptions,"Modules")
     RegisterAdditionalOptions("Characters",charOptions,"Characters")
 end
-CharacterInfo.AddModuleOptions = RegisterAdditionalOptions
+Exlist.AddModuleOptions = RegisterAdditionalOptions

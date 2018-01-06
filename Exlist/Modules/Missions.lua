@@ -5,7 +5,7 @@ local time, table, strlen, string, type, math = time, table, strlen, string, typ
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local GetCurrencyInfo = GetCurrencyInfo
 local GetMoneyString = GetMoneyString
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 
@@ -30,7 +30,7 @@ local function Updater(event)
           reward.name = r[i].title
         elseif r[i].itemID then
           -- item
-          local itemInfo = CharacterInfo.GetCachedItemInfo(r[i].itemID)
+          local itemInfo = Exlist.GetCachedItemInfo(r[i].itemID)
           reward.quantity = r[i].quantity
           reward.name = itemInfo.name
           reward.icon = itemInfo.texture
@@ -64,7 +64,7 @@ local function Updater(event)
           reward.name = r[i].title
         elseif r[i].itemID then
           -- item
-          local itemInfo = CharacterInfo.GetCachedItemInfo(r[i].itemID)
+          local itemInfo = Exlist.GetCachedItemInfo(r[i].itemID)
           reward.quantity = r[i].quantity
           reward.name = itemInfo.name
           reward.icon = itemInfo.texture
@@ -86,7 +86,7 @@ local function Updater(event)
       table.insert(t, mis)
     end
   end
-  CharacterInfo.UpdateChar(key,t)
+  Exlist.UpdateChar(key,t)
 end
 
 local function missionStrings(source,hasSuccess)
@@ -97,7 +97,7 @@ local function missionStrings(source,hasSuccess)
     if hasSuccess then
       local ti = time()
       if source[i].endTime > ti then
-        table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("Time Left: %s (%i%%)",CharacterInfo.TimeLeftColor(source[i].endTime - ti,{1800,7200},{"FF00FF00","FFf4a142","fff44141"}),source[i].successChance)})
+        table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("Time Left: %s (%i%%)",Exlist.TimeLeftColor(source[i].endTime - ti,{1800,7200},{"FF00FF00","FFf4a142","fff44141"}),source[i].successChance)})
       else
         table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("%i%%",source[i].successChance)})
       end
@@ -140,7 +140,7 @@ local function Linegenerator(tooltip,data)
   end
   if completed > 0 then completed = "|cFF00FF00" .. completed end
   local t2 = string.format("%s/%i",completed,ip) or ""
-  local l = CharacterInfo.AddLine(tooltip,{"Missions",t2})
+  local l = Exlist.AddLine(tooltip,{"Missions",t2})
 
   local sideTooltip = {body={},title = WrapTextInColorCode("Order Hall Missions","ffffd200")}
   if #done > 0 then
@@ -164,8 +164,8 @@ local function Linegenerator(tooltip,data)
       table.insert(sideTooltip.body,t[i])
     end
   end
-  CharacterInfo.AddScript(tooltip,l,nil,"OnEnter", CharacterInfo.CreateSideTooltip(), sideTooltip)
-  CharacterInfo.AddScript(tooltip,l,nil,"OnLeave", CharacterInfo.DisposeSideTooltip())
+  Exlist.AddScript(tooltip,l,nil,"OnEnter", Exlist.CreateSideTooltip(), sideTooltip)
+  Exlist.AddScript(tooltip,l,nil,"OnLeave", Exlist.DisposeSideTooltip())
 
 end
 
@@ -179,4 +179,4 @@ local data = {
   weeklyReset = false
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

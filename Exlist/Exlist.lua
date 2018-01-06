@@ -8,10 +8,10 @@ local LSM = LibStub("LibSharedMedia-3.0")
 -- SavedVariables localized
 local db = {}
 local config_db = {}
-CharacterInfo_Config = CharacterInfo_Config or {}
+Exlist_Config = Exlist_Config or {}
 local debugMode = false
-CharacterInfo = {}
-CharacterInfo.debugMode = debugMode
+Exlist = {}
+Exlist.debugMode = debugMode
 local registeredUpdaters = {
  --[event] = func or {func,func}
 }
@@ -49,7 +49,7 @@ local strsplit = strsplit
 -- local
 local MAX_CHARACTER_LEVEL = 110
 local MAX_PROFESSION_LEVEL = 800
-LSM:Register("font","PT_Sans_Narrow",[[Interface\Addons\CharacterInfo\Media\Font\font.ttf]])
+LSM:Register("font","PT_Sans_Narrow",[[Interface\Addons\Exlist\Media\Font\font.ttf]])
 local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
   edgeFile = "Interface\\BUTTONS\\WHITE8X8.blp",
   tile = false,
@@ -89,13 +89,13 @@ local settings = { -- default settings
 -- fonts
 local fontSet = settings.fonts
 local font = LSM:Fetch("font",settings.Font)
-local hugeFont = CreateFont("CharacterInfo_HugeFont")
+local hugeFont = CreateFont("Exlist_HugeFont")
 --hugeFont:CopyFontObject(GameTooltipText)
 hugeFont:SetFont(font, fontSet.big.size)
-local smallFont = CreateFont("CharacterInfo_SmallFont")
+local smallFont = CreateFont("Exlist_SmallFont")
 ---smallFont:CopyFontObject(GameTooltipText)
 smallFont:SetFont(font, fontSet.small.size)
-local mediumFont = CreateFont("CharacterInfo_MediumFont")
+local mediumFont = CreateFont("Exlist_MediumFont")
 --mediumFont:CopyFontObject(GameTooltipText)
 mediumFont:SetFont(font, fontSet.medium.size)
 local monthNames = {'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'}
@@ -115,10 +115,10 @@ frame:RegisterEvent("VARIABLES_LOADED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
-frame:RegisterEvent("CHINFO_DELAY")
+frame:RegisterEvent("Exlist_DELAY")
 
 -- utility
-CharacterInfo.ShortenNumber = function(number, digits)
+Exlist.ShortenNumber = function(number, digits)
   digits = tonumber(digits) or 0 -- error
   number = tonumber(number) or 0 -- error
   local affix = {'', 'k', 'm', 'b', 't', 'p'}
@@ -150,15 +150,15 @@ local function copyTableInternal(source, seen)
   return rv
 end
 
-function CharacterInfo.copyTable(source)
+function Exlist.copyTable(source)
   return copyTableInternal(source, {})
 end
 
-function CharacterInfo.ConvertColor(color)
+function Exlist.ConvertColor(color)
   return (color / 255)
 end
 
-function CharacterInfo.ColorHexToDec(hex)
+function Exlist.ColorHexToDec(hex)
   if not hex or strlen(hex) < 6 then return end
   local values = {}
   for i = 1, 6, 2 do
@@ -167,7 +167,7 @@ function CharacterInfo.ColorHexToDec(hex)
   return (values[1]/ 255),(values[2]/ 255),(values[3]/ 255)
 end
 
-function CharacterInfo.ColorDecToHex(col1,col2,col3)
+function Exlist.ColorDecToHex(col1,col2,col3)
   col1 = col1 or 0
   col2 = col2 or 0
   col3 = col3 or 0
@@ -175,7 +175,7 @@ function CharacterInfo.ColorDecToHex(col1,col2,col3)
   return hexColor
 end
 
-function CharacterInfo.TimeLeftColor(timeLeft, times, col)
+function Exlist.TimeLeftColor(timeLeft, times, col)
   -- times (opt) = {red,orange} upper limit
   -- i.e {100,1000} = 0-100 Green 100-1000 Orange 1000-inf Green
   -- colors (opt) - colors to use
@@ -190,12 +190,12 @@ function CharacterInfo.TimeLeftColor(timeLeft, times, col)
 end
 
 -- To find quest name from questID
-local MyScanningTooltip = CreateFrame("GameTooltip", "ChInfoScanningTooltip", UIParent, "GameTooltipTemplate")
+local MyScanningTooltip = CreateFrame("GameTooltip", "ExlistScanningTooltip", UIParent, "GameTooltipTemplate")
 
-CharacterInfo.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
+Exlist.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
          MyScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
          MyScanningTooltip:SetHyperlink("quest:"..id)
-         local title = ChInfoScanningTooltipTextLeft1:GetText()
+         local title = ExlistScanningTooltipTextLeft1:GetText()
          MyScanningTooltip:Hide()
          if title and title ~= RETRIEVING_DATA then
             t[id] = title
@@ -203,21 +203,21 @@ CharacterInfo.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
          end
 end })
 
-function CharacterInfo.GetItemEnchant(itemLink)
+function Exlist.GetItemEnchant(itemLink)
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
   MyScanningTooltip:SetHyperlink(itemLink)
   local enchantKey = ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)')
   for i=1,MyScanningTooltip:NumLines() do
-    if _G["ChInfoScanningTooltipTextLeft"..i]:GetText() and _G["ChInfoScanningTooltipTextLeft"..i]:GetText():match(enchantKey) then
+    if _G["ExlistScanningTooltipTextLeft"..i]:GetText() and _G["ExlistScanningTooltipTextLeft"..i]:GetText():match(enchantKey) then
       -- name,id
-      local name = _G["ChInfoScanningTooltipTextLeft"..i]:GetText()
+      local name = _G["ExlistScanningTooltipTextLeft"..i]:GetText()
       name = name:match("^%w+: (.*)")
       local _,_,enchantId = strsplit(":",itemLink)
       return name, enchantId
     end
   end
 end
-function CharacterInfo.GetItemGems(itemLink)
+function Exlist.GetItemGems(itemLink)
   local t = {}
   for i=1,MAX_NUM_SOCKETS do
     local name,iLink = GetItemGem(itemLink,i)
@@ -229,7 +229,7 @@ function CharacterInfo.GetItemGems(itemLink)
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
   MyScanningTooltip:SetHyperlink(itemLink)
   for i=1,MAX_NUM_SOCKETS do
-    local tex = _G["ChInfoScanningTooltipTexture"..i]:GetTexture()
+    local tex = _G["ExlistScanningTooltipTexture"..i]:GetTexture()
     if tex then
       tex = tostring(tex)
       if tex:find("Interface\\ItemSocketingFrame\\UI--Empty") then
@@ -240,7 +240,7 @@ function CharacterInfo.GetItemGems(itemLink)
   return t
 end
 
-function CharacterInfo.QuestInfo(questid)
+function Exlist.QuestInfo(questid)
   if not questid or questid == 0 then return nil end
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
   MyScanningTooltip:SetHyperlink("\124cffffff00\124Hquest:"..questid..":90\124h[]\124h\124r")
@@ -250,14 +250,14 @@ function CharacterInfo.QuestInfo(questid)
   return l, "\124cffffff00\124Hquest:"..questid..":90\124h["..l.."]\124h\124r"
 end
 
-CharacterInfo.FormatTimeMilliseconds = function(time)
+Exlist.FormatTimeMilliseconds = function(time)
   local minutes = math.floor((time/1000)/60)
   local seconds = math.floor((time - (minutes*60000))/1000)
   local milliseconds = time-(minutes*60000)-(seconds*1000)
   return string.format("%02d:%02d:%02d",minutes,seconds,milliseconds)
 end
 
-function CharacterInfo.GetTableNum(t)
+function Exlist.GetTableNum(t)
   if type(t) ~= "table" then
     return 0
   end
@@ -304,7 +304,7 @@ local function AddModulesToSettings()
   end
 end
 
-function CharacterInfo.UpdateChar(key,data,charname,charrealm)
+function Exlist.UpdateChar(key,data,charname,charrealm)
   if not data or not key then return end
   charrealm = charrealm or GetRealmName()
   charname = charname or UnitName('player')
@@ -314,7 +314,7 @@ function CharacterInfo.UpdateChar(key,data,charname,charrealm)
   charToUpdate[key] = data
 end
 
-function CharacterInfo.GetCachedItemInfo(itemId)
+function Exlist.GetCachedItemInfo(itemId)
   if config_db.item_cache and config_db.item_cache[itemId] then
     return config_db.item_cache[itemId]
   else
@@ -359,7 +359,7 @@ local WipeKey = function(key)
       for keys in pairs(db[realm][name]) do
         if keys == key then
           if debugMode then
-            print('|cFF995813CharacterInfo|r - wiping ',key, ' Fromn:',name,'-',realm)
+            print('|cFF995813Exlist|r - wiping ',key, ' Fromn:',name,'-',realm)
           end
           db[realm][name][key] = nil
         end
@@ -367,7 +367,7 @@ local WipeKey = function(key)
     end
   end
   if debugMode then
-    print('|cFF995813CharacterInfo|r - Wiping Key (',key,') completed.')
+    print('|cFF995813Exlist|r - Wiping Key (',key,') completed.')
   end
 end
 
@@ -391,7 +391,7 @@ local function UpdateCharacterTalents()
       table.insert(tierT,{name=name,icon=texture,selected = selected or selectedalt})
     end
   end
-  CharacterInfo.UpdateChar("talents",t)
+  Exlist.UpdateChar("talents",t)
 end
 
 local enchantNames = {
@@ -433,8 +433,8 @@ local function UpdateCharacterGear()
       local relics = {}
       local enchant,gem
       if not (order[i] == 16 or order[i] == 17 or order[i] == 18) then
-        enchant = CharacterInfo.GetItemEnchant(iLink)
-        gem = CharacterInfo.GetItemGems(iLink)
+        enchant = Exlist.GetItemEnchant(iLink)
+        gem = Exlist.GetItemGems(iLink)
       end
       table.insert(t,{slot = slotNames[order[i]], name = itemName,itemTexture = itemTexture, itemLink = itemLink,
                       ilvl = itemLevel, enchant = enchant, gem = gem})
@@ -450,7 +450,7 @@ local function UpdateCharacterGear()
       end
     end
   end
-  CharacterInfo.UpdateChar("gear",t)
+  Exlist.UpdateChar("gear",t)
 end
 local function UpdateCharacterProfessions()
   local profIndexes = {GetProfessions()}
@@ -461,7 +461,7 @@ local function UpdateCharacterProfessions()
       table.insert(t,{name=name,icon=texture,curr=rank,max=maxRank})
     end
   end
-  CharacterInfo.UpdateChar("professions",t)
+  Exlist.UpdateChar("professions",t)
 end
 
 local UpdateCharacterSpecifics = function(event)
@@ -528,14 +528,14 @@ end
 
 local function AttachStatusBar(frame)
   local statusBar = CreateFrame("StatusBar", nil, frame)
-  statusBar:SetStatusBarTexture("Interface\\AddOns\\CharacterInfo\\Media\\Texture\\statusBar")
+  statusBar:SetStatusBarTexture("Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
   statusBar:GetStatusBarTexture():SetHorizTile(false)
   local bg = {
-    bgFile = "Interface\\AddOns\\CharacterInfo\\Media\\Texture\\statusBar"
+    bgFile = "Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar"
   }
   statusBar:SetBackdrop(bg)
   statusBar:SetBackdropColor(.1, .1, .1, .8)
-  statusBar:SetStatusBarColor(CharacterInfo.ColorHexToDec("ffffff"))
+  statusBar:SetStatusBarColor(Exlist.ColorHexToDec("ffffff"))
   statusBar:SetMinMaxValues(0, 100)
   statusBar:SetValue(0)
   statusBar:SetHeight(5)
@@ -545,7 +545,7 @@ end
 
 -- Modules/API
 -- Info attaching to tooltip
-function CharacterInfo.AddLine(tooltip,info)
+function Exlist.AddLine(tooltip,info)
   -- info =  {'1st cell','2nd cell','3rd cell' ...} or "string"
   if not tooltip or not info or (type(info) ~= 'table' and type(info) ~= 'string') then return end
   local maxColumns = 5
@@ -565,13 +565,13 @@ function CharacterInfo.AddLine(tooltip,info)
   return n
 end
 
-function CharacterInfo.AddToLine(tooltip,row,col,text)
+function Exlist.AddToLine(tooltip,row,col,text)
   -- Add text to lines column
   if not tooltip or not row or not col or not text then return end
   tooltip:SetCell(row,col,text)
 end
 
-function CharacterInfo.AddScript(tooltip,row,col,event,func,arg)
+function Exlist.AddScript(tooltip,row,col,event,func,arg)
   -- Script for cell
   if not tooltip or not row or not event or not func then return end
   if col then
@@ -581,7 +581,7 @@ function CharacterInfo.AddScript(tooltip,row,col,event,func,arg)
   end
 end
 
-function CharacterInfo.CreateSideTooltip(statusbar)
+function Exlist.CreateSideTooltip(statusbar)
   -- Creates Side Tooltip function that can be attached to script
   -- statusbar(optional) {} {enabled = true, curr = ##, total = ##, color = 'hex'}
   local function a(self, info)
@@ -626,14 +626,14 @@ function CharacterInfo.CreateSideTooltip(statusbar)
       statusbar.curr = statusbar.curr or 0
       local statusBar = CreateFrame("StatusBar", nil, sideTooltip)
       self.statusBar = statusBar
-      statusBar:SetStatusBarTexture("Interface\\AddOns\\CharacterInfo\\Media\\Texture\\statusBar")
+      statusBar:SetStatusBarTexture("Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
       statusBar:GetStatusBarTexture():SetHorizTile(false)
       local bg = {
-        bgFile = "Interface\\AddOns\\CharacterInfo\\Media\\Texture\\statusBar"
+        bgFile = "Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar"
       }
       statusBar:SetBackdrop(bg)
       statusBar:SetBackdropColor(.1, .1, .1, .8)
-      statusBar:SetStatusBarColor(CharacterInfo.ColorHexToDec(statusbar.color))
+      statusBar:SetStatusBarColor(Exlist.ColorHexToDec(statusbar.color))
       statusBar:SetMinMaxValues(0, statusbar.total)
       statusBar:SetValue(statusbar.curr)
       statusBar:SetWidth(sideTooltip:GetWidth() - 2)
@@ -645,7 +645,7 @@ function CharacterInfo.CreateSideTooltip(statusbar)
   return a
 end
 
-function CharacterInfo.DisposeSideTooltip()
+function Exlist.DisposeSideTooltip()
   -- requires to have saved side tooltip in tooltip.sideTooltip
   -- returns function that can be used for script
   return function(self)
@@ -679,13 +679,13 @@ local function RegisterEvents()
     end
   end
 end
-function CharacterInfo.RegisterModule(data)
+function Exlist.RegisterModule(data)
   --[[
   data = table
     {
     name = string (name of module)
     key = string (module key that will be used in db)
-    linegenerator = func  (function that adds text to tooltip   function(tooltip,characterInfo) ...)
+    linegenerator = func  (function that adds text to tooltip   function(tooltip,Exlist) ...)
     priority = numberr (data priority in tooltip lower>higher)
     updater = func (function that updates data in db)
     event = {} or string (table or string that contains events that triggers updater func)
@@ -727,7 +727,7 @@ function CharacterInfo.RegisterModule(data)
   end
 end
 
-function CharacterInfo.GetRealmNames()
+function Exlist.GetRealmNames()
   local t = {}
   for i in pairs(db) do
     if i ~= "global" then
@@ -737,7 +737,7 @@ function CharacterInfo.GetRealmNames()
   return t
 end
 
-function CharacterInfo.GetRealmCharacters(realm)
+function Exlist.GetRealmCharacters(realm)
   local t = {}
   if db[realm] then
     for i in pairs(db[realm]) do
@@ -747,7 +747,7 @@ function CharacterInfo.GetRealmCharacters(realm)
   return t
 end
 
-function CharacterInfo.GetCharacterTable(realm,name)
+function Exlist.GetCharacterTable(realm,name)
   local t = {}
   if db[realm] and db[realm][name] then
     t = db[realm][name]
@@ -755,7 +755,7 @@ function CharacterInfo.GetCharacterTable(realm,name)
   return t
 end
 
-function CharacterInfo.GetCharacterTableKey(realm,name,key)
+function Exlist.GetCharacterTableKey(realm,name,key)
   local t = {}
   if db[realm] and db[realm][name] and db[realm][name][key] then
     t = db[realm][name][key]
@@ -763,7 +763,7 @@ function CharacterInfo.GetCharacterTableKey(realm,name,key)
   return t
 end
 
-function CharacterInfo.CharacterExists(realm,name)
+function Exlist.CharacterExists(realm,name)
     if db[realm] and db[realm][name] then
       return true
     end
@@ -908,7 +908,7 @@ local function GearTooltip(self,info)
   local specIcon = info.spec and info.class .. string.gsub(info.spec," ","") or "SpecNone"
   --print(specIcon)
   -- character name header
-  local header = "|TInterface\\AddOns\\CharacterInfo\\Media\\Icons\\" .. specIcon ..":25:25|t "..
+  local header = "|TInterface\\AddOns\\Exlist\\Media\\Icons\\" .. specIcon ..":25:25|t "..
     "|c" .. RAID_CLASS_COLORS[info.class].colorStr .. info.name .. "|r " ..
   (info.level or 0) .. ' level'
   local line = geartooltip:AddHeader()
@@ -983,7 +983,7 @@ local function GearTooltip(self,info)
       statusBar:SetMinMaxValues(0,MAX_PROFESSION_LEVEL)
       statusBar:SetValue(p[i].curr)
       statusBar:SetWidth(tipWidth)
-      statusBar:SetStatusBarColor(CharacterInfo.ColorHexToDec(ProfessionValueColor(p[i].curr)))
+      statusBar:SetStatusBarColor(Exlist.ColorHexToDec(ProfessionValueColor(p[i].curr)))
       statusBar:SetPoint("LEFT",geartooltip.lines[line].cells[2],"LEFT",5,0)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
@@ -1019,10 +1019,10 @@ end
 
 
 -- DISPLAY INFO
-local butTool = CreateFrame("Frame", "CharacterInfo_Tooltip", UIParent)
+local butTool = CreateFrame("Frame", "Exlist_Tooltip", UIParent)
 local bg = butTool:CreateTexture("CharInf_BG", "HIGH")
 butTool:SetSize(32, 32)
-bg:SetTexture("Interface\\AddOns\\CharacterInfo\\Media\\Icons\\logo")
+bg:SetTexture("Interface\\AddOns\\Exlist\\Media\\Icons\\logo")
 bg:SetSize(32, 32)
 butTool:SetScale(settings.iconScale)
 bg:SetAllPoints()
@@ -1046,7 +1046,7 @@ butTool:SetMovable(true)
 butTool:RegisterForDrag("LeftButton")
 butTool:SetScript("OnDragStart", butTool.StartMoving)
 
-local function CharacterInfo_StopMoving(self)
+local function Exlist_StopMoving(self)
   self:StopMovingOrSizing();
   self.isMoving = false;
   local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
@@ -1059,11 +1059,11 @@ local function CharacterInfo_StopMoving(self)
   config_db.config = config
 end
 
-butTool:SetScript("OnDragStop", CharacterInfo_StopMoving)
+butTool:SetScript("OnDragStop", Exlist_StopMoving)
 
 local function OnEnter(self)
-  if QTip:IsAcquired("CharacterInfo_Tooltip") then return end
-  local tooltip = QTip:Acquire("CharacterInfo_Tooltip", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
+  if QTip:IsAcquired("Exlist_Tooltip") then return end
+  local tooltip = QTip:Acquire("Exlist_Tooltip", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
   self.tooltip = tooltip
   -- sort line generators
   table.sort(registeredLineGenerators,function(a,b) return a.prio < b.prio end)
@@ -1073,18 +1073,18 @@ local function OnEnter(self)
   for i=1,#charOrder do
     local name = charOrder[i].name
     local realm = charOrder[i].realm
-    local charData = CharacterInfo.GetCharacterTable(realm,name)
+    local charData = Exlist.GetCharacterTable(realm,name)
     charData.name = name
     -- header
     local specIcon = charData.spec and charData.class .. string.gsub(charData.spec," ","") or "SpecNone"
     tooltip:SetHeaderFont(mediumFont)
-    local l = tooltip:AddHeader("|TInterface\\AddOns\\CharacterInfo\\Media\\Icons\\" .. specIcon ..":25:25|t "..
+    local l = tooltip:AddHeader("|TInterface\\AddOns\\Exlist\\Media\\Icons\\" .. specIcon ..":25:25|t "..
     "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
     tooltip:SetHeaderFont(smallFont)
     tooltip:SetHeaderFont(mediumFont)
     tooltip:SetCell(l, 2, string.format("%i ilvl", charData.iLvl or 0), "RIGHT",4,nil,nil,5)
     tooltip:SetLineScript(l,"OnEnter",GearTooltip,charData)
-    tooltip:SetLineScript(l,"OnLeave",CharacterInfo.DisposeSideTooltip())
+    tooltip:SetLineScript(l,"OnLeave",Exlist.DisposeSideTooltip())
     tooltip:SetFont(smallFont)
     tooltip:AddLine(string.format("|c%s%s - Level %i","ffffd200",realm,charData.level))
     tooltip:AddLine()
@@ -1102,14 +1102,14 @@ local function OnEnter(self)
   -- global data
   local gData = db.global and db.global.global or nil
   if gData and #globalLineGenerators > 0 then
-    local gTip = QTip:Acquire("CharacterInfo_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
+    local gTip = QTip:Acquire("Exlist_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
     gTip:SetFont(smallFont)
     tooltip.globalTooltip = gTip
     for i=1, #globalLineGenerators do
       globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
     end
     local point = self:GetPoint()
-    if config_db.config.point and config_db.config.point:find("RIGHT") then
+    if config_db.config and config_db.config.point and config_db.config.point:find("RIGHT") then
       gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
     else
       gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
@@ -1203,7 +1203,7 @@ end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
 -- refresh
-function CharacterInfo_RefreshAppearance()
+function Exlist_RefreshAppearance()
   --texplore(fontSet)
   butTool:SetMovable(not settings.lockIcon)
   butTool:RegisterForDrag("LeftButton")
@@ -1221,42 +1221,42 @@ local function IsNewCharacter()
   local realm = GetRealmName()
   return db[realm] == nil or db[realm][name] == nil
 end
-function CharacterInfo.SetupConfig()
+function Exlist.SetupConfig()
 end
 local function init()
-  CharacterInfo_DB = CharacterInfo_DB or db
-  CharacterInfo_Config = CharacterInfo_Config or config_db
-  if not CharacterInfo_Config.settings then
-    CharacterInfo_Config.settings = settings
+  Exlist_DB = Exlist_DB or db
+  Exlist_Config = Exlist_Config or config_db
+  if not Exlist_Config.settings then
+    Exlist_Config.settings = settings
   else
    -- set Defaults
     for i,v in pairs(settings) do
-      if not CharacterInfo_Config.settings[i] then
-        CharacterInfo_Config.settings[i] = v
+      if not Exlist_Config.settings[i] then
+        Exlist_Config.settings[i] = v
       end
    end
   end
-  db = CharacterInfo.copyTable(CharacterInfo_DB)
+  db = Exlist.copyTable(Exlist_DB)
   db.global = db.global or {}
   db.global.global = db.global.global or {}
-  CharacterInfo.DB = db
-  config_db = CharacterInfo.copyTable(CharacterInfo_Config)
+  Exlist.DB = db
+  config_db = Exlist.copyTable(Exlist_Config)
   settings = config_db.settings
-  CharacterInfo.ConfigDB = config_db
+  Exlist.ConfigDB = config_db
   ModernizeCharacters()
-  CharacterInfo_RefreshAppearance()
+  Exlist_RefreshAppearance()
   if IsNewCharacter() then
     -- for config page if it's first time that character logins
     C_Timer.After(0.2, function()
       UpdateCharacterSpecifics()
       AddMissingCharactersToSettings()
       AddModulesToSettings()
-      CharacterInfo.SetupConfig()
+      Exlist.SetupConfig()
     end)
   else
     AddMissingCharactersToSettings()
     AddModulesToSettings()
-    CharacterInfo.SetupConfig()
+    Exlist.SetupConfig()
   end
 end
 
@@ -1327,7 +1327,7 @@ local function GetNextDailyResetTime()
   return time() + resettime
 end
 
-function CharacterInfo.GetNextWeeklyResetTime()
+function Exlist.GetNextWeeklyResetTime()
   if not config_db.resetDays then
     local region = GetRegion()
 	--print('Getnextweekly region: ', region)
@@ -1357,7 +1357,7 @@ function CharacterInfo.GetNextWeeklyResetTime()
   end
   return nightlyReset
 end
-local GetNextWeeklyResetTime = CharacterInfo.GetNextWeeklyResetTime
+local GetNextWeeklyResetTime = Exlist.GetNextWeeklyResetTime
 
 
 local function HasResetHappened()
@@ -1407,7 +1407,7 @@ local function ResetHandling()
 end
 -- Updaters
 
-function CharacterInfo.SendFakeEvent(event) end
+function Exlist.SendFakeEvent(event) end
 local delay = true
 local delayedEvents = {}
 local running = false
@@ -1416,10 +1416,10 @@ function frame:OnEvent(event, ...)
   if event == "PLAYER_LOGOUT" then
     -- save things
     if db then
-      CharacterInfo_DB = db
+      Exlist_DB = db
     end
     if config_db then
-      CharacterInfo_Config = config_db
+      Exlist_Config = config_db
     end
     return
   end
@@ -1428,9 +1428,22 @@ function frame:OnEvent(event, ...)
     SetTooltipBut()
 	C_Timer.After(10,function() ResetHandling() end)
   end
-  if event == "CHINFO_DELAY" then
+  if event == "Exlist_DELAY" then
     delay = false
-    for c=1,#delayedEvents do
+    for event,f in pairs(registeredUpdaters) do
+      for i=1, #f do
+        if debugMode then
+          local started = debugprofilestop()
+          f[i].func(event,...)
+          print(registeredUpdaters[event][i].name .. ' (delayed) finished: ' .. debugprofilestop() - started)
+          GetLastUpdateTime()
+        else
+          f[i].func(event,...)
+          GetLastUpdateTime()
+        end
+      end
+    end
+    --[[for c=1,#delayedEvents do
       local event = delayedEvents[c]
       if registeredUpdaters[event] then
         for i=1,#registeredUpdaters[event] do
@@ -1446,15 +1459,14 @@ function frame:OnEvent(event, ...)
           end
         end
       end
-    end
+    end]]
     return
   end
   if delay then
     if not running then
-      C_Timer.After(4,function() CharacterInfo.SendFakeEvent("CHINFO_DELAY") end)
+      C_Timer.After(4,function() Exlist.SendFakeEvent("Exlist_DELAY") end)
       running = true
     end
-    table.insert(delayedEvents,event)
     return
   end
   if InCombatLockdown() then return end -- Don't update in combat
@@ -1479,17 +1491,17 @@ function frame:OnEvent(event, ...)
 end
 frame:SetScript("OnEvent", frame.OnEvent)
 
-function CharacterInfo.SendFakeEvent(event)
+function Exlist.SendFakeEvent(event)
    frame.OnEvent(nil,event)
  end
 
  local function func(...)
-    CharacterInfo.SendFakeEvent("WORLD_MAP_OPEN")
+    Exlist.SendFakeEvent("WORLD_MAP_OPEN")
  end
 
  hooksecurefunc(WorldMapFrame,"Show",func)
 
-function CharacterInfo_PrintUpdates()
+function Exlist_PrintUpdates()
   local realms, numRealms = GetRealms()
   for j = 1, numRealms do
     local charInfo, charNum = GetRealmCharInfo(realms[j])
@@ -1501,7 +1513,7 @@ function CharacterInfo_PrintUpdates()
   end
 end
 
-SLASH_CHARINF1, SLASH_CHARINF2 = '/CHINFO', '/characterinfo'; -- 3.
+SLASH_CHARINF1, SLASH_CHARINF2 = '/EXL', '/Exlist'; -- 3.
 function SlashCmdList.CHARINF(msg, editbox) -- 4.
   local args = {strsplit(" ",msg)}
   if args[1] == "" then
@@ -1509,11 +1521,11 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
   elseif args[1] == "refresh" then
     UpdateCharacterSpecifics()
   elseif args[1] == "update" then
-    CharacterInfo_PrintUpdates()
+    Exlist_PrintUpdates()
   elseif args[1] == "debug" then
     print(debugMode and 'Debug: stopped' or 'Debug: started')
     debugMode = not debugMode
-    CharacterInfo.debugMode = debugMode
+    Exlist.debugMode = debugMode
   elseif args[1] == "reset" then
     print('Reset in: ' .. SecondsToTime(GetNextWeeklyResetTime()-time()))
   elseif args[1] == "wipe" then

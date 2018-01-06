@@ -15,7 +15,7 @@ local GetMoney, GetCurrencyInfo, GetItemCount = GetMoney, GetCurrencyInfo, GetIt
 local GetItemInfo = GetItemInfo
 local math, table = math, table
 local WrapTextInColorCode = WrapTextInColorCode
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 
 local function Updater(event)
   local t = {}
@@ -39,7 +39,7 @@ local function Updater(event)
   end
   for i = 1, #ITEMS do
     local amount = GetItemCount(ITEMS[i],true)
-    local itemInfo = CharacterInfo.GetCachedItemInfo(ITEMS[i])
+    local itemInfo = Exlist.GetCachedItemInfo(ITEMS[i])
     local temp = {
       name = itemInfo.name,
       amount = amount,
@@ -48,20 +48,20 @@ local function Updater(event)
     table.insert(t.currency, temp)
 
   end
-  CharacterInfo.UpdateChar(key,t)
+  Exlist.UpdateChar(key,t)
 end
 
 local function Linegenerator(tooltip,data)
   if not data or not data.money then return end
-  local lineNum = CharacterInfo.AddLine(tooltip,data.money.gold .. "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r")
+  local lineNum = Exlist.AddLine(tooltip,data.money.gold .. "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r")
   local currency = data.currency
   if currency then
     local sideTooltip = {body = {},title= WrapTextInColorCode("Currency","ffffd200")}
     for i=1,#currency do
       table.insert(sideTooltip.body,{"|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""), currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount})
     end
-    CharacterInfo.AddScript(tooltip,lineNum,nil,"OnEnter",CharacterInfo.CreateSideTooltip(),sideTooltip)
-    CharacterInfo.AddScript(tooltip,lineNum,nil,"OnLeave", CharacterInfo.DisposeSideTooltip())
+    Exlist.AddScript(tooltip,lineNum,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
+    Exlist.AddScript(tooltip,lineNum,nil,"OnLeave", Exlist.DisposeSideTooltip())
   end
 end
 
@@ -74,4 +74,4 @@ local data = {
   event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},
   weeklyReset = false
 }
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

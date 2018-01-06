@@ -1,10 +1,10 @@
 local key = "worldboss"
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 
 local function Updater(event)
   local t = {}
 
-  CharacterInfo.UpdateChar(key,t)
+  Exlist.UpdateChar(key,t)
 end
 
 local function Linegenerator(tooltip,data)
@@ -32,4 +32,4 @@ local data = {
   -- modernize = Modernize
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

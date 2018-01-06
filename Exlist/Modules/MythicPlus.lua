@@ -1,6 +1,6 @@
 local key = "mythicPlus"
 local CM = C_ChallengeMode
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table = table
 
@@ -43,21 +43,21 @@ local function Updater(event)
   end
   table.sort(mapsDone,function(a,b) return a.level > b.level end)
   -- add affixes to global table
-  local savedAffixes = CharacterInfo.GetCharacterTableKey('global','global',"mythicKey")
+  local savedAffixes = Exlist.GetCharacterTableKey('global','global',"mythicKey")
   if #savedAffixes < 3 and affixes then
     for i=1,#affixes do
       local name, desc, icon = CM.GetAffixInfo(affixes[i])
-      if CharacterInfo.debugMode then print("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i,"key:",key) end
+      if Exlist.debugMode then print("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i,"key:",key) end
       savedAffixes[i] = {name = name, icon = icon, desc = desc}
     end
-    CharacterInfo.UpdateChar("mythicKey",savedAffixes,'global','global')
+    Exlist.UpdateChar("mythicKey",savedAffixes,'global','global')
   end
   local t= {
     ["bestLvl"] = bestLvl,
     ["bestLvlMap"] = bestLvlMap,
     ["mapsDone"] = mapsDone
   }
-  CharacterInfo.UpdateChar(key,t)
+  Exlist.UpdateChar(key,t)
 end
 
 local function MythicPlusTimeString(time,mapId)
@@ -68,24 +68,24 @@ local function MythicPlusTimeString(time,mapId)
   local colors = {"ffbfbfbf","fffaff00","fffbdb00","fffacd0c"}
   for i=1, #times do
     if secTime > times[i] then
-      if i == 1 then return WrapTextInColorCode("(Depleted) " .. CharacterInfo.FormatTimeMilliseconds(time),colors[i])
-      else return WrapTextInColorCode("(+".. (i-1) .. ") " .. CharacterInfo.FormatTimeMilliseconds(time),colors[i]) end
+      if i == 1 then return WrapTextInColorCode("(Depleted) " .. Exlist.FormatTimeMilliseconds(time),colors[i])
+      else return WrapTextInColorCode("(+".. (i-1) .. ") " .. Exlist.FormatTimeMilliseconds(time),colors[i]) end
     end
   end
-  return WrapTextInColorCode("(+3) " .. CharacterInfo.FormatTimeMilliseconds(time),colors[#colors])
+  return WrapTextInColorCode("(+3) " .. Exlist.FormatTimeMilliseconds(time),colors[#colors])
 end
 
 local function Linegenerator(tooltip,data)
   if not data or data.bestLvl < 2 then return end
-  local line = CharacterInfo.AddLine(tooltip,{"Best Mythic+","+" .. data.bestLvl .. " " .. data.bestLvlMap})
+  local line = Exlist.AddLine(tooltip,{"Best Mythic+","+" .. data.bestLvl .. " " .. data.bestLvlMap})
   if data.mapsDone and #data.mapsDone > 0 then
     local sideTooltip = {title = WrapTextInColorCode("Mythic+","ffffd200"), body = {}}
     local maps = data.mapsDone
     for i=1, #maps do
       table.insert(sideTooltip.body,{"+" .. maps[i].level .. " " .. maps[i].name,MythicPlusTimeString(maps[i].time,maps[i].mapId)})
     end
-    CharacterInfo.AddScript(tooltip,line,nil,"OnEnter",CharacterInfo.CreateSideTooltip(),sideTooltip)
-    CharacterInfo.AddScript(tooltip,line,nil,"OnLeave",CharacterInfo.DisposeSideTooltip())
+    Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
+    Exlist.AddScript(tooltip,line,nil,"OnLeave",Exlist.DisposeSideTooltip())
   end
 end
 
@@ -99,4 +99,4 @@ local data = {
   weeklyReset = true
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

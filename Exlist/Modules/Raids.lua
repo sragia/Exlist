@@ -44,7 +44,7 @@ for i,v in pairs(ALLOWED_RAIDS) do print(i,v) end
 local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo = GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo
 local table, pairs = table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 
 local function spairs(t, order)
   -- collect the keys
@@ -115,7 +115,7 @@ local function Updater(event)
     t[raid].LFR.max = total
     t[raid].LFR.locked = killed > 0
   end
-  CharacterInfo.UpdateChar(key,t)
+  Exlist.UpdateChar(key,t)
 end
 
 local raidOrder = {GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne",
@@ -149,7 +149,7 @@ local function Linegenerator(tooltip,data)
           --killed something
           if not added then
             -- raid shows up first time
-            line = CharacterInfo.AddLine(tooltip,{WrapTextInColorCode(raidOrder[index],"ffc1c1c1"),"","","",""})
+            line = Exlist.AddLine(tooltip,{WrapTextInColorCode(raidOrder[index],"ffc1c1c1"),"","","",""})
             added = true
             cellIndex = cellIndex + 1
           end
@@ -159,7 +159,7 @@ local function Linegenerator(tooltip,data)
           if difIndex == 1 then
             -- LFR
             for id in spairs(raidInfo.bosses,function(t,a,b) return t[a].order < t[b].order end) do
-              if CharacterInfo.debugMode then print("Adding LFR id:",id," -",key) end
+              if Exlist.debugMode then print("Adding LFR id:",id," -",key) end
               for name,b in pairs(raidInfo.bosses[id]) do
                 if type(b) == "table" then
                   table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,"ffc1c1c1"),""})
@@ -181,9 +181,9 @@ local function Linegenerator(tooltip,data)
           end
 
           local statusbar = {curr = raidInfo.done,total=raidInfo.max,color = "9b016a"}
-          CharacterInfo.AddToLine(tooltip,line,cellIndex,WrapTextInColorCode(raidInfo.done .. "/".. raidInfo.max.. " " .. diffShortened[diffOrder[difIndex]] ,diffColors[diffOrder[difIndex]]))
-          CharacterInfo.AddScript(tooltip,line,cellIndex,"OnEnter",CharacterInfo.CreateSideTooltip(statusbar),sideTooltipTable)
-          CharacterInfo.AddScript(tooltip,line,cellIndex,"OnLeave",CharacterInfo.DisposeSideTooltip())
+          Exlist.AddToLine(tooltip,line,cellIndex,WrapTextInColorCode(raidInfo.done .. "/".. raidInfo.max.. " " .. diffShortened[diffOrder[difIndex]] ,diffColors[diffOrder[difIndex]]))
+          Exlist.AddScript(tooltip,line,cellIndex,"OnEnter",Exlist.CreateSideTooltip(statusbar),sideTooltipTable)
+          Exlist.AddScript(tooltip,line,cellIndex,"OnLeave",Exlist.DisposeSideTooltip())
           cellIndex = cellIndex + 1
         end
       end
@@ -201,4 +201,4 @@ local data = {
   weeklyReset = true
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

@@ -3,7 +3,7 @@ local NUMBER_OF_DUNGEONS_LEGION = 13
 local GetNumSavedInstances, GetSavedInstanceInfo = GetNumSavedInstances, GetSavedInstanceInfo
 local WrapTextInColorCode = WrapTextInColorCode
 local pairs, table = pairs, table
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 --[[ TODO:
   LOCALIZE THIS
 ]]
@@ -38,18 +38,18 @@ local function Updater(event)
       end
     end
   end
-  CharacterInfo.UpdateChar(key,t)
+  Exlist.UpdateChar(key,t)
 end
 
 local function Linegenerator(tooltip,data)
   if not data or data.done == 0 then return end
-  local lane = CharacterInfo.AddLine(tooltip,{WrapTextInColorCode('Dungeons',"ffc1c1c1"),data.done..'/'..data.max})
+  local lane = Exlist.AddLine(tooltip,{WrapTextInColorCode('Dungeons',"ffc1c1c1"),data.done..'/'..data.max})
   local sideTooltip = {title = WrapTextInColorCode("Mythic Dungeons","ffffd200"), body = {}}
   for name,locked in pairs(data.dungeonList) do
     table.insert(sideTooltip.body,{name,locked and WrapTextInColorCode("Defeated", "FFFF0000") or  WrapTextInColorCode("Available", "FF00FF00")})
   end
-  CharacterInfo.AddScript(tooltip,lane,nil,"OnEnter",CharacterInfo.CreateSideTooltip(), sideTooltip)
-  CharacterInfo.AddScript(tooltip,lane,nil,"OnLeave",CharacterInfo.DisposeSideTooltip())
+  Exlist.AddScript(tooltip,lane,nil,"OnEnter",Exlist.CreateSideTooltip(), sideTooltip)
+  Exlist.AddScript(tooltip,lane,nil,"OnLeave",Exlist.DisposeSideTooltip())
 end
 
 local data = {
@@ -62,4 +62,4 @@ local data = {
   weeklyReset = true
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

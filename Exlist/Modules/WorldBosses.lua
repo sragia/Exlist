@@ -1,6 +1,6 @@
 local key = "worldboss"
 local MAX_CHARACTER_LEVEL = 110
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 local worldBossIDs = {
   [42270] = {eid = 1749}, -- Nithogg
   [42269] = {eid = 1756, name = EJ_GetEncounterInfo(1756)}, -- The Soultakers
@@ -112,7 +112,7 @@ local function GetBrokenShoreBuildings()
 end
 
 local function ScanArgus()
-  if CharacterInfo.debugMode then print("Scanning Argus -",key) end
+  if Exlist.debugMode then print("Scanning Argus -",key) end
   local t = {
   --  worldBoss = {},
   --  invasions = {}
@@ -128,7 +128,7 @@ local function ScanArgus()
         t.worldBoss = {
           questId = greaterInvasionPOIId[poiId].questId,
           name = greaterInvasionPOIId[poiId].name or select(2,EJ_GetCreatureInfo(1,greaterInvasionPOIId[poiId].eid)),
-          endTime = CharacterInfo.GetNextWeeklyResetTime() or 0,
+          endTime = Exlist.GetNextWeeklyResetTime() or 0,
           eid = greaterInvasionPOIId[poiId].eid,
         }
       elseif invasionPointPOIId[poiId] then -- assuming that same invasion isn't up in 2 places
@@ -149,7 +149,7 @@ local function ScanArgus()
 end
 
 local function ScanIsles(bs)
-  if CharacterInfo.debugMode then print("Scanning Broken Isles -",key) end
+  if Exlist.debugMode then print("Scanning Broken Isles -",key) end
   local t = {}
   local currMapId = GetCurrentMapAreaID()
   local timeNow = time()
@@ -159,7 +159,7 @@ local function ScanIsles(bs)
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(BrokenIslesZones[i])
     for _,info in pairs(wqs or {}) do
       if worldBossIDs[info.questId] then
-        local endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and (bs[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime()
+        local endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and (bs[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime()
         if endTime > 0 then
           table.insert(t,{
             name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
@@ -181,7 +181,7 @@ local function Updater(event)
   select(2,IsInInstance()) ~= "none" then
     -- scan trough WBs and check their status on every 5 sec max
     if GetTime() - lastUpdate > 5 then
-      local t = CharacterInfo.GetCharacterTableKey((GetRealmName()),(UnitName("player")),key)
+      local t = Exlist.GetCharacterTableKey((GetRealmName()),(UnitName("player")),key)
       local changed = false
       for questId,info in pairs(t) do
         if not info.defeated and IsQuestFlaggedCompleted(questId) then
@@ -189,18 +189,18 @@ local function Updater(event)
           changed = true
         end
       end
-      if changed then CharacterInfo.UpdateChar(key,t) end
+      if changed then Exlist.UpdateChar(key,t) end
     end
 
     return
   end
   if event == "PLAYER_ENTERING_WORLD" or event == "EJ_DIFFICULTY_UPDATE" then
-    C_Timer.After(1,function() CharacterInfo.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end) -- delay update
+    C_Timer.After(1,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end) -- delay update
     return
   end
   lastUpdate = GetTime()
   local t = {}
-  local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
+  local gt = Exlist.GetCharacterTableKey("global","global",key)
   gt.invasions = gt.invasions or {}
   gt.brokenshore = gt.brokenshore or {}
   gt.worldbosses = gt.worldbosses or {}
@@ -231,11 +231,11 @@ local function Updater(event)
         t[info.questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
           defeated = true,
-          endTime = CharacterInfo.GetNextWeeklyResetTime()
+          endTime = Exlist.GetNextWeeklyResetTime()
         }
         table.insert(argusDB,{
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = Exlist.GetNextWeeklyResetTime(),
           questId = info.questId
         })
         added = true
@@ -264,7 +264,7 @@ local function Updater(event)
 
   -- Isles World Bosses
   local NDup = gt.brokenshore[4] and gt.brokenshore[4].state == 2 or gt.brokenshore[4].state == 3
-  if gt.worldbosses.isles and CharacterInfo.GetTableNum(gt.worldbosses.isles) > 0 then
+  if gt.worldbosses.isles and Exlist.GetTableNum(gt.worldbosses.isles) > 0 then
     -- There won't be more than 2 bosses up in isles so if we have at least 2 in DB that's enough
     local islesDB = gt.worldbosses.isles
     -- killed first
@@ -273,16 +273,16 @@ local function Updater(event)
         t[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
           defeated = true,
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime(),
         }
         islesDB[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime(),
           questId = questId
         }
       end
     end
-    if CharacterInfo.GetTableNum(islesDB) >= 2 and NDup then
+    if Exlist.GetTableNum(islesDB) >= 2 and NDup then
       -- 2 bosses in DB and ND is up
       for i in pairs(islesDB) do
         t[islesDB[i].questId] = {
@@ -291,7 +291,7 @@ local function Updater(event)
           endTime = islesDB[i].endTime
         }
       end
-    elseif CharacterInfo.GetTableNum(islesDB) <= 1 and NDup then
+    elseif Exlist.GetTableNum(islesDB) <= 1 and NDup then
       -- ND up but only 1 boss cached
       islesScan = islesScan or ScanIsles(gt.brokenshore)
       for i=1,#islesScan do
@@ -329,11 +329,11 @@ local function Updater(event)
         t[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
           defeated = true,
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime(),
         }
         islesDB[questId] = {
           name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or CharacterInfo.GetNextWeeklyResetTime(),
+          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime(),
           questId = questId
         }
       end
@@ -375,8 +375,8 @@ local function Updater(event)
     end
   end
 
-  CharacterInfo.UpdateChar(key,t)
-  CharacterInfo.UpdateChar(key,gt,'global','global')
+  Exlist.UpdateChar(key,t)
+  Exlist.UpdateChar(key,gt,'global','global')
 end
 
 local function Linegenerator(tooltip,data)
@@ -388,15 +388,15 @@ local function Linegenerator(tooltip,data)
   for spellId,info in pairs(data) do
     availableWB = availableWB + 1
     killed = info.defeated and killed + 1 or killed
-    table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime > timeNow and CharacterInfo.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode("Not Available","fff49e42")),
+    table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime > timeNow and Exlist.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode("Not Available","fff49e42")),
                                           info.defeated and WrapTextInColorCode("Defeated","ffff0000") or WrapTextInColorCode("Available","ff00ff00")})
 
   end
   if availableWB > 0 then
-    local line = CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("World Bosses:","ffc1c1c1"),string.format("%i/%i",killed,availableWB)})
+    local line = Exlist.AddLine(tooltip,{WrapTextInColorCode("World Bosses:","ffc1c1c1"),string.format("%i/%i",killed,availableWB)})
     local sideTooltip = {body = strings,title=WrapTextInColorCode("World Bosses","ffffd200")}
-    CharacterInfo.AddScript(tooltip,line,nil,"OnEnter",CharacterInfo.CreateSideTooltip(),sideTooltip)
-    CharacterInfo.AddScript(tooltip,line,nil,"OnLeave",CharacterInfo.DisposeSideTooltip())
+    Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
+    Exlist.AddScript(tooltip,line,nil,"OnLeave",Exlist.DisposeSideTooltip())
   end
 end
 
@@ -404,36 +404,36 @@ local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
   if not data then return end
   if data.invasions then
-    CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")})
+    Exlist.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")})
     for questId,info in spairs((data.invasions or {}),function(t,a,b) return (t[a].endTime or 0) < (t[b].endTime or 0) end) do
       if info.endTime and info.endTime > timeNow then
-        CharacterInfo.AddLine(tooltip,{info.name,CharacterInfo.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map or "","ffc1c1c1")})
+        Exlist.AddLine(tooltip,{info.name,Exlist.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map or "","ffc1c1c1")})
       end
     end
   end
   if data.brokenshore then
-      CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
+      Exlist.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
     for i,info in pairs(data.brokenshore or {}) do
-      local line = CharacterInfo.AddLine(tooltip,{info.name,info.timeEnd and CharacterInfo.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
+      local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
       info.rewards and string.format("|T%s:15|t %s",info.rewards.icon or unknownIcon,info.rewards.name or ""))})
       if info.rewards then
-        CharacterInfo.AddScript(tooltip,line,3,"OnEnter",function(self)
+        Exlist.AddScript(tooltip,line,3,"OnEnter",function(self)
           GameTooltip:SetOwner(self)
           GameTooltip:SetFrameLevel(self:GetFrameLevel()+10)
           GameTooltip:ClearLines()
           GameTooltip:SetSpellByID(info.rewards.spellId)
           GameTooltip:Show()
          end)
-         CharacterInfo.AddScript(tooltip,line,3,"OnLeave",GameTooltip_Hide)
+         Exlist.AddScript(tooltip,line,3,"OnLeave",GameTooltip_Hide)
       end
     end
   end
   if data.worldbosses then
-    CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")})
+    Exlist.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")})
     for _,info in pairs(data.worldbosses) do
       for b in pairs(info) do
         if info[b].endTime > timeNow then
-          CharacterInfo.AddLine(tooltip,{info[b].name,CharacterInfo.TimeLeftColor(info[b].endTime - timeNow)})
+          Exlist.AddLine(tooltip,{info[b].name,Exlist.TimeLeftColor(info[b].endTime - timeNow)})
         end
       end
     end
@@ -451,4 +451,4 @@ local data = {
   weeklyReset = true
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

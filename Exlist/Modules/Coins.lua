@@ -3,7 +3,7 @@ local MAX_CHARACTER_LEVEL = 110
 local UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo = UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo
 local pairs, table = pairs, table
 local WrapTextInColorCode = WrapTextInColorCode
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 
 local function Updater(event)
   if UnitLevel('player') < MAX_CHARACTER_LEVEL then return end
@@ -14,7 +14,7 @@ local function Updater(event)
   local quests = {}
   for id, _ in pairs(coinsQuests) do
     if IsQuestFlaggedCompleted(id) then
-      local title = CharacterInfo.QuestInfo(id)
+      local title = Exlist.QuestInfo(id)
       table.insert(quests,title)
       count = count + 1
     end
@@ -26,20 +26,20 @@ local function Updater(event)
     ["available"] = 3 - count,
     ["quests"] = quests
   }
-  CharacterInfo.UpdateChar(key,table)
+  Exlist.UpdateChar(key,table)
 end
 
 local function Linegenerator(tooltip,data)
   if not data then return end
   local availableCoins = data.available > 0 and WrapTextInColorCode(data.available .. " available!", "ff00ff00") or ""
-  local line = CharacterInfo.AddLine(tooltip,{"Coins ",data.curr .. "/" .. data.max .. " " .. availableCoins})
+  local line = Exlist.AddLine(tooltip,{"Coins ",data.curr .. "/" .. data.max .. " " .. availableCoins})
   if data.quests and #data.quests > 0 then
     local sideTooltip = {title = WrapTextInColorCode("Quests Done This Week","ffffd200"), body = {}}
     for i=1,#data.quests do
       table.insert(sideTooltip.body,WrapTextInColorCode("[" .. data.quests[i] .. "]","fffee400"))
     end
-    CharacterInfo.AddScript(tooltip,line,nil,"OnEnter",CharacterInfo.CreateSideTooltip(),sideTooltip)
-    CharacterInfo.AddScript(tooltip,line,nil,"OnLeave", CharacterInfo.DisposeSideTooltip())
+    Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
+    Exlist.AddScript(tooltip,line,nil,"OnLeave", Exlist.DisposeSideTooltip())
   end
 end
 
@@ -53,4 +53,4 @@ local data = {
   weeklyReset = false
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

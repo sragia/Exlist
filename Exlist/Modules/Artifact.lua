@@ -8,7 +8,7 @@ local string, date, time = string, date, time
 local table, tonumber = table, tonumber
 local UnitName, GetRealmName = UnitName, GetRealmName
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 
 
 local ArtifactInfo = function()
@@ -127,26 +127,26 @@ local function Updater(event)
     ["level"] = LAD:GetArtifactKnowledge(),
     ["next"] = GetNextAK() -- check nil
   }
-  if CharacterInfo.DB then
+  if Exlist.DB then
     table.dailyAP = {}
-    local chk = CharacterInfo.DB[realm][name].artifact and CharacterInfo.DB[realm][name].artifact.dailyAP and CharacterInfo.DB[realm][name].artifact.dailyAP[currentArtifactID] and CharacterInfo.DB[realm][name].artifact.dailyAP[currentArtifactID].dateChecked or nil
-    local apT = CharacterInfo.DB[realm][name].artifact and CharacterInfo.DB[realm][name].artifact.dailyAP and CharacterInfo.DB[realm][name].artifact.dailyAP[currentArtifactID] and CharacterInfo.DB[realm][name].artifact.dailyAP[currentArtifactID].apDays or nil
+    local chk = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].dateChecked or nil
+    local apT = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].apDays or nil
     local aptable, currentAP, dateChecked = GetAPperDay(chk, apT)
-    table.dailyAP = CharacterInfo.DB[realm][name].artifact and CharacterInfo.DB[realm][name].artifact.dailyAP or {}
+    table.dailyAP = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP or {}
     table.dailyAP[currentArtifactID] = {
       apDays = aptable,
       dateChecked = dateChecked,
       currentAP = currentAP
     }
   end
-  CharacterInfo.UpdateChar(key,table)
+  Exlist.UpdateChar(key,table)
 end
 
 local function Linegenerator(tooltip,data)
   if not data then return end
-  local l = CharacterInfo.AddLine(tooltip,{"Artifact",WrapTextInColorCode("Rank: ", "ffb2b2b2")..data.traits})
+  local l = Exlist.AddLine(tooltip,{"Artifact",WrapTextInColorCode("Rank: ", "ffb2b2b2")..data.traits})
   local sideTooltip = {body= {}, title=WrapTextInColorCode("Artifact Weapon", "ffffd200")}
-  table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power: ", "ffb2b2b2"),CharacterInfo.ShortenNumber(data.AP.curr, 1) .. '/' .. CharacterInfo.ShortenNumber(data.AP.max, 1)})
+  table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power: ", "ffb2b2b2"),Exlist.ShortenNumber(data.AP.curr, 1) .. '/' .. Exlist.ShortenNumber(data.AP.max, 1)})
   table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Knowledge level: ", "ffb2b2b2"), data.knowledge.level})
 
   local next = tonumber(data.knowledge.next)
@@ -158,18 +158,18 @@ local function Linegenerator(tooltip,data)
   end
   if data.dailyAP and data.currentID then
     local dailyAP = data.dailyAP[data.currentID]
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (Today): ", "ffb2b2b2"), CharacterInfo.ShortenNumber(dailyAP.currentAP - dailyAP.apDays[#dailyAP.apDays], 2)})
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (This Week): ", "ffb2b2b2"), CharacterInfo.ShortenNumber(dailyAP.currentAP - dailyAP.apDays[1], 2)})
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (Per day): ", "ffb2b2b2"), CharacterInfo.ShortenNumber((dailyAP.currentAP - dailyAP.apDays[1]) / #dailyAP.apDays, 2)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (Today): ", "ffb2b2b2"), Exlist.ShortenNumber(dailyAP.currentAP - dailyAP.apDays[#dailyAP.apDays], 2)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (This Week): ", "ffb2b2b2"), Exlist.ShortenNumber(dailyAP.currentAP - dailyAP.apDays[1], 2)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (Per day): ", "ffb2b2b2"), Exlist.ShortenNumber((dailyAP.currentAP - dailyAP.apDays[1]) / #dailyAP.apDays, 2)})
   end
 
-  CharacterInfo.AddScript(tooltip,l,nil,"OnEnter", CharacterInfo.CreateSideTooltip(), sideTooltip)
-  CharacterInfo.AddScript(tooltip,l,nil,"OnLeave", CharacterInfo.DisposeSideTooltip())
+  Exlist.AddScript(tooltip,l,nil,"OnEnter", Exlist.CreateSideTooltip(), sideTooltip)
+  Exlist.AddScript(tooltip,l,nil,"OnLeave", Exlist.DisposeSideTooltip())
   local time = time()
   local next = tonumber(data.knowledge.next)
   local nextIn = next and next - time or nil
   if nextIn and not (nextIn > 0) then
-    CharacterInfo.AddLine(tooltip,{"", WrapTextInColorCode("New Knowledge level is ready!", "ff62f442")})
+    Exlist.AddLine(tooltip,{"", WrapTextInColorCode("New Knowledge level is ready!", "ff62f442")})
   end
 end
 
@@ -182,4 +182,4 @@ local data = {
   event = {"ARTIFACT_UPDATE"},
   weeklyReset = false
 }
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

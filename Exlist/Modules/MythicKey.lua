@@ -6,15 +6,15 @@ local GetContainerNumSlots, GetContainerItemLink = GetContainerNumSlots, GetCont
 local ItemRefTooltip, UIParent, ShowUIPanel = ItemRefTooltip, UIParent, ShowUIPanel
 local string, strsplit, time = string, strsplit, time
 local WrapTextInColorCode = WrapTextInColorCode
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local lastUpdate = 0
 local function Updater(event)
   if GetTime() - lastUpdate < 5 then return end
   lastUpdate = GetTime()
-  local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
-  if CharacterInfo.debugMode then
+  local gt = Exlist.GetCharacterTableKey("global","global",key)
+  if Exlist.debugMode then
     print(key, ' GlobalTable:')
     for i,v in pairs(gt) do print(i,v) end
   end
@@ -29,7 +29,7 @@ local function Updater(event)
           if not gt[i] and affixes[i] and affixes[i] ~= "" then
             local id = string.match(affixes[i],"%d+")
             local name, desc, icon = CM.GetAffixInfo(tonumber(id))
-            if CharacterInfo.debugMode then print("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i," key:",key) end
+            if Exlist.debugMode then print("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i," key:",key) end
             gt[i] = {name = name, icon = icon, desc = desc}
           end
         end
@@ -38,8 +38,8 @@ local function Updater(event)
           ["level"] = level,
           ["itemLink"] = s,
         }
-        CharacterInfo.UpdateChar(key,table)
-        CharacterInfo.UpdateChar(key,gt,"global","global")
+        Exlist.UpdateChar(key,table)
+        Exlist.UpdateChar(key,gt,"global","global")
         break;
       end
     end
@@ -48,8 +48,8 @@ end
 
 local function Linegenerator(tooltip,data)
   if not data then return end
-  local lineNum = CharacterInfo.AddLine(tooltip,{"Key in bags",WrapTextInColorCode("[" .. data.dungeon .. " +" .. data.level .. "]", "ffd541e2")})
-  CharacterInfo.AddScript(tooltip,lineNum, 2, "OnMouseDown", function(self, arg1)
+  local lineNum = Exlist.AddLine(tooltip,{"Key in bags",WrapTextInColorCode("[" .. data.dungeon .. " +" .. data.level .. "]", "ffd541e2")})
+  Exlist.AddScript(tooltip,lineNum, 2, "OnMouseDown", function(self, arg1)
     ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
     ItemRefTooltip:SetHyperlink(arg1)
     ShowUIPanel(ItemRefTooltip) end,
@@ -61,12 +61,12 @@ local function GlobalLineGenerator(tooltip,data)
   local added = false
   for i=1,#data do
     if not added then
-      CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Mythic+ Affixes","ffffd200")})
+      Exlist.AddLine(tooltip,{WrapTextInColorCode("Mythic+ Affixes","ffffd200")})
       added = true
     end
-    local line = CharacterInfo.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or "Unknown")})
+    local line = Exlist.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or "Unknown")})
     if data[i].desc then
-      CharacterInfo.AddScript(tooltip,line,nil,"OnEnter",function(self)
+      Exlist.AddScript(tooltip,line,nil,"OnEnter",function(self)
         GameTooltip:SetOwner(self)
         GameTooltip:SetFrameLevel(self:GetFrameLevel()+10)
         GameTooltip:ClearLines()
@@ -74,7 +74,7 @@ local function GlobalLineGenerator(tooltip,data)
         GameTooltip:SetText(data[i].desc,nil,nil,nil,nil,true)
         GameTooltip:Show()
        end)
-       CharacterInfo.AddScript(tooltip,line,nil,"OnLeave",GameTooltip_Hide)
+       Exlist.AddScript(tooltip,line,nil,"OnLeave",GameTooltip_Hide)
     end
   end
 end
@@ -90,4 +90,4 @@ local data = {
   weeklyReset = true
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)

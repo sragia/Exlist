@@ -1,5 +1,5 @@
-# CharacterInfo
-characterInfo - World of Warcraft addon. Displays various different information about your characters.
+# Exlist
+Exlist - World of Warcraft addon. Displays various different information about your characters.
 Mainly built to allow checking various things on your other characters without having to log on them.
 ![alt text](https://i.imgur.com/8D2OTKZ.png "Main Tooltip")
 

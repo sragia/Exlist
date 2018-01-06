@@ -5,7 +5,7 @@ local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local C_TaskQuest, C_Timer = C_TaskQuest, C_Timer
 local GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo = GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo
 local table,pairs = table,pairs
-local CharacterInfo = CharacterInfo
+local Exlist = Exlist
 
 
 local function TimeLeftColor(timeLeft, times, col)
@@ -46,13 +46,13 @@ local function spairs(t, order)
 end
 
 local function Updater(event)
-  if event == "PLAYER_ENTERING_WORLD" then C_Timer.After(20,function() CharacterInfo.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
-  elseif event == "QUEST_TURNED_IN" or event ==  "QUEST_REMOVED" then C_Timer.After(5,function() CharacterInfo.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
+  if event == "PLAYER_ENTERING_WORLD" then C_Timer.After(20,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
+  elseif event == "QUEST_TURNED_IN" or event ==  "QUEST_REMOVED" then C_Timer.After(5,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
   end
   local timeNow = time()
   local emissaries = {
   }
-  local gt = CharacterInfo.GetCharacterTableKey("global","global",key)
+  local gt = Exlist.GetCharacterTableKey("global","global",key)
   local trackedBounties = 0 -- if we already know all bounties
   for questId,info in pairs(gt) do
     -- cleanup
@@ -85,8 +85,8 @@ local function Updater(event)
     end
   end
   table.sort(emissaries, function(a, b) return a.endTime < b.endTime end)
-  CharacterInfo.UpdateChar(key,emissaries)
-  CharacterInfo.UpdateChar(key,gt,"global","global")
+  Exlist.UpdateChar(key,emissaries)
+  Exlist.UpdateChar(key,gt,"global","global")
 end
 
 local function Linegenerator(tooltip,data)
@@ -99,7 +99,7 @@ local function Linegenerator(tooltip,data)
     end
   end
   if availableEmissaries > 0 then
-    local lineNum = CharacterInfo.AddLine(tooltip,{"Available Emissaries ", WrapTextInColorCode(availableEmissaries, "FF00FF00")})
+    local lineNum = Exlist.AddLine(tooltip,{"Available Emissaries ", WrapTextInColorCode(availableEmissaries, "FF00FF00")})
     -- info {} {body = {'1st lane',{'2nd lane', 'side number w/e'}},title = ""}
     local sideTooltip = {title = WrapTextInColorCode("Available Emissaries", "ffffd200"), body = {}}
     local timeLeftColor
@@ -108,17 +108,17 @@ local function Linegenerator(tooltip,data)
       table.insert(sideTooltip.body, {data[i].name.."("..TimeLeftColor(data[i].endTime - timeNow, {36000, 72000})..")", (data[i].current or 0) .. "/" .. (data[i].total or 0)})
       end
     end
-    CharacterInfo.AddScript(tooltip,lineNum,nil,"OnEnter", CharacterInfo.CreateSideTooltip(), sideTooltip)
-    CharacterInfo.AddScript(tooltip,lineNum,nil,"OnLeave", CharacterInfo.DisposeSideTooltip())
+    Exlist.AddScript(tooltip,lineNum,nil,"OnEnter", Exlist.CreateSideTooltip(), sideTooltip)
+    Exlist.AddScript(tooltip,lineNum,nil,"OnLeave", Exlist.DisposeSideTooltip())
   end
 end
 
 local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
-  CharacterInfo.AddLine(tooltip,{WrapTextInColorCode("Emissaries","ffffd200")})
+  Exlist.AddLine(tooltip,{WrapTextInColorCode("Emissaries","ffffd200")})
 
   for questId,info in spairs(data or {},function(t,a,b) return t[a].endTime < t[b].endTime end) do
-    CharacterInfo.AddLine(tooltip,{info.title,TimeLeftColor(info.endTime - timeNow,{36000, 72000})})
+    Exlist.AddLine(tooltip,{info.title,TimeLeftColor(info.endTime - timeNow,{36000, 72000})})
   end
 end
 
@@ -133,4 +133,4 @@ event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTER
 weeklyReset = false
 }
 
-CharacterInfo.RegisterModule(data)
+Exlist.RegisterModule(data)
