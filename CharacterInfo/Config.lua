@@ -157,7 +157,7 @@ local options = {
             args = {
                 des = {
                     type = "description",
-                    name = " WIP ",
+                    name = " ",
                     order = 1
                 },
                 tooltipHeight = {
