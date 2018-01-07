@@ -22,6 +22,8 @@ externals:
  Exlist/Libs/LibSharedMedia-3.0:
   url: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
 
+enable-nolib-creation: no
+
 ignore:
   - README.md
   - LICENSE.md
