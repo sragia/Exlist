@@ -3,7 +3,7 @@
 ## Notes: Shows various information about your characters
 ## Author: Exality
 ## SavedVariables: Exlist_DB, Exlist_Config
-## Version: 1
+## Version: @project-version@
 
 #Libs
 embeds.xml
