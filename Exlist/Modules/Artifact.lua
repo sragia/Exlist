@@ -13,7 +13,7 @@ local Exlist = Exlist
 
 local ArtifactInfo = function()
   local loaded = IsAddOnLoaded('LibArtifactData-1.0') or LoadAddOn('LibArtifactData-1.0')
-  if not loaded then return end
+  if not loaded and not LAD then return end
   local artifactID, unspentPower, power, maxPower, powerForNextRank, numRanksPurchased, numRanksPurchasable
   if not LAD:GetActiveArtifactID() then
     LAD:ForceUpdate()
@@ -116,30 +116,32 @@ local function Updater(event)
         ]]
   local table = {}
   local a = ArtifactInfo()
-  table.currentID = currentArtifactID
-  table.traits = a.ranks
-  table.AP = {
-    ["curr"] = a.power,
-    ["max"] = a.maxPower,
-    ["perc"] = (a.power / a.maxPower) * 100
-  }
-  table.knowledge = {
-    ["level"] = LAD:GetArtifactKnowledge(),
-    ["next"] = GetNextAK() -- check nil
-  }
-  if Exlist.DB then
-    table.dailyAP = {}
-    local chk = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].dateChecked or nil
-    local apT = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].apDays or nil
-    local aptable, currentAP, dateChecked = GetAPperDay(chk, apT)
-    table.dailyAP = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP or {}
-    table.dailyAP[currentArtifactID] = {
-      apDays = aptable,
-      dateChecked = dateChecked,
-      currentAP = currentAP
+  if a then
+    table.currentID = currentArtifactID
+    table.traits = a.ranks
+    table.AP = {
+      ["curr"] = a.power,
+      ["max"] = a.maxPower,
+      ["perc"] = (a.power / a.maxPower) * 100
     }
+    table.knowledge = {
+      ["level"] = LAD:GetArtifactKnowledge(),
+      ["next"] = GetNextAK() -- check nil
+    }
+    if Exlist.DB then
+      table.dailyAP = {}
+      local chk = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].dateChecked or nil
+      local apT = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].apDays or nil
+      local aptable, currentAP, dateChecked = GetAPperDay(chk, apT)
+      table.dailyAP = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP or {}
+      table.dailyAP[currentArtifactID] = {
+        apDays = aptable,
+        dateChecked = dateChecked,
+        currentAP = currentAP
+      }
+    end
+    Exlist.UpdateChar(key,table)
   end
-  Exlist.UpdateChar(key,table)
 end
 
 local function Linegenerator(tooltip,data)
