@@ -1,5 +1,8 @@
 --[[
   TODO:
+  CURSE 
+  PLS
+  WORK
 ]]
 
 local addonName, addonTable = ...
