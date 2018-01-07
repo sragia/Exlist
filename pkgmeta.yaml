@@ -1,0 +1,28 @@
+externals:
+ Exlist/Libs/LibStub:
+  url: https://repos.wowace.com/wow/libstub/trunk
+ Exlist/Libs/CallbackHandler-1.0:
+  url: https://repos.wowace.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+ Exlist/Libs/LibQTip-1.0:
+     url: svn://svn.wowace.com/wow/libqtip-1-0/mainline/trunk
+     tag: latest 
+ Exlist/Libs/LibArtifactData-1.0:
+  url: https://github.com/Rainrider/LibArtifactData-1.0.git
+  tag: latest
+ Exlist/Libs/AceGUI-3.0:
+  url: https://repos.wowace.com/wow/ace3/trunk/AceGUI-3.0
+  Libs/AceConfigDialog-3.0: 
+  url: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0/AceConfigDialog-3.0
+ Exlist/Libs/AceConfigRegistry-3.0: 
+  url: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0/AceConfigRegistry-3.0
+ Exlist/Libs/AceGUI-3.0-SharedMediaWidgets:
+  url: https://repos.wowace.com/wow/ace-gui-3-0-shared-media-widgets/trunk/AceGUI-3.0-SharedMediaWidgets
+ Exlist/Libs/LibSharedMedia-3.0:
+  url: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
+
+ignore:
+  - README.md
+  - LICENSE.md
+
+move-folders:
+  Exlist/Exlist: Exlist
