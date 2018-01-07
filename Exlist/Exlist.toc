@@ -10,8 +10,8 @@ Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibQTip-1.0.lua
 Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
 Libs\AceGUI-3.0\AceGUI-3.0.xml
-Libs\AceConfigDialog-3.0\AceConfigDialog-3.0.xml
 Libs\AceConfigRegistry-3.0\AceConfigRegistry-3.0.xml
+Libs\AceConfigDialog-3.0\AceConfigDialog-3.0.xml
 Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 Libs\LibSharedMedia-3.0\lib.xml
 
