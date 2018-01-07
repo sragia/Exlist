@@ -1,3 +1,5 @@
+package-as: Exlist
+
 externals:
  Exlist/Libs/LibStub:
   url: https://repos.wowace.com/wow/libstub/trunk
