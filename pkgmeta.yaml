@@ -11,7 +11,7 @@ externals:
   tag: latest
  Exlist/Libs/AceGUI-3.0:
   url: https://repos.wowace.com/wow/ace3/trunk/AceGUI-3.0
-  Libs/AceConfigDialog-3.0: 
+ Exlist/Libs/AceConfigDialog-3.0: 
   url: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0/AceConfigDialog-3.0
  Exlist/Libs/AceConfigRegistry-3.0: 
   url: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0/AceConfigRegistry-3.0
