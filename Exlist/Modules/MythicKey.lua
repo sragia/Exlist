@@ -15,7 +15,7 @@ local function Updater(event)
   lastUpdate = GetTime()
   local gt = Exlist.GetCharacterTableKey("global","global",key)
   if Exlist.debugMode then
-    print(key, ' GlobalTable:')
+    print(Exlist.debugString,key, ' GlobalTable:')
     for i,v in pairs(gt) do print(i,v) end
   end
   for bag = 0, NUM_BAG_SLOTS do

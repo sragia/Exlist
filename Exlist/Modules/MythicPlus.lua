@@ -47,7 +47,7 @@ local function Updater(event)
   if #savedAffixes < 3 and affixes then
     for i=1,#affixes do
       local name, desc, icon = CM.GetAffixInfo(affixes[i])
-      if Exlist.debugMode then print("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i,"key:",key) end
+      if Exlist.debugMode then print(Exlist.debugString,"Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i,"key:",key) end
       savedAffixes[i] = {name = name, icon = icon, desc = desc}
     end
     Exlist.UpdateChar("mythicKey",savedAffixes,'global','global')

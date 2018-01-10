@@ -10,8 +10,11 @@ local db = {}
 local config_db = {}
 Exlist_Config = Exlist_Config or {}
 local debugMode = false
+
+local debugString = "|cffc73000[Exlist Debug]|r"
 Exlist = {}
 Exlist.debugMode = debugMode
+Exlist.debugString = debugString
 local registeredUpdaters = {
  --[event] = func or {func,func}
 }
@@ -279,6 +282,7 @@ function Exlist.GetItemGems(itemLink)
       table.insert(t,{name = name,icon = icon})
     end
   end
+  MyScanningTooltip:ClearLines()
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
   MyScanningTooltip:SetHyperlink(itemLink)
   for i=1,MAX_NUM_SOCKETS do
@@ -406,13 +410,13 @@ end
 local WipeKey = function(key)
   -- ... yea
   -- if i need to delete 1 key info from all characters on all realms
-  if debugMode then print('wiped ' .. key) end
+  if debugMode then print(debugString..'wiped ' .. key) end
   for realm in pairs(db) do
     for name in pairs(db[realm]) do
       for keys in pairs(db[realm][name]) do
         if keys == key then
           if debugMode then
-            print('|cFF995813Exlist|r - wiping ',key, ' Fromn:',name,'-',realm)
+            print(debugString..' - wiping ',key, ' Fromn:',name,'-',realm)
           end
           db[realm][name][key] = nil
         end
@@ -420,7 +424,7 @@ local WipeKey = function(key)
     end
   end
   if debugMode then
-    print('|cFF995813Exlist|r - Wiping Key (',key,') completed.')
+    print(debugString..' Wiping Key (',key,') completed.')
   end
 end
 
@@ -1464,8 +1468,26 @@ function Exlist.SendFakeEvent(event) end
 local delay = true
 local delayedEvents = {}
 local running = false
+
+local runEvents = {}
+local function IsEventEligible(event)
+  if runEvents[event] then
+      if GetTime() - runEvents[event] > 0.5 then
+        runEvents[event] = nil
+        return true
+      else
+        if debugMode then print(Exlist.debugString,"Denied running event(",event,")") end
+        return false
+      end
+  else
+    runEvents[event] = GetTime()
+    return true
+  end
+end
+
 function frame:OnEvent(event, ...)
   --print(event,arg1)
+  if not IsEventEligible(event) then return end
   if event == "PLAYER_LOGOUT" then
     -- save things
     if db then
@@ -1488,7 +1510,7 @@ function frame:OnEvent(event, ...)
         if debugMode then
           local started = debugprofilestop()
           f[i].func(event,...)
-          print(registeredUpdaters[event][i].name .. ' (delayed) finished: ' .. debugprofilestop() - started)
+          print(debugString..registeredUpdaters[event][i].name .. ' (delayed) finished: ' .. debugprofilestop() - started)
           GetLastUpdateTime()
         else
           f[i].func(event,...)
@@ -1496,23 +1518,6 @@ function frame:OnEvent(event, ...)
         end
       end
     end
-    --[[for c=1,#delayedEvents do
-      local event = delayedEvents[c]
-      if registeredUpdaters[event] then
-        for i=1,#registeredUpdaters[event] do
-          if not settings.allowedModules[registeredUpdaters[event][i].name] then return end
-          if debugMode then
-            local started = debugprofilestop()
-            registeredUpdaters[event][i].func(event,...)
-            print(registeredUpdaters[event][i].name .. ' (delayed) finished: ' .. debugprofilestop() - started)
-            GetLastUpdateTime()
-          else
-            registeredUpdaters[event][i].func(event,...)
-            GetLastUpdateTime()
-          end
-        end
-      end
-    end]]
     return
   end
   if delay then
@@ -1523,14 +1528,14 @@ function frame:OnEvent(event, ...)
     return
   end
   if InCombatLockdown() then return end -- Don't update in combat
-  if debugMode then print('Event ',event) end
+  if debugMode then print(debugString,'Event ',event) end
   if registeredUpdaters[event] then
     for i=1,#registeredUpdaters[event] do
       if not settings.allowedModules[registeredUpdaters[event][i].name] then return end
       if debugMode then
         local started = debugprofilestop()
         registeredUpdaters[event][i].func(event,...)
-        print(registeredUpdaters[event][i].name .. ' finished: ' .. debugprofilestop() - started)
+        print(debugString..registeredUpdaters[event][i].name .. ' finished: ' .. debugprofilestop() - started)
         GetLastUpdateTime()
       else
         registeredUpdaters[event][i].func(event,...)
