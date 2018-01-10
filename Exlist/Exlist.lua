@@ -248,7 +248,19 @@ end
 -- To find quest name from questID
 local MyScanningTooltip = CreateFrame("GameTooltip", "ExlistScanningTooltip", UIParent, "GameTooltipTemplate")
 
+function MyScanningTooltip.ClearTooltip(self)
+  local TooltipName = self:GetName()
+  
+  self:ClearLines()
+  for i = 1, 10 do
+     _G[TooltipName..'Texture'..i]:SetTexture(nil)
+     _G[TooltipName..'Texture'..i]:ClearAllPoints()
+     _G[TooltipName..'Texture'..i]:SetPoint('TOPLEFT', self)
+  end
+end
+
 Exlist.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
+         MyScanningTooltip:ClearTooltip()
          MyScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
          MyScanningTooltip:SetHyperlink("quest:"..id)
          local title = ExlistScanningTooltipTextLeft1:GetText()
@@ -260,6 +272,7 @@ Exlist.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
 end })
 
 function Exlist.GetItemEnchant(itemLink)
+  MyScanningTooltip:ClearTooltip()
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
   MyScanningTooltip:SetHyperlink(itemLink)
   local enchantKey = ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)')
@@ -282,7 +295,7 @@ function Exlist.GetItemGems(itemLink)
       table.insert(t,{name = name,icon = icon})
     end
   end
-  MyScanningTooltip:ClearLines()
+  MyScanningTooltip:ClearTooltip()
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
   MyScanningTooltip:SetHyperlink(itemLink)
   for i=1,MAX_NUM_SOCKETS do
@@ -299,6 +312,7 @@ end
 
 function Exlist.QuestInfo(questid)
   if not questid or questid == 0 then return nil end
+  MyScanningTooltip:ClearTooltip()
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
   MyScanningTooltip:SetHyperlink("\124cffffff00\124Hquest:"..questid..":90\124h[]\124h\124r")
   local l = _G[MyScanningTooltip:GetName().."TextLeft1"]
