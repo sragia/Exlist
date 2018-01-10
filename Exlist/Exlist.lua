@@ -1,8 +1,5 @@
 --[[
   TODO:
-  CURSE 
-  PLS
-  WORK
 ]]
 
 local addonName, addonTable = ...
@@ -84,6 +81,59 @@ local settings = { -- default settings
     borderColor = {r = .2,b = .2,g = .2,a = 1}
   }
 }
+local iconPaths = {
+  --[specId] = [[path]]
+  [250] = [[Interface\AddOns\Exlist\Media\Icons\DEATHKNIGHTBlood.tga]],
+  [251] = [[Interface\AddOns\Exlist\Media\Icons\DEATHKNIGHTFrost.tga]],
+  [252] = [[Interface\AddOns\Exlist\Media\Icons\DEATHKNIGHTUnholy.tga]],
+
+  [577] = [[Interface\AddOns\Exlist\Media\Icons\DEMONHUNTERHavoc.tga]],
+  [581] = [[Interface\AddOns\Exlist\Media\Icons\DEMONHUNTERVengeance.tga]],
+
+  [102] = [[Interface\AddOns\Exlist\Media\Icons\DRUIDBalance.tga]],
+  [103] = [[Interface\AddOns\Exlist\Media\Icons\DRUIDFeral.tga]],
+  [104] = [[Interface\AddOns\Exlist\Media\Icons\DRUIDGuardian.tga]],
+  [105] = [[Interface\AddOns\Exlist\Media\Icons\DRUIDRestoration.tga]],
+
+  [253] = [[Interface\AddOns\Exlist\Media\Icons\HUNTERBeastmastery.tga]],
+  [254] = [[Interface\AddOns\Exlist\Media\Icons\HUNTERMarksmanship.tga]],
+  [255] = [[Interface\AddOns\Exlist\Media\Icons\HUNTERSurvival.tga]],
+
+  [62] = [[Interface\AddOns\Exlist\Media\Icons\MAGEArcane.tga]],
+  [63] = [[Interface\AddOns\Exlist\Media\Icons\MAGEFire.tga]],
+  [64] = [[Interface\AddOns\Exlist\Media\Icons\MAGEFrost.tga]],
+
+  [268] = [[Interface\AddOns\Exlist\Media\Icons\MONKBrewmaster.tga]],
+  [270] = [[Interface\AddOns\Exlist\Media\Icons\MONKMistweaver.tga]],
+  [269] = [[Interface\AddOns\Exlist\Media\Icons\MONKWindwalker.tga]],
+
+  [65] = [[Interface\AddOns\Exlist\Media\Icons\PALADINHoly.tga]],
+  [66] = [[Interface\AddOns\Exlist\Media\Icons\PALADINProtection.tga]],
+  [70] = [[Interface\AddOns\Exlist\Media\Icons\PALADINRetribution.tga]],
+
+  [256] = [[Interface\AddOns\Exlist\Media\Icons\PRIESTDiscipline.tga]],
+  [257] = [[Interface\AddOns\Exlist\Media\Icons\PRIESTHoly.tga]],
+  [258] = [[Interface\AddOns\Exlist\Media\Icons\PRIESTShadow.tga]],
+
+  [259] = [[Interface\AddOns\Exlist\Media\Icons\ROGUEAssasination.tga]],
+  [260] = [[Interface\AddOns\Exlist\Media\Icons\ROGUEOutlaw.tga]],
+  [261] = [[Interface\AddOns\Exlist\Media\Icons\ROGUESubtlety.tga]],
+
+  [262] = [[Interface\AddOns\Exlist\Media\Icons\SHAMANElemental.tga]],
+  [263] = [[Interface\AddOns\Exlist\Media\Icons\SHAMANEnhancement.tga]],
+  [264] = [[Interface\AddOns\Exlist\Media\Icons\SHAMANRestoration.tga]],
+
+  [265] = [[Interface\AddOns\Exlist\Media\Icons\WARLOCKAffliction.tga]],
+  [266] = [[Interface\AddOns\Exlist\Media\Icons\WARLOCKDemonology.tga]],
+  [267] = [[Interface\AddOns\Exlist\Media\Icons\WARLOCKDestruction.tga]],
+
+  [71] = [[Interface\AddOns\Exlist\Media\Icons\WARRIORArms.tga]],
+  [72] = [[Interface\AddOns\Exlist\Media\Icons\WARRIORFury.tga]],
+  [73] = [[Interface\AddOns\Exlist\Media\Icons\WARRIORProtection.tga]],
+
+  [0] = [[Interface\AddOns\Exlist\Media\Icons\SpecNone.tga]],
+}
+
 
 --[[
     geartooltip:SetBackdropColor(0, 0, 0, .9);
@@ -478,13 +528,14 @@ local UpdateCharacterSpecifics = function(event)
   local level = UnitLevel('player')
   local _, class = UnitClass('player')
   local _, iLvl = GetAverageItemLevel()
-  local _, spec = GetSpecializationInfo(GetSpecialization())
+  local specId, spec = GetSpecializationInfo(GetSpecialization())
   local realm = GetRealmName()
   local table = {}
   table.level = level
   table.class = class
   table.iLvl = iLvl
   table.spec = spec
+  table.specId = specId
   table.realm = realm
   UpdateCharacter(name, realm, table)
 end
@@ -908,10 +959,9 @@ local function GearTooltip(self,info)
   geartooltip:SetHeaderFont(hugeFont)
   geartooltip:SetFont(smallFont)
   local fontName, fontHeight, fontFlags = geartooltip:GetFont()
-  local specIcon = info.spec and info.class .. string.gsub(info.spec," ","") or "SpecNone"
-  --print(specIcon)
+  local specIcon = info.specId and iconPaths[info.specId] or iconPaths[0]
   -- character name header
-  local header = "|TInterface\\AddOns\\Exlist\\Media\\Icons\\" .. specIcon ..":25:25|t "..
+  local header = "|T" .. specIcon ..":25:25|t "..
     "|c" .. RAID_CLASS_COLORS[info.class].colorStr .. info.name .. "|r " ..
   (info.level or 0) .. ' level'
   local line = geartooltip:AddHeader()
@@ -1079,9 +1129,9 @@ local function OnEnter(self)
     local charData = Exlist.GetCharacterTable(realm,name)
     charData.name = name
     -- header
-    local specIcon = charData.spec and charData.class .. string.gsub(charData.spec," ","") or "SpecNone"
+    local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
     tooltip:SetHeaderFont(mediumFont)
-    local l = tooltip:AddHeader("|TInterface\\AddOns\\Exlist\\Media\\Icons\\" .. specIcon ..":25:25|t "..
+    local l = tooltip:AddHeader("|T" .. specIcon ..":25:25|t "..
     "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
     tooltip:SetHeaderFont(smallFont)
     tooltip:SetHeaderFont(mediumFont)
