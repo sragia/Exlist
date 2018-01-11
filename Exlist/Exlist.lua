@@ -286,6 +286,7 @@ function Exlist.GetItemEnchant(itemLink)
     end
   end
 end
+
 function Exlist.GetItemGems(itemLink)
   local t = {}
   for i=1,MAX_NUM_SOCKETS do
@@ -995,7 +996,7 @@ local function GearTooltip(self,info)
       if gear[i].enchant or gear[i].gem then
         if type(gear[i].gem) == 'table' then
           if gear[i].enchant then
-            enchantements = string.format("%s%s","|cff00ff00",gear[i].enchant or "")
+            enchantements = string.format("%s%s|r","|cff00ff00",gear[i].enchant or "")
           end
           for b=1,#gear[i].gem do
             if enchantements ~= "" then
