@@ -49,7 +49,15 @@ end
 local function Linegenerator(tooltip,data)
   if not data then return end
   local lineNum = Exlist.AddLine(tooltip,{"Key in bags",WrapTextInColorCode("[" .. data.dungeon .. " +" .. data.level .. "]", "ffd541e2")})
-  Exlist.AddScript(tooltip,lineNum, 2, "OnMouseDown", function(self, arg1)
+  Exlist.AddScript(tooltip,lineNum, 2, "OnMouseDown", function(self, arg1,...)
+    if IsShiftKeyDown() then
+      if not arg1 then return end
+      if ChatEdit_GetActiveWindow() then
+        ChatEdit_InsertLink(arg1)
+      else
+        ChatFrame_OpenChat(arg1, DEFAULT_CHAT_FRAME)
+      end
+    end
     ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
     ItemRefTooltip:SetHyperlink(arg1)
     ShowUIPanel(ItemRefTooltip) end,
