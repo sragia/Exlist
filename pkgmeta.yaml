@@ -26,7 +26,6 @@ enable-nolib-creation: no
 
 ignore:
   - README.md
-  - LICENSE.md
 
 move-folders:
   Exlist/Exlist: Exlist
