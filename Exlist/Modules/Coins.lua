@@ -8,7 +8,18 @@ local Exlist = Exlist
 local function Updater(event)
   if UnitLevel('player') < MAX_CHARACTER_LEVEL then return end
   local coinsQuests = UnitLevel'player' <= 100 and {[36058] = 1, [36055] = 1, [37452] = 1, [37453] = 1, [36056] = 1, [37457] = 1, [37456] = 1, [36054] = 1, [37455] = 1, [37454] = 1, [36057] = 1, [37458] = 1, [37459] = 1, [36060] = 1, } or
-  {[43895] = 1, [43897] = 1, [43896] = 1, [43892] = 1, [43893] = 1, [43894] = 1, [43510] = 1, }
+  {
+    [43895] = 1, 
+    [43897] = 1, 
+    [43896] = 1, 
+    [43892] = 1, 
+    [43893] = 1, 
+    [43894] = 1, 
+    [43510] = 1, -- Order Hall
+    [47851] = 1, 
+    [47864] = 1,
+    [47865] = 1, 
+  }
   local coinsCurrency = UnitLevel'player' <= 100 and 1129 or 1273
   local count = 0
   local quests = {}

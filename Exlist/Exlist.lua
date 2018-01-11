@@ -323,6 +323,7 @@ function Exlist.QuestInfo(questid)
 end
 
 Exlist.FormatTimeMilliseconds = function(time)
+  if not time then return end
   local minutes = math.floor((time/1000)/60)
   local seconds = math.floor((time - (minutes*60000))/1000)
   local milliseconds = time-(minutes*60000)-(seconds*1000)
