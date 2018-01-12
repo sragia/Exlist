@@ -1,5 +1,7 @@
 --[[
   TODO:
+  Changing icon 
+  Currency Selection in Config (add in tooltip tip)
 ]]
 
 local addonName, addonTable = ...
@@ -79,6 +81,7 @@ local settings = { -- default settings
   characterOrder = {},
   allowedModules = {},
   lockIcon = false,
+  iconAlpha = 1,
   backdrop = {
     color = {r = 0,g = 0, b = 0, a = .9},
     borderColor = {r = .2,b = .2,g = .2,a = 1}
@@ -1136,6 +1139,7 @@ butTool:SetScript("OnDragStop", Exlist_StopMoving)
 
 local function OnEnter(self)
   if QTip:IsAcquired("Exlist_Tooltip") then return end
+  self:SetAlpha(1)
   local tooltip = QTip:Acquire("Exlist_Tooltip", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
   self.tooltip = tooltip
   -- sort line generators
@@ -1228,6 +1232,7 @@ local function OnEnter(self)
       else
         self.elapsed = self.elapsed + self.time
         if self.elapsed > settings.delay then
+            self.parent:SetAlpha(settings.iconAlpha or 1)
             QTip:Release(self)
         end
       end
@@ -1278,6 +1283,7 @@ butTool:SetScript("OnMouseUp", OpenConfig)
 -- refresh
 function Exlist_RefreshAppearance()
   --texplore(fontSet)
+  butTool:SetAlpha(settings.iconAlpha or 1)
   butTool:SetMovable(not settings.lockIcon)
   butTool:RegisterForDrag("LeftButton")
   butTool:SetScript("OnDragStart", not settings.lockIcon and butTool.StartMoving or function() end)

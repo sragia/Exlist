@@ -96,11 +96,20 @@ local options = {
 				Exlist_RefreshAppearance()
 			end,
         },
-        spacer1 ={
-            type = "description",
-            name = " ",
-            order = 3,
-            width = "normal" 
+        iconalpha = {
+            order = 2.1,
+            type = "range",
+            name = "Icon Alpha",
+            min = 0,
+            max = 1,
+            step = 0.05,
+            get = function(self)
+                return Exlist.ConfigDB.settings.iconAlpha or 1
+            end,
+            set = function(self,v)
+                Exlist.ConfigDB.settings.iconAlpha = v
+                Exlist_RefreshAppearance()
+            end,
         },
         fonts ={
             type="group",
