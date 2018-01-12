@@ -158,12 +158,12 @@ local function Linegenerator(tooltip,data)
   elseif nextIn then
     table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), WrapTextInColorCode("Ready!", "ff62f442")})
   end
-  if data.dailyAP and data.currentID then
+  --[[if data.dailyAP and data.currentID then
     local dailyAP = data.dailyAP[data.currentID]
     table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (Today): ", "ffb2b2b2"), Exlist.ShortenNumber(dailyAP.currentAP - dailyAP.apDays[#dailyAP.apDays], 2)})
     table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (This Week): ", "ffb2b2b2"), Exlist.ShortenNumber(dailyAP.currentAP - dailyAP.apDays[1], 2)})
     table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (Per day): ", "ffb2b2b2"), Exlist.ShortenNumber((dailyAP.currentAP - dailyAP.apDays[1]) / #dailyAP.apDays, 2)})
-  end
+  end]]             
 
   Exlist.AddScript(tooltip,l,nil,"OnEnter", Exlist.CreateSideTooltip(), sideTooltip)
   Exlist.AddScript(tooltip,l,nil,"OnLeave", Exlist.DisposeSideTooltip())
