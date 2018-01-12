@@ -5,6 +5,12 @@ local AceConfReg = LibStub("AceConfigRegistry-3.0")
 local AceConfDia = LibStub("AceConfigDialog-3.0")
 local f = CreateFrame("Frame")
 f:RegisterEvent("VARIABLES_LOADED")
+local addonVersion = GetAddOnMetadata(name, "version")
+--@debug@
+if addonVersion == "@project-version@" then		  
+    addonVersion = "Development"		 
+end
+--@end-debug@
 
 local function spairs(t, order)
     -- collect the keys
@@ -39,6 +45,28 @@ local options = {
     type = "group",
 	name = name,
 	args = {
+        logo = {
+            order = 0,
+            type = "description",
+            image = function()
+                return [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]],
+                150,150
+            end,
+            name ="",
+            width = "normal"
+        },
+        version ={
+            order = 0.1,
+            name = "|cfff4bf42Version:|r " .. addonVersion,
+            type = "description",
+            width = "full"
+        },
+        author ={
+            order = 0.2,
+            name = "|cfff4bf42Author:|r Exality - Silvermoon EU",
+            type = "description",
+            width = "full"
+        },
         lock = {
 			order = 1,
 			name = "Lock Icon",
@@ -323,8 +351,8 @@ Exlist.SetupConfig = function()
             width = "normal"
         }]]
     end
-    LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(name, options)
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(name)
+    AceConfReg:RegisterOptionsTable(name, options)
+    AceConfDia:AddToBlizOptions(name)
     RegisterAdditionalOptions("Modules",moduleOptions,"Modules")
     RegisterAdditionalOptions("Characters",charOptions,"Characters")
 end
