@@ -57,10 +57,12 @@ local function Linegenerator(tooltip,data)
       else
         ChatFrame_OpenChat(arg1, DEFAULT_CHAT_FRAME)
       end
+    else
+      ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
+      ItemRefTooltip:SetHyperlink(arg1)
+      ShowUIPanel(ItemRefTooltip) 
     end
-    ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
-    ItemRefTooltip:SetHyperlink(arg1)
-    ShowUIPanel(ItemRefTooltip) end,
+  end,
   data.itemLink)
 end
 
