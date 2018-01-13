@@ -75,6 +75,7 @@ local settings = { -- default settings
   tooltipHeight = 600,
   delay = 0.2,
   iconScale = .8,
+  tooltipScale = 1,
   allowedCharacters = {},
   reorder = true,
   characterOrder = {},
@@ -1211,6 +1212,7 @@ local function OnEnter(self)
         self.time = 0
       end
     end)
+    gTip:SetScale(settings.tooltipScale or 1)
     gTip:SetBackdrop(DEFAULT_BACKDROP)
     local c = settings.backdrop
     gTip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
@@ -1219,7 +1221,7 @@ local function OnEnter(self)
 
   -- Tooltip visuals
   tooltip:SmartAnchorTo(self)
-  tooltip:SetScale(1)
+  tooltip:SetScale(settings.tooltipScale or 1)
   --tooltip:SetAutoHideDelay(settings.delay, self)
   tooltip.parent = self
   tooltip.time = 0

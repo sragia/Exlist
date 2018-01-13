@@ -203,7 +203,7 @@ local options = {
                 tooltipHeight = {
                     type = "range",
                     name = "Tooltip Max Height",
-                    width = "full",
+                    width = "normal",
                     order = 2,
                     min = 100,
                     max = 2200,
@@ -214,6 +214,21 @@ local options = {
                     end,
                     set = function(self,v)
                         Exlist.ConfigDB.settings.tooltipHeight = v
+                    end
+                },
+                tooltipScale = {
+                    type = "range",
+                    name = "Tooltip Scale",
+                    width = "normal",
+                    order = 2.1,
+                    min = 0.1,
+                    max = 1,
+                    step = 0.05,
+                    get = function(self)
+                        return Exlist.ConfigDB.settings.tooltipScale or 1
+                    end,
+                    set = function(self,v)
+                        Exlist.ConfigDB.settings.tooltipScale = v
                     end
                 },
                 bgColor = {
