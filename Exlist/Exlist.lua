@@ -1,7 +1,6 @@
 --[[
   TODO:
   Changing icon 
-  Currency Selection in Config (add in tooltip tip)
 ]]
 
 local addonName, addonTable = ...
@@ -85,7 +84,8 @@ local settings = { -- default settings
   backdrop = {
     color = {r = 0,g = 0, b = 0, a = .9},
     borderColor = {r = .2,b = .2,g = .2,a = 1}
-  }
+  },
+  currencies = {}
 }
 local iconPaths = {
   --[specId] = [[path]]

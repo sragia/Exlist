@@ -1,22 +1,12 @@
 local key = "currency"
-local CURRENCIES = {
-  1220, -- Order Hall Resources
-  1342, -- Legionfall War Supplies
-  1226, -- Nethershards
-  1275, -- Curious Coins
-  1508, -- Veiled Argunite
-}
-local ITEMS = {
-  124124, -- Blood of Sargeras
-  153190, -- Fel-Spotted Egg
-  151568, -- Primal Sargerite
+local currencyAmount = {
 }
 local GetMoney, GetCurrencyInfo, GetItemCount = GetMoney, GetCurrencyInfo, GetItemCount
 local GetItemInfo = GetItemInfo
 local math, table = math, table
 local WrapTextInColorCode = WrapTextInColorCode
 local Exlist = Exlist
-
+local function AddRefreshOptions() end
 local function Updater(event)
   local t = {}
   local coppers = GetMoney()
@@ -27,29 +17,95 @@ local function Updater(event)
   }
   t.money = money
   t.currency = {}
-  for i = 1, #CURRENCIES do
-    local name, amount, texture, _, _, max = GetCurrencyInfo(CURRENCIES[i])
-    local temp = {
-      name = name,
-      amount = amount,
-      texture = texture,
-      maxed = max > 0 and amount >= max or false
-    }
-    table.insert(t.currency, temp)
-  end
-  for i = 1, #ITEMS do
-    local amount = GetItemCount(ITEMS[i],true)
-    local itemInfo = Exlist.GetCachedItemInfo(ITEMS[i])
-    local temp = {
-      name = itemInfo.name,
-      amount = amount,
-      texture = itemInfo.texture
-    }
-    table.insert(t.currency, temp)
+  local cur = Exlist.ConfigDB.settings.currencies
 
+  -- update all currencies
+  for i=1, GetCurrencyListSize() do
+    local name, isHeader, _, _, _, count, icon = GetCurrencyListInfo(i)
+    if cur[name] then
+      currencyAmount[name] = count
+    elseif not isHeader then
+      cur[name] = {icon = icon,name = name,type = "currency",enabled = false}
+      currencyAmount[name] = count
+    end 
+  end
+  for name,v in pairs(cur) do
+    if v.type == "item" and v.enabled then
+      local amount = GetItemCount(v.name,true)
+      table.insert(t.currency,{name=name,amount = amount, texture=v.icon})
+    elseif v.enabled then
+      table.insert(t.currency,{name = name,amount = currencyAmount[name], texture=v.icon})
+    end
   end
   Exlist.UpdateChar(key,t)
 end
+local added = false
+local function AddRefreshOptions()
+  if not Exlist.ConfigDB then return end
+  local cur = Exlist.ConfigDB.settings.currencies
+  local options = {
+    type = "group",
+    name = "Currency",
+    args ={
+        desc = {
+            type = "description",
+            order = 1,
+            width = "full",
+            name = "Enable/Disable Currencies you want to see"
+        },
+        spacer1 = {
+          type = "description",
+          order = 998,
+          width = "full",
+          name = "\n\n"
+        },
+        spacer2 = {
+          type = "description",
+          order = 999   ,
+          width = "full",
+          name = "\n\n"
+        }
+
+    }
+  }
+  -- update currencies
+  Updater()
+
+  local n = 1
+  for name,t in pairs(cur) do
+    n = n + 1  
+    options.args[name] = {
+        type = "toggle",
+        order = n,
+        name = string.format("|T%s:20|t %s",t.icon,name),
+        get = function() return t.enabled end,
+        set = function(self,v) t.enabled = v  AddRefreshOptions() end
+    }
+  end
+  options.args["itemInput"] ={
+    type = "input",
+    order = 1000,
+    name = " Add Item (|cffffffffInput itemID or item name|r)",
+    get = function() return "" end,
+    set = function(self,v)
+      local iInfo = Exlist.GetCachedItemInfo(v)
+      cur[iInfo.name] = {
+        enabled = true,
+        icon = iInfo.texture,
+        name = iInfo.name,
+        type = "item"
+      }
+      AddRefreshOptions()
+    end
+  }
+  if not added then
+    Exlist.AddModuleOptions(key,options,"Currency")
+    added = true
+  else
+    Exlist.RefreshModuleOptions(key,options,"Currency")
+  end
+end
+Exlist.ModuleToBeAdded(AddRefreshOptions)
 
 local function Linegenerator(tooltip,data)
   if not data or not data.money then return end
@@ -60,6 +116,7 @@ local function Linegenerator(tooltip,data)
     for i=1,#currency do
       table.insert(sideTooltip.body,{"|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""), currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount})
     end
+    table.insert(sideTooltip.body,"|cfff2b202To add additional items/currency check out config!")
     Exlist.AddScript(tooltip,lineNum,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
     Exlist.AddScript(tooltip,lineNum,nil,"OnLeave", Exlist.DisposeSideTooltip())
   end

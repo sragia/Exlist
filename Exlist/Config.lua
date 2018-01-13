@@ -11,6 +11,7 @@ if addonVersion == "@project-version@" then
     addonVersion = "Development"		 
 end
 --@end-debug@
+local addingOpt = {}
 
 local function spairs(t, order)
     -- collect the keys
@@ -39,7 +40,9 @@ local function RegisterAdditionalOptions(modName, optionTbl, displayName)
 	AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
 	AceConfDia:AddToBlizOptions(name..modName, displayName, name)
 end
-
+local function RefreshAdditionalOptions(modName, optionTbl, displayName)
+	AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
+end
 
 local options = {
     type = "group",
@@ -364,5 +367,12 @@ Exlist.SetupConfig = function()
     AceConfDia:AddToBlizOptions(name)
     RegisterAdditionalOptions("Modules",moduleOptions,"Modules")
     RegisterAdditionalOptions("Characters",charOptions,"Characters")
+    for i=1,#addingOpt do
+        addingOpt[i]()
+    end
 end
 Exlist.AddModuleOptions = RegisterAdditionalOptions
+Exlist.RefreshModuleOptions = RefreshAdditionalOptions
+Exlist.ModuleToBeAdded = function(func)
+    table.insert(addingOpt,func)
+end
