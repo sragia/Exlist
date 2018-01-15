@@ -665,6 +665,7 @@ function Exlist.CreateSideTooltip(statusbar)
   local function a(self, info)
     -- info {} {body = {'1st lane',{'2nd lane', 'side number w/e'}},title = ""}
     local sideTooltip = QTip:Acquire("CharInf_Side", 2, "LEFT", "RIGHT")
+    sideTooltip:SetScale(settings.tooltipScale or 1)
     self.sideTooltip = sideTooltip
     sideTooltip:SetHeaderFont(hugeFont)
     sideTooltip:SetFont(smallFont)
@@ -692,7 +693,6 @@ function Exlist.CreateSideTooltip(statusbar)
     end
     sideTooltip:SetPoint("TOPRIGHT", self:GetParent(), "TOPLEFT", - 9, 10)
     sideTooltip:Show()
-    sideTooltip:SetScale(settings.tooltipScale or 1)
     sideTooltip:SetClampedToScreen(true)
     local parentFrameLevel = self:GetFrameLevel(self)
     sideTooltip:SetFrameLevel(parentFrameLevel + 5)
@@ -980,6 +980,8 @@ end
 local function GearTooltip(self,info)
   local geartooltip = QTip:Acquire("CharInf_GearTip",7,"CENTER","LEFT","LEFT","LEFT","LEFT","LEFT","LEFT")
   geartooltip.statusBars = {}
+  
+  geartooltip:SetScale(settings.tooltipScale or 1)
   self.sideTooltip = geartooltip
   geartooltip:SetHeaderFont(hugeFont)
   geartooltip:SetFont(smallFont)
@@ -1070,7 +1072,6 @@ local function GearTooltip(self,info)
   geartooltip:SetCell(line, 2,info.updated,"LEFT",3)
   geartooltip:SetPoint("TOPRIGHT", self:GetParent(), "TOPLEFT", - 9, 10)
   geartooltip:Show()
-  geartooltip:SetScale(settings.tooltipScale or 1)
   geartooltip:SetClampedToScreen(true)
   local parentFrameLevel = self:GetFrameLevel(self)
   geartooltip:SetFrameLevel(parentFrameLevel + 5)
@@ -1144,6 +1145,8 @@ local function OnEnter(self)
   if QTip:IsAcquired("Exlist_Tooltip") then return end
   self:SetAlpha(1)
   local tooltip = QTip:Acquire("Exlist_Tooltip", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
+  
+  tooltip:SetScale(settings.tooltipScale or 1)
   self.tooltip = tooltip
   -- sort line generators
   table.sort(registeredLineGenerators,function(a,b) return a.prio < b.prio end)
@@ -1183,6 +1186,8 @@ local function OnEnter(self)
   local gData = db.global and db.global.global or nil
   if gData and #globalLineGenerators > 0 then
     local gTip = QTip:Acquire("Exlist_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
+    
+    gTip:SetScale(settings.tooltipScale or 1)
     gTip:SetFont(smallFont)
     tooltip.globalTooltip = gTip
     for i=1, #globalLineGenerators do
@@ -1214,7 +1219,6 @@ local function OnEnter(self)
         self.time = 0
       end
     end)
-    gTip:SetScale(settings.tooltipScale or 1)
     gTip:SetBackdrop(DEFAULT_BACKDROP)
     local c = settings.backdrop
     gTip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
@@ -1223,7 +1227,6 @@ local function OnEnter(self)
 
   -- Tooltip visuals
   tooltip:SmartAnchorTo(self)
-  tooltip:SetScale(settings.tooltipScale or 1)
   --tooltip:SetAutoHideDelay(settings.delay, self)
   tooltip.parent = self
   tooltip.time = 0
