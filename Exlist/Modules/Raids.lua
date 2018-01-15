@@ -159,7 +159,7 @@ local function Linegenerator(tooltip,data)
           if difIndex == 1 then
             -- LFR
             for id in spairs(raidInfo.bosses,function(t,a,b) return t[a].order < t[b].order end) do
-              if Exlist.debugMode then print(Exlist.debugString,"Adding LFR id:",id," -",key) end
+              Exlist.Debug("Adding LFR id:",id," -",key) 
               for name,b in pairs(raidInfo.bosses[id]) do
                 if type(b) == "table" then
                   table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,"ffc1c1c1"),""})

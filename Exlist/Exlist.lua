@@ -11,7 +11,6 @@ local db = {}
 local config_db = {}
 Exlist_Config = Exlist_Config or {}
 local debugMode = false
-
 local debugString = "|cffc73000[Exlist Debug]|r"
 Exlist = {}
 Exlist.debugMode = debugMode
@@ -344,6 +343,12 @@ function Exlist.GetTableNum(t)
   end
   return count
 end
+
+function Exlist.Debug(...) 
+  if debugMode then
+    print(debugString,...)
+  end
+end
 --------------
 local function AddMissingCharactersToSettings()
   if not settings.allowedCharacters then settings.allowedCharacters = {} end
@@ -430,22 +435,18 @@ end
 local WipeKey = function(key)
   -- ... yea
   -- if i need to delete 1 key info from all characters on all realms
-  if debugMode then print(debugString..'wiped ' .. key) end
+  Exlist.Debug('wiped ' .. key)
   for realm in pairs(db) do
     for name in pairs(db[realm]) do
       for keys in pairs(db[realm][name]) do
         if keys == key then
-          if debugMode then
-            print(debugString..' - wiping ',key, ' Fromn:',name,'-',realm)
-          end
+            Exlist.Debug(' - wiping ',key, ' Fromn:',name,'-',realm)
           db[realm][name][key] = nil
         end
       end
     end
   end
-  if debugMode then
-    print(debugString..' Wiping Key (',key,') completed.')
-  end
+    Exlist.Debug(' Wiping Key (',key,') completed.')
 end
 
 local function UpdateCharacterTalents()
@@ -1505,7 +1506,7 @@ local function IsEventEligible(event)
         runEvents[event] = nil
         return true
       else
-        if debugMode then print(Exlist.debugString,"Denied running event(",event,")") end
+        Exlist.Debug("Denied running event(",event,")")
         return false
       end
   else
@@ -1536,15 +1537,10 @@ function frame:OnEvent(event, ...)
     delay = false
     for event,f in pairs(registeredUpdaters) do
       for i=1, #f do
-        if debugMode then
           local started = debugprofilestop()
           f[i].func(event,...)
-          print(debugString..registeredUpdaters[event][i].name .. ' (delayed) finished: ' .. debugprofilestop() - started)
+          Exlist.Debug(registeredUpdaters[event][i].name .. ' (delayed) finished: ' .. debugprofilestop() - started)
           GetLastUpdateTime()
-        else
-          f[i].func(event,...)
-          GetLastUpdateTime()
-        end
       end
     end
     return
@@ -1557,19 +1553,15 @@ function frame:OnEvent(event, ...)
     return
   end
   if InCombatLockdown() then return end -- Don't update in combat
-  if debugMode then print(debugString,'Event ',event) end
+  Exlist.Debug('Event ',event)
   if registeredUpdaters[event] then
     for i=1,#registeredUpdaters[event] do
       if not settings.allowedModules[registeredUpdaters[event][i].name] then return end
-      if debugMode then
-        local started = debugprofilestop()
-        registeredUpdaters[event][i].func(event,...)
-        print(debugString..registeredUpdaters[event][i].name .. ' finished: ' .. debugprofilestop() - started)
-        GetLastUpdateTime()
-      else
-        registeredUpdaters[event][i].func(event,...)
-        GetLastUpdateTime()
-      end
+      local started = debugprofilestop()
+      registeredUpdaters[event][i].func(event,...)
+      Exlist.Debug(registeredUpdaters[event][i].name .. ' finished: ' .. debugprofilestop() - started)
+      GetLastUpdateTime()
+      
     end
   end
   if event == "PLAYER_ENTERING_WORLD" or event == "UNIT_INVENTORY_CHANGED" or event == "PLAYER_TALENT_UPDATE" then

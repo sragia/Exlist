@@ -112,7 +112,7 @@ local function GetBrokenShoreBuildings()
 end
 
 local function ScanArgus()
-  if Exlist.debugMode then print(Exlist.debugString,"Scanning Argus -",key) end
+  Exlist.Debug("Scanning Argus -",key)
   local t = {
   --  worldBoss = {},
   --  invasions = {}
@@ -149,7 +149,7 @@ local function ScanArgus()
 end
 
 local function ScanIsles(bs)
-  if Exlist.debugMode then print(Exlist.debugString,"Scanning Broken Isles -",key) end
+  Exlist.Debug("Scanning Broken Isles -",key)
   local t = {}
   local currMapId = GetCurrentMapAreaID()
   local timeNow = time()

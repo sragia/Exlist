@@ -14,10 +14,6 @@ local function Updater(event)
   if GetTime() - lastUpdate < 5 then return end
   lastUpdate = GetTime()
   local gt = Exlist.GetCharacterTableKey("global","global",key)
-  if Exlist.debugMode then
-    print(Exlist.debugString,key, ' GlobalTable:')
-    for i,v in pairs(gt) do print(i,v) end
-  end
   for bag = 0, NUM_BAG_SLOTS do
     for slot = 1, GetContainerNumSlots(bag) do
       local s = GetContainerItemLink(bag, slot)
@@ -29,7 +25,7 @@ local function Updater(event)
           if not gt[i] and affixes[i] and affixes[i] ~= "" then
             local id = string.match(affixes[i],"%d+")
             local name, desc, icon = CM.GetAffixInfo(tonumber(id))
-            if Exlist.debugMode then print("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i," key:",key) end
+            Exlist.Debug("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i," key:",key)
             gt[i] = {name = name, icon = icon, desc = desc}
           end
         end

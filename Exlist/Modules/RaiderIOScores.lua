@@ -23,7 +23,7 @@ local DUNGEON_NAME = {
 
 local function Updater(event,...)
   if not RaiderIO then
-      if Exlist.debugMode then print(Exlist.debugString,"RaiderIO not installed -",key) end
+    Exlist.Debug("RaiderIO not installed -",key)
     return
   elseif event == "ADDON_LOADED" and ... ~= "RaiderIO" then
     return
@@ -48,9 +48,8 @@ local function Updater(event,...)
       scoreColor = scoreColor,
     }
     Exlist.UpdateChar(key,t)
-  elseif Exlist.debugMode then
-    print(Exlist.debugString,"Did not find any data -",key)
   end
+  Exlist.Debug("Did not find any data -",key)
 end
 
 local function Linegenerator(tooltip,data)
