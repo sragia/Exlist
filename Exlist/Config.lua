@@ -66,57 +66,79 @@ local options = {
         },
         author ={
             order = 0.2,
-            name = "|cfff4bf42Author:|r Exality - Silvermoon EU",
+            name = "|cfff4bf42Author:|r Exality - Silvermoon EU\n\n",
             type = "description",
             width = "full"
         },
-        lock = {
-			order = 1,
-			name = "Lock Icon",
-			type = "toggle",
-			get = function()
-				return Exlist.ConfigDB.settings.lockIcon
-			end,
-            set = function(info, v)
-                Exlist.ConfigDB.settings.lockIcon = v
-                Exlist_RefreshAppearance()
-			end,
-        },
-        iconscale = {
-			order = 2,
-			type = "range",
-			name = "Icon Scale",
-			min = 0.2,
-			max = 2.0,
-			step = 0.01,
-			bigStep = 0.01,
-			width = "normal",
-			get = function(info)
-				return Exlist.ConfigDB.settings.iconScale or 1
-			end,
-			set = function(info, v)
-				Exlist.ConfigDB.settings.iconScale = v
-				Exlist_RefreshAppearance()
-			end,
-        },
-        iconalpha = {
-            order = 2.1,
-            type = "range",
-            name = "Icon Alpha",
-            min = 0,
-            max = 1,
-            step = 0.05,
-            get = function(self)
-                return Exlist.ConfigDB.settings.iconAlpha or 1
-            end,
-            set = function(self,v)
-                Exlist.ConfigDB.settings.iconAlpha = v
-                Exlist_RefreshAppearance()
-            end,
+        general = {
+            type="group",
+            name = "General",
+            order = 1,
+            args = {
+                lock = {
+                    order = 3,
+                    name = "Lock Icon",
+                    type = "toggle",
+                    width = "full",
+                    get = function()
+                        return Exlist.ConfigDB.settings.lockIcon
+                    end,
+                    set = function(info, v)
+                        Exlist.ConfigDB.settings.lockIcon = v
+                        Exlist_RefreshAppearance()
+                    end,
+                },
+                iconscale = {
+                    order = 1,
+                    type = "range",
+                    name = "Icon Scale",
+                    min = 0.2,
+                    max = 2.0,
+                    step = 0.01,
+                    bigStep = 0.01,
+                    width = "normal",
+                    get = function(info)
+                        return Exlist.ConfigDB.settings.iconScale or 1
+                    end,
+                    set = function(info, v)
+                        Exlist.ConfigDB.settings.iconScale = v
+                        Exlist_RefreshAppearance()
+                    end,
+                },
+                iconalpha = {
+                    order = 2,
+                    type = "range",
+                    name = "Icon Alpha",
+                    min = 0,
+                    max = 1,
+                    step = 0.05,
+                    get = function(self)
+                        return Exlist.ConfigDB.settings.iconAlpha or 1
+                    end,
+                    set = function(self,v)
+                        Exlist.ConfigDB.settings.iconAlpha = v
+                        Exlist_RefreshAppearance()
+                    end,
+                },
+                announceReset = {
+                    order = 4,
+                    name = "Announce instance reset",
+                    type = "toggle",
+                    width = "full",
+                    get = function()
+                        return Exlist.ConfigDB.settings.announceReset
+                    end,
+                    set = function(info, v)
+                        Exlist.ConfigDB.settings.announceReset = v
+                        Exlist_RefreshAppearance()
+                    end,
+                },            
+            }
         },
         fonts ={
             type="group",
             name = "Fonts",
+            order = 3,
             args ={
                 font = {
                     type = "select",
@@ -194,6 +216,7 @@ local options = {
         tooltip = {
             type = "group",
             name = "Tooltip",
+            order = 2,
             args = {
                 des = {
                     type = "description",

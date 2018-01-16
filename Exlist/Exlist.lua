@@ -85,7 +85,8 @@ local settings = { -- default settings
     color = {r = 0,g = 0, b = 0, a = .9},
     borderColor = {r = .2,b = .2,g = .2,a = 1}
   },
-  currencies = {}
+  currencies = {},
+  announceReset = false,
 }
 local iconPaths = {
   --[specId] = [[path]]
@@ -174,6 +175,7 @@ frame:RegisterEvent("VARIABLES_LOADED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
+frame:RegisterEvent("CHAT_MSG_SYSTEM")
 frame:RegisterEvent("Exlist_DELAY")
 
 -- utility
@@ -1492,6 +1494,14 @@ local function ResetHandling()
   end
   config_db.resetTime = GetNextWeeklyResetTime()
 end
+
+local function AnnounceReset(msg)
+  local channel = IsInRaid() and "raid" or "party"
+  if IsInGroup() then
+    SendChatMessage(string.format("[%s] %s",addonName,msg),channel)
+  end
+end
+
 -- Updaters
 
 function Exlist.SendFakeEvent(event) end
@@ -1566,6 +1576,15 @@ function frame:OnEvent(event, ...)
   end
   if event == "PLAYER_ENTERING_WORLD" or event == "UNIT_INVENTORY_CHANGED" or event == "PLAYER_TALENT_UPDATE" then
     UpdateCharacterSpecifics(event)
+  elseif event == "CHAT_MSG_SYSTEM" then
+
+    if settings.announceReset and ... then
+      local resetString = INSTANCE_RESET_SUCCESS:gsub("%%s",".+")
+      local msg = ...
+      if msg:match("^"..resetString.."$") then
+        AnnounceReset(msg)
+      end
+    end
   end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
