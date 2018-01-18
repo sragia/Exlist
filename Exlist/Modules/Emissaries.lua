@@ -62,7 +62,13 @@ local function Updater(event)
       trackedBounties = trackedBounties + 1
     end
   end
-  if trackedBounties >= 3 then
+    
+  if trackedBounties > 3 then
+    -- some funky shit happened, just fuck all the data
+    trackedBounties = 0
+    gt = {}
+  end
+  if trackedBounties == 3 then
     -- no need to look through all quests
     for questId, info in pairs(gt) do
       if not IsQuestFlaggedCompleted(questId) then
