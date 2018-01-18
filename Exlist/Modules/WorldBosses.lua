@@ -100,11 +100,13 @@ local function GetBrokenShoreBuildings()
         local state, contribed, timeNext = C_ContributionCollector.GetState(i);
         if (state == 2 or state == 3) and timeNext then
           local bonustime = state == 2 and 86400 or 0
-          local _,reward = C_ContributionCollector.GetBuffs(i)
+          local reward = C_ContributionCollector.GetBuffs(i)
           local spellname,_,icon = GetSpellInfo(reward)
           t[i] = {name = name,state = state, timeEnd = timeNext + bonustime, rewards = {name = spellname, icon = icon, spellId = reward}}
         elseif contribed then
-          t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100)}
+          local _,reward = C_ContributionCollector.GetBuffs(i)
+          local spellname,_,icon = GetSpellInfo(reward)
+          t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100),rewards = {name = spellname, icon = icon, spellId = reward}}
         end
      end
   end
@@ -415,8 +417,8 @@ local function GlobalLineGenerator(tooltip,data)
       Exlist.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
     for i,info in pairs(data.brokenshore or {}) do
       local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
-      info.rewards and string.format("|T%s:15|t %s",info.rewards.icon or unknownIcon,info.rewards.name or ""))})
-      if info.rewards then
+      (info.rewards and (info.state == 2 or info.state == 3) and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ffffd200",info.rewards.name or "") or info.state == 1 and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ff494949",info.rewards.name or "")))})
+      if info.rewards and info.state ~= 4 then
         Exlist.AddScript(tooltip,line,3,"OnEnter",function(self)
           GameTooltip:SetOwner(self)
           GameTooltip:SetFrameLevel(self:GetFrameLevel()+10)
