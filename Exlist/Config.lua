@@ -323,7 +323,21 @@ local charOptions = {
             order = 1,
             width = "full",
             name = "Enable and set order in which characters are to be displayed (0 shows above 5)"
+        },
+        orderByIlvl = {
+            type = "toggle",
+            order = 1.1,
+            name = "Order by item level",
+            width = "full",
+            get = function()
+                return Exlist.ConfigDB.settings.orderByIlvl
+            end,
+            set = function(info,value)
+                Exlist.ConfigDB.settings.orderByIlvl = value
+                Exlist.ConfigDB.settings.reorder = true
+            end
         }
+
     }
 
 }
@@ -376,7 +390,7 @@ Exlist.SetupConfig = function()
             order = n,
             name = "Order",
             width = "half",
-            disabled = function() return not characters[char].enabled end,
+            disabled = function() return not characters[char].enabled or Exlist.ConfigDB.settings.orderByIlvl end,
             get = function()
                 if characters[char].enabled then
                     return tostring(characters[char].order or 0)

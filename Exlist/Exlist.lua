@@ -78,6 +78,7 @@ local settings = { -- default settings
   allowedCharacters = {},
   reorder = true,
   characterOrder = {},
+  orderByIlvl = false,
   allowedModules = {},
   lockIcon = false,
   iconAlpha = 1,
@@ -874,10 +875,18 @@ local function GetCharacterOrder()
   local t ={}
   for i,v in pairs(settings.allowedCharacters) do
     if v.enabled then
-      table.insert(t,{name = v.name,realm = i:match("^.*-(.*)"),order = v.order or 0})
+      if settings.orderByIlvl then
+        table.insert(t,{name = v.name,realm = i:match("^.*-(.*)"),ilvl = v.ilvl or 0})
+      else
+        table.insert(t,{name = v.name,realm = i:match("^.*-(.*)"),order = v.order or 0})
+      end
     end
   end
-  table.sort(t,function(a,b) return a.order<b.order end)
+  if settings.orderByIlvl then
+    table.sort(t,function(a,b) return a.ilvl>b.ilvl end)
+  else
+    table.sort(t,function(a,b) return a.order<b.order end)
+  end
   settings.characterOrder = t
   settings.reorder = false
   return t
