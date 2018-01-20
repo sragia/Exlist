@@ -90,7 +90,11 @@ local function spairs(t, order)
     end
   end
 end
-
+local filterBuffs = {
+  [239648] = true, -- Fel Treasures
+  [239645] = true, -- Forces of Order
+  [239647] = true, -- Epic Hunter
+}
 local function GetBrokenShoreBuildings()
   local t = {}
   for i=1,4,1 do
@@ -98,13 +102,21 @@ local function GetBrokenShoreBuildings()
      if (name ~= "") then
         -- get status
         local state, contribed, timeNext = C_ContributionCollector.GetState(i);
+        local reward1,reward2 = C_ContributionCollector.GetBuffs(i)
+        local reward
+        if filterBuffs[reward1] then
+          -- thanks Blizz for not sorting buffs the same way always :)
+          reward = reward2
+        else
+          reward = reward1
+        end
         if (state == 2 or state == 3) and timeNext then
           local bonustime = state == 2 and 86400 or 0
-          local reward = C_ContributionCollector.GetBuffs(i)
+          --local reward = C_ContributionCollector.GetBuffs(i)
           local spellname,_,icon = GetSpellInfo(reward)
           t[i] = {name = name,state = state, timeEnd = timeNext + bonustime, rewards = {name = spellname, icon = icon, spellId = reward}}
         elseif contribed then
-          local _,reward = C_ContributionCollector.GetBuffs(i)
+          --local _,reward = C_ContributionCollector.GetBuffs(i)
           local spellname,_,icon = GetSpellInfo(reward)
           t[i] = {name= name, state=state,progress = string.format("%.1f%%",contribed*100),rewards = {name = spellname, icon = icon, spellId = reward}}
         end
