@@ -10,6 +10,7 @@ local Exlist = Exlist
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 
 local function Updater(event)
+  if event == "Exlist_DELAY" then return end
   local mission = CG.GetInProgressMissions(LE_FOLLOWER_TYPE_GARRISON_7_0)
   local availMissions = CG.GetAvailableMissions(LE_FOLLOWER_TYPE_GARRISON_7_0)
   local t =  {
@@ -86,7 +87,9 @@ local function Updater(event)
       table.insert(t, mis)
     end
   end
-  Exlist.UpdateChar(key,t)
+  if #t > 0 then
+    Exlist.UpdateChar(key,t)
+  end
 end
 
 local function missionStrings(source,hasSuccess)
