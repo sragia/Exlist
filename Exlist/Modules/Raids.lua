@@ -29,8 +29,8 @@ local LFRencounters = {
   [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {
     [1610] = {name = "Light's Breach", totalEncounters = 3, order = 1}, -- Light's Breach
     [1611] = {name = "Forbidden Descent", totalEncounters = 3, order = 2}, -- Forbidden Descent
-    [1612] = {name = "Hope's End", totalEncounters = 2, order = 3}, -- Hope's End
-    [1613] = {name = "Seat of the Pantheon", totalEncounters = 1, order = 4}, -- Seat of the Pantheon
+    [1612] = {name = "Hope's End", totalEncounters = 3, order = 3}, -- Hope's End
+    [1613] = {name = "Seat of the Pantheon", totalEncounters = 2, order = 4}, -- Seat of the Pantheon
   }
 }
 local ALLOWED_RAIDS = {
@@ -40,7 +40,6 @@ local ALLOWED_RAIDS = {
   [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = true, -- ToS
   [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = true, -- Antorus
 }
-for i,v in pairs(ALLOWED_RAIDS) do print(i,v) end
 local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo = GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo
 local table, pairs = table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
