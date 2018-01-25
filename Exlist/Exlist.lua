@@ -1246,7 +1246,7 @@ local function OnEnter(self)
   tooltip:SetScript("OnUpdate",function(self, elapsed)
     self.time = self.time + elapsed
     if self.time > 0.1 then
-      if self.globalTooltip:IsMouseOver() or self:IsMouseOver() or self.parent:IsMouseOver() then
+      if self.globalTooltip and self.globalTooltip:IsMouseOver() or self:IsMouseOver() or self.parent:IsMouseOver() then
         self.elapsed = 0
       else
         self.elapsed = self.elapsed + self.time
