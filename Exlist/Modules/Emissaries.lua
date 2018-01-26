@@ -84,9 +84,13 @@ local function Updater(event)
         local text, _, completed, current, total = GetQuestObjectiveInfo(questID, 1, false)
         local timeleft = C_TaskQuest.GetQuestTimeLeftMinutes(questID)
         local endTime = timeNow + timeleft * 60
-        local t = {name = title, current = current, total = total, endTime = endTime}
-        gt[questID] = {title = title, endTime = endTime}
-        table.insert(emissaries, t)
+        if endTime > timeNow then
+          -- make sure if there's actually any time left.
+          -- paragon chests show up as bounty quests but obv doesnt have time limit
+          local t = {name = title, current = current, total = total, endTime = endTime}
+          gt[questID] = {title = title, endTime = endTime}
+          table.insert(emissaries, t)
+        end
       end
     end
   end
