@@ -21,6 +21,10 @@ externals:
   url: https://repos.wowace.com/wow/ace-gui-3-0-shared-media-widgets/trunk/AceGUI-3.0-SharedMediaWidgets
  Exlist/Libs/LibSharedMedia-3.0:
   url: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
+ Exlist/Libs/LibDBIcon-1.0: 
+  url: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
+ Exlist/Libs/LibDataBroker-1.1:
+  url: git://github.com/tekkub/libdatabroker-1-1.git
 
 enable-nolib-creation: no
 

@@ -132,7 +132,33 @@ local options = {
                         Exlist.ConfigDB.settings.announceReset = v
                         Exlist_RefreshAppearance()
                     end,
-                },            
+                },
+                showMinimapIcon = {
+                    order = 5,
+                    name = "Show Minimap Icon",
+                    type = "toggle",
+                    width = "full",
+                    get = function()
+                        return Exlist.ConfigDB.settings.showMinimapIcon
+                    end,
+                    set = function(info, v)
+                        Exlist.ConfigDB.settings.showMinimapIcon = v
+                        Exlist_RefreshAppearance()
+                    end,
+                },
+                showIcon = {
+                    order = 2.9,
+                    name = "Show Icon",
+                    type = "toggle",
+                    width = "full",
+                    get = function()
+                        return Exlist.ConfigDB.settings.showIcon
+                    end,
+                    set = function(info, v)
+                        Exlist.ConfigDB.settings.showIcon = v
+                        Exlist_RefreshAppearance()
+                    end,
+                },             
             }
         },
         fonts ={

@@ -6,6 +6,8 @@
 local addonName, addonTable = ...
 local QTip = LibStub("LibQTip-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
+local LDB = LibStub:GetLibrary("LibDataBroker-1.1")
+local LDBI = LibStub("LibDBIcon-1.0")
 -- SavedVariables localized
 local db = {}
 local config_db = {}
@@ -88,6 +90,9 @@ local settings = { -- default settings
   },
   currencies = {},
   announceReset = false,
+  showMinimapIcon = false,
+  minimapTable = {},
+  showIcon = true,
 }
 local iconPaths = {
   --[specId] = [[path]]
@@ -1151,6 +1156,30 @@ local function Exlist_StopMoving(self)
   config_db.config = config
 end
 
+local function GetPosition(point,xpos)
+  local screenWidth = GetScreenWidth()
+  xpos = xpos or 0 
+  if point:find("LEFT") then
+    if xpos > (screenWidth/2) then
+      return "left" -- left side
+    else
+      return "right" -- right side
+    end
+  elseif point:find("RIGHT") then
+    if xpos < (screenWidth/2) then
+      return "left" -- left side
+    else
+      return "right" -- right side
+    end
+  else
+    if xpos > 0 then
+      return "left"-- left side
+    else
+      return "right" -- right side
+    end
+  end
+end
+
 butTool:SetScript("OnDragStop", Exlist_StopMoving)
 
 local function OnEnter(self)
@@ -1205,12 +1234,19 @@ local function OnEnter(self)
     for i=1, #globalLineGenerators do
       globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
     end
-    local point = self:GetPoint()
-    if config_db.config and config_db.config.point and config_db.config.point:find("RIGHT") then
-      gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
+    local screenWidth = GetScreenWidth()
+    local position = "left"
+    if self:GetParent():GetName() == "Minimap" then
+      -- ehhh Fix Minimap Button Location later
+      -- Leave Position as left for now
     else
-      gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
+      local point,_,_,xpos = self:GetPoint()
+      position = GetPosition(point,xpos)
     end
+    if position == "left" then gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
+    else gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
+    end
+
     gTip:Show()
     local parentFrameLevel = tooltip:GetFrameLevel(tooltip)
     gTip:SetFrameLevel(parentFrameLevel)
@@ -1268,6 +1304,7 @@ end
 
 butTool:SetScript("OnEnter", OnEnter)
 
+
 local function spairs(t, order)
   -- collect the keys
   local keys = {}
@@ -1299,6 +1336,19 @@ local function OpenConfig(self, button)
 end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
+
+-- LibDataBroker Button
+
+local LDB_Exlist = LDB:NewDataObject("Exlist",{
+  type = "data source",
+  text = "Exlist",
+  icon = "Interface\\AddOns\\Exlist\\Media\\Icons\\logo",
+  OnClick = OpenConfig,
+  OnEnter = OnEnter
+})
+
+
+
 -- refresh
 function Exlist_RefreshAppearance()
   --texplore(fontSet)
@@ -1311,6 +1361,16 @@ function Exlist_RefreshAppearance()
   smallFont:SetFont(font, settings.fonts.small.size)
   mediumFont:SetFont(font, settings.fonts.medium.size)
   butTool:SetScale(settings.iconScale)
+  if settings.showMinimapIcon then
+    LDBI:Show("Exlist")
+  else
+    LDBI:Hide("Exlist")
+  end
+  if settings.showIcon then
+    butTool:Show()
+  else
+    butTool:Hide()
+  end
 end
 
 -- addon loaded
@@ -1329,7 +1389,7 @@ local function init()
   else
    -- set Defaults
     for i,v in pairs(settings) do
-      if not Exlist_Config.settings[i] then
+      if Exlist_Config.settings[i] == nil then
         Exlist_Config.settings[i] = v
       end
    end
@@ -1341,8 +1401,12 @@ local function init()
   config_db = Exlist.copyTable(Exlist_Config)
   settings = config_db.settings
   Exlist.ConfigDB = config_db
-  ModernizeCharacters()
-  Exlist_RefreshAppearance()
+  
+  -- Minimap Icon
+  LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
+
+  ModernizeCharacters()  
+
   if IsNewCharacter() then
     -- for config page if it's first time that character logins
     C_Timer.After(0.2, function()
@@ -1356,6 +1420,7 @@ local function init()
     AddModulesToSettings()
     Exlist.SetupConfig()
   end
+  C_Timer.After(0.5, function() Exlist_RefreshAppearance() end)
 end
 
 -- Reset handling
@@ -1643,3 +1708,4 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
   end
   --WipeKey(msg)
 end
+
