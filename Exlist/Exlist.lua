@@ -93,6 +93,7 @@ local settings = { -- default settings
   showMinimapIcon = false,
   minimapTable = {},
   showIcon = true,
+  horizontalMode = false,
 }
 local iconPaths = {
   --[specId] = [[path]]

@@ -249,6 +249,23 @@ local options = {
                     name = " ",
                     order = 1
                 },
+                tooltipOrientation = {
+                    type = "select",
+                    order = 1.1,
+                    width = "full",
+                    name = "Tooltip Orientation",
+                    values = {
+                        V = "Vertical",
+                        H = "Horizontal"
+                    },
+                    set = function(self,v)
+                        Exlist.ConfigDB.settings.horizontalMode = v == "H"
+                    end,
+                    get = function(self)
+
+                        return Exlist.ConfigDB.settings.horizontalMode and "H" or "V"
+                    end
+                },
                 tooltipHeight = {
                     type = "range",
                     name = "Tooltip Max Height",
