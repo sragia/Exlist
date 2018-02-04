@@ -1401,7 +1401,7 @@ local function init()
   config_db = Exlist.copyTable(Exlist_Config)
   settings = config_db.settings
   Exlist.ConfigDB = config_db
-  
+  settings.reorder = true 
   -- Minimap Icon
   LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
 
