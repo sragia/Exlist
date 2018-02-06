@@ -146,9 +146,14 @@ local function Updater(event)
   end
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data then return end
-  local l = Exlist.AddLine(tooltip,{"Artifact",WrapTextInColorCode("Rank: ", "ffb2b2b2")..data.traits})
+  local info = {
+    character = character,
+    moduleName = key,
+    titleName = "Artifact",
+    data = WrapTextInColorCode("Rank: ", "ffb2b2b2")..data.traits,
+  }
   local sideTooltip = {body= {}, title=WrapTextInColorCode("Artifact Weapon", "ffffd200")}
   table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power: ", "ffb2b2b2"),Exlist.ShortenNumber(data.AP.curr, 1) .. '/' .. Exlist.ShortenNumber(data.AP.max, 1)})
   table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Knowledge level: ", "ffb2b2b2"), data.knowledge.level})
@@ -159,22 +164,11 @@ local function Linegenerator(tooltip,data)
     table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), SecondsToTime(nextIn)})
   elseif nextIn then
     table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), WrapTextInColorCode("Ready!", "ff62f442")})
-  end
-  --[[if data.dailyAP and data.currentID then
-    local dailyAP = data.dailyAP[data.currentID]
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (Today): ", "ffb2b2b2"), Exlist.ShortenNumber(dailyAP.currentAP - dailyAP.apDays[#dailyAP.apDays], 2)})
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (This Week): ", "ffb2b2b2"), Exlist.ShortenNumber(dailyAP.currentAP - dailyAP.apDays[1], 2)})
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power (Per day): ", "ffb2b2b2"), Exlist.ShortenNumber((dailyAP.currentAP - dailyAP.apDays[1]) / #dailyAP.apDays, 2)})
-  end]]             
-
-  Exlist.AddScript(tooltip,l,nil,"OnEnter", Exlist.CreateSideTooltip(), sideTooltip)
-  Exlist.AddScript(tooltip,l,nil,"OnLeave", Exlist.DisposeSideTooltip())
-  local time = time()
-  local next = tonumber(data.knowledge.next)
-  local nextIn = next and next - time or nil
-  if nextIn and not (nextIn > 0) then
-    Exlist.AddLine(tooltip,{"", WrapTextInColorCode("New Knowledge level is ready!", "ff62f442")})
-  end
+  end          
+  info.OnEnter = Exlist.CreateSideTooltip()
+  info.OnEnterData = sideTooltip
+  info.OnLeave = Exlist.DisposeSideTooltip()
+  Exlist.AddData(tooltip,info)
 end
 
 local data = {

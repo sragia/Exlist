@@ -100,8 +100,13 @@ local function Updater(event)
   Exlist.UpdateChar(key,gt,"global","global")
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data then return end
+  local info = {
+    character = character,
+    moduleName = key,
+    titleName = "Available Emissaries",
+  }
   local timeNow = time()
   local availableEmissaries = 0
   for i = 1, #data do
@@ -110,7 +115,7 @@ local function Linegenerator(tooltip,data)
     end
   end
   if availableEmissaries > 0 then
-    local lineNum = Exlist.AddLine(tooltip,{"Available Emissaries ", WrapTextInColorCode(availableEmissaries, "FF00FF00")})
+    info.data = WrapTextInColorCode(availableEmissaries, "FF00FF00")
     -- info {} {body = {'1st lane',{'2nd lane', 'side number w/e'}},title = ""}
     local sideTooltip = {title = WrapTextInColorCode("Available Emissaries", "ffffd200"), body = {}}
     local timeLeftColor
@@ -119,9 +124,12 @@ local function Linegenerator(tooltip,data)
       table.insert(sideTooltip.body, {data[i].name.."("..TimeLeftColor(data[i].endTime - timeNow, {36000, 72000})..")", (data[i].current or 0) .. "/" .. (data[i].total or 0)})
       end
     end
-    Exlist.AddScript(tooltip,lineNum,nil,"OnEnter", Exlist.CreateSideTooltip(), sideTooltip)
-    Exlist.AddScript(tooltip,lineNum,nil,"OnLeave", Exlist.DisposeSideTooltip())
+    info.OnEnter = Exlist.CreateSideTooltip()
+    info.OnEnterData = sideTooltip
+    info.OnLeave = Exlist.DisposeSideTooltip()
+    Exlist.AddData(tooltip,info)
   end
+  
 end
 
 local function GlobalLineGenerator(tooltip,data)

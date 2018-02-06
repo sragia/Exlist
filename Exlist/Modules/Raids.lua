@@ -122,7 +122,8 @@ local raidOrder = {GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne",
                    GetLFGDungeonInfo(1353) or "The Nighthold",
                    GetLFGDungeonInfo(1439) or "Trials of Valor",
                    GetLFGDungeonInfo(1350) or "Emerald Nightmare"}
-local function Linegenerator(tooltip,data)
+
+ local function Linegenerator(tooltip,data,character)
   if not data then return end
   local diffOrder = {"LFR","Normal","Heroic","Mythic"}
   local diffShortened = {
@@ -135,6 +136,8 @@ local function Linegenerator(tooltip,data)
             Normal = "ffffffff",
             Heroic = "ffffffff",
             Mythic = "ffffffff"}
+  local info = {character=character}
+  local infoTables = {}
   for index = 1, #raidOrder do
     if data[raidOrder[index]] then
       -- Raid
@@ -148,7 +151,8 @@ local function Linegenerator(tooltip,data)
           --killed something
           if not added then
             -- raid shows up first time
-            line = Exlist.AddLine(tooltip,{WrapTextInColorCode(raidOrder[index],"ffc1c1c1"),"","","",""})
+            info.moduleName = raidOrder[index]
+            info.titleName = WrapTextInColorCode(raidOrder[index],"ffc1c1c1")
             added = true
             cellIndex = cellIndex + 1
           end
@@ -180,12 +184,24 @@ local function Linegenerator(tooltip,data)
           end
 
           local statusbar = {curr = raidInfo.done,total=raidInfo.max,color = "9b016a"}
-          Exlist.AddToLine(tooltip,line,cellIndex,WrapTextInColorCode(raidInfo.done .. "/".. raidInfo.max.. " " .. diffShortened[diffOrder[difIndex]] ,diffColors[diffOrder[difIndex]]))
-          Exlist.AddScript(tooltip,line,cellIndex,"OnEnter",Exlist.CreateSideTooltip(statusbar),sideTooltipTable)
-          Exlist.AddScript(tooltip,line,cellIndex,"OnLeave",Exlist.DisposeSideTooltip())
+          info.data = WrapTextInColorCode(raidInfo.done .. "/".. raidInfo.max.. " " .. diffShortened[diffOrder[difIndex]] ,diffColors[diffOrder[difIndex]])
+          
+          info.colOff = cellIndex - 2
+          info.OnEnter = Exlist.CreateSideTooltip(statusbar)
+          info.OnEnterData = sideTooltipTable
+          info.dontResize = true
+          info.OnLeave = Exlist.DisposeSideTooltip()
+          infoTables[info.moduleName] = infoTables[info.moduleName] or {}
+          table.insert(infoTables[info.moduleName],Exlist.copyTable(info))
           cellIndex = cellIndex + 1
         end
       end
+    end
+  end
+  for raid,t in pairs(infoTables) do
+    for i=1,#t do
+      if i>=#t then t[i].dontResize = false end
+      Exlist.AddData(tooltip,t[i])
     end
   end
 end

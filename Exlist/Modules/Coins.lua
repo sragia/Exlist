@@ -40,18 +40,25 @@ local function Updater(event)
   Exlist.UpdateChar(key,table)
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data then return end
   local availableCoins = data.available > 0 and WrapTextInColorCode(data.available .. " available!", "ff00ff00") or ""
-  local line = Exlist.AddLine(tooltip,{"Coins ",data.curr .. "/" .. data.max .. " " .. availableCoins})
+  local info = {
+    data = data.curr .. "/" .. data.max .. " " .. availableCoins,
+    character = character,
+    moduleName = key,
+    titleName = "Coins"
+  }
   if data.quests and #data.quests > 0 then
     local sideTooltip = {title = WrapTextInColorCode("Quests Done This Week","ffffd200"), body = {}}
     for i=1,#data.quests do
       table.insert(sideTooltip.body,WrapTextInColorCode("[" .. data.quests[i] .. "]","fffee400"))
     end
-    Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
-    Exlist.AddScript(tooltip,line,nil,"OnLeave", Exlist.DisposeSideTooltip())
+    info.OnEnter = Exlist.CreateSideTooltip()
+    info.OnEnterData = sideTooltip
+    info.OnLeave = Exlist.DisposeSideTooltip()
   end
+  Exlist.AddData(tooltip,info)
 end
 
 local data = {

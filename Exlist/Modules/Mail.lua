@@ -14,15 +14,22 @@ local function Updater(event)
   Exlist.UpdateChar(key,t)
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data or not data.new then return end
-  local line = Exlist.AddLine(tooltip,{WrapTextInColorCode("Got Mail!","FF00FF00")})
+  local info = {
+    character = character,
+    moduleName = key,
+    titleName = "Mail",
+    data = WrapTextInColorCode("Got Mail!","FF00FF00")
+  }
   local t = {title = WrapTextInColorCode("Senders","ffffd200"), body = {}}
   for i=1, #data.senders do
     table.insert(t.body,{data.senders[i]})
   end
-  Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),t)
-  Exlist.AddScript(tooltip,line,nil,"OnLeave",Exlist.DisposeSideTooltip())
+  info.OnEnter = Exlist.CreateSideTooltip()
+  info.OnEnterData = t
+  info.OnLeave = Exlist.DisposeSideTooltip()
+  Exlist.AddData(tooltip,info)
 end
 
 local function Modernize(data)
@@ -34,7 +41,7 @@ local data = {
   name = 'Mail',
   key = key,
   linegenerator = Linegenerator,
-  priority = -100,
+  priority = 5,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","UPDATE_PENDING_MAIL"},
   weeklyReset = false,

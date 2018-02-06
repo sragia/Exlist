@@ -653,6 +653,114 @@ function Exlist.AddLine(tooltip,info)
   return n
 end
 
+local lineNums = {} -- only for Horizontal
+local columnNums = {} -- only for Horizontal
+local lastLineNum = 1 -- only for Horizontal
+local lastColNum = -2 -- only for Horizontal
+local function releasedTooltip()
+  lineNums = {} -- only for Horizontal
+  columnNums = {} -- only for Horizontal
+  lastLineNum = 1 -- only for Horizontal
+  lastColNum = -2 
+end
+
+function Exlist.AddData(tooltip,info)
+  --[[ 
+      tooltip = exlist tooltip frame
+      info = {
+        data = "string" text to be displayed
+        character = "name-realm" which column to display
+        moduleName = "key" Module key
+        titleName = "string" row title
+        colOff = number (optional) offset from first column defaults:0
+        dontResize = boolean (optional) if cell should span across
+        OnEnter = function (optional) script
+        OnEnterData = {} (optional) scriptData
+        OnLeave = function (optional) script
+        OnLeaveData = {} (optional) scriptData
+        OnClick = function (optional) script
+        OnClickData = {} (optional) scriptData
+      }
+  ]]
+  if not info or not tooltip then return end 
+  info.colOff = info.colOff or 0
+  if settings.horizontalMode then
+    -- Horizontal
+    
+    --defaults
+    local new = false
+    
+    -- find line
+    local line = 1
+    if lineNums[info.moduleName] then 
+      line = lineNums[info.moduleName]
+    else
+      
+      new = true
+    end
+    -- find column
+    local column = 1
+    if columnNums[info.character] then
+      column = columnNums[info.character] + info.colOff
+    else
+      lastColNum = lastColNum + 4
+      columnNums[info.character] = lastColNum
+      column = lastColNum + info.colOff
+    end
+
+    -- new module to be added 
+    if new then 
+      lastLineNum = tooltip:AddLine()
+      line = lastLineNum 
+      lineNums[info.moduleName] = line
+      tooltip:SetCell(line,1,info.titleName)
+    end
+    if info.dontResize then
+      tooltip:SetCell(line,column,info.data,"CENTER")
+    else
+      tooltip:SetCell(line,column,info.data,"CENTER",columnNums[info.character]+4-column)
+    end
+    
+    if info.OnEnter and type(info.OnEnter) == "function" then
+      tooltip:SetCellScript(line,column,"OnEnter",info.OnEnter,info.OnEnterData)
+    end
+    if info.OnLeave and type(info.OnLeave) == "function" then
+      tooltip:SetCellScript(line,column,"OnLeave",info.OnLeave,info.OnLeaveData)
+    end
+    if info.OnClick and type(info.OnClick) == "function" then
+      tooltip:SetCellScript(line,column,"OnMouseDown",info.OnClick,info.OnClickData)
+    end
+
+  else
+    -- Vertical 
+    local id = info.character..info.moduleName
+    local line
+    if lineNums[id] then
+      line = lineNums[id]
+    else
+      line = tooltip:AddLine(info.titleName)
+      lineNums[id] = line
+    end
+    local column = 2+info.colOff
+    if info.dontResize then
+      tooltip:SetCell(line,column,info.data,"LEFT")
+    else
+      tooltip:SetCell(line,column,info.data,"LEFT",5-column)
+    end
+    if info.OnEnter and type(info.OnEnter) == "function" then
+      tooltip:SetCellScript(line,column,"OnEnter",info.OnEnter,info.OnEnterData)
+    end
+    if info.OnLeave and type(info.OnLeave) == "function" then
+      tooltip:SetCellScript(line,column,"OnLeave",info.OnLeave,info.OnLeaveData)
+    end
+    if info.OnClick and type(info.OnClick) == "function" then
+      tooltip:SetCellScript(line,column,"OnMouseDown",info.OnClick,info.OnClickData)
+    end
+
+  end
+end
+
+
 function Exlist.AddToLine(tooltip,row,col,text)
   -- Add text to lines column
   if not tooltip or not row or not col or not text then return end
@@ -1186,14 +1294,27 @@ butTool:SetScript("OnDragStop", Exlist_StopMoving)
 local function OnEnter(self)
   if QTip:IsAcquired("Exlist_Tooltip") then return end
   self:SetAlpha(1)
-  local tooltip = QTip:Acquire("Exlist_Tooltip", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
   
-  tooltip:SetScale(settings.tooltipScale or 1)
-  self.tooltip = tooltip
   -- sort line generators
   table.sort(registeredLineGenerators,function(a,b) return a.prio < b.prio end)
 
   local charOrder = GetCharacterOrder()
+  local tooltip 
+  if settings.horizontalMode then
+    tooltip = QTip:Acquire("Exlist_Tooltip", (#charOrder*4)+1)
+  else
+    tooltip = QTip:Acquire("Exlist_Tooltip", 5)
+  end
+  tooltip:SetScale(settings.tooltipScale or 1)
+  self.tooltip = tooltip
+
+  if settings.horizontalMode then 
+    -- Setup Header for horizontal
+    tooltip:AddHeader() 
+    tooltip:SetFont(smallFont)
+    tooltip:AddLine()
+    tooltip:AddSeparator(1, 1, 1, 1, .85)
+  end
   -- character info main tooltip
   for i=1,#charOrder do
     local name = charOrder[i].name
@@ -1202,25 +1323,41 @@ local function OnEnter(self)
     charData.name = name
     -- header
     local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
-    tooltip:SetHeaderFont(mediumFont)
-    local l = tooltip:AddHeader("|T" .. specIcon ..":25:25|t "..
-    "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
-    tooltip:SetHeaderFont(smallFont)
-    tooltip:SetHeaderFont(mediumFont)
-    tooltip:SetCell(l, 2, string.format("%i ilvl", charData.iLvl or 0), "RIGHT",4,nil,nil,5)
-    tooltip:SetLineScript(l,"OnEnter",GearTooltip,charData)
-    tooltip:SetLineScript(l,"OnLeave",Exlist.DisposeSideTooltip())
-    tooltip:SetFont(smallFont)
-    tooltip:AddLine(string.format("|c%s%s - Level %i","ffffd200",realm,charData.level))
-    tooltip:AddLine()
+
+    if settings.horizontalMode then
+      tooltip:SetHeaderFont(mediumFont)
+      local col = ((i-1)*4)+2
+      tooltip:SetCell(1,((i-1)*4)+2,"|T" .. specIcon ..":25:25|t "..
+      "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
+      tooltip:SetCell(1, col+1, string.format("%i ilvl", charData.iLvl or 0), "RIGHT",3)
+      tooltip:SetCellScript(1,col,"OnEnter",GearTooltip,charData)
+      tooltip:SetCellScript(1,col,"OnLeave",Exlist.DisposeSideTooltip())
+      tooltip:SetFont(smallFont)
+      tooltip:SetCell(2,col,string.format("|c%s%s - Level %i","ffffd200",realm,charData.level), "CENTER",4)
+    else
+      tooltip:SetHeaderFont(mediumFont)
+      local l = tooltip:AddHeader("|T" .. specIcon ..":25:25|t "..
+      "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
+      tooltip:SetHeaderFont(smallFont)
+      tooltip:SetHeaderFont(mediumFont)
+      tooltip:SetCell(l, 2, string.format("%i ilvl", charData.iLvl or 0), "RIGHT",4,nil,nil,5)
+      tooltip:SetLineScript(l,"OnEnter",GearTooltip,charData)
+      tooltip:SetLineScript(l,"OnLeave",Exlist.DisposeSideTooltip())
+      tooltip:SetFont(smallFont)
+      tooltip:AddLine(string.format("|c%s%s - Level %i","ffffd200",realm,charData.level))
+      tooltip:AddLine()
+    end
+
+
     -- info
+    local character = name..realm
     for i = 1, #registeredLineGenerators do
       if settings.allowedModules[registeredLineGenerators[i].name] then
-        registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key])
+        registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key],character)
       end
     end
-    AddNote(tooltip,charData,realm,name)
-    if i < #charOrder then
+    --AddNote(tooltip,charData,realm,name)
+    if i < #charOrder and not settings.horizontalMode then
       tooltip:AddSeparator(1, 1, 1, 1, .85)
     end
   end
@@ -1289,6 +1426,7 @@ local function OnEnter(self)
         self.elapsed = self.elapsed + self.time
         if self.elapsed > settings.delay then
             self.parent:SetAlpha(settings.iconAlpha or 1)
+            releasedTooltip()
             QTip:Release(self)
         end
       end

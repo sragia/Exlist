@@ -52,18 +52,23 @@ local function Updater(event,...)
   Exlist.Debug("Did not find any data -",key)
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data then return end
-  local line = Exlist.AddLine(tooltip,{"RaiderIO M+ score",data.score})
+  local info = {
+    character = character,
+    moduleName = key,
+    titleName = "RaiderIO M+ score",
+    data = data.score
+  }
   local s = {}
   for i=1,#data.dungeons do
     s[i] = {data.dungeons[i].name,data.dungeons[i].lvl}
   end
   local sideTooltip = {body = s,title=WrapTextInColorCode(string.format("%s - %s",data.playerName,data.score),"ffffd200")}
-  Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
-  Exlist.AddScript(tooltip,line,nil,"OnLeave",Exlist.DisposeSideTooltip())
-
-
+  info.OnEnter = Exlist.CreateSideTooltip()
+  info.OnEnterData = sideTooltip
+  info.OnLeave = Exlist.DisposeSideTooltip()
+  Exlist.AddData(tooltip,info)
 end
 
 local function Modernize(data)

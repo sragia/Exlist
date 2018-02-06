@@ -7,8 +7,13 @@ local function Updater(event)
   Exlist.UpdateChar(key,t)
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
+  local info = {
+    character = character,
+    moduleName = key,
+  }
 
+  Exlist.AddData(tooltip,info)
 end
 
 local function GlobalLineGenerator(tooltip,data)

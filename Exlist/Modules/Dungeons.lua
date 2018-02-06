@@ -41,15 +41,22 @@ local function Updater(event)
   Exlist.UpdateChar(key,t)
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data or data.done == 0 then return end
-  local lane = Exlist.AddLine(tooltip,{WrapTextInColorCode('Dungeons',"ffc1c1c1"),data.done..'/'..data.max})
+  local info = {
+    character = character,
+    moduleName = key,
+    titleName = WrapTextInColorCode('Dungeons',"ffc1c1c1"),
+    data = data.done..'/'..data.max,
+  }
   local sideTooltip = {title = WrapTextInColorCode("Mythic Dungeons","ffffd200"), body = {}}
   for name,locked in pairs(data.dungeonList) do
     table.insert(sideTooltip.body,{name,locked and WrapTextInColorCode("Defeated", "FFFF0000") or  WrapTextInColorCode("Available", "FF00FF00")})
   end
-  Exlist.AddScript(tooltip,lane,nil,"OnEnter",Exlist.CreateSideTooltip(), sideTooltip)
-  Exlist.AddScript(tooltip,lane,nil,"OnLeave",Exlist.DisposeSideTooltip())
+  info.OnEnter = Exlist.CreateSideTooltip()
+  info.OnEnterData = sideTooltip
+  info.OnLeave = Exlist.DisposeSideTooltip()
+  Exlist.AddData(tooltip,info)
 end
 
 local data = {

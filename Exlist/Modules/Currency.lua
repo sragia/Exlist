@@ -107,9 +107,15 @@ local function AddRefreshOptions()
 end
 Exlist.ModuleToBeAdded(AddRefreshOptions)
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data or not data.money then return end
-  local lineNum = Exlist.AddLine(tooltip,data.money.gold .. "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r")
+  local info = {
+    character = character,
+    moduleName = key,
+    titleName = "Currency",
+    data = data.money.gold .. "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r",
+  }
+
   local currency = data.currency
   if currency then
     local sideTooltip = {body = {},title= WrapTextInColorCode("Currency","ffffd200")}
@@ -117,9 +123,11 @@ local function Linegenerator(tooltip,data)
       table.insert(sideTooltip.body,{"|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""), currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount})
     end
     table.insert(sideTooltip.body,"|cfff2b202To add additional items/currency check out config!")
-    Exlist.AddScript(tooltip,lineNum,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
-    Exlist.AddScript(tooltip,lineNum,nil,"OnLeave", Exlist.DisposeSideTooltip())
+    info.OnEnter = Exlist.CreateSideTooltip()
+    info.OnEnterData = sideTooltip
+    info.OnLeave = Exlist.DisposeSideTooltip()
   end
+  Exlist.AddData(tooltip,info)
 end
 
 local data = {

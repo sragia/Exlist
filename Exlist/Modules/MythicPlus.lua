@@ -75,18 +75,26 @@ local function MythicPlusTimeString(time,mapId)
   return WrapTextInColorCode("(+3) " .. Exlist.FormatTimeMilliseconds(time),colors[#colors])
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data or data.bestLvl < 2 then return end
-  local line = Exlist.AddLine(tooltip,{"Best Mythic+","+" .. data.bestLvl .. " " .. data.bestLvlMap})
+  local info = {
+    character = character,
+    moduleName = key,
+    titleName = "Best Mythic+",
+    data = "+" .. data.bestLvl .. " " .. data.bestLvlMap,
+  }
+
   if data.mapsDone and #data.mapsDone > 0 then
     local sideTooltip = {title = WrapTextInColorCode("Mythic+","ffffd200"), body = {}}
     local maps = data.mapsDone
     for i=1, #maps do
       table.insert(sideTooltip.body,{"+" .. maps[i].level .. " " .. maps[i].name,MythicPlusTimeString(maps[i].time,maps[i].mapId)})
     end
-    Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
-    Exlist.AddScript(tooltip,line,nil,"OnLeave",Exlist.DisposeSideTooltip())
+    info.OnEnter = Exlist.CreateSideTooltip()
+    info.OnEnterData = sideTooltip
+    info.OnLeave = Exlist.DisposeSideTooltip()
   end
+  Exlist.AddData(tooltip,info)
 end
 
 local data = {

@@ -121,10 +121,16 @@ local function missionStrings(source,hasSuccess)
   return t
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   local t = time()
   local m = data
   if not m then return end
+  local info = {
+    character = character,
+    moduleName = key,
+    titleName = "Missions"
+  }
+
   local available,inprogress,done = {},{},{}
   local ip = 0
   local completed = 0
@@ -143,8 +149,7 @@ local function Linegenerator(tooltip,data)
   end
   if completed > 0 then completed = "|cFF00FF00" .. completed end
   local t2 = string.format("%s/%i",completed,ip) or ""
-  local l = Exlist.AddLine(tooltip,{"Missions",t2})
-
+  info.data = t2
   local sideTooltip = {body={},title = WrapTextInColorCode("Order Hall Missions","ffffd200")}
   if #done > 0 then
     table.insert(sideTooltip.body,{WrapTextInColorCode("Completed","FF00FF00"),"",{"headerseparator"}})
@@ -167,9 +172,11 @@ local function Linegenerator(tooltip,data)
       table.insert(sideTooltip.body,t[i])
     end
   end
-  Exlist.AddScript(tooltip,l,nil,"OnEnter", Exlist.CreateSideTooltip(), sideTooltip)
-  Exlist.AddScript(tooltip,l,nil,"OnLeave", Exlist.DisposeSideTooltip())
+  info.OnEnter = Exlist.CreateSideTooltip()
+  info.OnEnterData = sideTooltip
+  info.OnLeave = Exlist.DisposeSideTooltip()
 
+  Exlist.AddData(tooltip,info)
 end
 
 local data = {

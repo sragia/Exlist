@@ -393,8 +393,9 @@ local function Updater(event)
   Exlist.UpdateChar(key,gt,'global','global')
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data then return end
+  
   local availableWB = 0
   local killed = 0
   local strings = {}
@@ -407,10 +408,17 @@ local function Linegenerator(tooltip,data)
 
   end
   if availableWB > 0 then
-    local line = Exlist.AddLine(tooltip,{WrapTextInColorCode("World Bosses:","ffc1c1c1"),string.format("%i/%i",killed,availableWB)})
     local sideTooltip = {body = strings,title=WrapTextInColorCode("World Bosses","ffffd200")}
-    Exlist.AddScript(tooltip,line,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
-    Exlist.AddScript(tooltip,line,nil,"OnLeave",Exlist.DisposeSideTooltip())
+    local info = {
+      character = character,
+      moduleName = key,
+      titleName = WrapTextInColorCode("World Bosses:","ffc1c1c1"),
+      data = string.format("%i/%i",killed,availableWB),
+      OnEnter = Exlist.CreateSideTooltip(),
+      OnEnterData = sideTooltip,
+      OnLeave = Exlist.DisposeSideTooltip()
+    }
+    Exlist.AddData(tooltip,info)
   end
 end
 

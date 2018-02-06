@@ -10,6 +10,7 @@ local Exlist = Exlist
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local lastUpdate = 0
+
 local function Updater(event)
   if GetTime() - lastUpdate < 5 then return end
   lastUpdate = GetTime()
@@ -42,24 +43,30 @@ local function Updater(event)
   end
 end
 
-local function Linegenerator(tooltip,data)
+local function Linegenerator(tooltip,data,character)
   if not data then return end
-  local lineNum = Exlist.AddLine(tooltip,{"Key in bags",WrapTextInColorCode("[" .. data.dungeon .. " +" .. data.level .. "]", "ffd541e2")})
-  Exlist.AddScript(tooltip,lineNum, 2, "OnMouseDown", function(self, arg1,...)
-    if IsShiftKeyDown() then
-      if not arg1 then return end
-      if ChatEdit_GetActiveWindow() then
-        ChatEdit_InsertLink(arg1)
+  local info = {
+    data = WrapTextInColorCode("[" .. data.dungeon .. " +" .. data.level .. "]", "ffd541e2"),
+    character = character,
+    moduleName = key,
+    titleName = "Key in bags",
+    OnClick = function(self, arg1,...)
+      if IsShiftKeyDown() then
+        if not arg1 then return end
+        if ChatEdit_GetActiveWindow() then
+          ChatEdit_InsertLink(arg1)
+        else
+          ChatFrame_OpenChat(arg1, DEFAULT_CHAT_FRAME)
+        end
       else
-        ChatFrame_OpenChat(arg1, DEFAULT_CHAT_FRAME)
+        ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
+        ItemRefTooltip:SetHyperlink(arg1)
+        ShowUIPanel(ItemRefTooltip) 
       end
-    else
-      ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
-      ItemRefTooltip:SetHyperlink(arg1)
-      ShowUIPanel(ItemRefTooltip) 
-    end
-  end,
-  data.itemLink)
+    end,
+    OnClickData = data.itemLink
+  }
+  Exlist.AddData(tooltip,info)
 end
 
 local function GlobalLineGenerator(tooltip,data)
