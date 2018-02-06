@@ -1,5 +1,5 @@
 local key = "artifact"
-local LAD = LibStub("LibArtifactData-1.0")
+local LAD 
 local AK_MAX_LEVEL = 40
 local CG = C_Garrison
 local OrderHallType = LE_GARRISON_TYPE_7_0
@@ -13,7 +13,8 @@ local Exlist = Exlist
 
 local ArtifactInfo = function()
   local loaded = IsAddOnLoaded('LibArtifactData-1.0') or LoadAddOn('LibArtifactData-1.0')
-  if not loaded and not LAD then return end
+  if not loaded then return end
+  
   local artifactID, unspentPower, power, maxPower, powerForNextRank, numRanksPurchased, numRanksPurchasable
   if not LAD:GetActiveArtifactID() then
     LAD:ForceUpdate()
@@ -105,6 +106,7 @@ end
 
 local function Updater(event)
   if not IsAddOnLoaded("LibArtifactData-1.0") then LoadAddOn("LibArtifactData-1.0") end
+  if not LAD then LAD = LibStub("LibArtifactData-1.0") end
   if not LAD:GetActiveArtifactID() then return end
   local name = UnitName('player')
   local realm = GetRealmName()
