@@ -1,4 +1,5 @@
 local key = "raids"
+local prio = 7
 local LFRencounters = {
   -- [dungeonID] = {name = "", totalEncounters = 2}
   -- Emerald Nightmare
@@ -139,6 +140,7 @@ local raidOrder = {GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne",
   local info = {character=character}
   local infoTables = {}
   for index = 1, #raidOrder do
+    info.priority = prio + index
     if data[raidOrder[index]] then
       -- Raid
       local added = false
@@ -201,7 +203,7 @@ local raidOrder = {GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne",
   for raid,t in pairs(infoTables) do
     for i=1,#t do
       if i>=#t then t[i].dontResize = false end
-      Exlist.AddData(tooltip,t[i])
+      Exlist.AddData(t[i])
     end
   end
 end
@@ -210,7 +212,7 @@ local data = {
   name = 'Raids',
   key = key,
   linegenerator = Linegenerator,
-  priority = 7,
+  priority = prio,
   updater = Updater,
   event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD"},
   weeklyReset = true

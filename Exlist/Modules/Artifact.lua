@@ -1,4 +1,5 @@
 local key = "artifact"
+local prio = 1
 local LAD 
 local AK_MAX_LEVEL = 40
 local CG = C_Garrison
@@ -150,6 +151,7 @@ local function Linegenerator(tooltip,data,character)
   if not data then return end
   local info = {
     character = character,
+    priority = prio,
     moduleName = key,
     titleName = "Artifact",
     data = WrapTextInColorCode("Rank: ", "ffb2b2b2")..data.traits,
@@ -168,14 +170,14 @@ local function Linegenerator(tooltip,data,character)
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local data = {
   name = "Artifact",
   key = key,
   linegenerator = Linegenerator,
-  priority = 1,
+  priority = prio,
   updater = Updater,
   event = {"ARTIFACT_UPDATE"},
   weeklyReset = false

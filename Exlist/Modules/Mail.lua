@@ -1,4 +1,5 @@
 local key = "mail"
+local prio = -100
 local Exlist = Exlist
 local WrapTextInColorCode = WrapTextInColorCode
 local HasNewMail, GetLatestThreeSenders = HasNewMail, GetLatestThreeSenders
@@ -19,6 +20,7 @@ local function Linegenerator(tooltip,data,character)
   local info = {
     character = character,
     moduleName = key,
+    priority = prio,
     titleName = "Mail",
     data = WrapTextInColorCode("Got Mail!","FF00FF00")
   }
@@ -29,7 +31,7 @@ local function Linegenerator(tooltip,data,character)
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = t
   info.OnLeave = Exlist.DisposeSideTooltip()
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local function Modernize(data)
@@ -41,7 +43,7 @@ local data = {
   name = 'Mail',
   key = key,
   linegenerator = Linegenerator,
-  priority = 5,
+  priority = prio,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","UPDATE_PENDING_MAIL"},
   weeklyReset = false,

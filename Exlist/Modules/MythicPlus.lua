@@ -1,4 +1,5 @@
 local key = "mythicPlus"
+local prio = 4
 local CM = C_ChallengeMode
 local Exlist = Exlist
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
@@ -80,6 +81,7 @@ local function Linegenerator(tooltip,data,character)
   local info = {
     character = character,
     moduleName = key,
+    priority = prio,
     titleName = "Best Mythic+",
     data = "+" .. data.bestLvl .. " " .. data.bestLvlMap,
   }
@@ -94,14 +96,14 @@ local function Linegenerator(tooltip,data,character)
     info.OnEnterData = sideTooltip
     info.OnLeave = Exlist.DisposeSideTooltip()
   end
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local data = {
   name = 'Mythic+',
   key = key,
   linegenerator = Linegenerator,
-  priority = 4,
+  priority = prio,
   updater = Updater,
   event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD"},
   weeklyReset = true

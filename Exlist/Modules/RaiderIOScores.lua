@@ -1,4 +1,5 @@
 local key = "raiderIO"
+local prio = 0.5
 local Exlist = Exlist
 local CM = C_ChallengeMode
 local table,print= table,print
@@ -57,6 +58,7 @@ local function Linegenerator(tooltip,data,character)
   local info = {
     character = character,
     moduleName = key,
+    priority = prio,
     titleName = "RaiderIO M+ score",
     data = data.score
   }
@@ -68,7 +70,7 @@ local function Linegenerator(tooltip,data,character)
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local function Modernize(data)
@@ -80,7 +82,7 @@ local data = {
   name = 'RaiderIO M+ Score',
   key = key,
   linegenerator = Linegenerator,
-  priority = 0.5,
+  priority = prio,
   updater = Updater,
   event = {"ADDON_LOADED","PLAYER_ENTERING_WORLD","PLAYER_ENTERING_WORLD_DELAYED"},
   weeklyReset = false,

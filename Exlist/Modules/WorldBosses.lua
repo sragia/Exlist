@@ -1,4 +1,5 @@
 local key = "worldboss"
+local prio = 50
 local MAX_CHARACTER_LEVEL = 110
 local Exlist = Exlist
 local worldBossIDs = {
@@ -412,13 +413,14 @@ local function Linegenerator(tooltip,data,character)
     local info = {
       character = character,
       moduleName = key,
+      priority = prio,
       titleName = WrapTextInColorCode("World Bosses:","ffc1c1c1"),
       data = string.format("%i/%i",killed,availableWB),
       OnEnter = Exlist.CreateSideTooltip(),
       OnEnterData = sideTooltip,
       OnLeave = Exlist.DisposeSideTooltip()
     }
-    Exlist.AddData(tooltip,info)
+    Exlist.AddData(info)
   end
 end
 
@@ -467,7 +469,7 @@ local data = {
   key = key,
   linegenerator = Linegenerator,
   globallgenerator = GlobalLineGenerator,
-  priority = 50,
+  priority = prio,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN","EJ_DIFFICULTY_UPDATE","PLAYER_ENTERING_WORLD_DELAYED"},
   weeklyReset = true

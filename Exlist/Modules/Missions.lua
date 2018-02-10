@@ -1,4 +1,5 @@
 local key = "missions"
+local prio = 6
 local CG = C_Garrison
 local LE_FOLLOWER_TYPE_GARRISON_7_0 = LE_FOLLOWER_TYPE_GARRISON_7_0
 local time, table, strlen, string, type, math = time, table, strlen, string, type, math
@@ -127,6 +128,7 @@ local function Linegenerator(tooltip,data,character)
   if not m then return end
   local info = {
     character = character,
+    priority = prio,
     moduleName = key,
     titleName = "Missions"
   }
@@ -176,14 +178,14 @@ local function Linegenerator(tooltip,data,character)
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()
 
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local data = {
   name = 'Missions',
   key = key,
   linegenerator = Linegenerator,
-  priority = 6,
+  priority = prio,
   updater = Updater,
   event = {"GARRISON_MISSION_COMPLETE_RESPONSE","GARRISON_MISSION_STARTED","GARRISON_MISSION_NPC_OPENED"},
   weeklyReset = false

@@ -1,4 +1,5 @@
 local key = "coins"
+local prio = 4
 local MAX_CHARACTER_LEVEL = 110
 local UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo = UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo
 local pairs, table = pairs, table
@@ -46,6 +47,7 @@ local function Linegenerator(tooltip,data,character)
   local info = {
     data = data.curr .. "/" .. data.max .. " " .. availableCoins,
     character = character,
+    priority = prio,
     moduleName = key,
     titleName = "Coins"
   }
@@ -58,14 +60,14 @@ local function Linegenerator(tooltip,data,character)
     info.OnEnterData = sideTooltip
     info.OnLeave = Exlist.DisposeSideTooltip()
   end
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local data = {
   name = 'Coins',
   key = key,
   linegenerator = Linegenerator,
-  priority = 4,
+  priority = prio,
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","QUEST_FINISHED","QUEST_TURNED_IN"},
   weeklyReset = false

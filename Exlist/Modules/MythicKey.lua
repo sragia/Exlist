@@ -1,4 +1,5 @@
 local key = "mythicKey"
+local prio = 3
 local CM = C_ChallengeMode
 local NUM_BAG_SLOTS = NUM_BAG_SLOTS
 local UnitName, GetRealmName = UnitName, GetRealmName
@@ -49,6 +50,7 @@ local function Linegenerator(tooltip,data,character)
     data = WrapTextInColorCode("[" .. data.dungeon .. " +" .. data.level .. "]", "ffd541e2"),
     character = character,
     moduleName = key,
+    priority = prio,
     titleName = "Key in bags",
     OnClick = function(self, arg1,...)
       if IsShiftKeyDown() then
@@ -66,7 +68,7 @@ local function Linegenerator(tooltip,data,character)
     end,
     OnClickData = data.itemLink
   }
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local function GlobalLineGenerator(tooltip,data)
@@ -97,7 +99,7 @@ local data = {
   key = key,
   linegenerator = Linegenerator,
   globallgenerator = GlobalLineGenerator,
-  priority = 3,
+  priority = prio,
   updater = Updater,
   event = "BAG_UPDATE",
   weeklyReset = true

@@ -1,4 +1,5 @@
 local key = "dungeons"
+local prio =  10
 local NUMBER_OF_DUNGEONS_LEGION = 13
 local GetNumSavedInstances, GetSavedInstanceInfo = GetNumSavedInstances, GetSavedInstanceInfo
 local WrapTextInColorCode = WrapTextInColorCode
@@ -46,6 +47,7 @@ local function Linegenerator(tooltip,data,character)
   local info = {
     character = character,
     moduleName = key,
+    priority = prio,
     titleName = WrapTextInColorCode('Dungeons',"ffc1c1c1"),
     data = data.done..'/'..data.max,
   }
@@ -56,14 +58,14 @@ local function Linegenerator(tooltip,data,character)
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local data = {
   name = 'Dungeons',
   key = key,
   linegenerator = Linegenerator,
-  priority = 10,
+  priority = prio,
   updater = Updater,
   event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD"},
   weeklyReset = true

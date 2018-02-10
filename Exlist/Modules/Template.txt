@@ -1,4 +1,5 @@
 local key = "worldboss"
+local prio = 5
 local Exlist = Exlist
 
 local function Updater(event)
@@ -10,10 +11,11 @@ end
 local function Linegenerator(tooltip,data,character)
   local info = {
     character = character,
+    priority = prio,
     moduleName = key,
   }
 
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local function GlobalLineGenerator(tooltip,data)
@@ -30,7 +32,7 @@ local data = {
   key = key,
   linegenerator = Linegenerator,
   globallgenerator = GlobalLineGenerator,
-  priority = 0,
+  priority = prio,
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},
   weeklyReset = false,

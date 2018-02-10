@@ -1,4 +1,5 @@
 local key = "emissary"
+local prio = 5
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local time = time
 local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
@@ -105,6 +106,7 @@ local function Linegenerator(tooltip,data,character)
   local info = {
     character = character,
     moduleName = key,
+    priority = prio,
     titleName = "Available Emissaries",
   }
   local timeNow = time()
@@ -127,7 +129,7 @@ local function Linegenerator(tooltip,data,character)
     info.OnEnter = Exlist.CreateSideTooltip()
     info.OnEnterData = sideTooltip
     info.OnLeave = Exlist.DisposeSideTooltip()
-    Exlist.AddData(tooltip,info)
+    Exlist.AddData(info)
   end
   
 end
@@ -146,7 +148,7 @@ name = 'Emissary',
 key = key,
 linegenerator = Linegenerator,
 globallgenerator = GlobalLineGenerator,
-priority = 5,
+priority = prio,
 updater = Updater,
 event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED"},
 weeklyReset = false

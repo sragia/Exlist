@@ -32,6 +32,27 @@ local registeredModules = {
 local modernizeFunctions = {
   -- func,func,func
 }
+local tooltipData = {
+ --[[
+    [character] = {
+      [modules] = {
+		[module] =  {
+          data = {{},{},{}}
+		  priority = number
+		  name = string
+          num = number
+		  }
+	  }
+	  num = number
+	}
+  ]]
+}
+local tooltipColCoords = {
+  --[[
+    [character] = starting column
+  ]]
+}
+
 local keysToReset = {}
 -- localized API
 local _G = _G
@@ -358,6 +379,30 @@ function Exlist.Debug(...)
     print(debugString,...)
   end
 end
+
+
+local function spairs(t, order)
+  -- collect the keys
+  local keys = {}
+  for k in pairs(t) do keys[#keys + 1] = k end
+
+  -- if order function given, sort by it by passing the table and keys a, b,
+  -- otherwise just sort the keys
+  if order then
+    table.sort(keys, function(a, b) return order(t, a, b) end)
+  else
+    table.sort(keys)
+  end
+
+  -- return the iterator function
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], t[keys[i]]
+    end
+  end
+end
 --------------
 local function AddMissingCharactersToSettings()
   if not settings.allowedCharacters then settings.allowedCharacters = {} end
@@ -664,9 +709,8 @@ local function releasedTooltip()
   lastColNum = -2 
 end
 
-function Exlist.AddData(tooltip,info)
-  --[[ 
-      tooltip = exlist tooltip frame
+function Exlist.AddData(info)
+  --[[
       info = {
         data = "string" text to be displayed
         character = "name-realm" which column to display
@@ -682,8 +726,26 @@ function Exlist.AddData(tooltip,info)
         OnClickData = {} (optional) scriptData
       }
   ]]
-  if not info or not tooltip then return end 
+  if not info then return end 
   info.colOff = info.colOff or 0
+  tooltipData[info.character] =  tooltipData[info.character] or {modules = {},num = 0}
+  local t = tooltipData[info.character]
+  if t.modules[info.moduleName] then
+    table.insert(t.modules[info.moduleName].data,info)
+    t.modules[info.moduleName].num = t.modules[info.moduleName].num + 1
+  else
+    if info.moduleName ~= "_Header" or info.moduleName ~= "_HeaderSmall" then
+      t.num = t.num + 1
+    end
+    t.modules[info.moduleName] = {
+      data  = {info},
+      priority = info.priority,
+      name = info.titleName,
+      num = 1
+    }
+  end
+
+  --[[
   if settings.horizontalMode then
     -- Horizontal
     
@@ -757,7 +819,7 @@ function Exlist.AddData(tooltip,info)
       tooltip:SetCellScript(line,column,"OnMouseDown",info.OnClick,info.OnClickData)
     end
 
-  end
+  end]]
 end
 
 
@@ -1289,12 +1351,113 @@ local function GetPosition(point,xpos)
   end
 end
 
+
+local function PopulateTooltip(tooltip)
+  -- Setup Tooltip (Add appropriate amounts of rows)
+  local modulesAdded = {} -- for horizontal
+  local moduleLine = {} -- for horizontal
+  for char,t in pairs(tooltipData) do
+    if settings.horizontalMode then
+      for module,info in pairs(t.modules) do
+        if not modulesAdded[module] and (module ~= "_Header" and module ~= "_HeaderSmall") then
+          modulesAdded[module] = {prio=info.priority, name = info.name}
+        end
+      end
+    else
+      -- for vertical we add rows already because we need to know where to put seperator°
+      tooltip:AddHeader()
+      tooltip:AddLine()
+      for i=2,t.num do
+        tooltip:AddLine()
+      end
+      tooltip:AddSeparator(1, 1, 1, 1, .85)
+    end
+  end
+  -- add rows for horizontal
+  if settings.horizontalMode then 
+    tooltip:AddHeader()
+    tooltip:AddLine()
+    tooltip:AddSeparator(1, 1, 1, 1, .85)
+    -- Add Module Texts
+    for module,info in spairs(modulesAdded,function(t,a,b) return t[a].prio<t[b].prio end) do
+      moduleLine[module] = tooltip:AddLine(info.name)
+    end
+  end
+
+  -- Add Char Info
+  local charOrder = GetCharacterOrder()
+  local rowHeadNum = 2
+  for i=1,#charOrder do
+    local character = charOrder[i].name .. charOrder[i].realm
+    if tooltipData[character] then
+      local col = tooltipColCoords[character]
+      local justification = settings.horizontalMode and "CENTER" or "LEFT"
+      -- Add Headers
+      local headerCol = settings.horizontalMode and col or 1
+      local headerWidth = settings.horizontalMode and 3 or 4
+      local header = tooltipData[character].modules["_Header"]
+      tooltip:SetCell(rowHeadNum-1,headerCol,header.data[1].data,"LEFT",headerWidth)
+      tooltip:SetCell(rowHeadNum-1,headerCol+headerWidth,header.data[2].data,"RIGHT")
+      tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnEnter",header.data[1].OnEnter,header.data[1].OnEnterData)
+      tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnLeave",header.data[1].OnLeave,header.data[1].OnLeaveData)
+      local smallHeader = tooltipData[character].modules["_HeaderSmall"]
+      tooltip:SetCell(rowHeadNum,headerCol,smallHeader.data[1].data,justification,4,nil,nil,nil,2000,170)
+      -- Add Module Data
+      local offsetRow = 0
+      local row = 0
+      for module,info in spairs(tooltipData[character].modules,function(t,a,b) return t[a].priority<t[b].priority end) do
+        if module ~= "_HeaderSmall" and module ~= "_Header" then
+          offsetRow = offsetRow + 1
+          -- Find Row
+          if settings.horizontalMode then
+            row = moduleLine[module]
+          else
+            row = rowHeadNum + offsetRow
+            tooltip:SetCell(row,1,info.name) -- Add Module Name
+          end
+          -- how many rows should 1 data object take (Spread them out)
+          local width = math.floor(4/info.num)
+          local spreadMid = info.num == 3
+          local offsetCol = 0
+          -- Add Module Data
+          for i=1,info.num do 
+            local data = info.data[i]
+            local column = col + width*data.colOff
+            if i == 2 and spreadMid then width = 2 end
+            tooltip:SetCell(row,col + offsetCol,data.data,justification,width)
+            if data.OnEnter then
+              tooltip:SetCellScript(row,col + offsetCol,"OnEnter",data.OnEnter,data.OnEnterData)
+            end
+            if data.OnLeave then
+              tooltip:SetCellScript(row,col + offsetCol,"OnLeave",data.OnLeave,data.OnLeaveData)
+            end
+            if data.OnClick then
+              tooltip:SetCellScript(row,col + offsetCol,"OnMouseDown",data.OnClick,data.OnClickData)
+            end
+            offsetCol = offsetCol + width
+            if i == 2 then width = 1 end
+          end
+        end
+      end
+      rowHeadNum = settings.horizontalMode and 2 or rowHeadNum + tooltipData[character].num + 2
+    end
+  end
+  -- Color every second line for horizontal orientation
+  if settings.horizontalMode then
+    for i=4,tooltip:GetLineCount() do 
+      if i%2 == 0 then
+        tooltip:SetLineColor(i,1,1,1,0.2)
+      end
+    end
+  end
+end
+
 butTool:SetScript("OnDragStop", Exlist_StopMoving)
 
 local function OnEnter(self)
   if QTip:IsAcquired("Exlist_Tooltip") then return end
   self:SetAlpha(1)
-  
+  tooltipData = {}
   -- sort line generators
   table.sort(registeredLineGenerators,function(a,b) return a.prio < b.prio end)
 
@@ -1305,29 +1468,70 @@ local function OnEnter(self)
   else
     tooltip = QTip:Acquire("Exlist_Tooltip", 5)
   end
+  tooltip:SetCellMarginV(3)
   tooltip:SetScale(settings.tooltipScale or 1)
   self.tooltip = tooltip
 
-  if settings.horizontalMode then 
+  tooltip:SetHeaderFont(mediumFont)
+  tooltip:SetFont(smallFont)
+
+  --[[if settings.horizontalMode then 
     -- Setup Header for horizontal
     tooltip:AddHeader() 
     tooltip:SetFont(smallFont)
     tooltip:AddLine()
     tooltip:AddSeparator(1, 1, 1, 1, .85)
-  end
+  end]]
   -- character info main tooltip
   for i=1,#charOrder do
     local name = charOrder[i].name
     local realm = charOrder[i].realm
+    local character = name..realm
     local charData = Exlist.GetCharacterTable(realm,name)
     charData.name = name
     -- header
     local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
 
-    if settings.horizontalMode then
+    -- Header Info
+    Exlist.AddData({
+      data = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ",
+      character = character,
+      priority = -1000,
+      moduleName = "_Header",
+      titleName = "Header",
+      OnEnter = GearTooltip,
+      OnEnterData = charData,
+      OnLeave = Exlist.DisposeSideTooltip()
+
+    })
+    Exlist.AddData({
+      data = string.format("%i ilvl", charData.iLvl or 0),
+      character = character,
+      priority = -1000,
+      moduleName = "_Header",
+      titleName = "Header",
+    })
+    Exlist.AddData({
+      data = string.format("|c%s%s - Level %i","ffffd200",realm,charData.level),
+      character = character,
+      priority = -999,
+      moduleName = "_HeaderSmall",
+      titleName = "Header",
+      OnEnter = GearTooltip,
+      OnEnterData = charData,
+      OnLeave = Exlist.DisposeSideTooltip()
+    })
+
+    
+    local col = settings.horizontalMode and ((i-1)*4)+2 or 2
+    tooltipColCoords[character] = col
+
+
+    --[[if settings.horizontalMode then
       tooltip:SetHeaderFont(mediumFont)
       local col = ((i-1)*4)+2
-      tooltip:SetCell(1,((i-1)*4)+2,"|T" .. specIcon ..":25:25|t "..
+      tooltipColCoords[character] = col
+      tooltip:SetCell(1,col,"|T" .. specIcon ..":25:25|t "..
       "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
       tooltip:SetCell(1, col+1, string.format("%i ilvl", charData.iLvl or 0), "RIGHT",3)
       tooltip:SetCellScript(1,col,"OnEnter",GearTooltip,charData)
@@ -1335,6 +1539,7 @@ local function OnEnter(self)
       tooltip:SetFont(smallFont)
       tooltip:SetCell(2,col,string.format("|c%s%s - Level %i","ffffd200",realm,charData.level), "CENTER",4)
     else
+      tooltipColCoords[character] = 2
       tooltip:SetHeaderFont(mediumFont)
       local l = tooltip:AddHeader("|T" .. specIcon ..":25:25|t "..
       "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
@@ -1346,21 +1551,22 @@ local function OnEnter(self)
       tooltip:SetFont(smallFont)
       tooltip:AddLine(string.format("|c%s%s - Level %i","ffffd200",realm,charData.level))
       tooltip:AddLine()
-    end
+    end]]
 
 
-    -- info
-    local character = name..realm
+    -- Add Info
     for i = 1, #registeredLineGenerators do
       if settings.allowedModules[registeredLineGenerators[i].name] then
         registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key],character)
       end
     end
     --AddNote(tooltip,charData,realm,name)
-    if i < #charOrder and not settings.horizontalMode then
+    --[[if i < #charOrder and not settings.horizontalMode then
       tooltip:AddSeparator(1, 1, 1, 1, .85)
-    end
+    end]]
   end
+  -- Add Data
+  PopulateTooltip(tooltip)
   -- global data
   local gData = db.global and db.global.global or nil
   if gData and #globalLineGenerators > 0 then
@@ -1444,28 +1650,7 @@ end
 butTool:SetScript("OnEnter", OnEnter)
 
 
-local function spairs(t, order)
-  -- collect the keys
-  local keys = {}
-  for k in pairs(t) do keys[#keys + 1] = k end
 
-  -- if order function given, sort by it by passing the table and keys a, b,
-  -- otherwise just sort the keys
-  if order then
-    table.sort(keys, function(a, b) return order(t, a, b) end)
-  else
-    table.sort(keys)
-  end
-
-  -- return the iterator function
-  local i = 0
-  return function()
-    i = i + 1
-    if keys[i] then
-      return keys[i], t[keys[i]]
-    end
-  end
-end
 
 -- config --
 

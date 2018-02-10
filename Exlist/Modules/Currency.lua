@@ -1,4 +1,5 @@
 local key = "currency"
+local prio = 0
 local currencyAmount = {
 }
 local GetMoney, GetCurrencyInfo, GetItemCount = GetMoney, GetCurrencyInfo, GetItemCount
@@ -112,6 +113,7 @@ local function Linegenerator(tooltip,data,character)
   local info = {
     character = character,
     moduleName = key,
+    priority = prio,
     titleName = "Currency",
     data = data.money.gold .. "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r",
   }
@@ -127,14 +129,14 @@ local function Linegenerator(tooltip,data,character)
     info.OnEnterData = sideTooltip
     info.OnLeave = Exlist.DisposeSideTooltip()
   end
-  Exlist.AddData(tooltip,info)
+  Exlist.AddData(info)
 end
 
 local data = {
   name = 'Currency',
   key = key,
   linegenerator = Linegenerator,
-  priority = 0,
+  priority = prio,
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},
   weeklyReset = false
