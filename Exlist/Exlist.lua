@@ -168,7 +168,7 @@ local iconPaths = {
 
   [0] = [[Interface\AddOns\Exlist\Media\Icons\SpecNone.tga]],
 }
-
+local butTool
 
 --[[
     geartooltip:SetBackdropColor(0, 0, 0, .9);
@@ -659,6 +659,38 @@ local function GetRealmCharInfo(realm)
   return charInfo, charNum
 end
 
+local function GetPosition(point,xpos,ypos)
+  local screenWidth = GetScreenWidth()
+  xpos = xpos or 0 
+  ypos = ypos or 0
+  local vPos,xPos
+  if point:find("LEFT") then
+    if xpos > (screenWidth/2) then
+      xPos = "left" -- left side
+    else
+      xPos = "right" -- right side
+    end
+  elseif point:find("RIGHT") then
+    if xpos < (screenWidth/2) then
+      xPos = "left" -- left side
+    else
+      xPos = "right" -- right side
+    end
+  else
+    if xpos > 0 then
+      xPos = "left"-- left side
+    else
+      xPos = "right" -- right side
+    end
+  end
+  if point:find("TOP") then
+    vPos = "bottom"
+  else
+    vPos = "top"
+  end
+  return xPos,vPos
+end
+
 local function AttachStatusBar(frame)
   local statusBar = CreateFrame("StatusBar", nil, frame)
   statusBar:SetStatusBarTexture("Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
@@ -744,82 +776,6 @@ function Exlist.AddData(info)
       num = 1
     }
   end
-
-  --[[
-  if settings.horizontalMode then
-    -- Horizontal
-    
-    --defaults
-    local new = false
-    
-    -- find line
-    local line = 1
-    if lineNums[info.moduleName] then 
-      line = lineNums[info.moduleName]
-    else
-      
-      new = true
-    end
-    -- find column
-    local column = 1
-    if columnNums[info.character] then
-      column = columnNums[info.character] + info.colOff
-    else
-      lastColNum = lastColNum + 4
-      columnNums[info.character] = lastColNum
-      column = lastColNum + info.colOff
-    end
-
-    -- new module to be added 
-    if new then 
-      lastLineNum = tooltip:AddLine()
-      line = lastLineNum 
-      lineNums[info.moduleName] = line
-      tooltip:SetCell(line,1,info.titleName)
-    end
-    if info.dontResize then
-      tooltip:SetCell(line,column,info.data,"CENTER")
-    else
-      tooltip:SetCell(line,column,info.data,"CENTER",columnNums[info.character]+4-column)
-    end
-    
-    if info.OnEnter and type(info.OnEnter) == "function" then
-      tooltip:SetCellScript(line,column,"OnEnter",info.OnEnter,info.OnEnterData)
-    end
-    if info.OnLeave and type(info.OnLeave) == "function" then
-      tooltip:SetCellScript(line,column,"OnLeave",info.OnLeave,info.OnLeaveData)
-    end
-    if info.OnClick and type(info.OnClick) == "function" then
-      tooltip:SetCellScript(line,column,"OnMouseDown",info.OnClick,info.OnClickData)
-    end
-
-  else
-    -- Vertical 
-    local id = info.character..info.moduleName
-    local line
-    if lineNums[id] then
-      line = lineNums[id]
-    else
-      line = tooltip:AddLine(info.titleName)
-      lineNums[id] = line
-    end
-    local column = 2+info.colOff
-    if info.dontResize then
-      tooltip:SetCell(line,column,info.data,"LEFT")
-    else
-      tooltip:SetCell(line,column,info.data,"LEFT",5-column)
-    end
-    if info.OnEnter and type(info.OnEnter) == "function" then
-      tooltip:SetCellScript(line,column,"OnEnter",info.OnEnter,info.OnEnterData)
-    end
-    if info.OnLeave and type(info.OnLeave) == "function" then
-      tooltip:SetCellScript(line,column,"OnLeave",info.OnLeave,info.OnLeaveData)
-    end
-    if info.OnClick and type(info.OnClick) == "function" then
-      tooltip:SetCellScript(line,column,"OnMouseDown",info.OnClick,info.OnClickData)
-    end
-
-  end]]
 end
 
 
@@ -871,7 +827,13 @@ function Exlist.CreateSideTooltip(statusbar)
         sideTooltip:AddLine(body[i])
       end
     end
-    sideTooltip:SetPoint("TOPRIGHT", self:GetParent(), "TOPLEFT", - 9, 10)
+    local point,_,_,xpos,ypos = butTool:GetPoint()
+    local position,vPos = GetPosition(point,xpos,ypos)
+    if position == "left" then 
+      sideTooltip:SetPoint("TOPRIGHT", self:GetParent(), "TOPLEFT", - 9, 10)
+    else 
+      sideTooltip:SetPoint("TOPLEFT", self:GetParent(), "TOPRIGHT", 9, 10)
+    end
     sideTooltip:Show()
     sideTooltip:SetClampedToScreen(true)
     local parentFrameLevel = self:GetFrameLevel(self)
@@ -1258,7 +1220,14 @@ local function GearTooltip(self,info)
   end
   local line = geartooltip:AddLine("Last Updated:")
   geartooltip:SetCell(line, 2,info.updated,"LEFT",3)
-  geartooltip:SetPoint("TOPRIGHT", self:GetParent(), "TOPLEFT", - 9, 10)
+
+  local point,_,_,xpos,ypos = butTool:GetPoint()
+  local position,vPos = GetPosition(point,xpos,ypos)
+  if position == "left" then 
+    geartooltip:SetPoint("TOPRIGHT", self:GetParent(), "TOPLEFT", - 9, 10)
+  else 
+    geartooltip:SetPoint("TOPLEFT", self:GetParent(), "TOPRIGHT", 9, 10)
+  end
   geartooltip:Show()
   geartooltip:SetClampedToScreen(true)
   local parentFrameLevel = self:GetFrameLevel(self)
@@ -1287,7 +1256,7 @@ end
 
 
 -- DISPLAY INFO
-local butTool = CreateFrame("Frame", "Exlist_Tooltip", UIParent)
+butTool = CreateFrame("Frame", "Exlist_Tooltip", UIParent)
 local bg = butTool:CreateTexture("CharInf_BG", "HIGH")
 butTool:SetSize(32, 32)
 bg:SetTexture("Interface\\AddOns\\Exlist\\Media\\Icons\\logo")
@@ -1327,29 +1296,7 @@ local function Exlist_StopMoving(self)
   config_db.config = config
 end
 
-local function GetPosition(point,xpos)
-  local screenWidth = GetScreenWidth()
-  xpos = xpos or 0 
-  if point:find("LEFT") then
-    if xpos > (screenWidth/2) then
-      return "left" -- left side
-    else
-      return "right" -- right side
-    end
-  elseif point:find("RIGHT") then
-    if xpos < (screenWidth/2) then
-      return "left" -- left side
-    else
-      return "right" -- right side
-    end
-  else
-    if xpos > 0 then
-      return "left"-- left side
-    else
-      return "right" -- right side
-    end
-  end
-end
+
 
 
 local function PopulateTooltip(tooltip)
@@ -1584,11 +1531,29 @@ local function OnEnter(self)
       -- ehhh Fix Minimap Button Location later
       -- Leave Position as left for now
     else
-      local point,_,_,xpos = self:GetPoint()
-      position = GetPosition(point,xpos)
+      local point,_,_,xpos,ypos = self:GetPoint()
+      position,vpos = GetPosition(point,xpos,ypos)
     end
-    if position == "left" then gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
-    else gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
+    if position == "left" then 
+      if settings.horizontalMode then
+        if vpos == "bottom" then
+          gTip:SetPoint("TOPRIGHT",tooltip,"BOTTOMRIGHT",0,1)
+        else
+          gTip:SetPoint("BOTTOMRIGHT",tooltip,"TOPRIGHT",0,-1)
+        end
+      else
+        gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
+      end
+    else 
+      if settings.horizontalMode then
+        if vpos == "bottom" then
+          gTip:SetPoint("TOPLEFT",tooltip,"BOTTOMLEFT",0,1)
+        else
+          gTip:SetPoint("BOTTOMLEFT",tooltip,"TOPLEFT",0,-1)
+        end
+      else
+        gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
+      end
     end
 
     gTip:Show()
