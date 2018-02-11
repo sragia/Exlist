@@ -1343,10 +1343,16 @@ local function PopulateTooltip(tooltip)
       local headerCol = settings.horizontalMode and col or 1
       local headerWidth = settings.horizontalMode and 3 or 4
       local header = tooltipData[character].modules["_Header"]
-      tooltip:SetCell(rowHeadNum-1,headerCol,header.data[1].data,"LEFT",headerWidth)
-      tooltip:SetCell(rowHeadNum-1,headerCol+headerWidth,header.data[2].data,"RIGHT")
-      tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnEnter",header.data[1].OnEnter,header.data[1].OnEnterData)
-      tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnLeave",header.data[1].OnLeave,header.data[1].OnLeaveData)
+      if settings.horizontalMode then
+        tooltip:SetCell(rowHeadNum-1,headerCol,header.data[1].data.."             " .. header.data[2].data,"CENTER",4)
+        tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnEnter",header.data[1].OnEnter,header.data[1].OnEnterData)
+        tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnLeave",header.data[1].OnLeave,header.data[1].OnLeaveData)
+      else
+        tooltip:SetCell(rowHeadNum-1,headerCol,header.data[1].data,"LEFT",headerWidth)
+        tooltip:SetCell(rowHeadNum-1,headerCol+headerWidth,header.data[2].data,"RIGHT")
+        tooltip:SetLineScript(rowHeadNum-1,"OnEnter",header.data[1].OnEnter,header.data[1].OnEnterData)
+        tooltip:SetLineScript(rowHeadNum-1,"OnLeave",header.data[1].OnLeave,header.data[1].OnLeaveData)
+      end
       local smallHeader = tooltipData[character].modules["_HeaderSmall"]
       tooltip:SetCell(rowHeadNum,headerCol,smallHeader.data[1].data,justification,4,nil,nil,nil,2000,170)
       -- Add Module Data
