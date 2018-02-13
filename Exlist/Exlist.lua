@@ -1344,6 +1344,7 @@ local function PopulateTooltip(tooltip)
       local headerWidth = settings.horizontalMode and 3 or 4
       local header = tooltipData[character].modules["_Header"]
       if settings.horizontalMode then
+        tooltip:SetCell(1,1,"|T"..[[Interface/Addons/Exlist/Media/Icons/ExlistLogo2.tga]]..":40:80|t","CENTER")
         tooltip:SetCell(rowHeadNum-1,headerCol,header.data[1].data.."             " .. header.data[2].data,"CENTER",4)
         tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnEnter",header.data[1].OnEnter,header.data[1].OnEnterData)
         tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnLeave",header.data[1].OnLeave,header.data[1].OnLeaveData)
