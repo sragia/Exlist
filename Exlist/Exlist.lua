@@ -766,7 +766,7 @@ function Exlist.AddData(info)
     table.insert(t.modules[info.moduleName].data,info)
     t.modules[info.moduleName].num = t.modules[info.moduleName].num + 1
   else
-    if info.moduleName ~= "_Header" or info.moduleName ~= "_HeaderSmall" then
+    if info.moduleName ~= "_Header" and info.moduleName ~= "_HeaderSmall" then
       t.num = t.num + 1
     end
     t.modules[info.moduleName] = {
@@ -1303,21 +1303,30 @@ local function PopulateTooltip(tooltip)
   -- Setup Tooltip (Add appropriate amounts of rows)
   local modulesAdded = {} -- for horizontal
   local moduleLine = {} -- for horizontal
-  for char,t in pairs(tooltipData) do
-    if settings.horizontalMode then
-      for module,info in pairs(t.modules) do
-        if not modulesAdded[module] and (module ~= "_Header" and module ~= "_HeaderSmall") then
-          modulesAdded[module] = {prio=info.priority, name = info.name}
+  local charHeaderRows = {} -- for vertical
+  local charOrder = GetCharacterOrder()
+  for i=1,#charOrder do
+    local character = charOrder[i].name .. charOrder[i].realm
+    local t = tooltipData[character]
+    if t then
+      if settings.horizontalMode then
+        for module,info in pairs(t.modules) do
+          if not modulesAdded[module] and (module ~= "_Header" and module ~= "_HeaderSmall") then
+            modulesAdded[module] = {prio=info.priority, name = info.name}
+          end
+        end
+      else
+        -- for vertical we add rows already because we need to know where to put seperator
+        tooltip:AddHeader()
+        local l = tooltip:AddLine()
+        table.insert(charHeaderRows,l)
+        for i=1,t.num do
+          tooltip:AddLine()
+        end
+        if i ~= #charOrder then
+          tooltip:AddSeparator(1, 1, 1, 1, .85)
         end
       end
-    else
-      -- for vertical we add rows already because we need to know where to put seperator°
-      tooltip:AddHeader()
-      tooltip:AddLine()
-      for i=2,t.num do
-        tooltip:AddLine()
-      end
-      tooltip:AddSeparator(1, 1, 1, 1, .85)
     end
   end
   -- add rows for horizontal
@@ -1332,7 +1341,6 @@ local function PopulateTooltip(tooltip)
   end
 
   -- Add Char Info
-  local charOrder = GetCharacterOrder()
   local rowHeadNum = 2
   for i=1,#charOrder do
     local character = charOrder[i].name .. charOrder[i].realm
@@ -1393,7 +1401,7 @@ local function PopulateTooltip(tooltip)
           end
         end
       end
-      rowHeadNum = settings.horizontalMode and 2 or rowHeadNum + tooltipData[character].num + 2
+      rowHeadNum = settings.horizontalMode and 2 or charHeaderRows[i+1]
     end
   end
   -- Color every second line for horizontal orientation
