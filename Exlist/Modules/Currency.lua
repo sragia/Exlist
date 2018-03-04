@@ -96,13 +96,13 @@ local function AddRefreshOptions()
           type = "description",
           order = 1.3,
           fontSize = "medium",
-          width = "half",
+          width = "normal",
           name = WrapTextInColorCode("Show Separate","ffffd200")
         },
         spacer1 = {
           type = "description",
           order = 1.4,
-          width = "normal",
+          width = "half",
           name = ""
         },
         spacer2 = {
@@ -122,6 +122,7 @@ local function AddRefreshOptions()
     options.args[name..'desc'] = {
         type = "description",
         order = n,
+        fontSize = "medium",
         name = string.format("|T%s:15|t %s",t.icon,name),
         width = "normal"
     }
@@ -129,6 +130,7 @@ local function AddRefreshOptions()
       type = "toggle",
       order = n+.1,
       name = "  ",
+      descStyle = "inline",
       width = "half",
       get = function() return t.enabled end,
       set = function(self,v) t.enabled = v  AddRefreshOptions() end
@@ -137,6 +139,7 @@ local function AddRefreshOptions()
       type = "toggle",
       order = n+.2,
       width = "half",
+      descStyle = "inline",
       name = "  ",
       disabled = function() return not t.enabled end,
       get = function() return t.showSeparate end,
