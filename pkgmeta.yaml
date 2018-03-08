@@ -31,6 +31,7 @@ enable-nolib-creation: no
 ignore:
   - README.md
   - ISSUE_TEMPLATE.md
+  - TODO.txt
 
 move-folders:
   Exlist/Exlist: Exlist

@@ -1,0 +1,12 @@
+-- Unresolved bugs
+
+-- Near Future
+
+-- Some Time 
+    - Add Raid tab to config where you can choose which raids to track or not. For example, people that do transmog runs might actually want to see which raids they have done.
+    - Maybe same for Dungeons (prob unlikely)
+    - Localization
+    - BFA Features (pls gif alpha/beta)
+
+-- Want it but not sure when or if
+    - Some kind of important daily quest tracking
