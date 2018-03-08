@@ -1197,7 +1197,7 @@ local function GearTooltip(self,info)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
   end]]
-  if info.professions then
+  if info.professions and #info.professions > 0 then
     -- professsions
     line = geartooltip:AddHeader()
     geartooltip:SetCell(line,1,WrapTextInColorCode("Professions","ffffb600"),"CENTER",7)
