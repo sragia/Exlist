@@ -3,8 +3,7 @@ local Exlist = Exlist
 local AceGUI = LibStub("AceGUI-3.0")
 local AceConfReg = LibStub("AceConfigRegistry-3.0")
 local AceConfDia = LibStub("AceConfigDialog-3.0")
-local f = CreateFrame("Frame")
-f:RegisterEvent("VARIABLES_LOADED")
+
 local addonVersion = GetAddOnMetadata(name, "version")
 --@debug@
 if addonVersion == "@project-version@" then		  
