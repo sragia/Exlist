@@ -201,7 +201,8 @@ local function Linegenerator(tooltip,data,character)
     local sideTooltip = {body = {},title= WrapTextInColorCode("Currency","ffffd200")}
     local settings = Exlist.ConfigDB.settings
     for i=1,#currency do
-      if not ( settings.hideEmptyCurrency and currency[i].amount <= 0 ) and settings.currencies[currency[i].name].enabled then
+      if not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0 )) and 
+      settings.currencies[currency[i].name].enabled then
         if settings.currencies[currency[i].name].showSeparate then
           table.insert(extraInfos,{
             character = character,

@@ -171,10 +171,6 @@ local iconPaths = {
 }
 local butTool
 
---[[
-    geartooltip:SetBackdropColor(0, 0, 0, .9);
-  geartooltip:SetBackdropBorderColor(.2, .2, .2, 1)
-]]
 -- fonts
 local fontSet = settings.fonts
 local font = LSM:Fetch("font",settings.Font)
@@ -284,7 +280,6 @@ local MyScanningTooltip = CreateFrame("GameTooltip", "ExlistScanningTooltip", UI
 
 function MyScanningTooltip.ClearTooltip(self)
   local TooltipName = self:GetName()
-  
   self:ClearLines()
   for i = 1, 10 do
      _G[TooltipName..'Texture'..i]:SetTexture(nil)
