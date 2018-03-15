@@ -115,6 +115,7 @@ local settings = { -- default settings
   minimapTable = {},
   showIcon = true,
   horizontalMode = false,
+  hideEmptyCurrency = false,
 }
 local iconPaths = {
   --[specId] = [[path]]

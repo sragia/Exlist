@@ -43,7 +43,7 @@ local function Updater(event)
     if cur[name] then
       currencyAmount[name] = count
     elseif not isHeader then
-      cur[name] = {icon = icon,name = name,type = "currency",enabled = false,showSeparate = false}
+      cur[name] = {icon = icon,name = name,type = "currency",enabled = false}
       currencyAmount[name] = count
     end 
   end
@@ -51,9 +51,9 @@ local function Updater(event)
   for name,v in pairs(cur) do
     if v.type == "item" and v.enabled then
       local amount = GetItemCount(v.name,true)
-      table.insert(t.currency,{name=name,amount = amount, texture=v.icon,showSeparate = v.showSeparate})
+      table.insert(t.currency,{name=name,amount = amount, texture=v.icon})
     elseif v.enabled then
-      table.insert(t.currency,{name = name,amount = currencyAmount[name], texture=v.icon,showSeparate = v.showSeparate})
+      table.insert(t.currency,{name = name,amount = currencyAmount[name], texture=v.icon})
     end
   end
   Exlist.UpdateChar(key,t)
@@ -71,6 +71,15 @@ local function AddRefreshOptions()
             order = 1,
             width = "full",
             name = "Enable/Disable Currencies you want to see"
+        },
+        hideCurrency = {
+          type = "toggle",
+          order = 1.04,
+          width = "full",
+          name = "Hide empty currencies",
+          desc = "Hides currency if it's not present on character",
+          get = function() return Exlist.ConfigDB.settings.hideEmptyCurrency end,
+          set = function(self,v) Exlist.ConfigDB.settings.hideEmptyCurrency = v  AddRefreshOptions() end
         },
         spacer0 = {
           type = "description",
@@ -187,22 +196,23 @@ local function Linegenerator(tooltip,data,character)
     data = data.money.gold .. "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r",
   }
   local extraInfos = {}
-
   local currency = data.currency
   if currency then
     local sideTooltip = {body = {},title= WrapTextInColorCode("Currency","ffffd200")}
-    local cur = Exlist.ConfigDB.settings.currencies
+    local settings = Exlist.ConfigDB.settings
     for i=1,#currency do
-      if currency[i].showSeparate or cur[currency[i].name].showSeparate then
-        table.insert(extraInfos,{
-          character = character,
-          moduleName = key .. currency[i].name,
-          priority = prio+i/10,
-          titleName = "|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""),
-          data = currency[i].amount,
-        })
+      if not ( settings.hideEmptyCurrency and currency[i].amount <= 0 ) then
+        if settings.currencies[currency[i].name].showSeparate then
+          table.insert(extraInfos,{
+            character = character,
+            moduleName = key .. currency[i].name,
+            priority = prio+i/1000,
+            titleName = "|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""),
+            data = currency[i].amount,
+          })
+        end
+        table.insert(sideTooltip.body,{"|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""), currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount})
       end
-      table.insert(sideTooltip.body,{"|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""), currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount})
     end
     table.insert(sideTooltip.body,"|cfff2b202To add additional items/currency check out config!")
     info.OnEnter = Exlist.CreateSideTooltip()
