@@ -6,7 +6,7 @@
 local addonName, addonTable = ...
 local QTip = LibStub("LibQTip-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
-local LDB = LibStub:GetLibrary("LibDataBroker-1.1")
+  local LDB = LibStub:GetLibrary("LibDataBroker-1.1")
 local LDBI = LibStub("LibDBIcon-1.0")
 -- SavedVariables localized
 local db = {}

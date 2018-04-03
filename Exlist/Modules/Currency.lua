@@ -15,6 +15,29 @@ local config_defaults = {
   showSeparate = false
 }
 
+local function spairs(t, order)
+  -- collect the keys
+  local keys = {}
+  for k in pairs(t) do keys[#keys + 1] = k end
+
+  -- if order function given, sort by it by passing the table and keys a, b,
+  -- otherwise just sort the keys
+  if order then
+    table.sort(keys, function(a, b) return order(t, a, b) end)
+  else
+    table.sort(keys)
+  end
+
+  -- return the iterator function
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], t[keys[i]]
+    end
+  end
+end
+
 local function AddRefreshOptions() end
 local function Updater(event)
   local t = {}
@@ -75,17 +98,32 @@ local function AddRefreshOptions()
         hideCurrency = {
           type = "toggle",
           order = 1.04,
-          width = "full",
+          width = 2.15,
           name = "Hide empty currencies",
           desc = "Hides currency if it's not present on character",
           get = function() return Exlist.ConfigDB.settings.hideEmptyCurrency end,
           set = function(self,v) Exlist.ConfigDB.settings.hideEmptyCurrency = v  AddRefreshOptions() end
         },
-        spacer0 = {
-          type = "description",
-          order = 1.05,
-          width = "full",
-          name = ""
+        itemInput = {
+          type = "input",
+          order = 1.06,
+          name = " Add Item (|cffffffffInput itemID or item name|r)",
+          get = function() return "" end,
+          set = function(self,v)
+            local iInfo = Exlist.GetCachedItemInfo(v)
+            if iInfo and iInfo.name then
+              cur[iInfo.name] = {
+                enabled = true,
+                icon = iInfo.texture,
+                name = iInfo.name,
+                type = "item"
+              }
+              AddRefreshOptions()
+            else
+              print(Exlist.debugString,"Couldn't add item:",v)
+            end
+          end,
+          width = 1,
         },
         label1 = {
           type = "description",
@@ -114,19 +152,12 @@ local function AddRefreshOptions()
           width = "half",
           name = ""
         },
-        spacer2 = {
-          type = "description",
-          order = 998,
-          width = "full",
-          name = "\n"
-        },
-
     }
   }
   -- update currencies
   Updater()
   local n = 1
-  for name,t in pairs(cur) do
+  for name,t in spairs(cur) do
     n = n + 1  
     options.args[name..'desc'] = {
         type = "description",
@@ -161,22 +192,7 @@ local function AddRefreshOptions()
       name = "",
     }
   end
-  options.args["itemInput"] ={
-    type = "input",
-    order = 1000,
-    name = " Add Item (|cffffffffInput itemID or item name|r)",
-    get = function() return "" end,
-    set = function(self,v)
-      local iInfo = Exlist.GetCachedItemInfo(v)
-      cur[iInfo.name] = {
-        enabled = true,
-        icon = iInfo.texture,
-        name = iInfo.name,
-        type = "item"
-      }
-      AddRefreshOptions()
-    end
-  }
+
   if not added then
     Exlist.AddModuleOptions(key,options,"Currency")
     added = true
