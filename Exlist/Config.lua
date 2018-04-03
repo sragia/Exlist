@@ -378,7 +378,41 @@ local charOptions = {
                 Exlist.ConfigDB.settings.orderByIlvl = value
                 Exlist.ConfigDB.settings.reorder = true
             end
-        }
+        },
+        spacer0 = {
+            type = "description",
+            order = 1.19,
+            width = 0.2,
+            name = ""
+        },
+        nameLabel = {
+            type = "description",
+            order = 1.2,
+            width = 0.5,
+            fontSize = "large",
+            name = WrapTextInColorCode("Name","ffffd200")
+        },
+        realmLabel = {
+            type = "description",
+            order = 1.3,
+            width = 1,
+            fontSize = "large",
+            name = WrapTextInColorCode("Realm","ffffd200")
+        },
+        ilvlLabel = {
+            type = "description",
+            order = 1.4,
+            width = 0.5,
+            fontSize = "large",
+            name = WrapTextInColorCode("Item Level","ffffd200")
+        },
+        OrderLabel = {
+            type = "description",
+            order = 1.5,
+            width = 1.2,
+            fontSize = "large",
+            name = WrapTextInColorCode("Order","ffffd200")
+        },
 
     }
 
@@ -412,11 +446,12 @@ Exlist.SetupConfig = function()
         end     
     end) do
         n = n+1
+        -- ENABLE
         local t1 = {
             type = "toggle",
             order = n,
-            name = string.format("|c%s%s",v.classClr,char),
-            width = "normal",
+            name = "",
+            width = 0.2,
             get = function()
                 return characters[char].enabled
             end,
@@ -425,13 +460,47 @@ Exlist.SetupConfig = function()
                 Exlist.ConfigDB.settings.reorder = true
             end
         }
+        charOptions.args[char.."enable"] = t1
+
+        -- NAME
+        n = n+1
+        t1 = {
+            type = "description",
+            order = n,
+            name = string.format("|c%s%s",v.classClr,v.name),
+            fontSize = "medium",
+            width = 0.5,
+        }
         charOptions.args[char.."name"] = t1
+        -- REALM
+        n = n+1
+        t1 = {
+            type = "description",
+            order = n,
+            name = char:match("^.*-(.*)"),
+            fontSize = "medium",
+            width = 1,
+        }
+        charOptions.args[char.."realm"] = t1
+
+        -- ILVL
+        n = n+1
+        t1 = {
+            type = "description",
+            order = n,
+            name = string.format("%.1f",v.ilvl or 0),
+            fontSize = "medium",
+            width = 0.5,
+        }
+        charOptions.args[char.."ilvl"] = t1
+        
+        -- ORDER
         n = n+1
         t1 = {
             type = "input",
             order = n,
-            name = "Order",
-            width = "half",
+            name = "",
+            width = 0.4,
             disabled = function() return not characters[char].enabled or Exlist.ConfigDB.settings.orderByIlvl end,
             get = function()
                 if characters[char].enabled then
@@ -449,6 +518,18 @@ Exlist.SetupConfig = function()
             end,
         }
         charOptions.args[char.."order"] = t1
+
+        -- Spacer
+        n = n+1
+        t1 = {
+            type = "description",
+            order = n,
+            name =  "",
+            width = 0.8,
+        }
+        charOptions.args[char.."spacer"] = t1
+
+
         --[[n = n + 1
         charOptions.args[char.."filler"] = {
             type = "description",
