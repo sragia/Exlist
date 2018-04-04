@@ -106,6 +106,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD"},
+  description = "Tracks highest completed mythic+ in a week and all highest level runs per dungeon",
   weeklyReset = true
 }
 

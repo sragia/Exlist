@@ -85,6 +85,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"ADDON_LOADED","PLAYER_ENTERING_WORLD","PLAYER_ENTERING_WORLD_DELAYED"},
+  description = "Uses Raider.IO addon (Needs to be installed) to display your m+ score",
   weeklyReset = false,
   -- modernize = Modernize
 }

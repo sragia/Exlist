@@ -102,6 +102,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = "BAG_UPDATE",
+  description = "Tracks characters mythic+ key in their bags and weekly mythic+ affixes",
   weeklyReset = true
 }
 

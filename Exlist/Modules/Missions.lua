@@ -188,6 +188,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"GARRISON_MISSION_COMPLETE_RESPONSE","GARRISON_MISSION_STARTED","GARRISON_MISSION_NPC_OPENED"},
+  description = "Garrison mission progress",
   weeklyReset = false
 }
 

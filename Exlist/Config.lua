@@ -425,8 +425,8 @@ Exlist.SetupConfig = function()
         local t = {
             type = "toggle",
             order = n,
-            width = "normal",
-            name = i,
+            width = 0.7,
+            name = WrapTextInColorCode(i,"ffffd200"),
             get = function()
                 return modules[i]
             end,
@@ -435,6 +435,15 @@ Exlist.SetupConfig = function()
             end
         }
         moduleOptions.args[i] = t
+
+        n = n + 1
+        t = {
+            type = "description",
+            order = n,
+            width = 2.5,
+            name = Exlist.ModuleDesc[i] or ""
+        }
+        moduleOptions.args[i.."desc"] = t
     end
     local characters = Exlist.ConfigDB.settings.allowedCharacters
     n = 1

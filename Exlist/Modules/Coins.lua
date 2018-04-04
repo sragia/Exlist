@@ -70,6 +70,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","QUEST_FINISHED","QUEST_TURNED_IN"},
+  description = "Tracks currently available bonus roll coins and amount of coins available from weekly quests",
   weeklyReset = false
 }
 

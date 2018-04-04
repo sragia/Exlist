@@ -249,6 +249,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},
+  description = "Collects information about different currencies  and user specified item amounts in inventory ",
   weeklyReset = false
 }
 Exlist.RegisterModule(data)

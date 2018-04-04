@@ -47,6 +47,7 @@ local data = {
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","UPDATE_PENDING_MAIL"},
   weeklyReset = false,
+  description = "Tracks incoming mail",
   -- modernize = Modernize
 }
   

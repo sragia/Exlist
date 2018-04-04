@@ -180,6 +180,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"ARTIFACT_UPDATE"},
+  description = "Currently equipped artifact information (Rank/Current and Needed Artifact Power for next trait/Artifact Knowledge",
   weeklyReset = false
 }
 Exlist.RegisterModule(data)

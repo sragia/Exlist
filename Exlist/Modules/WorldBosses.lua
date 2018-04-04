@@ -472,6 +472,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN","EJ_DIFFICULTY_UPDATE","PLAYER_ENTERING_WORLD_DELAYED"},
+  description = "Tracks World Boss availability for each character. Also tracks Broken Shore buildings status and invasion points on Argus.",
   weeklyReset = true
 }
 

@@ -151,6 +151,7 @@ globallgenerator = GlobalLineGenerator,
 priority = prio,
 updater = Updater,
 event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED"},
+description = "Tracks available emissaries and their status for your character",
 weeklyReset = false
 }
 

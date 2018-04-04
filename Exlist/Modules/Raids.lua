@@ -215,6 +215,7 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD"},
+  description = "Tracks lockouts for current expansion raids",
   weeklyReset = true
 }
 

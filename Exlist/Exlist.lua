@@ -52,6 +52,7 @@ local tooltipColCoords = {
     [character] = starting column
   ]]
 }
+Exlist.ModuleDesc = {}
 
 local keysToReset = {}
 -- localized API
@@ -907,6 +908,7 @@ function Exlist.RegisterModule(data)
     updater = func (function that updates data in db)
     event = {} or string (table or string that contains events that triggers updater func)
     weeklyReset = bool (should this be reset on weekly reset)
+    description = string 
     }
   ]]
   if not data then return end
@@ -926,7 +928,7 @@ function Exlist.RegisterModule(data)
     end
   end
   RegisterEvents()
-
+  
   -- add modernizers
   if data.modernize then
     table.insert(modernizeFunctions,{func = data.modernize,key = data.key})
@@ -939,6 +941,7 @@ function Exlist.RegisterModule(data)
   end
   -- Add module name to list
   table.insert(registeredModules,data.name)
+  Exlist.ModuleDesc[data.name] = data.description or ""
   if data.weeklyReset then
     table.insert(keysToReset,data.key)
   end
