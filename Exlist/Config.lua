@@ -41,7 +41,6 @@ local function RegisterAdditionalOptions(modName, optionTbl, displayName)
 end
 local function RefreshAdditionalOptions(modName, optionTbl, displayName)
     AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
-    AceConfReg:NotifyChange(name..modName)
 end
 
 Exlist.SetupConfig = function(refresh)
@@ -463,7 +462,7 @@ Exlist.SetupConfig = function(refresh)
             end
         end     
     end) do
-        local name = v.name
+        local charname = v.name
         local realm = char:match("^.*-(.*)")
         n = n+1
         -- ENABLE
@@ -488,7 +487,7 @@ Exlist.SetupConfig = function(refresh)
         t1 = {
             type = "description",
             order = n,
-            name = string.format("|c%s%s",v.classClr,name),
+            name = string.format("|c%s%s",v.classClr,charname),
             fontSize = "medium",
             width = 0.5,
         }
@@ -536,6 +535,7 @@ Exlist.SetupConfig = function(refresh)
                     characters[char].order = value
                     Exlist.ConfigDB.settings.reorder = true
                     Exlist.SetupConfig(true)
+                    AceConfReg:NotifyChange(name.."Characters")
                 end
             end,
         }
@@ -558,8 +558,8 @@ Exlist.SetupConfig = function(refresh)
             name = "Delete",
             width = 0.4,
             func = function()
-                StaticPopupDialogs["DeleteDataPopup_"..name..realm] = {
-                    text = "Do you really want to delete all data for "..name.."-"..realm.."?\n\nType \"DELETE\" into the field to confirm.",
+                StaticPopupDialogs["DeleteDataPopup_"..charname..realm] = {
+                    text = "Do you really want to delete all data for "..charname.."-"..realm.."?\n\nType \"DELETE\" into the field to confirm.",
                     button1 = "Ok",
                     button3 = "Cancel",
                     hasEditBox = 1,
@@ -576,24 +576,26 @@ Exlist.SetupConfig = function(refresh)
                     EditBoxOnEnterPressed = function(self)
                         if strupper(self:GetParent().editBox:GetText()) == "DELETE" then
                             self:GetParent():Hide()
-                            Exlist.DeleteCharacterFromDB(name,realm)
+                            Exlist.DeleteCharacterFromDB(charname,realm)
                             Exlist.SetupConfig(true)
+                            AceConfReg:NotifyChange(name.."Characters")
                         end
                     end, 
                     OnAccept = function(self)
-                      StaticPopup_Hide("DeleteDataPopup_"..name..realm)
-                      Exlist.DeleteCharacterFromDB(name,realm)
+                      StaticPopup_Hide("DeleteDataPopup_"..charname..realm)
+                      Exlist.DeleteCharacterFromDB(charname,realm)
                       Exlist.SetupConfig(true)
+                      AceConfReg:NotifyChange(charname.."Characters")
                     end,
                     timeout = 0,
-                    cancels = "DeleteDataPopup_"..name..realm,
+                    cancels = "DeleteDataPopup_"..charname..realm,
                     whileDead = true,
                     hideOnEscape = 1,
                     preferredIndex = 4,
                     showAlert = 1,
                     enterClicksFirstButton = 1
                   }
-                  StaticPopup_Show("DeleteDataPopup_"..name..realm)
+                  StaticPopup_Show("DeleteDataPopup_"..charname..realm)
             end
         }
         charOptions.args[char.."delete"] = t1
