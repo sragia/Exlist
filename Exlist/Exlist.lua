@@ -990,6 +990,16 @@ function Exlist.CharacterExists(realm,name)
     return false
 end
 
+function Exlist.DeleteCharacterFromDB(name,realm)
+  if db[realm] then
+    db[realm][name] = nil
+    settings.allowedCharacters[name.."-"..realm] = nil
+    print(debugString,"Successfully deleted",name.."-"..realm,".")
+  else
+    print(debugString,"Deleting",name.."-"..realm,"failed.")
+  end
+end
+
 local function ModernizeCharacters()
   if #modernizeFunctions < 1 then return end
   for realm in pairs(db) do

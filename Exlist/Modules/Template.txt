@@ -36,6 +36,7 @@ local data = {
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},
   weeklyReset = false,
+  description = "",
   -- modernize = Modernize
 }
 
