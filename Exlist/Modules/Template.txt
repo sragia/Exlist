@@ -37,7 +37,7 @@ local data = {
   event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},
   weeklyReset = false,
   description = "",
-  -- modernize = Modernize
+  -- modernize = Modernize  
 }
 
 Exlist.RegisterModule(data)
