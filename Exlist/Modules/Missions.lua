@@ -101,7 +101,7 @@ local function missionStrings(source,hasSuccess)
     if hasSuccess then
       local ti = time()
       if source[i].endTime > ti then
-        table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("Time Left: %s (%i%%)",Exlist.TimeLeftColor(source[i].endTime - ti,{1800,7200},{"FF00FF00","FFf4a142","fff44141"}),source[i].successChance)})
+        table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("Time Left: %s (%i%%)",Exlist.TimeLeftColor((source[i].endTime - ti) or 0,{1800,7200},{"FF00FF00","FFf4a142","fff44141"}),source[i].successChance)})
       else
         table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("%i%%",source[i].successChance)})
       end

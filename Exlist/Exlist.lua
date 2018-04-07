@@ -1497,34 +1497,6 @@ local function OnEnter(self)
     local col = settings.horizontalMode and ((i-1)*4)+2 or 2
     tooltipColCoords[character] = col
 
-
-    --[[if settings.horizontalMode then
-      tooltip:SetHeaderFont(mediumFont)
-      local col = ((i-1)*4)+2
-      tooltipColCoords[character] = col
-      tooltip:SetCell(1,col,"|T" .. specIcon ..":25:25|t "..
-      "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
-      tooltip:SetCell(1, col+1, string.format("%i ilvl", charData.iLvl or 0), "RIGHT",3)
-      tooltip:SetCellScript(1,col,"OnEnter",GearTooltip,charData)
-      tooltip:SetCellScript(1,col,"OnLeave",Exlist.DisposeSideTooltip())
-      tooltip:SetFont(smallFont)
-      tooltip:SetCell(2,col,string.format("|c%s%s - Level %i","ffffd200",realm,charData.level), "CENTER",4)
-    else
-      tooltipColCoords[character] = 2
-      tooltip:SetHeaderFont(mediumFont)
-      local l = tooltip:AddHeader("|T" .. specIcon ..":25:25|t "..
-      "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ")
-      tooltip:SetHeaderFont(smallFont)
-      tooltip:SetHeaderFont(mediumFont)
-      tooltip:SetCell(l, 2, string.format("%i ilvl", charData.iLvl or 0), "RIGHT",4,nil,nil,5)
-      tooltip:SetLineScript(l,"OnEnter",GearTooltip,charData)
-      tooltip:SetLineScript(l,"OnLeave",Exlist.DisposeSideTooltip())
-      tooltip:SetFont(smallFont)
-      tooltip:AddLine(string.format("|c%s%s - Level %i","ffffd200",realm,charData.level))
-      tooltip:AddLine()
-    end]]
-
-
     -- Add Info
     for i = 1, #registeredLineGenerators do
       if settings.allowedModules[registeredLineGenerators[i].name] then
@@ -1736,7 +1708,7 @@ local function init()
   C_Timer.After(0.5, function() Exlist_RefreshAppearance() end)
 end
 
--- Reset handling
+-- Reset handling Credit to SavedInstances
 local function GetRegion()
   if not config_db.region then
     local reg = GetCVar("portal")
