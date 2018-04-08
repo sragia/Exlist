@@ -3,6 +3,89 @@ local prio = 7
 
 local LFRencounters = {
   -- [dungeonID] = {name = "", totalEncounters = 2}
+  -- Dragon Soul
+  [GetLFGDungeonInfo(447) or "Dragon Soul"] = {
+    [416] = {name = "The Siege of Wyrmrest Temple", totalEncounters = 4, order = 1,firstBoss = 1}, -- DS Wing 1
+    [843] = {name = "The Siege of Wyrmrest Temple", totalEncounters = 4, order = 1,firstBoss = 1,dontCount = true,saveId = 416}, -- Alt Id for DS wing 1
+    [417] = {name = "Fall of Deathwing", totalEncounters = 4, order = 2,firstBoss = 5},-- DS Wing 2
+    [844] = {name = "Fall of Deathwing", totalEncounters = 4, order = 2,firstBoss = 5,dontCount = true,saveId = 417},-- Alt DS Wing 2
+  },
+
+  -- Mogu'shan Vaults
+  [GetLFGDungeonInfo(531) or "Mogu'shan Vaults"] = {
+    [527] = {name = "Guardians of Mogu'shan", totalEncounters = 3, order = 1},
+    [830] = {name = "Guardians of Mogu'shan", totalEncounters = 3, order = 1,dontCount = true,saveId = 527},
+    [528] = {name = "The Vault of Mysteries", totalEncounters = 3, order = 2,firstBoss = 4},
+    [831] = {name = "The Vault of Mysteries", totalEncounters = 3, order = 2,dontCount = true,saveId = 528},
+  },
+  -- Heart of Fear
+  [GetLFGDungeonInfo(533) or "Heart of Fear"] = {
+    [529] = {name = "The Dread Approach", totalEncounters = 3, order = 1},
+    [832] = {name = "The Dread Approach", totalEncounters = 3, order = 1,dontCount = true,saveId = 529},
+    [530] = {name = "Nightmare of Shek'zeer", totalEncounters = 3, order = 2,firstBoss = 4},
+    [833] = {name = "Nightmare of Shek'zeer", totalEncounters = 3, order = 2,dontCount = true,saveId = 530},
+  },
+  -- Terrace of Endless Spring
+  [GetLFGDungeonInfo(834) or "Terrace of Endless Spring"] = {
+    [526] = {name = "Terrace of Endless Spring", totalEncounters = 4, order = 1},
+    [834] = {name = "Terrace of Endless Spring", totalEncounters = 4, order = 1,dontCount = true,saveId = 526}
+  },
+  -- Throne of Thunder
+  [GetLFGDungeonInfo(633) or "Throne of Thunder"] = {
+    [610] = {name = "Last Stand of the Zandalari", totalEncounters = 3, order = 1},
+    [835] = {name = "Last Stand of the Zandalari", totalEncounters = 3, order = 1,dontCount = true,saveId = 610},
+    [611] = {name = "Forgotten Depths", totalEncounters = 3, order = 2,firstBoss = 4},
+    [836] = {name = "Forgotten Depths", totalEncounters = 3, order = 2,dontCount = true,saveId = 611},
+    [612] = {name = "Halls of Flesh-Shaping", totalEncounters = 3, order = 3,firstBoss = 7},
+    [837] = {name = "Halls of Flesh-Shaping", totalEncounters = 3, order = 3,dontCount = true,saveId = 612},
+    [613] = {name = "Pinnacle of Storms", totalEncounters = 3, order = 4,firstBoss = 10},
+    [838] = {name = "Pinnacle of Storms", totalEncounters = 3, order = 4,dontCount = true,saveId = 613},
+  },
+  -- Siege of Orgrimmar
+  [GetLFGDungeonInfo(714) or "Siege of Orgrimmar"] = {
+    [716] = {name = "Vale of Eternal Sorrows", totalEncounters = 4, order = 1},
+    [839] = {name = "Vale of Eternal Sorrows", totalEncounters = 4, order = 1,dontCount = true,saveId = 716},
+    [717] = {name = "Gates of Retribution", totalEncounters = 4, order = 2,firstBoss = 5},
+    [840] = {name = "Gates of Retribution", totalEncounters = 4, order = 2,dontCount = true,saveId = 717},
+    [718] = {name = "The Underhold", totalEncounters = 3, order = 3,firstBoss = 9},
+    [841] = {name = "The Underhold", totalEncounters = 3, order = 3,dontCount = true,saveId = 718},
+    [719] = {name = "Downfall", totalEncounters = 3, order = 4,firstBoss = 12},
+    [842] = {name = "Downfall", totalEncounters = 3, order = 4,dontCount = true,saveId = 719},
+  },
+
+  -- Highmaul
+  [GetLFGDungeonInfo(895) or "Highmaul"] = {
+    [849] = {name = "Walled City", totalEncounters = 3, order = 1},
+    [1363] = {name = "Walled City", totalEncounters = 3, order = 1,dontCount = true,saveId = 849},
+    [850] = {name = "Arcane Sanctum", totalEncounters = 3, order = 2,firstBoss = 4},
+    [1364] = {name = "Arcane Sanctum", totalEncounters = 3, order = 2,dontCount = true,saveId = 850},
+    [851] = {name = "Imperator's Rise", totalEncounters = 1, order = 3,firstBoss = 7},
+    [1365] = {name = "Imperator's Rise", totalEncounters = 1, order = 3,dontCount = true,saveId = 851},
+  },
+  -- Blackrock Foundry
+  [GetLFGDungeonInfo(898) or "Blackrock Foundry"] = {
+    [847] = {name = "Slagworks", totalEncounters = 3, order = 1,map = {1,2,7}},
+    [1361] = {name = "Slagworks", totalEncounters = 3, order = 1,dontCount = true,saveId = 847},
+    [846] = {name = "The Black Forge", totalEncounters = 3, order = 2,map = {3,5,8}},
+    [1360] = {name = "The Black Forge", totalEncounters = 3, order = 2,dontCount = true,saveId = 846},
+    [848] = {name = "Iron Assembly", totalEncounters = 3, order = 3,map = {4,6,9}},
+    [1362] = {name = "Iron Assembly", totalEncounters = 3, order = 3,dontCount = true,saveId = 848},
+    [823] = {name = "Blackhand's Crucible", totalEncounters = 1, order = 4,firstBoss = 10},
+    [1359] = {name = "Blackhand's Crucible", totalEncounters = 1, order = 4,dontCount = true,saveId = 823},
+  },
+  -- Hellfire Citadel
+  [GetLFGDungeonInfo(987) or "Hellfire Citadel"] = {
+    [982] = {name = "Hellbreach", totalEncounters = 3, order = 1},
+    [1366] = {name = "Hellbreach", totalEncounters = 3, order = 1,dontCount = true,saveId = 982},
+    [983] = {name = "Halls of Blood", totalEncounters = 3, order = 2,firstBoss = 4},
+    [1367] = {name = "Halls of Blood", totalEncounters = 3, order = 2,dontCount = true,saveId = 983},
+    [984] = {name = "Bastion of Shadows", totalEncounters = 3, order = 3,map = {7,8,11}},
+    [1369] = {name = "Bastion of Shadows", totalEncounters = 3, order = 3,dontCount = true,saveId = 984},
+    [985] = {name = "Destructor's Rise", totalEncounters = 3, order = 4,map = {9,10,12}},
+    [1369] = {name = "Destructor's Rise", totalEncounters = 3, order = 4,dontCount = true,saveId = 985},
+    [986] = {name = "The Black Gate", totalEncounters = 1, order = 5,firstBoss = 13},
+    [1370] = {name = "The Black Gate", totalEncounters = 1, order = 5,dontCount = true,saveId = 986},
+  },
   -- Emerald Nightmare
   [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = {
     [1287] = {name = "Darkbough", totalEncounters = 3, order = 1},
@@ -35,13 +118,7 @@ local LFRencounters = {
     [1613] = {name = "Seat of the Pantheon", totalEncounters = 2, order = 4}, -- Seat of the Pantheon
   }
 }
-local ALLOWED_RAIDS = {
-  [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = true, -- EN
-  [GetLFGDungeonInfo(1439) or "Trials of Valor"] = true, -- ToV
-  [GetLFGDungeonInfo(1353) or "The Nighthold"] = true, -- Nighthold
-  [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = true, -- ToS
-  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = true, -- Antorus
-}
+
 
 local expansions = {
   "Vanilla",
@@ -180,6 +257,7 @@ local function spairs(t, order)
   end
 end
 
+
 local function Updater(event)
   local t = {}
   local raids = Exlist.ConfigDB.settings.raids or {}
@@ -208,21 +286,51 @@ local function Updater(event)
   -- lfr
   for raid, c in pairs(LFRencounters) do
     if raids[raid] and raids[raid].enabled then
+      Exlist.Debug("Scanning ",raid)
       local killed = 0
       local total = 0
       t[raid] = t[raid] or {}
       t[raid].LFR = t[raid].LFR or {}
       t[raid].LFR = {bosses = {}}
       for id, lfr in spairs(c,function(t,a,b) return t[a].order < t[b].order end) do
-        total = total + lfr.totalEncounters
-        for i = 1, lfr.totalEncounters do
+        Exlist.Debug("LFR ID",id,"Wing Name",lfr.name)
+        total = not lfr.dontCount and total + lfr.totalEncounters or total
+        local saveId = lfr.saveId or id
+        if lfr.map then
+          for index,i in ipairs(lfr.map) do
+            local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
+            killed = isKilled and killed + 1 or killed
+            t[raid].LFR.bosses[saveId] = t[raid].LFR.bosses[saveId] or {}
+            t[raid].LFR.bosses[saveId].order = lfr.order
+            t[raid].LFR.bosses[saveId][lfr.name] = t[raid].LFR.bosses[saveId][lfr.name] or {}
+            if (t[raid].LFR.bosses[saveId][lfr.name][index] and isKilled) or not t[raid].LFR.bosses[saveId][lfr.name][index] then
+              t[raid].LFR.bosses[saveId][lfr.name][index] =  {name = bossName, killed = isKilled} 
+            end
+          end
+        else
+          local index = 1
+          local offset = lfr.firstBoss or 1
+          for i = offset, (offset + lfr.totalEncounters - 1) do
+            local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
+            killed = isKilled and killed + 1 or killed
+            t[raid].LFR.bosses[saveId] = t[raid].LFR.bosses[saveId] or {}
+            t[raid].LFR.bosses[saveId].order = lfr.order
+            t[raid].LFR.bosses[saveId][lfr.name] = t[raid].LFR.bosses[saveId][lfr.name] or {}
+            if (t[raid].LFR.bosses[saveId][lfr.name][index] and isKilled) or not t[raid].LFR.bosses[saveId][lfr.name][index] then
+              t[raid].LFR.bosses[saveId][lfr.name][index] =  {name = bossName, killed = isKilled} 
+            end
+            index = index + 1
+          end
+        end
+    
+        --[[for i = 1, lfr.totalEncounters do
           local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
           killed = isKilled and killed + 1 or killed
           t[raid].LFR.bosses[id] = t[raid].LFR.bosses[id] or {}
           t[raid].LFR.bosses[id].order = lfr.order
           t[raid].LFR.bosses[id][lfr.name] = t[raid].LFR.bosses[id][lfr.name] or {}
           table.insert(t[raid].LFR.bosses[id][lfr.name], {name = bossName, killed = isKilled})
-        end
+        end]]
       end
       t[raid].LFR.done = killed
       t[raid].LFR.max = total
