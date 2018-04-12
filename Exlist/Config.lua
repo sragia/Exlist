@@ -146,6 +146,19 @@ Exlist.SetupConfig = function(refresh)
                             Exlist_RefreshAppearance()
                         end,
                     },
+                    showExtraInfo = {
+                        order = 6,
+                        name = "Show Extra Info Tooltip",
+                        type = "toggle",
+                        width = "full",
+                        get = function()
+                            return Exlist.ConfigDB.settings.showExtraInfoTooltip
+                        end,
+                        set = function(info, v)
+                            Exlist.ConfigDB.settings.showExtraInfoTooltip = v
+                            Exlist_RefreshAppearance()
+                        end,
+                    },
                     showIcon = {
                         order = 2.9,
                         name = "Show Icon",
@@ -301,7 +314,7 @@ Exlist.SetupConfig = function(refresh)
                         type = "color",
                         name = "Background Color",
                         order = 3,
-                        width = "half",
+                        width = "normal",
                         hasAlpha = true,
                         get = function(self)
                             local c = Exlist.ConfigDB.settings.backdrop.color
@@ -321,7 +334,7 @@ Exlist.SetupConfig = function(refresh)
                         type = "color",
                         name = "Border Color",
                         order = 4,
-                        width = "half",
+                        width = "normal",
                         hasAlpha = true,
                         get = function(self)
                             local c = Exlist.ConfigDB.settings.backdrop.borderColor

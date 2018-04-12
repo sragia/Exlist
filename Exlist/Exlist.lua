@@ -89,12 +89,14 @@ local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
 bottom = 0 }}
 local settings = { -- default settings
   minLevel = 80,
+  
   fonts = {
     big = { size = 15},
     medium = { size = 13},
     small = { size = 11}
   },
   Font = "PT_Sans_Narrow",
+  
   tooltipHeight = 600,
   delay = 0.2,
   iconScale = .8,
@@ -117,6 +119,7 @@ local settings = { -- default settings
   showIcon = true,
   horizontalMode = false,
   hideEmptyCurrency = false,
+  showExtraInfoTooltip = true,
 }
 local iconPaths = {
   --[specId] = [[path]]
@@ -656,34 +659,22 @@ local function GetRealmCharInfo(realm)
   return charInfo, charNum
 end
 
-local function GetPosition(point,xpos,ypos)
-  local screenWidth = GetScreenWidth()
-  xpos = xpos or 0 
-  ypos = ypos or 0
+local function GetPosition(frame)
+  local screenWidth,screenHeight = GetScreenWidth(), GetScreenHeight()
+  local x,y = frame:GetRect() -- from lower left
+  local frameScale = frame:GetScale()
+  x = x * frameScale
+  y = y * frameScale
   local vPos,xPos
-  if point:find("LEFT") then
-    if xpos > (screenWidth/2) then
-      xPos = "left" -- left side
-    else
-      xPos = "right" -- right side
-    end
-  elseif point:find("RIGHT") then
-    if xpos < (screenWidth/2) then
-      xPos = "left" -- left side
-    else
-      xPos = "right" -- right side
-    end
+  if x > screenWidth/2 then
+    xPos = "right"
   else
-    if xpos > 0 then
-      xPos = "left"-- left side
-    else
-      xPos = "right" -- right side
-    end
+    xPos = "left"
   end
-  if point:find("TOP") then
-    vPos = "bottom"
-  else
+  if y > screenHeight/2 then
     vPos = "top"
+  else  
+    vPos = "bottom"
   end
   return xPos,vPos
 end
@@ -824,12 +815,11 @@ function Exlist.CreateSideTooltip(statusbar)
         sideTooltip:AddLine(body[i])
       end
     end
-    local point,_,_,xpos,ypos = butTool:GetPoint()
-    local position,vPos = GetPosition(point,xpos,ypos)
+    local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame)
     if position == "left" then 
-      sideTooltip:SetPoint("TOPRIGHT", self:GetParent(), "TOPLEFT", - 9, 10)
+      sideTooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1)
     else 
-      sideTooltip:SetPoint("TOPLEFT", self:GetParent(), "TOPRIGHT", 9, 10)
+      sideTooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT",1)
     end
     sideTooltip:Show()
     sideTooltip:SetClampedToScreen(true)
@@ -1229,13 +1219,11 @@ local function GearTooltip(self,info)
   end
   local line = geartooltip:AddLine("Last Updated:")
   geartooltip:SetCell(line, 2,info.updated,"LEFT",3)
-
-  local point,_,_,xpos,ypos = butTool:GetPoint()
-  local position,vPos = GetPosition(point,xpos,ypos)
+  local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame)
   if position == "left" then 
-    geartooltip:SetPoint("TOPRIGHT", self:GetParent(), "TOPLEFT", - 9, 10)
+    geartooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1)
   else 
-    geartooltip:SetPoint("TOPLEFT", self:GetParent(), "TOPRIGHT", 9, 10)
+    geartooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT",1)
   end
   geartooltip:Show()
   geartooltip:SetClampedToScreen(true)
@@ -1439,6 +1427,7 @@ local function OnEnter(self)
   else
     tooltip = QTip:Acquire("Exlist_Tooltip", 5)
   end
+  tooltip.parentFrame = self
   tooltip:SetCellMarginV(3)
   tooltip:SetScale(settings.tooltipScale or 1)
   self.tooltip = tooltip
@@ -1511,71 +1500,65 @@ local function OnEnter(self)
   -- Add Data
   PopulateTooltip(tooltip)
   -- global data
-  local gData = db.global and db.global.global or nil
-  if gData and #globalLineGenerators > 0 then
-    local gTip = QTip:Acquire("Exlist_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
+  if settings.showExtraInfoTooltip then
+    local gData = db.global and db.global.global or nil
+    if gData and #globalLineGenerators > 0 then
+      local gTip = QTip:Acquire("Exlist_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
+      
+      gTip:SetScale(settings.tooltipScale or 1)
+      gTip:SetFont(smallFont)
+      tooltip.globalTooltip = gTip
+      for i=1, #globalLineGenerators do
+        globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
+      end
     
-    gTip:SetScale(settings.tooltipScale or 1)
-    gTip:SetFont(smallFont)
-    tooltip.globalTooltip = gTip
-    for i=1, #globalLineGenerators do
-      globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
-    end
-    local screenWidth = GetScreenWidth()
-    local position = "left"
-    if self:GetParent():GetName() == "Minimap" then
-      -- ehhh Fix Minimap Button Location later
-      -- Leave Position as left for now
-    else
-      local point,_,_,xpos,ypos = self:GetPoint()
-      position,vpos = GetPosition(point,xpos,ypos)
-    end
-    if position == "left" then 
-      if settings.horizontalMode then
-        if vpos == "bottom" then
-          gTip:SetPoint("TOPRIGHT",tooltip,"BOTTOMRIGHT",0,1)
-        else
-          gTip:SetPoint("BOTTOMRIGHT",tooltip,"TOPRIGHT",0,-1)
-        end
-      else
-        gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
-      end
-    else 
-      if settings.horizontalMode then
-        if vpos == "bottom" then
-          gTip:SetPoint("TOPLEFT",tooltip,"BOTTOMLEFT",0,1)
-        else
-          gTip:SetPoint("BOTTOMLEFT",tooltip,"TOPLEFT",0,-1)
-        end
-      else
-        gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
-      end
-    end
-
-    gTip:Show()
-    local parentFrameLevel = tooltip:GetFrameLevel(tooltip)
-    gTip:SetFrameLevel(parentFrameLevel)
-    gTip.parent = self
-    gTip.time = 0
-    gTip.elapsed = 0
-    gTip:SetScript("OnUpdate",function(self, elapsed)
-      self.time = self.time + elapsed
-      if self.time > 0.1 then
-        if self.parent:IsMouseOver() or tooltip:IsMouseOver() or self:IsMouseOver() then
-          self.elapsed = 0
-        else
-          self.elapsed = self.elapsed + self.time
-          if self.elapsed > settings.delay then
-              QTip:Release(self)
+      local position,vpos = GetPosition(self)
+      if position == "left" then 
+        if settings.horizontalMode then
+          if vpos == "bottom" then
+            gTip:SetPoint("BOTTOMLEFT",tooltip,"TOPLEFT",0,-1)
+          else
+            gTip:SetPoint("TOPLEFT",tooltip,"BOTTOMLEFT",0,1)
           end
+        else
+          gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
         end
-        self.time = 0
+      else 
+        if settings.horizontalMode then
+          if vpos == "bottom" then
+            gTip:SetPoint("BOTTOMRIGHT",tooltip,"TOPRIGHT",0,-1)
+          else
+            gTip:SetPoint("TOPRIGHT",tooltip,"BOTTOMRIGHT",0,1)
+          end
+        else
+          gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
+        end
       end
-    end)
-    gTip:SetBackdrop(DEFAULT_BACKDROP)
-    local c = settings.backdrop
-    gTip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
-    gTip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+      gTip:Show()
+      local parentFrameLevel = tooltip:GetFrameLevel(tooltip)
+      gTip:SetFrameLevel(parentFrameLevel)
+      gTip.parent = self
+      gTip.time = 0
+      gTip.elapsed = 0
+      gTip:SetScript("OnUpdate",function(self, elapsed)
+        self.time = self.time + elapsed
+        if self.time > 0.1 then
+          if self.parent:IsMouseOver() or tooltip:IsMouseOver() or self:IsMouseOver() then
+            self.elapsed = 0
+          else
+            self.elapsed = self.elapsed + self.time
+            if self.elapsed > settings.delay then
+                QTip:Release(self)
+            end
+          end
+          self.time = 0
+        end
+      end)
+      gTip:SetBackdrop(DEFAULT_BACKDROP)
+      local c = settings.backdrop
+      gTip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
+      gTip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+    end
   end
 
   -- Tooltip visuals
