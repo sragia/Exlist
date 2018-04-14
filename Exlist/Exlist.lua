@@ -1269,10 +1269,9 @@ local function SetTooltipBut()
     local relativePoint = config_db.config.relativePoint
     local xOfs = config_db.config.xOfs
     local yOfs = config_db.config.yOfs
-    butTool:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+    butTool:SetPoint(point, UIParent, relativePoint, xOfs, yOfs)
   end
 end
-SetTooltipBut()
 butTool:SetFrameStrata("HIGH")
 butTool:EnableMouse(true)
 -- make icon draggable
@@ -1284,13 +1283,12 @@ local function Exlist_StopMoving(self)
   self:StopMovingOrSizing();
   self.isMoving = false;
   local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
-  local config = {}
-  config.point = point
-  config.relativeTo = relativeTo
-  config.relativePoint = relativePoint
-  config.xOfs = xOfs
-  config.yOfs = yOfs
-  config_db.config = config
+  config_db.config = {
+    point = point,
+    relativePoint = relativePoint,
+    xOfs = xOfs,
+    yOfs = yOfs
+  }
 end
 
 
