@@ -437,7 +437,7 @@ Exlist.SetupConfig = function(refresh)
     -- Modules
     for i,v in pairs(modules) do
         n = n + 1
-        local t = {
+        moduleOptions.args[i] = {
             type = "toggle",
             order = n,
             width = 0.7,
@@ -449,16 +449,13 @@ Exlist.SetupConfig = function(refresh)
                 modules[i] = value
             end
         }
-        moduleOptions.args[i] = t
-
         n = n + 1
-        t = {
+        moduleOptions.args[i.."desc"] = {
             type = "description",
             order = n,
             width = 2.5,
             name = Exlist.ModuleDesc[i] or ""
         }
-        moduleOptions.args[i.."desc"] = t
     end
 
     -- Characters
@@ -478,8 +475,8 @@ Exlist.SetupConfig = function(refresh)
         local charname = v.name
         local realm = char:match("^.*-(.*)")
         n = n+1
-        -- ENABLE
-        local t1 = {
+        -- ENABLE 
+        charOptions.args[char.."enable"] = {
             type = "toggle",
             order = n,
             name = "",
@@ -493,43 +490,39 @@ Exlist.SetupConfig = function(refresh)
                 Exlist.SetupConfig(true)
             end
         }
-        charOptions.args[char.."enable"] = t1
 
         -- NAME
         n = n+1
-        t1 = {
+        charOptions.args[char.."name"] = {
             type = "description",
             order = n,
             name = string.format("|c%s%s",v.classClr,charname),
             fontSize = "medium",
             width = 0.5,
         }
-        charOptions.args[char.."name"] = t1
         -- REALM
         n = n+1
-        t1 = {
+        charOptions.args[char.."realm"] = {
             type = "description",
             order = n,
             name = realm,
             fontSize = "medium",
             width = 1,
         }
-        charOptions.args[char.."realm"] = t1
 
         -- ILVL
         n = n+1
-        t1 = {
+        charOptions.args[char.."ilvl"] = {
             type = "description",
             order = n,
             name = string.format("%.1f",v.ilvl or 0),
             fontSize = "medium",
             width = 0.5,
         }
-        charOptions.args[char.."ilvl"] = t1
         
         -- ORDER
         n = n+1
-        t1 = {
+        charOptions.args[char.."order"] = {
             type = "input",
             order = n,
             name = "",
@@ -548,24 +541,21 @@ Exlist.SetupConfig = function(refresh)
                     characters[char].order = value
                     Exlist.ConfigDB.settings.reorder = true
                     Exlist.SetupConfig(true)
-                    AceConfReg:NotifyChange(name.."Characters")
                 end
             end,
         }
-        charOptions.args[char.."order"] = t1
         -- Spacer
         n = n+1
-        t1 = {
+        charOptions.args[char.."spacer"] = {
             type = "description",
             order = n,
             name =  "",
             width = 0.4,
         }
-        charOptions.args[char.."spacer"] = t1
 
         -- Delete Data
         n = n+1
-        t1 = {
+        charOptions.args[char.."delete"] = {
             type = "execute",
             order = n,
             name = "Delete",
@@ -598,7 +588,7 @@ Exlist.SetupConfig = function(refresh)
                       StaticPopup_Hide("DeleteDataPopup_"..charname..realm)
                       Exlist.DeleteCharacterFromDB(charname,realm)
                       Exlist.SetupConfig(true)
-                      AceConfReg:NotifyChange(charname.."Characters")
+                      AceConfReg:NotifyChange(name.."Characters")
                     end,
                     timeout = 0,
                     cancels = "DeleteDataPopup_"..charname..realm,
@@ -611,7 +601,6 @@ Exlist.SetupConfig = function(refresh)
                   StaticPopup_Show("DeleteDataPopup_"..charname..realm)
             end
         }
-        charOptions.args[char.."delete"] = t1
         
     end
     if refresh then
