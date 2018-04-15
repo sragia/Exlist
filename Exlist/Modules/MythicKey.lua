@@ -33,6 +33,7 @@ local function Updater(event)
         end
         local table = {
           ["dungeon"] = map,
+          ["mapId"] = mapID,
           ["level"] = level,
           ["itemLink"] = s,
         }
@@ -46,8 +47,10 @@ end
 
 local function Linegenerator(tooltip,data,character)
   if not data then return end
+  local settings = Exlist.ConfigDB.settings
+  local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[data.mapId] or data.dungeon
   local info = {
-    data = WrapTextInColorCode("[" .. data.dungeon .. " +" .. data.level .. "]", "ffd541e2"),
+    data = WrapTextInColorCode("[" .. dungeonName .. " +" .. data.level .. "]", "ffd541e2"),
     character = character,
     moduleName = key,
     priority = prio,
@@ -94,6 +97,24 @@ local function GlobalLineGenerator(tooltip,data)
   end
 end
 
+local function Modernize(data)
+  -- data is table of module table from character
+  -- always return table or don't use at all
+  if not data.mapId then
+    CM.RequestMapInfo() -- request update
+    local mapIDs = CM.GetMapTable()
+    for i,id in ipairs(mapIDs) do
+      if data.dungeon == (CM.GetMapInfo(id)) then
+        Exlist.Debug("Added mapId",id)
+        data.mapId = id
+        break
+      end
+    end
+  end
+  return data
+end
+
+
 local data = {
   name = 'Mythic+ Key',
   key = key,
@@ -103,7 +124,8 @@ local data = {
   updater = Updater,
   event = "BAG_UPDATE",
   description = "Tracks characters mythic+ key in their bags and weekly mythic+ affixes",
-  weeklyReset = true
+  weeklyReset = true,
+  modernize = Modernize  
 }
 
 Exlist.RegisterModule(data)

@@ -120,6 +120,7 @@ local settings = { -- default settings
   horizontalMode = false,
   hideEmptyCurrency = false,
   showExtraInfoTooltip = true,
+  shortenInfo = false,
 }
 local iconPaths = {
   --[specId] = [[path]]
@@ -173,6 +174,23 @@ local iconPaths = {
 
   [0] = [[Interface\AddOns\Exlist\Media\Icons\SpecNone.tga]],
 }
+Exlist.ShortenedMPlus = {
+  [197] = "EoA",
+  [198] = "DHT",
+  [199] = "BRH",
+  [200] = "HoV",
+  [206] = "NL",
+  [207] = "VotW",
+  [208] = "MoS",
+  [209] = "Arc",
+  [210] = "CoS",
+  [227] = "LKara",
+  [233] = "CoEN",
+  [234] = "UKara",
+  [239] = "SotT",
+}
+
+
 local butTool
 
 -- fonts
@@ -1347,8 +1365,9 @@ local function PopulateTooltip(tooltip)
       local headerWidth = settings.horizontalMode and 3 or 4
       local header = tooltipData[character].modules["_Header"]
       if settings.horizontalMode then
+        local headerText = settings.shortenInfo and header.data[1].data.." " .. header.data[2].data or header.data[1].data.."             " .. header.data[2].data
         tooltip:SetCell(1,1,"|T"..[[Interface/Addons/Exlist/Media/Icons/ExlistLogo2.tga]]..":40:80|t","CENTER")
-        tooltip:SetCell(rowHeadNum-1,headerCol,header.data[1].data.."             " .. header.data[2].data,"CENTER",4)
+        tooltip:SetCell(rowHeadNum-1,headerCol,headerText,"CENTER",4)
         tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnEnter",header.data[1].OnEnter,header.data[1].OnEnterData)
         tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnLeave",header.data[1].OnLeave,header.data[1].OnLeaveData)
       else
@@ -1358,7 +1377,7 @@ local function PopulateTooltip(tooltip)
         tooltip:SetLineScript(rowHeadNum-1,"OnLeave",header.data[1].OnLeave,header.data[1].OnLeaveData)
       end
       local smallHeader = tooltipData[character].modules["_HeaderSmall"]
-      tooltip:SetCell(rowHeadNum,headerCol,smallHeader.data[1].data,justification,4,nil,nil,nil,2000,170)
+      tooltip:SetCell(rowHeadNum,headerCol,smallHeader.data[1].data,justification,4,nil,nil,nil,2000,settings.shortenInfo and 0 or 170)
       -- Add Module Data
       local offsetRow = 0
       local row = 0

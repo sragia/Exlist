@@ -130,7 +130,6 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.announceReset = v
-                            Exlist_RefreshAppearance()
                         end,
                     },
                     showMinimapIcon = {
@@ -156,7 +155,6 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.showExtraInfoTooltip = v
-                            Exlist_RefreshAppearance()
                         end,
                     },
                     showIcon = {
@@ -171,7 +169,21 @@ Exlist.SetupConfig = function(refresh)
                             Exlist.ConfigDB.settings.showIcon = v
                             Exlist_RefreshAppearance()
                         end,
-                    },             
+                    },  
+                    shortenInfo = {
+                        order = 7,
+                        name = "Shorten Info",
+                        type = "toggle",
+                        desc = "Shortens text in main tooltip that you see in tooltip i.e. +15 Neltharions Lair -> +15 NL",
+                        width = "full",
+                        get = function()
+                            return Exlist.ConfigDB.settings.shortenInfo
+                        end,
+                        set = function(info, v)
+                            Exlist.ConfigDB.settings.shortenInfo = v
+                        end,
+                    }, 
+                               
                 }
             },
             fonts ={

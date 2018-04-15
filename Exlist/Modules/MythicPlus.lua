@@ -27,6 +27,7 @@ local function Updater(event)
   local mapIDs = CM.GetMapTable()
   local bestLvl = 0
   local bestLvlMap = ""
+  local bestMapId = 0
   local mapsDone = {}
   local affixes
   for i = 1, #mapIDs do
@@ -35,6 +36,7 @@ local function Updater(event)
       -- currently best map
       affixes = affixIDs
       bestLvl = level
+      bestMapId = mapIDs[i]
       bestLvlMap = CM.GetMapInfo(mapIDs[i])
       table.insert(mapsDone,{mapId = mapIDs[i], name = bestLvlMap,level = level, time = bestTime})
     elseif level and level > 0 then
@@ -56,6 +58,7 @@ local function Updater(event)
   local t= {
     ["bestLvl"] = bestLvl,
     ["bestLvlMap"] = bestLvlMap,
+    ["mapId"] = bestMapId,
     ["mapsDone"] = mapsDone
   }
   Exlist.UpdateChar(key,t)
@@ -78,12 +81,14 @@ end
 
 local function Linegenerator(tooltip,data,character)
   if not data or data.bestLvl < 2 then return end
+  local settings = Exlist.ConfigDB.settings
+  local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[data.mapId] or data.bestLvlMap
   local info = {
     character = character,
     moduleName = key,
     priority = prio,
     titleName = "Best Mythic+",
-    data = "+" .. data.bestLvl .. " " .. data.bestLvlMap,
+    data = "+" .. data.bestLvl .. " " .. dungeonName,
   }
 
   if data.mapsDone and #data.mapsDone > 0 then
@@ -99,6 +104,23 @@ local function Linegenerator(tooltip,data,character)
   Exlist.AddData(info)
 end
 
+local function Modernize(data)
+  -- data is table of module table from character
+  -- always return table or don't use at all
+  if not data.mapId then
+    CM.RequestMapInfo() -- request update
+    local mapIDs = CM.GetMapTable()
+    for i,id in ipairs(mapIDs) do
+      if data.bestLvlMap == (CM.GetMapInfo(id)) then
+        Exlist.Debug("Added mapId",id)
+        data.mapId = id
+        break
+      end
+    end
+  end
+  return data
+end
+
 local data = {
   name = 'Mythic+',
   key = key,
@@ -107,7 +129,8 @@ local data = {
   updater = Updater,
   event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD"},
   description = "Tracks highest completed mythic+ in a week and all highest level runs per dungeon",
-  weeklyReset = true
+  weeklyReset = true,
+  modernize = Modernize  
 }
 
 Exlist.RegisterModule(data)

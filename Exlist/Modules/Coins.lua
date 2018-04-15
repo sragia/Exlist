@@ -43,7 +43,8 @@ end
 
 local function Linegenerator(tooltip,data,character)
   if not data then return end
-  local availableCoins = data.available > 0 and WrapTextInColorCode(data.available .. " available!", "ff00ff00") or ""
+  local settings = Exlist.ConfigDB.settings
+  local availableCoins = data.available > 0 and WrapTextInColorCode(settings.shortenInfo and "+" .. data.available or (data.available .. " available!"), "ff00ff00") or ""
   local info = {
     data = data.curr .. "/" .. data.max .. " " .. availableCoins,
     character = character,
