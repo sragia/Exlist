@@ -16,6 +16,7 @@ local function Updater(event)
   local availMissions = CG.GetAvailableMissions(LE_FOLLOWER_TYPE_GARRISON_7_0)
   local t =  {
   }
+  local currTime = time()
   if mission then
     -- in progress/finished
     for i = 1, #mission do
@@ -81,9 +82,14 @@ local function Updater(event)
           reward.name = r[i].title
         end
       end
+      local offer = availMissions[i].offerEndTime
+      if offer then
+        offer = currTime + (offer - GetTime())
+      end
       local mis = {
         ["name"] = availMissions[i].name,
-        ["rewards"] = reward
+        ["rewards"] = reward,
+        ["offerEndTime"] = offer
       }
       table.insert(t, mis)
     end
@@ -97,16 +103,16 @@ local function missionStrings(source,hasSuccess)
   local t = {}
   local col = "ffffd200"
   if type(source) ~= "table" then return end
+  local ti = time()
   for i=1,#source do
     if hasSuccess then
-      local ti = time()
       if source[i].endTime > ti then
         table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("Time Left: %s (%i%%)",Exlist.TimeLeftColor((source[i].endTime - ti) or 0,{1800,7200},{"FF00FF00","FFf4a142","fff44141"}),source[i].successChance)})
       else
         table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("%i%%",source[i].successChance)})
       end
     else
-      table.insert(t,{WrapTextInColorCode(source[i].name,col),""})
+      table.insert(t,{WrapTextInColorCode(source[i].name,col),source[i].offerEndTime and ("Expires in: " ..Exlist.TimeLeftColor((source[i].offerEndTime - ti) or 0,{14400,28800},{"fff44141","FFf4a142","FF00FF00"})) or ""})
     end
     local reward = source[i].rewards
     local rewardString = ""
@@ -145,7 +151,7 @@ local function Linegenerator(tooltip,data,character)
       else
         table.insert(inprogress,m[i])
       end
-    else
+    elseif not m[i].offerEndTime or m[i].offerEndTime > t then
       table.insert(available,m[i])
     end
   end
@@ -169,6 +175,12 @@ local function Linegenerator(tooltip,data,character)
   end
   if #available > 0 then
     table.insert(sideTooltip.body,{WrapTextInColorCode("Available","FFefe704"),"",{"headerseparator"}})
+    table.sort(available,function(a,b) 
+      local aValue = a.offerEndTime or 0
+      local bValue = b.offerEndTime or 0
+      return aValue < bValue
+    end
+    )
     local t = missionStrings(available)
     for i=1,#t do
       table.insert(sideTooltip.body,t[i])
