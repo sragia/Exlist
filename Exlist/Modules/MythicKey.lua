@@ -48,7 +48,8 @@ end
 local function Linegenerator(tooltip,data,character)
   if not data then return end
   local settings = Exlist.ConfigDB.settings
-  local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[data.mapId] or data.dungeon
+  local mapId = tonumber(data.mapId)
+  local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[mapId] or data.dungeon
   local info = {
     data = WrapTextInColorCode("[" .. dungeonName .. " +" .. data.level .. "]", "ffd541e2"),
     character = character,
