@@ -33,5 +33,9 @@ ignore:
   - ISSUE_TEMPLATE.md
   - TODO.txt
 
+manual-changelog:
+ filename: CHANGELOG.md
+ markup-type: markdown
+
 move-folders:
   Exlist/Exlist: Exlist
