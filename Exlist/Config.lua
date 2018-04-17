@@ -405,6 +405,19 @@ Exlist.SetupConfig = function(refresh)
                     Exlist.SetupConfig(true)
                 end
             },
+            showCurrentRealm = {
+                type = "toggle",
+                order = 1.11,
+                name = "Only current realm",
+                desc = "Show only characters from currently logged in realm in tooltips",
+                width = "full",
+                get = function()
+                    return Exlist.ConfigDB.settings.showCurrentRealm
+                end,
+                set = function(info,value)
+                    Exlist.ConfigDB.settings.showCurrentRealm = value
+                end
+            },
             spacer0 = {
                 type = "description",
                 order = 1.19,
@@ -562,7 +575,7 @@ Exlist.SetupConfig = function(refresh)
             type = "description",
             order = n,
             name =  "",
-            width = 0.4,
+            width = 0.3,
         }
 
         -- Delete Data
@@ -571,7 +584,7 @@ Exlist.SetupConfig = function(refresh)
             type = "execute",
             order = n,
             name = "Delete",
-            width = 0.4,
+            width = 0.5,
             func = function()
                 StaticPopupDialogs["DeleteDataPopup_"..charname..realm] = {
                     text = "Do you really want to delete all data for "..charname.."-"..realm.."?\n\nType \"DELETE\" into the field to confirm.",

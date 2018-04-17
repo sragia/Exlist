@@ -121,6 +121,7 @@ local settings = { -- default settings
   hideEmptyCurrency = false,
   showExtraInfoTooltip = true,
   shortenInfo = false,
+  showCurrentRealm = false,
 }
 local iconPaths = {
   --[specId] = [[path]]
@@ -1438,6 +1439,13 @@ local function OnEnter(self)
   table.sort(registeredLineGenerators,function(a,b) return a.prio < b.prio end)
 
   local charOrder = GetCharacterOrder()
+  local tmp = {}
+  for i,char in ipairs(charOrder) do
+    if not settings.showCurrentRealm or char.realm == GetRealmName() then
+      tmp[#tmp+1] = char
+    end
+  end
+  charOrder = tmp
   local tooltip 
   if settings.horizontalMode then
     tooltip = QTip:Acquire("Exlist_Tooltip", (#charOrder*4)+1)
@@ -1461,58 +1469,58 @@ local function OnEnter(self)
   end]]
   -- character info main tooltip
   for i=1,#charOrder do
-    local name = charOrder[i].name
-    local realm = charOrder[i].realm
-    local character = name..realm
-    local charData = Exlist.GetCharacterTable(realm,name)
-    charData.name = name
-    -- header
-    local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
+      local name = charOrder[i].name
+      local realm = charOrder[i].realm
+      local character = name..realm
+      local charData = Exlist.GetCharacterTable(realm,name)
+      charData.name = name
+      -- header
+      local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
 
-    -- Header Info
-    Exlist.AddData({
-      data = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ",
-      character = character,
-      priority = -1000,
-      moduleName = "_Header",
-      titleName = "Header",
-      OnEnter = GearTooltip,
-      OnEnterData = charData,
-      OnLeave = Exlist.DisposeSideTooltip()
+      -- Header Info
+      Exlist.AddData({
+        data = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ",
+        character = character,
+        priority = -1000,
+        moduleName = "_Header",
+        titleName = "Header",
+        OnEnter = GearTooltip,
+        OnEnterData = charData,
+        OnLeave = Exlist.DisposeSideTooltip()
 
-    })
-    Exlist.AddData({
-      data = string.format("%i ilvl", charData.iLvl or 0),
-      character = character,
-      priority = -1000,
-      moduleName = "_Header",
-      titleName = "Header",
-    })
-    Exlist.AddData({
-      data = string.format("|c%s%s - Level %i","ffffd200",realm,charData.level),
-      character = character,
-      priority = -999,
-      moduleName = "_HeaderSmall",
-      titleName = "Header",
-      OnEnter = GearTooltip,
-      OnEnterData = charData,
-      OnLeave = Exlist.DisposeSideTooltip()
-    })
+      })
+      Exlist.AddData({
+        data = string.format("%i ilvl", charData.iLvl or 0),
+        character = character,
+        priority = -1000,
+        moduleName = "_Header",
+        titleName = "Header",
+      })
+      Exlist.AddData({
+        data = string.format("|c%s%s - Level %i","ffffd200",realm,charData.level),
+        character = character,
+        priority = -999,
+        moduleName = "_HeaderSmall",
+        titleName = "Header",
+        OnEnter = GearTooltip,
+        OnEnterData = charData,
+        OnLeave = Exlist.DisposeSideTooltip()
+      })
 
-    
-    local col = settings.horizontalMode and ((i-1)*4)+2 or 2
-    tooltipColCoords[character] = col
+      
+      local col = settings.horizontalMode and ((i-1)*4)+2 or 2
+      tooltipColCoords[character] = col
 
-    -- Add Info
-    for i = 1, #registeredLineGenerators do
-      if settings.allowedModules[registeredLineGenerators[i].name] then
-        registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key],character)
+      -- Add Info
+      for i = 1, #registeredLineGenerators do
+        if settings.allowedModules[registeredLineGenerators[i].name] then
+          registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key],character)
+        end
       end
-    end
-    --AddNote(tooltip,charData,realm,name)
-    --[[if i < #charOrder and not settings.horizontalMode then
-      tooltip:AddSeparator(1, 1, 1, 1, .85)
-    end]]
+      --AddNote(tooltip,charData,realm,name)
+      --[[if i < #charOrder and not settings.horizontalMode then
+        tooltip:AddSeparator(1, 1, 1, 1, .85)
+      end]]
   end
   -- Add Data
   PopulateTooltip(tooltip)
