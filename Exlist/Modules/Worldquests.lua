@@ -1,3 +1,5 @@
+-- TODO: Can't add some quests
+
 local key = "worldquests"
 local prio = 100
 local Exlist = Exlist
@@ -88,6 +90,7 @@ function Exlist.ScanQuests()
   if not Exlist.ConfigDB then return end
   local wq = Exlist.ConfigDB.settings.worldQuests
   local rt = {}
+  local tl = 100
   for questId,info in pairs(wq) do
     trackedQuests[questId] = {enabled = info.enabled , readOnly = false}
   end
@@ -96,10 +99,10 @@ function Exlist.ScanQuests()
     SetMapByID(zoneId)
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(zoneId)
     for _,info in pairs(wqs or {}) do
+      local timeLeft = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)
       if trackedQuests[info.questId] and trackedQuests[info.questId].enabled  then
         local name = C_TaskQuest.GetQuestInfoByQuestID(info.questId)
-        local timeLeft = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId) * 60 
-        local endTime = time() + timeLeft
+        local endTime = time() + (timeLeft * 60)
         Exlist.Debug("Spotted",name,"world quest - ",key)
         rt[#rt+1] = {
           name = name,
@@ -109,14 +112,14 @@ function Exlist.ScanQuests()
           zoneId = zoneId
         }
       end
-      -- optimization (scan only once an hour)
-      local tl = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)
-      if tl < 30 then
-        lastTrigger = lastTrigger - ((30 - tl) * 60)
-      end
+      -- optimization (scan only once an half hour)
+      tl = tl > timeLeft and timeLeft or tl
     end
   end
   SetMapByID(currMapId)
+  if tl < 30 then
+    lastTrigger = lastTrigger - ((30 - tl) * 60)
+  end
   if #rt > 0 then
     Exlist.SendFakeEvent("WORLD_QUEST_SPOTTED",rt)
   end
@@ -142,7 +145,7 @@ end
 
 local function Updater(event,questInfo)
   if event == "WORLD_MAP_OPEN" and 
-    GetTime() - lastTrigger > 180
+    GetTime() - lastTrigger > 1800
   then 
     lastTrigger = GetTime()
     Exlist.ScanQuests() 
