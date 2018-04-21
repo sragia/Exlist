@@ -43,6 +43,7 @@ local function RefreshAdditionalOptions(modName, optionTbl, displayName)
     AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
 end
 
+
 Exlist.SetupConfig = function(refresh)
     local options = {
         type = "group",
@@ -643,6 +644,9 @@ Exlist.SetupConfig = function(refresh)
 end
 Exlist.AddModuleOptions = RegisterAdditionalOptions
 Exlist.RefreshModuleOptions = RefreshAdditionalOptions
+Exlist.NotifyOptionsChange = function(module)
+  AceConfReg:NotifyChange(name..module)
+end
 Exlist.ModuleToBeAdded = function(func)
     table.insert(addingOpt,func)
 end

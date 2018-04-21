@@ -136,7 +136,7 @@ end
 
 local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
-  Exlist.AddLine(tooltip,{WrapTextInColorCode("Emissaries","ffffd200")})
+  Exlist.AddLine(tooltip,{WrapTextInColorCode("Emissaries","ffffd200")},14)
 
   for questId,info in spairs(data or {},function(t,a,b) return t[a].endTime < t[b].endTime end) do
     Exlist.AddLine(tooltip,{info.title,TimeLeftColor(info.endTime - timeNow,{36000, 72000})})

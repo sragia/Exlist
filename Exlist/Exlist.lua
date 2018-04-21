@@ -113,6 +113,7 @@ local settings = { -- default settings
     borderColor = {r = .2,b = .2,g = .2,a = 1}
   },
   currencies = {},
+  worldQuests = {},
   announceReset = false,
   showMinimapIcon = false,
   minimapTable = {},
@@ -190,6 +191,10 @@ Exlist.ShortenedMPlus = {
   [234] = "UKara",
   [239] = "SotT",
 }
+Exlist.Colors = {
+  QuestTitle = "ffffd200",
+  Debug = "ffc73000"
+}
 
 
 local butTool
@@ -206,6 +211,10 @@ smallFont:SetFont(font, fontSet.small.size)
 local mediumFont = CreateFont("Exlist_MediumFont")
 --mediumFont:CopyFontObject(GameTooltipText)
 mediumFont:SetFont(font, fontSet.medium.size)
+
+local customFonts = {
+  --[fontSize] = fontObject
+}
 local monthNames = {'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'}
 
 -- lua api
@@ -395,6 +404,7 @@ end
 
 function Exlist.Debug(...) 
   if debugMode then
+    local debugString = string.format("|c%s[Exlist Debug]|r",Exlist.Colors.Debug)
     print(debugString,...)
   end
 end
@@ -717,9 +727,22 @@ end
 
 -- Modules/API
 -- Info attaching to tooltip
-function Exlist.AddLine(tooltip,info)
+function Exlist.AddLine(tooltip,info,fontSize)
   -- info =  {'1st cell','2nd cell','3rd cell' ...} or "string"
   if not tooltip or not info or (type(info) ~= 'table' and type(info) ~= 'string') then return end
+  -- Set Font
+  fontSize = fontSize or settings.fonts.small.size
+  local fontObj
+  if customFonts[fontSize] then
+    fontObj = customFonts[fontSize]
+  else
+    local font = LSM:Fetch("font",settings.Font)
+    fontObj = CreateFont("Exlist_Font"..fontSize)
+    fontObj:SetFont(font,fontSize)
+    customFonts[fontSize] = fontObj
+  end
+  tooltip:SetFont(fontObj)
+
   local maxColumns = 5
   local n = tooltip:AddLine()
   if type(info) == 'string' then
@@ -736,6 +759,7 @@ function Exlist.AddLine(tooltip,info)
   -- return line number
   return n
 end
+
 
 local lineNums = {} -- only for Horizontal
 local columnNums = {} -- only for Horizontal
@@ -918,6 +942,7 @@ function Exlist.RegisterModule(data)
     event = {} or string (table or string that contains events that triggers updater func)
     weeklyReset = bool (should this be reset on weekly reset)
     description = string 
+    override = bool (overrides user selection disable/enable module)
     }
   ]]
   if not data then return end
@@ -928,12 +953,12 @@ function Exlist.RegisterModule(data)
       -- multiple events
       for i=1,#data.event do
         registeredUpdaters[data.event[i]] = registeredUpdaters[data.event[i]] or {}
-        table.insert(registeredUpdaters[data.event[i]],{func = data.updater, name = data.name})
+        table.insert(registeredUpdaters[data.event[i]],{func = data.updater, name = data.name,override = data.override})
       end
     elseif type(data.event) == "string" then
       -- single event
       registeredUpdaters[data.event] = registeredUpdaters[data.event] or {}
-      table.insert(registeredUpdaters[data.event],{func = data.updater, name = data.name})
+      table.insert(registeredUpdaters[data.event],{func = data.updater, name = data.name,override = data.override})
     end
   end
   RegisterEvents()
@@ -1529,12 +1554,14 @@ local function OnEnter(self)
     local gData = db.global and db.global.global or nil
     if gData and #globalLineGenerators > 0 then
       local gTip = QTip:Acquire("Exlist_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
-      
+      table.sort(globalLineGenerators,function(a,b) return a.prio < b.prio end)
       gTip:SetScale(settings.tooltipScale or 1)
       gTip:SetFont(smallFont)
       tooltip.globalTooltip = gTip
       for i=1, #globalLineGenerators do
-        globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
+        if settings.allowedModules[globalLineGenerators[i].name] then
+          globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
+        end
       end
     
       local position,vpos = GetPosition(self)
@@ -1653,6 +1680,9 @@ function Exlist_RefreshAppearance()
   hugeFont:SetFont(font, settings.fonts.big.size)
   smallFont:SetFont(font, settings.fonts.small.size)
   mediumFont:SetFont(font, settings.fonts.medium.size)
+  for fontSize,f in ipairs(customFonts) do
+    f:SetFont(font,fontSize)
+  end
   butTool:SetScale(settings.iconScale)
   if settings.showMinimapIcon then
     LDBI:Show("Exlist")
@@ -1910,6 +1940,7 @@ function frame:OnEvent(event, ...)
     SetTooltipBut()
 	C_Timer.After(10,function() ResetHandling() end)
   end
+  -- Delays
   if event == "Exlist_DELAY" then
     delay = false
     for event,f in pairs(registeredUpdaters) do
@@ -1930,10 +1961,11 @@ function frame:OnEvent(event, ...)
     return
   end
   if InCombatLockdown() then return end -- Don't update in combat
+
   Exlist.Debug('Event ',event)
   if registeredUpdaters[event] then
     for i=1,#registeredUpdaters[event] do
-      if not settings.allowedModules[registeredUpdaters[event][i].name] then return end
+      if not settings.allowedModules[registeredUpdaters[event][i].name] and not registeredUpdaters[event][i].override then return end
       local started = debugprofilestop()
       registeredUpdaters[event][i].func(event,...)
       Exlist.Debug(registeredUpdaters[event][i].name .. ' finished: ' .. debugprofilestop() - started)
@@ -1956,8 +1988,8 @@ function frame:OnEvent(event, ...)
 end
 frame:SetScript("OnEvent", frame.OnEvent)
 
-function Exlist.SendFakeEvent(event)
-   frame.OnEvent(nil,event)
+function Exlist.SendFakeEvent(event,...)
+   frame.OnEvent(nil,event,...)
  end
 
  local function func(...)

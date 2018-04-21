@@ -20,6 +20,7 @@ Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 
 Exlist.lua
 Config.lua
+Modules\Worldquests.lua
 Modules\Currency.lua
 Modules\Artifact.lua
 Modules\Coins.lua

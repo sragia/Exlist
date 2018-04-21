@@ -80,7 +80,7 @@ local function GlobalLineGenerator(tooltip,data)
   local added = false
   for i=1,#data do
     if not added then
-      Exlist.AddLine(tooltip,{WrapTextInColorCode("Mythic+ Affixes","ffffd200")})
+      Exlist.AddLine(tooltip,{WrapTextInColorCode("Mythic+ Affixes","ffffd200")},14)
       added = true
     end
     local line = Exlist.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or "Unknown")})

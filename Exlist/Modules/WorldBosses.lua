@@ -428,7 +428,7 @@ local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
   if not data then return end
   if data.invasions then
-    Exlist.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")})
+    Exlist.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")},14)
     for questId,info in spairs((data.invasions or {}),function(t,a,b) return (t[a].endTime or 0) < (t[b].endTime or 0) end) do
       if info.endTime and info.endTime > timeNow then
         Exlist.AddLine(tooltip,{info.name,Exlist.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map or "","ffc1c1c1")})
@@ -436,7 +436,7 @@ local function GlobalLineGenerator(tooltip,data)
     end
   end
   if data.brokenshore then
-      Exlist.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")})
+      Exlist.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")},14)
     for i,info in pairs(data.brokenshore or {}) do
       local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
       (info.rewards and (info.state == 2 or info.state == 3) and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ffffd200",info.rewards.name or "") or info.state == 1 and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ff494949",info.rewards.name or "")))})
@@ -453,7 +453,7 @@ local function GlobalLineGenerator(tooltip,data)
     end
   end
   if data.worldbosses then
-    Exlist.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")})
+    Exlist.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")},14)
     for _,info in pairs(data.worldbosses) do
       for b in pairs(info) do
         if info[b].endTime > timeNow then
