@@ -259,57 +259,56 @@ local function SetupWQConfig(refresh)
         end,
     }
     n = n + 1
-    if info.rewards and #info.rewards > 0 then
-      o[questID.."rewards"] = {
-        order = n,
-        name = function()
-          local reward = info.rewards[1]
-          local s = ""
-          if reward.name == "gold" then
-            s = reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"
-          else
-            if reward.amount > 1 then
-              s = string.format( "%ix|T%s:12|t%s",reward.amount,reward.texture,reward.name)
-            else
-              s = string.format( "|T%s:12|t%s",reward.texture,reward.name)
-            end
-          end
-          return s
-        end,
-        type = "description",
-        width = 1.8,
-      }
+    if not info.rewards or #info.rewards < 1 then
+      info.rewards = GetQuestRewards(questID)
     end
-      n = n + 1
-      o[questID.."delete"] = {
-        type = "execute",
-        order = n,
-        name = "Delete",
-        width = 0.5,
-        func = function()
-            StaticPopupDialogs["DeleteWQDataPopup_"..questID] = {
-                text = "Do you really want to delete "..WrapTextInColorCode(info.name,Exlist.Colors.QuestTitle).."?",
-                button1 = "Ok",
-                button3 = "Cancel",
-                hasEditBox = false,
-                OnShow = function(self)
-                end,
-                OnAccept = function(self)
-                  StaticPopup_Hide("DeleteWQDataPopup_"..questID)
-                  RemoveTrackedQuest(questID)
-                  SetupWQConfig(true)
-                  Exlist.NotifyOptionsChange(key)
-                end,
-                timeout = 0,
-                cancels = "DeleteWQDataPopup_"..questID,
-                whileDead = true,
-                hideOnEscape = true,
-                preferredIndex = 4,
-                showAlert = 1,
-                enterClicksFirstButton = 1
-              }
-              StaticPopup_Show("DeleteWQDataPopup_"..questID)
+    o[questID.."rewards"] = {
+      order = n,
+      name = function()
+        local reward = info.rewards[1]
+        local s = ""
+        if reward.name == "gold" then
+          s = reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"
+        else
+          if reward.amount > 1 then
+            s = string.format( "%ix|T%s:12|t%s",reward.amount,reward.texture,reward.name)
+         else
+            s = string.format( "|T%s:12|t%s",reward.texture,reward.name)
+          end
         end
+        return s
+      end,
+      type = "description",
+      width = 1.8,
+    }
+    n = n + 1
+    o[questID.."delete"] = {
+      type = "execute",
+      order = n,
+      name = "Delete",
+      width = 0.5,
+      func = function()
+        StaticPopupDialogs["DeleteWQDataPopup_"..questID] = {
+          text = "Do you really want to delete "..WrapTextInColorCode(info.name,Exlist.Colors.QuestTitle).."?",
+          button1 = "Ok",
+          button3 = "Cancel",
+          hasEditBox = false,
+          OnAccept = function(self)
+            StaticPopup_Hide("DeleteWQDataPopup_"..questID)
+            RemoveTrackedQuest(questID)
+            SetupWQConfig(true)
+            Exlist.NotifyOptionsChange(key)
+          end,
+          timeout = 0,
+          cancels = "DeleteWQDataPopup_"..questID,
+          whileDead = true,
+          hideOnEscape = true,
+          preferredIndex = 4,
+          showAlert = 1,
+          enterClicksFirstButton = 1
+        }
+        StaticPopup_Show("DeleteWQDataPopup_"..questID)
+      end
     }
   end
   if not refresh then
