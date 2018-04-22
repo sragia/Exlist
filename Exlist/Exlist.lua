@@ -53,7 +53,9 @@ local tooltipColCoords = {
   ]]
 }
 Exlist.ModuleDesc = {}
-
+local moduleInitializers = {
+  --func,func,func
+}
 -- Resets
 local keysToResetWeekly = {}
 local keysToResetDaily = {}
@@ -119,6 +121,7 @@ local settings = { -- default settings
   },
   currencies = {},
   worldQuests = {},
+  quests = {},
   announceReset = false,
   showMinimapIcon = false,
   minimapTable = {},
@@ -128,6 +131,7 @@ local settings = { -- default settings
   showExtraInfoTooltip = true,
   shortenInfo = false,
   showCurrentRealm = false,
+  showQuestsInExtra = false,
 }
 local iconPaths = {
   --[specId] = [[path]]
@@ -198,7 +202,12 @@ Exlist.ShortenedMPlus = {
 }
 Exlist.Colors = {
   QuestTitle = "ffffd200",
-  Debug = "ffc73000"
+  Debug = "ffc73000",
+  QuestTypeHeading = "ff42c8f4",
+  QuestTypeTitle = {
+    daily = "ff70afd8",
+    weekly = "ffe0a34e"
+  }
 }
 
 
@@ -377,7 +386,7 @@ function Exlist.GetItemGems(itemLink)
   return t
 end
 
-function Exlist.QuestInfo(questid)
+local function QuestInfo(questid)
   if not questid or questid == 0 then return nil end
   MyScanningTooltip:ClearTooltip()
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
@@ -387,6 +396,7 @@ function Exlist.QuestInfo(questid)
   if not l or #l == 0 then return nil end -- cache miss
   return l, "\124cffffff00\124Hquest:"..questid..":90\124h["..l.."]\124h\124r"
 end
+Exlist.QuestInfo = QuestInfo
 
 Exlist.FormatTimeMilliseconds = function(time)
   if not time then return end
@@ -496,6 +506,19 @@ function Exlist.GetCachedItemInfo(itemId)
       config_db.item_cache[itemId] = t
     end
     return t
+  end
+end
+function Exlist.GetCachedQuestTitle(questId)
+  if config_db.quest_cache and config_db.quest_cache[questId] then
+    return config_db.quest_cache[questId]
+  else
+    local name = Exlist.QuestInfo(questId)
+    if name then
+      -- only save if you actually got info
+      config_db.quest_cache = config_db.quest_cache or {}
+      config_db.quest_cache[questId] = t
+    end
+    return name or "Unknown (" .. questId .. ")"
   end
 end
 
@@ -950,7 +973,7 @@ function Exlist.RegisterModule(data)
     specialResetHandle = function (replaces just wiping table for this key)
     description = string 
     override = bool (overrides user selection disable/enable module)
-    
+    init = function (function that will run at init)
     }
   ]]
   if not data then return end
@@ -993,6 +1016,9 @@ function Exlist.RegisterModule(data)
   if data.specialResetHandle and type(data.specialResetHandle) == 'function' then 
     keyResetHandlers[data.key] = data.specialResetHandle
   end
+  if data.init and type(data.init) == 'function' then
+    table.insert(moduleInitializers,data.init)
+  end
 
 end
 
@@ -1010,7 +1036,7 @@ function Exlist.GetRealmCharacters(realm)
   local t = {}
   if db[realm] then
     for i in pairs(db[realm]) do
-      t[i] = true
+      t[#t+1] = i
     end
   end
   return t
@@ -1742,6 +1768,10 @@ local function init()
   settings.reorder = true 
   -- Minimap Icon
   LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
+  
+  for i,func in ipairs(moduleInitializers) do
+    func()
+  end
 
   ModernizeCharacters()  
 
@@ -1759,6 +1789,7 @@ local function init()
     Exlist.SetupConfig()
   end
   C_Timer.After(0.5, function() Exlist_RefreshAppearance() end)
+ 
 end
 
 -- Reset handling Credit to SavedInstances
@@ -1901,7 +1932,7 @@ local function WipeKeysForReset(type)
   end
   for i = 1, #keys do
     if keyResetHandlers[keys[i]] then
-      keyResetHandlers[keys[i]]()
+      keyResetHandlers[keys[i]](type)
     else
       WipeKey(keys[i])
     end
