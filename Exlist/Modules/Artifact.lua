@@ -16,11 +16,12 @@ local ArtifactInfo = function()
   local loaded = IsAddOnLoaded('LibArtifactData-1.0') or LoadAddOn('LibArtifactData-1.0')
   if not loaded then return end
   
-  local artifactID, unspentPower, power, maxPower, powerForNextRank, numRanksPurchased, numRanksPurchasable
   if not LAD:GetActiveArtifactID() then
     LAD:ForceUpdate()
   end
-  artifactID, unspentPower, power, maxPower, powerForNextRank, numRanksPurchased, numRanksPurchasable = LAD:GetArtifactPower(LAD:GetActiveArtifactID())
+  local id = LAD:GetActiveArtifactID()
+  local artifactID, unspentPower, power, maxPower, powerForNextRank, numRanksPurchased, numRanksPurchasable = LAD:GetArtifactPower(id)
+  local totalAP = LAD:GetAcquiredArtifactPower(id)
   --[[
     artifactID - artifact ID
     unspentPower - power that I havent spent ( same as power until you have power to put in point)
@@ -41,7 +42,8 @@ local ArtifactInfo = function()
     ['maxPower'] = maxPower,
     ['powNextRank'] = powerForNextRank,
     ['ranks'] = numRanksPurchased,
-    ['availableRanks'] = numRanksPurchasable
+    ['availableRanks'] = numRanksPurchasable,
+    ['totalAP'] = totalAP
   }
   return r
 end
@@ -61,51 +63,53 @@ local GetNextAK = function()
   end
 end
 
-local function GetAPperDay(lastCheck, aptable)
-  if not IsAddOnLoaded("LibArtifactData-1.0") then LoadAddOn("LibArtifactData-1.0") end
-  if not LAD:GetActiveArtifactID() then return end
+local function ShiftTable(t,offset)
+  offset = offset or 1
+  local tblSize = #t
+  local tbl = {}
+  for i=1,tblSize do
+    local newIndex = i + offset
+    if newIndex >= 1 and newIndex <= tblSize then
+      tbl[newIndex] = t[i]
+    end
+  end 
+  return tbl
+end
+
+local function UpdateAPTable(t,id,currentAP)
+  if not currentAP then return end
   local todayDate = date("*t", time()).yday
-  local currentAP = LAD:GetAcquiredArtifactPower(LAD:GetActiveArtifactID())
-  aptable = aptable or {}
-  lastCheck = lastCheck or 0
-  local tableSize = #aptable
-  if aptable then
-    local dayDiff = todayDate-lastCheck
-    if dayDiff > 350 then
-      -- just dont deal with new year, too much work
-      if tableSize == 7 then
-        for i = 1, tableSize - 1 do
-          aptable[i] = aptable[i + 1]
-        end
-        aptable[7] = currentAP
+  local updateTable = t[id] or {}
+  local lastCheck = updateTable[#updateTable] and updateTable[#updateTable].date
+  -- {today-6,today-5 ... today}
+  if lastCheck and lastCheck == todayDate then -- already checked today
+    return t
+  else
+    -- new day or new table
+    if not lastCheck then
+      -- first time saving for this artifact
+      updateTable = {}
+      for i=1,7 do updateTable[i] = {date=todayDate,ap=currentAP} end
+    else
+      local offset = lastCheck - todayDate
+      if offset < -7 or offset > 0  then
+        -- like after new years or not logged in for long period of time
+        updateTable = {}
+        for i=1,7 do updateTable[i] = {date=todayDate,ap=currentAP} end
       else
-        table.insert(aptable, currentAP)
-      end
-    elseif dayDiff > 0 then
-      -- first check of the day
-      for c=1,dayDiff do
-        local value = currentAP
-        if c < dayDiff then
-          -- skipped a day
-          value = 0
-        end
-        if tableSize == 7 then
-          for i = 1, tableSize - 1 do
-            aptable[i] = aptable[i + 1]
-          end
-          aptable[7] = value
-        else
-          table.insert(aptable, value)
+        updateTable = ShiftTable(updateTable,offset)
+        for i=#updateTable+1,7 do
+          updateTable[i] = {date=todayDate,ap=currentAP}
         end
       end
     end
-  else
-    table.insert(aptable, currentAP)
-  end
-  return aptable, currentAP, todayDate
+  end 
+  t[id] = updateTable
+  return t
 end
 
 local function Updater(event)
+  if event == "ARTIFACT_UPDATE" or event == "ARTIFACT_XP_UPDATE" then C_Timer.After(0.5,function() Exlist.SendFakeEvent("ARTIFACT_UPDATE_DELAYED") end) return end -- ARTIFACT_UPDATE triggers before LibArtifactData has been updated
   if not IsAddOnLoaded("LibArtifactData-1.0") then LoadAddOn("LibArtifactData-1.0") end
   if not LAD then LAD = LibStub("LibArtifactData-1.0") end
   if not LAD:GetActiveArtifactID() then return end
@@ -117,35 +121,28 @@ local function Updater(event)
           AP for next trait (now/max - %% mby)
           knowledge (current - next in ..)
         ]]
-  local table = {}
+  local t = {}
   local a = ArtifactInfo()
   if a then
-    table.currentID = currentArtifactID
-    table.traits = a.ranks
-    table.availableRanks = a.availableRanks
-    table.AP = {
+    t.currentID = currentArtifactID
+    t.traits = a.ranks
+    t.availableRanks = a.availableRanks
+    t.AP = {
       ["curr"] = a.power,
       ["max"] = a.maxPower,
+      ["totalAP"] = a.totalAP,
       ["perc"] = (a.power / a.maxPower) * 100,
     }
-    table.knowledge = {
+    t.knowledge = {
       ["level"] = LAD:GetArtifactKnowledge(),
       ["next"] = GetNextAK() -- check nil
     }
     
-    --[[if Exlist.DB then
-      table.dailyAP = {}
-      local chk = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].dateChecked or nil
-      local apT = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].apDays or nil
-      local aptable, currentAP, dateChecked = GetAPperDay(chk, apT)
-      table.dailyAP = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP or {}
-      table.dailyAP[currentArtifactID] = {
-        apDays = aptable,
-        dateChecked = dateChecked,
-        currentAP = currentAP
-      }
-    end]]
-    Exlist.UpdateChar(key,table)
+    local cachedData = Exlist.GetCharacterTableKey(realm,name,key)
+    local apTracking = cachedData.apTracking or {}
+    local apTracking = UpdateAPTable(apTracking,currentArtifactID,a.totalAP)
+    t.apTracking = apTracking
+    Exlist.UpdateChar(key,t)
   end
 end
 
@@ -163,16 +160,24 @@ local function Linegenerator(tooltip,data,character)
     data = dataString,
   }
   local sideTooltip = {body= {}, title=WrapTextInColorCode("Artifact Weapon", "ffffd200")}
-  table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power: ", "ffb2b2b2"),Exlist.ShortenNumber(data.AP.curr, 1) .. '/' .. Exlist.ShortenNumber(data.AP.max, 1)})
+  table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power: ", "ffb2b2b2"),Exlist.ShortenNumber(data.AP.curr, 2) .. '/' .. Exlist.ShortenNumber(data.AP.max, 2)})
   table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Knowledge level: ", "ffb2b2b2"), data.knowledge.level})
-
   local next = tonumber(data.knowledge.next)
   local nextIn = next and next - time or nil
   if nextIn and nextIn > 0 then
     table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), SecondsToTime(nextIn)})
   elseif nextIn then
     table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), WrapTextInColorCode("Ready!", "ff62f442")})
-  end          
+  end     
+  if data.apTracking and data.apTracking[data.currentID] then
+    local d = data.apTracking[data.currentID]
+    local collectedToday = data.AP.totalAP - d[#d].ap 
+    local collectedThisWeek = data.AP.totalAP - d[1].ap
+    local collectedPerDay = collectedThisWeek/7
+    table.insert(sideTooltip.body,{WrapTextInColorCode("Collected Today: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedToday, 2)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode("Collected This Week: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedThisWeek, 2)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode("Collected Per Day: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedPerDay, 2)})
+  end     
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()
@@ -185,7 +190,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"ARTIFACT_UPDATE"},
+  event = {"ARTIFACT_UPDATE","ARTIFACT_UPDATE_DELAYED","ARTIFACT_XP_UPDATE"},
   description = "Currently equipped artifact information (Rank/Current and Needed Artifact Power for next trait/Artifact Knowledge",
   weeklyReset = false
 }
