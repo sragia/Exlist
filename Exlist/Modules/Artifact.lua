@@ -122,16 +122,18 @@ local function Updater(event)
   if a then
     table.currentID = currentArtifactID
     table.traits = a.ranks
+    table.availableRanks = a.availableRanks
     table.AP = {
       ["curr"] = a.power,
       ["max"] = a.maxPower,
-      ["perc"] = (a.power / a.maxPower) * 100
+      ["perc"] = (a.power / a.maxPower) * 100,
     }
     table.knowledge = {
       ["level"] = LAD:GetArtifactKnowledge(),
       ["next"] = GetNextAK() -- check nil
     }
-    if Exlist.DB then
+    
+    --[[if Exlist.DB then
       table.dailyAP = {}
       local chk = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].dateChecked or nil
       local apT = Exlist.DB[realm][name].artifact and Exlist.DB[realm][name].artifact.dailyAP and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID] and Exlist.DB[realm][name].artifact.dailyAP[currentArtifactID].apDays or nil
@@ -142,19 +144,23 @@ local function Updater(event)
         dateChecked = dateChecked,
         currentAP = currentAP
       }
-    end
+    end]]
     Exlist.UpdateChar(key,table)
   end
 end
 
 local function Linegenerator(tooltip,data,character)
   if not data then return end
+  local dataString = WrapTextInColorCode("Rank: ", "ffb2b2b2")..data.traits
+  if data.availableRanks and data.availableRanks > 0 then
+    dataString = dataString .. WrapTextInColorCode(" +"..data.availableRanks,"FF00FF00")
+  end
   local info = {
     character = character,
     priority = prio,
     moduleName = key,
     titleName = "Artifact",
-    data = WrapTextInColorCode("Rank: ", "ffb2b2b2")..data.traits,
+    data = dataString,
   }
   local sideTooltip = {body= {}, title=WrapTextInColorCode("Artifact Weapon", "ffffd200")}
   table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power: ", "ffb2b2b2"),Exlist.ShortenNumber(data.AP.curr, 1) .. '/' .. Exlist.ShortenNumber(data.AP.max, 1)})
