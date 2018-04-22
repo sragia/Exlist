@@ -168,6 +168,7 @@ local function Linegenerator(tooltip,data,character)
   end
   if #inprogress > 0 then
     table.insert(sideTooltip.body,{WrapTextInColorCode("In Progress","FFf48642"),"",{"headerseparator"}})
+    table.sort(inprogress,function(a,b) return a.endTime < b.endTime end)
     local t = missionStrings(inprogress,true)
     for i=1,#t do
       table.insert(sideTooltip.body,t[i])
