@@ -54,7 +54,8 @@ local tooltipColCoords = {
 }
 Exlist.ModuleDesc = {}
 
-local keysToReset = {}
+local keysToResetWeekly = {}
+local keysToResetDaily = {}
 -- localized API
 local _G = _G
 local CreateFrame = CreateFrame
@@ -941,8 +942,10 @@ function Exlist.RegisterModule(data)
     updater = func (function that updates data in db)
     event = {} or string (table or string that contains events that triggers updater func)
     weeklyReset = bool (should this be reset on weekly reset)
+    dailyReset = bool (should data for this reset every day)
     description = string 
     override = bool (overrides user selection disable/enable module)
+
     }
   ]]
   if not data then return end
@@ -977,8 +980,12 @@ function Exlist.RegisterModule(data)
   table.insert(registeredModules,data.name)
   Exlist.ModuleDesc[data.name] = data.description or ""
   if data.weeklyReset then
-    table.insert(keysToReset,data.key)
+    table.insert(keysToResetWeekly,data.key)
   end
+  if data.dailyReset then
+    table.insert(keysToResetDaily,data.key)
+  end
+
 end
 
 function Exlist.GetRealmNames()
@@ -1813,7 +1820,7 @@ local function GetNextDailyResetTime()
   return time() + resettime
 end
 
-function Exlist.GetNextWeeklyResetTime()
+local function GetNextWeeklyResetTime()
   if not config_db.resetDays then
     local region = GetRegion()
 	--print('Getnextweekly region: ', region)
@@ -1843,13 +1850,23 @@ function Exlist.GetNextWeeklyResetTime()
   end
   return nightlyReset
 end
-local GetNextWeeklyResetTime = Exlist.GetNextWeeklyResetTime
+Exlist.GetNextWeeklyResetTime = GetNextWeeklyResetTime 
+Exlist.GetNextDailyResetTime = GetNextDailyResetTime
 
-
-local function HasResetHappened()
+local function HasWeeklyResetHappened()
   if not config_db.resetTime then return end
   local weeklyReset = GetNextWeeklyResetTime()
   if weeklyReset ~= config_db.resetTime then
+    -- reset has happened because next weekly reset time is different from stored one
+    return true
+  end
+  return false
+end
+
+local function HasDailyResetHappened()
+  if not config_db.resetDailyTime then return end
+  local dailyReset = GetNextDailyResetTime()
+  if dailyReset ~= config_db.resetDailyTime then
     -- reset has happened because next weekly reset time is different from stored one
     return true
   end
@@ -1869,9 +1886,14 @@ local function ResetCoins()
   end
 end
 
-local function WipeKeysForReset()
-  local keys = keysToReset
-  ResetCoins()
+local function WipeKeysForReset(type)
+  local keys = {}
+  if type == "weekly" then
+    keys = keysToResetWeekly
+    ResetCoins()
+  elseif type == "daily" then
+    keys = keysToResetDaily
+  end
   for i = 1, #keys do
     WipeKey(keys[i])
   end
@@ -1885,11 +1907,15 @@ local function GetLastUpdateTime()
 end
 
 local function ResetHandling()
-  if HasResetHappened() then
+  if HasWeeklyResetHappened() then
     -- check for reset
-    WipeKeysForReset()
+    WipeKeysForReset("weekly")
+    WipeKeysForReset("daily")
+  elseif HasDailyResetHappened() then
+    WipeKeysForReset("daily")
   end
   config_db.resetTime = GetNextWeeklyResetTime()
+  config_db.resetDailyTime = GetNextDailyResetTime()
 end
 
 local function AnnounceReset(msg)
@@ -2024,7 +2050,8 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
     debugMode = not debugMode
     Exlist.debugMode = debugMode
   elseif args[1] == "reset" then
-    print('Reset in: ' .. SecondsToTime(GetNextWeeklyResetTime()-time()))
+    print('Weekly reset in: ', SecondsToTime(GetNextWeeklyResetTime()-time()))
+    print('Daily reset in: ', SecondsToTime(GetNextDailyResetTime()-time()))
   elseif args[1] == "wipe" then
     if args[2] then
       -- testing purposes
