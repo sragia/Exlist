@@ -54,8 +54,12 @@ local tooltipColCoords = {
 }
 Exlist.ModuleDesc = {}
 
+-- Resets
 local keysToResetWeekly = {}
 local keysToResetDaily = {}
+local keyResetHandlers = {
+  -- [key] = function
+}
 -- localized API
 local _G = _G
 local CreateFrame = CreateFrame
@@ -943,9 +947,10 @@ function Exlist.RegisterModule(data)
     event = {} or string (table or string that contains events that triggers updater func)
     weeklyReset = bool (should this be reset on weekly reset)
     dailyReset = bool (should data for this reset every day)
+    specialResetHandle = function (replaces just wiping table for this key)
     description = string 
     override = bool (overrides user selection disable/enable module)
-
+    
     }
   ]]
   if not data then return end
@@ -984,6 +989,9 @@ function Exlist.RegisterModule(data)
   end
   if data.dailyReset then
     table.insert(keysToResetDaily,data.key)
+  end
+  if data.specialResetHandle and type(data.specialResetHandle) == 'function' then 
+    keyResetHandlers[data.key] = data.specialResetHandle
   end
 
 end
@@ -1841,10 +1849,7 @@ local function GetNextWeeklyResetTime()
   end
   local offset = (GetServerOffset() + config_db.resetDays.DLHoffset) * 3600
   local nightlyReset = GetNextDailyResetTime()
-  --print('Getnextweekly nightreset: ',nightlyReset)
-  --print('Getnextweekly offset: ',offset)
   if not nightlyReset then return nil end
-  --while date("%A",nightlyReset+offset) ~= WEEKDAY_TUESDAY do
   while not config_db.resetDays[date("%w", nightlyReset + offset)] do
     nightlyReset = nightlyReset + 24 * 3600
   end
@@ -1895,7 +1900,11 @@ local function WipeKeysForReset(type)
     keys = keysToResetDaily
   end
   for i = 1, #keys do
-    WipeKey(keys[i])
+    if keyResetHandlers[keys[i]] then
+      keyResetHandlers[keys[i]]()
+    else
+      WipeKey(keys[i])
+    end
   end
 end
 
