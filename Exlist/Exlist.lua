@@ -1985,6 +1985,10 @@ local function AnnounceReset(msg)
     SendChatMessage(string.format("[%s] %s",addonName,msg),channel)
   end
 end
+hooksecurefunc("ResetInstances", function()
+  AnnounceReset("Reset All Instances")
+end)
+
 
 -- Updaters
 
