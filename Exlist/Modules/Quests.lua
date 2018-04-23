@@ -1,5 +1,5 @@
 local key = "quests"
-local prio = 200
+local prio = 7
 local Exlist = Exlist
 local colors = Exlist.Colors
 local strings = Exlist.Strings
