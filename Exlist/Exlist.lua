@@ -132,6 +132,15 @@ local settings = { -- default settings
   shortenInfo = false,
   showCurrentRealm = false,
   showQuestsInExtra = false,
+  unsortedFolder = {
+    -- used to store vars that aren't connected to specific characters but need to be reset daily/weekly
+    ["daily"] = {
+
+    },
+    ["weekly"] = {
+
+    }
+  },
 }
 local iconPaths = {
   --[specId] = [[path]]
@@ -1951,8 +1960,13 @@ local function ResetHandling()
     -- check for reset
     WipeKeysForReset("weekly")
     WipeKeysForReset("daily")
+    settings.unsortedFolder = {
+      ["daily"] = {},
+      ["weekly"] = {}
+    }
   elseif HasDailyResetHappened() then
     WipeKeysForReset("daily")
+    settings.unsortedFolder.daily = {}
   end
   config_db.resetTime = GetNextWeeklyResetTime()
   config_db.resetDailyTime = GetNextDailyResetTime()

@@ -12,10 +12,83 @@ local trackedQuests = {
   -- [questId] = {enabled = bool,type = string, checkFunction = function,default = bool,showSeparate = bool}
 }
 
+local bquestIds = {
+  {questId = 44175,name = "World Quest Bonus Event"}, -- WQ
+  {questId = 44171,name = "Legion Dungeon Event"}, -- Dungeons
+  {questId = 44173,name = "Battleground Bonus Event"}, -- BGs
+  {questId = 44172,name = "Arena Skirmish Bonus Event"}, -- Arenas
+  {questId = 44174,name = "Pet Battle Bonus Event"}, -- Pet Battles
+  -- timewalking
+  {questId = 44164,name = "Timewalking Dungeon Event", icon = 1129673}, -- BC
+  {questId = 44166,name = "Timewalking Dungeon Event", icon = 1129685}, -- Wotlk
+  {questId = 45799,name = "Timewalking Dungeon Event", icon = 1530589}, -- MoP
+  {questId = 44167,name = "Timewalking Dungeon Event", icon = 1304687} -- Cata
+}
+local bonusQuestId
+local function WeeklyBonusQuest(questId)
+  -- Unfortunately can't find this weeks by simple API calls
+  local settings = Exlist.ConfigDB.settings
+  if bonusQuestId and bonusQuestId == questId then
+    -- already have found what quest is this week 
+    local name = Exlist.GetCachedQuestTitle(questId)
+    local completed = IsQuestFlaggedCompleted(questId)
+    settings.unsortedFolder.weekly.bonusQuestId = questId
+    return name,true,completed
+  end
+  if settings.unsortedFolder.weekly.bonusQuestId and settings.unsortedFolder.weekly.bonusQuestId == questId then
+    -- already found it in previous sessions
+    bonusQuestId = questId
+    local name = Exlist.GetCachedQuestTitle(questId)
+    local completed = IsQuestFlaggedCompleted(questId)
+    return name,true,completed
+  end
+  local holidayNames = {}
+  for _,qId in ipairs(bquestIds) do
+  -- maybe have already completed
+    if IsQuestFlaggedCompleted(qId.questId) then
+      bonusQuestId = qId.questId
+      if qId.questId == questId then 
+        local name = Exlist.GetCachedQuestTitle(questId)
+        return name,true,true
+      end
+    end
+    holidayNames[qId.name] = qId.questId
+  end
+  -- oh well time to go hard way
+  -- TODO: Somehow make this not rely on holiday name
+  local todayDate = date("*t", time()).day
+  for i=1,5 do
+    local holiday = C_Calendar.GetHolidayInfo(0,todayDate,i)
+    if holiday then
+      if holidayNames[holiday.name] then
+        -- found it !!
+        bonusQuestId = holidayNames[holiday.name]
+        settings.unsortedFolder.weekly.bonusQuestId = holidayNames[holiday.name]
+        if questId == bonusQuestId then
+          local name = Exlist.GetCachedQuestTitle(questId)
+          local completed = IsQuestFlaggedCompleted(questId)
+          return name,true,completed
+        end
+      end
+    end
+  end
+  -- nope
+  return nil,false,false
+end
+
 local DEFAULT_QUESTS = {
   -- Same as trackedQuests
   [48799] = {enabled = true, type = "weekly", default = true, showSeparate = false}, -- Fuel of a Doomed World
   [49293] = {enabled = true, type = "weekly", default = true, showSeparate = false}, -- Invasion Onslaught
+  [44175] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest}, -- BQ_WQ
+  [44171] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_Dungeons
+  [44173] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_BGs
+  [44172] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_Arenas
+  [44174] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_PetBatles
+  [44164] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_TW_BC
+  [44166] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_TW_Wotlk
+  [45799] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_TW_MoP
+  [44167] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_TW_Cata
 }
 
 local function AddQuest(questId,type)
