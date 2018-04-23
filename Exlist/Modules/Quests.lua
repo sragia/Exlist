@@ -222,11 +222,11 @@ local function GlobalLineGenerator(tooltip,data)
         for questId,values in pairs(v) do
           if trackedQuests[questId].enabled then
             if not added then 
-              Exlist.AddLine(tooltip,WrapTextInColorCode(questTypes[type],colors.QuestTypeTitle[type]),14)
+              Exlist.AddLine(tooltip,WrapTextInColorCode(questTypes[type] .. " Quests",colors.QuestTypeTitle[type]),14)
               added = true
             end
             Exlist.AddLine(tooltip,{
-              WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),colors.QuestTitle),
+              Exlist.GetCachedQuestTitle(questId),
               (values.completed and WrapTextInColorCode("Completed", "FFFF0000") or  WrapTextInColorCode("Available", "FF00FF00"))
             })
           end
@@ -266,7 +266,6 @@ local function SetupQuestConfig(refresh)
           type = "description",
           order = 1,
           width = "full",
-          fontSize = "medium",
           name = "Controls quests that are being tracked by addon\n"
       },
       note = {
@@ -274,7 +273,7 @@ local function SetupQuestConfig(refresh)
         order = 1,
         width = "full",
         fontSize = "medium",
-        name = strings.Note .. "  Due to restrictions to API Quest Titles might take couple reloads to appear"
+        name = strings.Note .. "  Due to restrictions to API Quest Titles might take couple reloads to appear\n"
       },
       showExtraTooltip = {
         order = 1.05,
@@ -451,7 +450,7 @@ local data = {
   updater = Updater,
   event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED","EXLIST_REFRESH_QUESTS"},
   weeklyReset = false,
-  description = "",
+  description = "Allows user to track different daily or weekly quests",
   specialResetHandle = ResetHandle,
   init = init,
   -- modernize = Modernize  
