@@ -94,11 +94,15 @@ local DEFAULT_QUESTS = {
   [44167] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_Cata
 }
 
-local function AddQuest(questId,type)
+local function AddQuest(questId,t)
   -- mby
+  if type(questId) ~= "number" then
+    print(Exlist.debugString,"Invalid QuestId")
+    return
+  end
   local dbQuests = Exlist.ConfigDB.settings.quests
-  dbQuests[questId] = {enabled = true,type = type,showSeparate = false}
-  trackedQuests[questId] = {enabled = true,type = type,showSeparate = false}
+  dbQuests[questId] = {enabled = true,type = t,showSeparate = false}
+  trackedQuests[questId] = {enabled = true,type = t,showSeparate = false}
 end
 
 local function RemoveQuest(questId)

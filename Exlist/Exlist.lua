@@ -525,6 +525,9 @@ function Exlist.GetCachedQuestTitle(questId)
   if config_db.quest_cache and config_db.quest_cache[questId] then
     return config_db.quest_cache[questId]
   else
+    if type(questId) ~= "number" then 
+      return 
+    end 
     local name = Exlist.QuestInfo(questId)
     if name then
       -- only save if you actually got info

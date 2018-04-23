@@ -237,9 +237,11 @@ local function SetupWQConfig(refresh)
               wq[questId] = {name = name, 
               enabled = true,
               rewards = GetQuestRewards(v)
-            }
-            SetupWQConfig(true)
-            lastTrigger = 0
+              }
+              SetupWQConfig(true)
+              lastTrigger = 0
+            else
+              print(Exlist.debugString,"Invalid World Quest ID:",v)
             end
           end,
           width = "full",
