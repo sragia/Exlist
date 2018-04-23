@@ -218,6 +218,10 @@ Exlist.Colors = {
     weekly = "ffe0a34e"
   }
 }
+Exlist.Strings = {
+  Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode("Note!","ffffd200") ),
+
+}
 
 
 local butTool

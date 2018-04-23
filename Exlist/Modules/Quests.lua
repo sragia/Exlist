@@ -2,6 +2,7 @@ local key = "quests"
 local prio = 200
 local Exlist = Exlist
 local colors = Exlist.Colors
+local strings = Exlist.Strings
 
 local checkFunctions = {}
 local questTypes = {
@@ -261,7 +262,15 @@ local function SetupQuestConfig(refresh)
           type = "description",
           order = 1,
           width = "full",
-          name = "Controls quests that are being tracked by addon"
+          fontSize = "medium",
+          name = "Controls quests that are being tracked by addon\n"
+      },
+      note = {
+        type = "description",
+        order = 1,
+        width = "full",
+        fontSize = "medium",
+        name = strings.Note .. "  Due to restrictions to API Quest Titles might take couple reloads to appear"
       },
       showExtraTooltip = {
         order = 1.05,
