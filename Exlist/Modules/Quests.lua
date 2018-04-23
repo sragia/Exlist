@@ -2,6 +2,8 @@ local key = "quests"
 local prio = 200
 local Exlist = Exlist
 local colors = Exlist.Colors
+
+local checkFunctions = {}
 local questTypes = {
   ["daily"] = "Daily",
   ["weekly"] = "Weekly"
@@ -25,7 +27,7 @@ local bquestIds = {
   {questId = 44167,name = "Timewalking Dungeon Event", icon = 1304687} -- Cata
 }
 local bonusQuestId
-local function WeeklyBonusQuest(questId)
+function checkFunctions.WeeklyBonusQuest(questId)
   -- Unfortunately can't find this weeks by simple API calls
   local settings = Exlist.ConfigDB.settings
   if bonusQuestId and bonusQuestId == questId then
@@ -80,15 +82,15 @@ local DEFAULT_QUESTS = {
   -- Same as trackedQuests
   [48799] = {enabled = true, type = "weekly", default = true, showSeparate = false}, -- Fuel of a Doomed World
   [49293] = {enabled = true, type = "weekly", default = true, showSeparate = false}, -- Invasion Onslaught
-  [44175] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest}, -- BQ_WQ
-  [44171] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_Dungeons
-  [44173] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_BGs
-  [44172] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_Arenas
-  [44174] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_PetBatles
-  [44164] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_TW_BC
-  [44166] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_TW_Wotlk
-  [45799] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_TW_MoP
-  [44167] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = WeeklyBonusQuest},-- BQ_TW_Cata
+  [44175] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"}, -- BQ_WQ
+  [44171] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_Dungeons
+  [44173] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_BGs
+  [44172] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_Arenas
+  [44174] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_PetBatles
+  [44164] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_BC
+  [44166] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_Wotlk
+  [45799] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_MoP
+  [44167] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_Cata
 }
 
 local function AddQuest(questId,type)
@@ -131,7 +133,7 @@ local function Updater(event)
   local t = {}
   for questId,v in pairs(trackedQuests) do
     if v.checkFunction then
-      local name,available,completed = v.checkFunction(questId) 
+      local name,available,completed = checkFunctions[v.checkFunction](questId) 
       if available then
         t[v.type] = t[v.type] or {}
         t[v.type][questId] = {name= name,completed = completed}
