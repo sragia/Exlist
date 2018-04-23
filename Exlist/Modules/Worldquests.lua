@@ -232,7 +232,7 @@ local function SetupWQConfig(refresh)
           get = function() return "" end,
           set = function(self,v)
             local questId = tonumber(v)
-            local name = Exlist.QuestInfo(questId)
+            local name = Exlist.GetCachedQuestTitle(questId)
             if name then
               wq[questId] = {name = name, 
               enabled = true,
@@ -251,7 +251,14 @@ local function SetupWQConfig(refresh)
     local o = options.args
     o[questID.."enabled"] = {
         order = n,
-        name = WrapTextInColorCode(info.name,Exlist.Colors.QuestTitle),
+        name = function()
+          local name = info.name 
+          if name:find("Unknown") then
+            name = Exlist.GetCachedQuestTitle(questID)
+            info.name = name
+          end
+          return WrapTextInColorCode(name,Exlist.Colors.QuestTitle)
+        end,
         type = "toggle",
         width = "normal",
         get = function()
