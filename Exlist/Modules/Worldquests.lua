@@ -223,7 +223,7 @@ local function SetupWQConfig(refresh)
             type = "description",
             order = 1,
             width = "full",
-            name = "Enable World Quests you want to see"
+            name = "Add World Quests you want to see"
         },
         itemInput = {
           type = "input",

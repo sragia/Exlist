@@ -26,7 +26,7 @@ local function Updater(event)
   local quests = {}
   for id, _ in pairs(coinsQuests) do
     if IsQuestFlaggedCompleted(id) then
-      local title = Exlist.QuestInfo(id)
+      local title = Exlist.GetCachedQuestTitle(id)
       table.insert(quests,title)
       count = count + 1
     end
