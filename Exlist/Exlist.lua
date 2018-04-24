@@ -430,6 +430,24 @@ function Exlist.GetTableNum(t)
   return count
 end
 
+local function AuraFromId(unit,ID,filter)
+  -- Already Preparing for BFA
+  for i=1,40 do
+    local name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3 = UnitAura(unit,i,nil,filter)
+    if name then
+      if spellId and spellId == ID then
+        return name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3
+      end
+    else
+      -- afaik auras always are in list w/o gaps ie 1,2,3,4,5,6 instead of 1,2,4,5,8...
+      -- so can just break out of loop as soon
+      -- as you don't find any aura
+      return
+    end
+  end
+end
+Exlist.AuraFromId = AuraFromId
+
 function Exlist.Debug(...) 
   if debugMode then
     local debugString = string.format("|c%s[Exlist Debug]|r",Exlist.Colors.Debug)

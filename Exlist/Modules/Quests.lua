@@ -16,11 +16,11 @@ local trackedQuests = {
 }
 
 local bquestIds = {
-  {questId = 44175,name = "World Quest Bonus Event"}, -- WQ
-  {questId = 44171,name = "Legion Dungeon Event"}, -- Dungeons
-  {questId = 44173,name = "Battleground Bonus Event"}, -- BGs
-  {questId = 44172,name = "Arena Skirmish Bonus Event"}, -- Arenas
-  {questId = 44174,name = "Pet Battle Bonus Event"}, -- Pet Battles
+  {questId = 44175,name = "World Quest Bonus Event", spellId = 225788}, -- WQ
+  {questId = 44171,name = "Legion Dungeon Event", spellId = 225787}, -- Dungeons
+  {questId = 44173,name = "Battleground Bonus Event", spellId = 186403}, -- BGs
+  {questId = 44172,name = "Arena Skirmish Bonus Event", spellId = 186401}, -- Arenas
+  {questId = 44174,name = "Pet Battle Bonus Event", spellId = 186406}, -- Pet Battles
   -- timewalking
   {questId = 44164,name = "Timewalking Dungeon Event", icon = 1129673}, -- BC
   {questId = 44166,name = "Timewalking Dungeon Event", icon = 1129685}, -- Wotlk
@@ -37,6 +37,8 @@ function checkFunctions.WeeklyBonusQuest(questId)
     local completed = IsQuestFlaggedCompleted(questId)
     settings.unsortedFolder.weekly.bonusQuestId = questId
     return name,true,completed
+  elseif bonusQuestId then
+    return nil,false,false
   end
   if settings.unsortedFolder.weekly.bonusQuestId and settings.unsortedFolder.weekly.bonusQuestId == questId then
     -- already found it in previous sessions
@@ -44,6 +46,8 @@ function checkFunctions.WeeklyBonusQuest(questId)
     local name = Exlist.GetCachedQuestTitle(questId)
     local completed = IsQuestFlaggedCompleted(questId)
     return name,true,completed
+  elseif settings.unsortedFolder.weekly.bonusQuestId then
+    return nil,false,false
   end
   local holidayNames = {}
   for _,qId in ipairs(bquestIds) do
@@ -53,6 +57,19 @@ function checkFunctions.WeeklyBonusQuest(questId)
       if qId.questId == questId then 
         local name = Exlist.GetCachedQuestTitle(questId)
         return name,true,true
+      end
+      return nil,false,false
+    end
+    -- Most bonus events have buff associated with them
+    if qId.spellId then
+      local name = Exlist.AuraFromId("player",qId.spellId,"HELPFUL")
+      if name then
+        bonusQuestId = qId.questId
+        if qId.questId == questId then
+          local questName = Exlist.GetCachedQuestTitle(quest)
+          return questName,true,false
+        end
+        return nil,false,false
       end
     end
     holidayNames[qId.name] = qId.questId
