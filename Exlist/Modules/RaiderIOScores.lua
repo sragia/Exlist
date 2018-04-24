@@ -49,8 +49,10 @@ local function Updater(event,...)
       scoreColor = scoreColor,
     }
     Exlist.UpdateChar(key,t)
+  
+  else
+    Exlist.Debug("Did not find any data -",key)
   end
-  Exlist.Debug("Did not find any data -",key)
 end
 
 local function Linegenerator(tooltip,data,character)
