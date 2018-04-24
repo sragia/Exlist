@@ -1959,15 +1959,19 @@ end
 local function WipeKeysForReset(type)
   local keys = {}
   if type == "weekly" then
+    Exlist.Debug("Resetting Weeklies")
     keys = keysToResetWeekly
     ResetCoins()
   elseif type == "daily" then
+    Exlist.Debug("Resetting Dailies")
     keys = keysToResetDaily
   end
   for i = 1, #keys do
     if keyResetHandlers[keys[i]] then
+      Exlist.Debug("Reset",keys[i],"with handler function")
       keyResetHandlers[keys[i]](type)
     else
+      Exlist.Debug("Reset",keys[i],"by wiping key")
       WipeKey(keys[i])
     end
   end
@@ -2139,6 +2143,10 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
     if args[2] then
       -- testing purposes
       WipeKey(args[2])
+    end
+  elseif args[1] == "triggerreset" then
+    if args[2] then
+      WipeKeysForReset(args[2])
     end
   end
   --WipeKey(msg)
