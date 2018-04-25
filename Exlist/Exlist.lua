@@ -1961,10 +1961,15 @@ local function WipeKeysForReset(type)
   if type == "weekly" then
     Exlist.Debug("Resetting Weeklies")
     keys = keysToResetWeekly
+    settings.unsortedFolder = {
+      ["daily"] = {},
+      ["weekly"] = {}
+    }
     ResetCoins()
   elseif type == "daily" then
     Exlist.Debug("Resetting Dailies")
     keys = keysToResetDaily
+    settings.unsortedFolder.daily = {}
   end
   for i = 1, #keys do
     if keyResetHandlers[keys[i]] then
@@ -1989,13 +1994,8 @@ local function ResetHandling()
     -- check for reset
     WipeKeysForReset("weekly")
     WipeKeysForReset("daily")
-    settings.unsortedFolder = {
-      ["daily"] = {},
-      ["weekly"] = {}
-    }
   elseif HasDailyResetHappened() then
     WipeKeysForReset("daily")
-    settings.unsortedFolder.daily = {}
   end
   config_db.resetTime = GetNextWeeklyResetTime()
   config_db.resetDailyTime = GetNextDailyResetTime()

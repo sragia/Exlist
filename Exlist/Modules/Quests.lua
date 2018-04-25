@@ -104,13 +104,15 @@ function checkFunctions.WeeklyBonusQuest(questId)
     local holiday = C_Calendar.GetHolidayInfo(0,todayDate,i)
     if holiday then
       if holidayNames[holiday.name] then
-        -- found it !!
-        bonusQuestId = holidayNames[holiday.name]
-        settings.unsortedFolder.weekly.bonusQuestId = holidayNames[holiday.name]
-        if questId == bonusQuestId then
-          local name = Exlist.GetCachedQuestTitle(questId)
-          local completed = IsQuestFlaggedCompleted(questId)
-          return name,true,completed
+        if holiday.endTime.monthDay > todayDate then
+          -- found it !!
+          bonusQuestId = holidayNames[holiday.name]
+          settings.unsortedFolder.weekly.bonusQuestId = holidayNames[holiday.name]
+          if questId == bonusQuestId then
+            local name = Exlist.GetCachedQuestTitle(questId)
+            local completed = IsQuestFlaggedCompleted(questId)
+            return name,true,completed
+          end
         end
       end
     end
