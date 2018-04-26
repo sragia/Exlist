@@ -433,7 +433,7 @@ end
 local function AuraFromId(unit,ID,filter)
   -- Already Preparing for BFA
   for i=1,40 do
-    local name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3 = UnitAura(unit,i,nil,filter)
+    local name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3 = UnitAura(unit,i,filter)
     if name then
       if spellId and spellId == ID then
         return name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3
