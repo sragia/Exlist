@@ -421,7 +421,7 @@ local function SetupQuestConfig(refresh)
     o[questId..'showSeparate'] = {
       type = "toggle",
       order = n,
-      width = 0.5,
+      width = 0.45,
       descStyle = "inline",
       name = "  ",
       disabled = function() return not info.enabled end,
