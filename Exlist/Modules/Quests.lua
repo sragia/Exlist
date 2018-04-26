@@ -380,6 +380,11 @@ local function SetupQuestConfig(refresh)
   }
   local n = 2
   for questId,info in spairs(trackedQuests, function(t,a,b) 
+    if (not t[a].default and not t[b].default) or (t[a].default and t[b].default) then
+      local nameA = Exlist.GetCachedQuestTitle(a) -- could probably optimize this by having name in trackedQuests 
+      local nameB = Exlist.GetCachedQuestTitle(b) -- but this shouldnt be running too many times so mehh. 
+      return nameA < nameB
+    end
     return t[a].default and not t[b].default
   end) do
     local o = options.args
