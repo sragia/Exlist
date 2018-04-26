@@ -482,6 +482,12 @@ local function init()
   for questId,t in pairs(DEFAULT_QUESTS) do
     if dbQuests[questId] == nil then
       dbQuests[questId] = t 
+    else
+      for k,v in pairs(t) do
+        if dbQuests[questId][k] == nil then
+          dbQuests[questId][k] = v
+        end
+      end
     end
   end
   -- add all to tracked
