@@ -290,7 +290,9 @@ local function ResetHandle(type)
     for _,character in ipairs(characters) do
       Exlist.Debug("Reset",type,"quests for:",character,"-",realm)
       local data = Exlist.GetCharacterTableKey(realm,character,key)
-      wipe(data[type])
+      if data[type] and type(data[type]) == "table" then
+        wipe(data[type])
+      end
       Exlist.UpdateChar(key,data,character,realm)
     end
   end
