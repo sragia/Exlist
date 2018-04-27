@@ -283,15 +283,15 @@ local function Modernize(data)
   -- always return table or don't use at all
 end
 
-local function ResetHandle(type)
+local function ResetHandle(resetType)
   local realms = Exlist.GetRealmNames()
   for _,realm in ipairs(realms) do
     local characters = Exlist.GetRealmCharacters(realm)
     for _,character in ipairs(characters) do
-      Exlist.Debug("Reset",type,"quests for:",character,"-",realm)
+      Exlist.Debug("Reset",resetType,"quests for:",character,"-",realm)
       local data = Exlist.GetCharacterTableKey(realm,character,key)
-      if data[type] and type(data[type]) == "table" then
-        wipe(data[type])
+      if data[resetType] and type(data[resetType]) == "table" then
+        wipe(data[resetType])
       end
       Exlist.UpdateChar(key,data,character,realm)
     end
