@@ -1,7 +1,3 @@
---[[
-  TODO:
-  Changing icon 
-]]
 
 local addonName, addonTable = ...
 local QTip = LibStub("LibQTip-1.0")
@@ -14,6 +10,7 @@ local config_db = {}
 Exlist_Config = Exlist_Config or {}
 local debugMode = false
 local debugString = "|cffc73000[Exlist Debug]|r"
+-- GLOBALS: Exlist Exlist_Db Exlist_ConfigDB
 Exlist = {}
 Exlist.debugMode = debugMode
 Exlist.debugString = debugString
@@ -64,7 +61,7 @@ local keyResetHandlers = {
 }
 -- localized API
 local _G = _G
-local CreateFrame = CreateFrame
+local CreateFrame, CreateFont = CreateFrame, CreateFont
 local GetRealmName = GetRealmName
 local UnitName = UnitName
 local GetCVar = GetCVar
@@ -80,6 +77,18 @@ local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local GetGameTime,GetTime,debugprofilestop = GetGameTime,GetTime,debugprofilestop
 local InCombatLockdown = InCombatLockdown
 local strsplit = strsplit
+local UIParent, WorldMapFrame = UIParent, WorldMapFrame
+local GetItemGem, UnitAura, GetTalentInfo, GetProfessions, GetProfessionInfo, IsInRaid = GetItemGem, UnitAura, GetTalentInfo, GetProfessions, GetProfessionInfo, IsInRaid
+local GetScreenWidth, GetScreenHeight, GetCurrentRegion, CalendarGetDate, GetQuestResetTime = GetScreenWidth, GetScreenHeight, GetCurrentRegion, CalendarGetDate, GetQuestResetTime
+local hooksecurefunc, SendChatMessage = hooksecurefunc, SendChatMessage
+-- lua api
+local tonumber = _G.tonumber
+local floor = _G.math.floor
+local format = _G.format
+local string = string
+local strlen = strlen
+local type,pairs,ipairs,table = type,pairs,ipairs,table
+local print,select,date,math,time = print,select,date,math,time
 -- local
 local MAX_CHARACTER_LEVEL = 110
 local MAX_PROFESSION_LEVEL = 800
@@ -96,14 +105,13 @@ local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
 bottom = 0 }}
 local settings = { -- default settings
   minLevel = 80,
-  
+
   fonts = {
     big = { size = 15},
     medium = { size = 13},
     small = { size = 11}
   },
   Font = "PT_Sans_Narrow",
-  
   tooltipHeight = 600,
   delay = 0.2,
   iconScale = .8,
@@ -244,14 +252,6 @@ local customFonts = {
 }
 local monthNames = {'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'}
 
--- lua api
-local tonumber = _G.tonumber
-local floor = _G.math.floor
-local format = _G.format
-local string = string
-local strlen = strlen
-local type,pairs,table = type,pairs,table
-local print,select,date,math,time = print,select,date,math,time
 -- register events
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("PLAYER_LOGOUT")
@@ -448,7 +448,7 @@ local function AuraFromId(unit,ID,filter)
 end
 Exlist.AuraFromId = AuraFromId
 
-function Exlist.Debug(...) 
+function Exlist.Debug(...)
   if debugMode then
     local debugString = string.format("|c%s[Exlist Debug]|r",Exlist.Colors.Debug)
     print(debugString,...)
@@ -543,9 +543,9 @@ function Exlist.GetCachedQuestTitle(questId)
   if config_db.quest_cache and config_db.quest_cache[questId] then
     return config_db.quest_cache[questId]
   else
-    if type(questId) ~= "number" then 
-      return 
-    end 
+    if type(questId) ~= "number" then
+      return
+    end
     local name = Exlist.QuestInfo(questId)
     if name then
       -- only save if you actually got info
@@ -764,7 +764,7 @@ local function GetPosition(frame)
   end
   if y > screenHeight/2 then
     vPos = "top"
-  else  
+  else
     vPos = "bottom"
   end
   return xPos,vPos
@@ -831,7 +831,7 @@ local function releasedTooltip()
   lineNums = {} -- only for Horizontal
   columnNums = {} -- only for Horizontal
   lastLineNum = 1 -- only for Horizontal
-  lastColNum = -2 
+  lastColNum = -2
 end
 
 function Exlist.AddData(info)
@@ -851,7 +851,7 @@ function Exlist.AddData(info)
         OnClickData = {} (optional) scriptData
       }
   ]]
-  if not info then return end 
+  if not info then return end
   info.colOff = info.colOff or 0
   tooltipData[info.character] =  tooltipData[info.character] or {modules = {},num = 0}
   local t = tooltipData[info.character]
@@ -921,9 +921,9 @@ function Exlist.CreateSideTooltip(statusbar)
       end
     end
     local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame)
-    if position == "left" then 
+    if position == "left" then
       sideTooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1)
-    else 
+    else
       sideTooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT",1)
     end
     sideTooltip:Show()
@@ -1005,7 +1005,7 @@ function Exlist.RegisterModule(data)
     weeklyReset = bool (should this be reset on weekly reset)
     dailyReset = bool (should data for this reset every day)
     specialResetHandle = function (replaces just wiping table for this key)
-    description = string 
+    description = string
     override = bool (overrides user selection disable/enable module)
     init = function (function that will run at init)
     }
@@ -1027,7 +1027,7 @@ function Exlist.RegisterModule(data)
     end
   end
   RegisterEvents()
-  
+
   -- add modernizers
   if data.modernize then
     table.insert(modernizeFunctions,{func = data.modernize,key = data.key})
@@ -1047,7 +1047,7 @@ function Exlist.RegisterModule(data)
   if data.dailyReset then
     table.insert(keysToResetDaily,data.key)
   end
-  if data.specialResetHandle and type(data.specialResetHandle) == 'function' then 
+  if data.specialResetHandle and type(data.specialResetHandle) == 'function' then
     keyResetHandlers[data.key] = data.specialResetHandle
   end
   if data.init and type(data.init) == 'function' then
@@ -1248,7 +1248,7 @@ end
 local function GearTooltip(self,info)
   local geartooltip = QTip:Acquire("CharInf_GearTip",7,"CENTER","LEFT","LEFT","LEFT","LEFT","LEFT","LEFT")
   geartooltip.statusBars = {}
-  
+
   geartooltip:SetScale(settings.tooltipScale or 1)
   self.sideTooltip = geartooltip
   geartooltip:SetHeaderFont(hugeFont)
@@ -1339,9 +1339,9 @@ local function GearTooltip(self,info)
   local line = geartooltip:AddLine("Last Updated:")
   geartooltip:SetCell(line, 2,info.updated,"LEFT",3)
   local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame)
-  if position == "left" then 
+  if position == "left" then
     geartooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1)
-  else 
+  else
     geartooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT",1)
   end
   geartooltip:Show()
@@ -1444,7 +1444,7 @@ local function PopulateTooltip(tooltip)
     end
   end
   -- add rows for horizontal
-  if settings.horizontalMode then 
+  if settings.horizontalMode then
     tooltip:AddHeader()
     tooltip:AddLine()
     tooltip:AddSeparator(1, 1, 1, 1, .85)
@@ -1497,7 +1497,7 @@ local function PopulateTooltip(tooltip)
           local spreadMid = info.num == 3
           local offsetCol = 0
           -- Add Module Data
-          for i=1,info.num do 
+          for i=1,info.num do
             local data = info.data[i]
             local column = col + width*data.colOff
             if i == 2 and spreadMid then width = 2 end
@@ -1521,7 +1521,7 @@ local function PopulateTooltip(tooltip)
   end
   -- Color every second line for horizontal orientation
   if settings.horizontalMode then
-    for i=4,tooltip:GetLineCount() do 
+    for i=4,tooltip:GetLineCount() do
       if i%2 == 0 then
         tooltip:SetLineColor(i,1,1,1,0.2)
       end
@@ -1546,7 +1546,7 @@ local function OnEnter(self)
     end
   end
   charOrder = tmp
-  local tooltip 
+  local tooltip
   if settings.horizontalMode then
     tooltip = QTip:Acquire("Exlist_Tooltip", (#charOrder*4)+1)
   else
@@ -1560,9 +1560,9 @@ local function OnEnter(self)
   tooltip:SetHeaderFont(mediumFont)
   tooltip:SetFont(smallFont)
 
-  --[[if settings.horizontalMode then 
+  --[[if settings.horizontalMode then
     -- Setup Header for horizontal
-    tooltip:AddHeader() 
+    tooltip:AddHeader()
     tooltip:SetFont(smallFont)
     tooltip:AddLine()
     tooltip:AddSeparator(1, 1, 1, 1, .85)
@@ -1607,7 +1607,7 @@ local function OnEnter(self)
         OnLeave = Exlist.DisposeSideTooltip()
       })
 
-      
+
       local col = settings.horizontalMode and ((i-1)*4)+2 or 2
       tooltipColCoords[character] = col
 
@@ -1638,9 +1638,9 @@ local function OnEnter(self)
           globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
         end
       end
-    
+
       local position,vpos = GetPosition(self)
-      if position == "left" then 
+      if position == "left" then
         if settings.horizontalMode then
           if vpos == "bottom" then
             gTip:SetPoint("BOTTOMLEFT",tooltip,"TOPLEFT",0,-1)
@@ -1650,7 +1650,7 @@ local function OnEnter(self)
         else
           gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
         end
-      else 
+      else
         if settings.horizontalMode then
           if vpos == "bottom" then
             gTip:SetPoint("BOTTOMRIGHT",tooltip,"TOPRIGHT",0,-1)
@@ -1799,15 +1799,15 @@ local function init()
   config_db = Exlist.copyTable(Exlist_Config)
   settings = config_db.settings
   Exlist.ConfigDB = config_db
-  settings.reorder = true 
+  settings.reorder = true
   -- Minimap Icon
   LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
-  
+
   for i,func in ipairs(moduleInitializers) do
     func()
   end
 
-  ModernizeCharacters()  
+  ModernizeCharacters()
 
   if IsNewCharacter() then
     -- for config page if it's first time that character logins
@@ -1823,7 +1823,7 @@ local function init()
     Exlist.SetupConfig()
   end
   C_Timer.After(0.5, function() Exlist_RefreshAppearance() end)
- 
+
 end
 
 -- Reset handling Credit to SavedInstances
@@ -1920,7 +1920,7 @@ local function GetNextWeeklyResetTime()
   end
   return nightlyReset
 end
-Exlist.GetNextWeeklyResetTime = GetNextWeeklyResetTime 
+Exlist.GetNextWeeklyResetTime = GetNextWeeklyResetTime
 Exlist.GetNextDailyResetTime = GetNextDailyResetTime
 
 local function HasWeeklyResetHappened()
@@ -2083,7 +2083,7 @@ function frame:OnEvent(event, ...)
       registeredUpdaters[event][i].func(event,...)
       Exlist.Debug(registeredUpdaters[event][i].name .. ' finished: ' .. debugprofilestop() - started)
       GetLastUpdateTime()
-      
+
     end
   end
   if event == "PLAYER_ENTERING_WORLD" or event == "UNIT_INVENTORY_CHANGED" or event == "PLAYER_TALENT_UPDATE" then
@@ -2151,4 +2151,3 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
   end
   --WipeKey(msg)
 end
-

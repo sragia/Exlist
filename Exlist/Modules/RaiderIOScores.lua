@@ -2,8 +2,10 @@ local key = "raiderIO"
 local prio = 0.5
 local Exlist = Exlist
 local CM = C_ChallengeMode
-local table,print= table,print
+local table,print, string= table,print, string
 local WrapTextInColorCode = WrapTextInColorCode
+local RaiderIO = RaiderIO
+local UnitLevel = UnitLevel
 local MAX_CHARACTER_LEVEL = 110
 local DUNGEON_NAME = {
   (CM.GetMapInfo(206)), -- NL
@@ -49,7 +51,7 @@ local function Updater(event,...)
       scoreColor = scoreColor,
     }
     Exlist.UpdateChar(key,t)
-  
+
   else
     Exlist.Debug("Did not find any data -",key)
   end

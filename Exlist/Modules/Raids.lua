@@ -1,6 +1,8 @@
 local key = "raids"
 local prio = 7
-
+local Exlist = Exlist
+local pairs, ipairs, type = pairs, ipairs, type
+local WrapTextInColorCode = WrapTextInColorCode
 local LFRencounters = {
   -- [dungeonID] = {name = "", totalEncounters = 2}
   -- Dragon Soul
@@ -132,7 +134,7 @@ local expansions = {
 
 local defaultSettings = {
   -- LEGION
-  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {enabled = true, expansion = 7,order = 1}, 
+  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {enabled = true, expansion = 7,order = 1},
   [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {enabled = true, expansion = 7,order = 2},
   [GetLFGDungeonInfo(1353) or "The Nighthold"] = {enabled = true, expansion = 7,order = 3},
   [GetLFGDungeonInfo(1439) or "Trials of Valor"] = {enabled = true, expansion = 7,order = 4},
@@ -168,14 +170,14 @@ local defaultSettings = {
   [GetLFGDungeonInfo(199) or "The Sunwell"] = {enabled = false, expansion = 2,order = 1},
   [GetLFGDungeonInfo(196) or "Black Temple"] = {enabled = false, expansion = 2,order = 2},
   [select(19,GetLFGDungeonInfo(195)) or "The Battle for Mount Hyjal"] = {enabled = false, expansion = 2,order = 3},
-  [GetLFGDungeonInfo(193) or "Tempest Keep"] = {enabled = false, expansion = 2,order = 4}, 
+  [GetLFGDungeonInfo(193) or "Tempest Keep"] = {enabled = false, expansion = 2,order = 4},
   [GetLFGDungeonInfo(194) or "Serpentshrine Cavern"] = {enabled = false, expansion = 2,order = 5},
   [GetLFGDungeonInfo(176) or "Magtheridon's Lair"] = {enabled = false, expansion = 2,order = 6},
   [GetLFGDungeonInfo(177) or "Gruul's Lair"] = {enabled = false, expansion = 2,order = 7},
   [GetLFGDungeonInfo(175) or "Karazhan"] = {enabled = false, expansion = 2,order = 8},
   -- Vanilla
-  [select(19,GetLFGDungeonInfo(161)) or "Temple of Ahn'Qiraj"] = {enabled = false, expansion = 1,order = 1}, 
-  [select(19,GetLFGDungeonInfo(160)) or "Ruins of Ahn'Qiraj"] = {enabled = false, expansion = 1,order = 2}, 
+  [select(19,GetLFGDungeonInfo(161)) or "Temple of Ahn'Qiraj"] = {enabled = false, expansion = 1,order = 1},
+  [select(19,GetLFGDungeonInfo(160)) or "Ruins of Ahn'Qiraj"] = {enabled = false, expansion = 1,order = 2},
   [GetLFGDungeonInfo(50) or "Blackwing Lair"] = {enabled = false, expansion = 1,order = 3},
   [GetLFGDungeonInfo(48) or "Molten Core"] = {enabled = false, expansion = 1,order = 4},
 }
@@ -213,7 +215,7 @@ local function AddRaidOptions()
       order = numExpansions - i + 1,
     }
   end
-  
+
   -- add raids
   for raid,opt in pairs(settings.raids) do
     configOpt.args[raid] = {
@@ -304,7 +306,7 @@ local function Updater(event)
             t[raid].LFR.bosses[saveId].order = lfr.order
             t[raid].LFR.bosses[saveId][lfr.name] = t[raid].LFR.bosses[saveId][lfr.name] or {}
             if (t[raid].LFR.bosses[saveId][lfr.name][index] and isKilled) or not t[raid].LFR.bosses[saveId][lfr.name][index] then
-              t[raid].LFR.bosses[saveId][lfr.name][index] =  {name = bossName, killed = isKilled} 
+              t[raid].LFR.bosses[saveId][lfr.name][index] =  {name = bossName, killed = isKilled}
             end
           end
         else
@@ -317,12 +319,12 @@ local function Updater(event)
             t[raid].LFR.bosses[saveId].order = lfr.order
             t[raid].LFR.bosses[saveId][lfr.name] = t[raid].LFR.bosses[saveId][lfr.name] or {}
             if (t[raid].LFR.bosses[saveId][lfr.name][index] and isKilled) or not t[raid].LFR.bosses[saveId][lfr.name][index] then
-              t[raid].LFR.bosses[saveId][lfr.name][index] =  {name = bossName, killed = isKilled} 
+              t[raid].LFR.bosses[saveId][lfr.name][index] =  {name = bossName, killed = isKilled}
             end
             index = index + 1
           end
         end
-    
+
         --[[for i = 1, lfr.totalEncounters do
           local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
           killed = isKilled and killed + 1 or killed
@@ -356,12 +358,12 @@ end
   local infoTables = {}
   -- setup order
   local raidOrder = {}
-  for raid in pairs(data) do 
+  for raid in pairs(data) do
     if raids[raid] and raids[raid].enabled then
       raidOrder[#raidOrder+1] = raid
     end
   end
-  table.sort(raidOrder,function(a,b) 
+  table.sort(raidOrder,function(a,b)
     local aValue = (raids[a].expansion or 0) * 100 + (50 - (raids[a].order or 0))
     local bValue = (raids[a].expansion or 0) * 100 + (50 - (raids[a].order or 0))
     return aValue > bValue
@@ -392,7 +394,7 @@ end
           if difIndex == 1 then
             -- LFR
             for id in spairs(raidInfo.bosses,function(t,a,b) return t[a].order < t[b].order end) do
-              Exlist.Debug("Adding LFR id:",id," -",key) 
+              Exlist.Debug("Adding LFR id:",id," -",key)
               for name,b in pairs(raidInfo.bosses[id]) do
                 if type(b) == "table" then
                   table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,"ffc1c1c1"),""})
@@ -415,7 +417,7 @@ end
 
           local statusbar = {curr = raidInfo.done,total=raidInfo.max,color = "9b016a"}
           info.data = raidInfo.done .. "/".. raidInfo.max .. diffShortened[diffOrder[difIndex]]
-          
+
           info.colOff = cellIndex - 2
           info.OnEnter = Exlist.CreateSideTooltip(statusbar)
           info.OnEnterData = sideTooltipTable

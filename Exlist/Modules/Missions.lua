@@ -6,6 +6,7 @@ local time, table, strlen, string, type, math = time, table, strlen, string, typ
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local GetCurrencyInfo = GetCurrencyInfo
 local GetMoneyString = GetMoneyString
+local GetTime = GetTime
 local Exlist = Exlist
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
@@ -176,7 +177,7 @@ local function Linegenerator(tooltip,data,character)
   end
   if #available > 0 then
     table.insert(sideTooltip.body,{WrapTextInColorCode("Available","FFefe704"),"",{"headerseparator"}})
-    table.sort(available,function(a,b) 
+    table.sort(available,function(a,b)
       local aValue = a.offerEndTime or 0
       local bValue = b.offerEndTime or 0
       return aValue < bValue

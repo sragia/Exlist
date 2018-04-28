@@ -3,7 +3,7 @@ local prio = 4
 local CM = C_ChallengeMode
 local Exlist = Exlist
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
-local table = table
+local table, ipairs = table, ipairs
 
 local mapTimes = {
   --[mapId] = {+3Time,+2Time,+1Time} in seconds
@@ -130,7 +130,7 @@ local data = {
   event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD"},
   description = "Tracks highest completed mythic+ in a week and all highest level runs per dungeon",
   weeklyReset = true,
-  modernize = Modernize  
+  modernize = Modernize
 }
 
 Exlist.RegisterModule(data)

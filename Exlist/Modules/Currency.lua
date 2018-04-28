@@ -4,8 +4,10 @@ local currencyAmount = {
 }
 local GetMoney, GetCurrencyInfo, GetItemCount = GetMoney, GetCurrencyInfo, GetItemCount
 local GetItemInfo = GetItemInfo
-local math, table = math, table
+local math, table, pairs = math, table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
+local GetCurrencyListSize, GetCurrencyListInfo = GetCurrencyListSize, GetCurrencyListInfo
+local print, string, ipairs = print, string, ipairs 
 local Exlist = Exlist
 local config_defaults = {
   icon = "",
@@ -59,7 +61,7 @@ local function Updater(event)
         t[i] = v
       end
     end
-  end 
+  end
 
   for i=1, GetCurrencyListSize() do
     local name, isHeader, _, _, _, count, icon = GetCurrencyListInfo(i)
@@ -68,7 +70,7 @@ local function Updater(event)
     elseif not isHeader then
       cur[name] = {icon = icon,name = name,type = "currency",enabled = false}
       currencyAmount[name] = count
-    end 
+    end
   end
 
   for name,v in pairs(cur) do
@@ -158,7 +160,7 @@ local function AddRefreshOptions()
   Updater()
   local n = 1
   for name,t in spairs(cur) do
-    n = n + 1  
+    n = n + 1
     options.args[name..'desc'] = {
         type = "description",
         order = n,
@@ -217,7 +219,7 @@ local function Linegenerator(tooltip,data,character)
     local sideTooltip = {body = {},title= WrapTextInColorCode("Currency","ffffd200")}
     local settings = Exlist.ConfigDB.settings
     for i=1,#currency do
-      if not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0 )) and 
+      if not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0 )) and
       settings.currencies[currency[i].name].enabled then
         if settings.currencies[currency[i].name].showSeparate then
           table.insert(extraInfos,{

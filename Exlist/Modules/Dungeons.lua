@@ -5,9 +5,6 @@ local GetNumSavedInstances, GetSavedInstanceInfo = GetNumSavedInstances, GetSave
 local WrapTextInColorCode = WrapTextInColorCode
 local pairs, table = pairs, table
 local Exlist = Exlist
---[[ TODO:
-  LOCALIZE THIS
-]]
 local function Updater(event)
   local dungeonList = {
     ['Assault on Violet Hold'] = false,

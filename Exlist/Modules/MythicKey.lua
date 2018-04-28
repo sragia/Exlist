@@ -5,8 +5,13 @@ local NUM_BAG_SLOTS = NUM_BAG_SLOTS
 local UnitName, GetRealmName = UnitName, GetRealmName
 local GetContainerNumSlots, GetContainerItemLink = GetContainerNumSlots, GetContainerItemLink
 local ItemRefTooltip, UIParent, ShowUIPanel = ItemRefTooltip, UIParent, ShowUIPanel
-local string, strsplit, time = string, strsplit, time
+local string, strsplit, time, tonumber = string, strsplit, time, tonumber
 local WrapTextInColorCode = WrapTextInColorCode
+local GetTime = GetTime
+local IsShiftKeyDown = IsShiftKeyDown
+local ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat = ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat
+local GameTooltip = GameTooltip
+local ipairs = ipairs
 local Exlist = Exlist
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
@@ -67,7 +72,7 @@ local function Linegenerator(tooltip,data,character)
       else
         ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
         ItemRefTooltip:SetHyperlink(arg1)
-        ShowUIPanel(ItemRefTooltip) 
+        ShowUIPanel(ItemRefTooltip)
       end
     end,
     OnClickData = data.itemLink
@@ -126,7 +131,7 @@ local data = {
   event = "BAG_UPDATE",
   description = "Tracks characters mythic+ key in their bags and weekly mythic+ affixes",
   weeklyReset = true,
-  modernize = Modernize  
+  modernize = Modernize
 }
 
 Exlist.RegisterModule(data)

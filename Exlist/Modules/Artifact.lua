@@ -1,8 +1,10 @@
 local key = "artifact"
 local prio = 1
-local LAD 
+local LAD
 local AK_MAX_LEVEL = 40
+local LibStub = LibStub
 local CG = C_Garrison
+local C_Timer = C_Timer
 local OrderHallType = LE_GARRISON_TYPE_7_0
 local IsAddOnLoaded, LoadAddOn = IsAddOnLoaded, LoadAddOn
 local string, date, time = string, date, time
@@ -15,7 +17,7 @@ local Exlist = Exlist
 local ArtifactInfo = function()
   local loaded = IsAddOnLoaded('LibArtifactData-1.0') or LoadAddOn('LibArtifactData-1.0')
   if not loaded then return end
-  
+
   if not LAD:GetActiveArtifactID() then
     LAD:ForceUpdate()
   end
@@ -72,7 +74,7 @@ local function ShiftTable(t,offset)
     if newIndex >= 1 and newIndex <= tblSize then
       tbl[newIndex] = t[i]
     end
-  end 
+  end
   return tbl
 end
 
@@ -103,7 +105,7 @@ local function UpdateAPTable(t,id,currentAP)
         end
       end
     end
-  end 
+  end
   t[id] = updateTable
   return t
 end
@@ -137,7 +139,7 @@ local function Updater(event)
       ["level"] = LAD:GetArtifactKnowledge(),
       ["next"] = GetNextAK() -- check nil
     }
-    
+
     local cachedData = Exlist.GetCharacterTableKey(realm,name,key)
     local apTracking = cachedData.apTracking or {}
     local apTracking = UpdateAPTable(apTracking,currentArtifactID,a.totalAP)
@@ -168,16 +170,16 @@ local function Linegenerator(tooltip,data,character)
     table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), SecondsToTime(nextIn)})
   elseif nextIn then
     table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), WrapTextInColorCode("Ready!", "ff62f442")})
-  end     
+  end
   if data.apTracking and data.apTracking[data.currentID] then
     local d = data.apTracking[data.currentID]
-    local collectedToday = data.AP.totalAP - d[#d].ap 
+    local collectedToday = data.AP.totalAP - d[#d].ap
     local collectedThisWeek = data.AP.totalAP - d[1].ap
     local collectedPerDay = collectedThisWeek/7
     table.insert(sideTooltip.body,{WrapTextInColorCode("Collected Today: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedToday, 2)})
     table.insert(sideTooltip.body,{WrapTextInColorCode("Collected This Week: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedThisWeek, 2)})
     table.insert(sideTooltip.body,{WrapTextInColorCode("Collected Per Day: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedPerDay, 2)})
-  end     
+  end
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()

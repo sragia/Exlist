@@ -4,6 +4,7 @@ local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local time = time
 local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local C_TaskQuest, C_Timer = C_TaskQuest, C_Timer
+local UnitLevel = UnitLevel
 local GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo = GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo
 local table,pairs = table,pairs
 local Exlist = Exlist
@@ -64,7 +65,7 @@ local function Updater(event)
       trackedBounties = trackedBounties + 1
     end
   end
-    
+
   if trackedBounties > 3 then
     -- some funky shit happened, just fuck all the data
     trackedBounties = 0
@@ -131,7 +132,7 @@ local function Linegenerator(tooltip,data,character)
     info.OnLeave = Exlist.DisposeSideTooltip()
     Exlist.AddData(info)
   end
-  
+
 end
 
 local function GlobalLineGenerator(tooltip,data)

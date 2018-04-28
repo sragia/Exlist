@@ -1,5 +1,11 @@
 local key = "quests"
 local prio = 7
+local pairs, ipairs, table, print, type, string, tonumber = pairs, ipairs, table, print, type, string, tonumber
+local time,date = time,date
+local WrapTextInColorCode = WrapTextInColorCode
+local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
+local C_Calendar = C_Calendar
+local UnitName, GetRealmName = UnitName, GetRealmName
 local Exlist = Exlist
 local colors = Exlist.Colors
 local strings = Exlist.Strings
@@ -55,7 +61,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
   -- Unfortunately can't find this weeks by simple API calls
   local settings = Exlist.ConfigDB.settings
   if bonusQuestId and bonusQuestId == questId then
-    -- already have found what quest is this week 
+    -- already have found what quest is this week
     local name = Exlist.GetCachedQuestTitle(questId)
     local completed = IsQuestFlaggedCompleted(questId)
     settings.unsortedFolder.weekly.bonusQuestId = questId
@@ -77,7 +83,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
   -- maybe have already completed
     if IsQuestFlaggedCompleted(qId.questId) then
       bonusQuestId = qId.questId
-      if qId.questId == questId then 
+      if qId.questId == questId then
         local name = Exlist.GetCachedQuestTitle(questId)
         return name,true,true
       end
@@ -180,7 +186,7 @@ local function Updater(event)
   local t = {}
   for questId,v in pairs(trackedQuests) do
     if v.checkFunction then
-      local name,available,completed = checkFunctions[v.checkFunction](questId) 
+      local name,available,completed = checkFunctions[v.checkFunction](questId)
       if available then
         t[v.type] = t[v.type] or {}
         t[v.type][questId] = {name= name,completed = completed}
@@ -212,7 +218,7 @@ local function Linegenerator(tooltip,data,character)
     local added = false
     for questId,values in pairs(v) do
       if trackedQuests[questId].enabled then
-        if not added then 
+        if not added then
           table.insert(sideTooltip.body,{WrapTextInColorCode(questTypes[type],colors.QuestTypeTitle[type]),"",{"headerseparator"}})
           added = true
         end
@@ -226,7 +232,7 @@ local function Linegenerator(tooltip,data,character)
         if trackedQuests[questId].showSeparate then
           local settings = Exlist.ConfigDB.settings
           local completedString,availableString = "Completed","Available"
-          if settings.shortenInfo then 
+          if settings.shortenInfo then
             completedString,availableString = "Done","Avail"
           end
           table.insert(extraInfos,{
@@ -263,7 +269,7 @@ local function GlobalLineGenerator(tooltip,data)
         local added = false
         for questId,values in pairs(v) do
           if trackedQuests[questId].enabled then
-            if not added then 
+            if not added then
               Exlist.AddLine(tooltip,WrapTextInColorCode(questTypes[type] .. " Quests",colors.QuestTypeTitle[type]),14)
               added = true
             end
@@ -329,7 +335,7 @@ local function SetupQuestConfig(refresh)
             return settings.showQuestsInExtra
         end,
         set = function(self, v)
-          settings.showQuestsInExtra = v 
+          settings.showQuestsInExtra = v
         end,
       },
       itemInput = {
@@ -381,10 +387,10 @@ local function SetupQuestConfig(refresh)
     }
   }
   local n = 2
-  for questId,info in spairs(trackedQuests, function(t,a,b) 
+  for questId,info in spairs(trackedQuests, function(t,a,b)
     if (not t[a].default and not t[b].default) or (t[a].default and t[b].default) then
-      local nameA = Exlist.GetCachedQuestTitle(a) -- could probably optimize this by having name in trackedQuests 
-      local nameB = Exlist.GetCachedQuestTitle(b) -- but this shouldnt be running too many times so mehh. 
+      local nameA = Exlist.GetCachedQuestTitle(a) -- could probably optimize this by having name in trackedQuests
+      local nameB = Exlist.GetCachedQuestTitle(b) -- but this shouldnt be running too many times so mehh.
       return nameA < nameB
     end
     return t[a].default and not t[b].default
@@ -399,7 +405,7 @@ local function SetupQuestConfig(refresh)
             return info.enabled
         end,
         set = function(self, v)
-            info.enabled = v 
+            info.enabled = v
         end,
     }
     n = n + 1
@@ -433,7 +439,7 @@ local function SetupQuestConfig(refresh)
       name = "  ",
       disabled = function() return not info.enabled end,
       get = function() return info.showSeparate end,
-      set = function(self,v) 
+      set = function(self,v)
         info.showSeparate = v
         dbQuests[questId].showSeparate = v
       end
@@ -483,7 +489,7 @@ local function init()
   local dbQuests = Exlist.ConfigDB.settings.quests
   for questId,t in pairs(DEFAULT_QUESTS) do
     if dbQuests[questId] == nil then
-      dbQuests[questId] = t 
+      dbQuests[questId] = t
     else
       for k,v in pairs(t) do
         if dbQuests[questId][k] == nil then
@@ -511,7 +517,7 @@ local data = {
   description = "Allows user to track different daily or weekly quests",
   specialResetHandle = ResetHandle,
   init = init,
-  -- modernize = Modernize  
+  -- modernize = Modernize
 }
 
 Exlist.RegisterModule(data)

@@ -1,7 +1,21 @@
 local key = "worldboss"
 local prio = 50
-local MAX_CHARACTER_LEVEL = 110
 local Exlist = Exlist
+local MAX_CHARACTER_LEVEL = 110
+local EJ_GetEncounterInfo = EJ_GetEncounterInfo
+local UnitLevel,GetRealmName,UnitName = UnitLevel,GetRealmName,UnitName
+local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
+local WrapTextInColorCode = WrapTextInColorCode
+local string,table = string,table
+local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo,C_ContributionCollector, C_Timer = C_TaskQuest, C_WorldMap ,EJ_GetCreatureInfo, C_ContributionCollector, C_Timer
+local pairs,time,select = pairs,time,select
+local GetTime = GetTime
+local IsInRaid, IsInInstance = IsInRaid, IsInInstance
+local GetCurrentMapAreaID, SetMapByID,GetMapNameByID = GetCurrentMapAreaID, SetMapByID,GetMapNameByID
+local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmarkInfo
+local GetSpellInfo = GetSpellInfo
+local GameTooltip = GameTooltip
+
 local worldBossIDs = {
   [42270] = {eid = 1749}, -- Nithogg
   [42269] = {eid = 1756, name = EJ_GetEncounterInfo(1756)}, -- The Soultakers
@@ -56,18 +70,6 @@ local invasionPointPOIId = {
 }
 local lastUpdate = 0
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
-
--- localize
-local UnitLevel,GetRealmName,UnitName = UnitLevel,GetRealmName,UnitName
-local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
-local WrapTextInColorCode = WrapTextInColorCode
-local string,table = string,table
-local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo,C_ContributionCollector, C_Timer = C_TaskQuest, C_WorldMap ,EJ_GetCreatureInfo, C_ContributionCollector, C_Timer
-local pairs,time,select = pairs,time,select
-local GetTime = GetTime
-local IsInRaid, IsInInstance = IsInRaid, IsInInstance
-local GetCurrentMapAreaID, SetMapByID,GetMapNameByID = GetCurrentMapAreaID, SetMapByID,GetMapNameByID
-local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmarkInfo
 
 local function spairs(t, order)
   -- collect the keys
@@ -396,7 +398,7 @@ end
 
 local function Linegenerator(tooltip,data,character)
   if not data then return end
-  
+
   local availableWB = 0
   local killed = 0
   local strings = {}

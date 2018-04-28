@@ -3,6 +3,11 @@
 local key = "worldquests"
 local prio = 100
 local Exlist = Exlist
+local table,pairs,ipairs,type,math,time,GetTime,string,tonumber,print = table,pairs,ipairs,type,math,time,GetTime,string,tonumber,print
+local C_TaskQuest, IsQuestFlaggedCompleted = C_TaskQuest, IsQuestFlaggedCompleted
+local GetQuestLogRewardInfo,GetNumQuestLogRewardCurrencies,GetQuestLogRewardCurrencyInfo,GetQuestLogRewardMoney = GetQuestLogRewardInfo,GetNumQuestLogRewardCurrencies,GetQuestLogRewardCurrencyInfo,GetQuestLogRewardMoney
+local GetCurrentMapAreaID, SetMapByID, ToggleWorldMap = GetCurrentMapAreaID, SetMapByID, ToggleWorldMap
+local WrapTextInColorCode = WrapTextInColorCode
 local trackedQuests = {
 }
 
