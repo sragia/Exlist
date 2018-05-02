@@ -124,7 +124,9 @@ function checkFunctions.WeeklyBonusQuest(questId)
     end
   end
   -- nope
-  print('DIDNT FIND')
+  -- to refresh calendar info
+  ToggleCalendar()
+  ToggleCalendar()
   return nil,false,false
 end
 
