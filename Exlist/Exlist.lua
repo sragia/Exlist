@@ -550,7 +550,7 @@ function Exlist.GetCachedQuestTitle(questId)
     if name then
       -- only save if you actually got info
       config_db.quest_cache = config_db.quest_cache or {}
-      config_db.quest_cache[questId] = t
+      config_db.quest_cache[questId] = name
     end
     return name or "Unknown (" .. questId .. ")"
   end
