@@ -28,8 +28,6 @@ local function Updater(event,...)
   if not RaiderIO then
     Exlist.Debug("RaiderIO not installed -",key)
     return
-  elseif event == "ADDON_LOADED" and ... ~= "RaiderIO" then
-    return
   elseif UnitLevel("player") < MAX_CHARACTER_LEVEL then
     return
   end
@@ -88,7 +86,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"ADDON_LOADED","PLAYER_ENTERING_WORLD","PLAYER_ENTERING_WORLD_DELAYED"},
+  event = {"PLAYER_ENTERING_WORLD","PLAYER_ENTERING_WORLD_DELAYED"},
   description = "Uses Raider.IO addon (Needs to be installed) to display your m+ score",
   weeklyReset = false,
   -- modernize = Modernize

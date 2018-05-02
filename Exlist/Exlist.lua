@@ -2035,6 +2035,16 @@ local function IsEventEligible(event)
   end
 end
 
+local function DebugTimeColors(timeSpent)
+  if timeSpent < 0.2 then
+    return string.format("|cFF00FF00%.6f",timeSpent)
+  elseif timeSpent <= 1 then
+    return string.format("|cffe5f441%.6f",timeSpent)
+  elseif timeSpent <= 2 then
+    return string.format("|cFFf48c42%.6f",timeSpent)
+  end
+  return string.format("|cFFFF0000%.6f",timeSpent)
+end
 function frame:OnEvent(event, ...)
   --print(event,arg1)
   if not IsEventEligible(event) then return end
@@ -2049,19 +2059,22 @@ function frame:OnEvent(event, ...)
     return
   end
   if event == "VARIABLES_LOADED" then
+    local started = debugprofilestop()
     init()
     SetTooltipBut()
+    Exlist.Debug('Init ran for: ' .. DebugTimeColors(debugprofilestop() - started))
 	C_Timer.After(10,function() ResetHandling() end)
   end
   -- Delays
   if event == "Exlist_DELAY" then
     delay = false
-    for event,f in pairs(registeredUpdaters) do
-      for i=1, #f do
-          local started = debugprofilestop()
-          f[i].func(event,...)
-          Exlist.Debug(registeredUpdaters[event][i].name .. ' (delayed) finished: ' .. debugprofilestop() - started)
-          GetLastUpdateTime()
+    for e in pairs(delayedEvents) do
+      local eventFuncs = registeredUpdaters[e] or {}
+      for i=1,#eventFuncs do
+        local started = debugprofilestop()
+        eventFuncs[i].func(event,...)
+        Exlist.Debug(eventFuncs[i].name .. ' (delayed) finished: ' .. DebugTimeColors(debugprofilestop() - started))
+        GetLastUpdateTime()
       end
     end
     return
@@ -2069,7 +2082,10 @@ function frame:OnEvent(event, ...)
   if delay then
     if not running then
       C_Timer.After(4,function() Exlist.SendFakeEvent("Exlist_DELAY") end)
+      delayedEvents[event] = 1
       running = true
+    else
+      delayedEvents[event] = 1
     end
     return
   end
@@ -2081,15 +2097,16 @@ function frame:OnEvent(event, ...)
       if not settings.allowedModules[registeredUpdaters[event][i].name] and not registeredUpdaters[event][i].override then return end
       local started = debugprofilestop()
       registeredUpdaters[event][i].func(event,...)
-      Exlist.Debug(registeredUpdaters[event][i].name .. ' finished: ' .. debugprofilestop() - started)
+      Exlist.Debug(registeredUpdaters[event][i].name .. ' finished: ' .. DebugTimeColors(debugprofilestop() - started))
       GetLastUpdateTime()
 
     end
   end
   if event == "PLAYER_ENTERING_WORLD" or event == "UNIT_INVENTORY_CHANGED" or event == "PLAYER_TALENT_UPDATE" then
+    local started = debugprofilestop()
     UpdateCharacterSpecifics(event)
+    Exlist.Debug('Character Stat Updated: ' .. DebugTimeColors(debugprofilestop() - started))
   elseif event == "CHAT_MSG_SYSTEM" then
-
     if settings.announceReset and ... then
       local resetString = INSTANCE_RESET_SUCCESS:gsub("%%s",".+")
       local msg = ...
@@ -2149,5 +2166,4 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
       WipeKeysForReset(args[2])
     end
   end
-  --WipeKey(msg)
 end
