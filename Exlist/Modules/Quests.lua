@@ -124,6 +124,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
     end
   end
   -- nope
+  print('DIDNT FIND')
   return nil,false,false
 end
 
@@ -301,6 +302,10 @@ local function ResetHandle(resetType)
       end
       Exlist.UpdateChar(key,data,character,realm)
     end
+  end
+  -- reset Bonus quest
+  if resetType == "weekly" then
+    Exlist.ConfigDB.settings.unsortedFolder.weekly.bonusQuestId = nil
   end
 end
 
