@@ -8,7 +8,7 @@ local LDBI = LibStub("LibDBIcon-1.0")
 local db = {}
 local config_db = {}
 Exlist_Config = Exlist_Config or {}
-local debugMode = false
+local debugMode = true
 local debugString = "|cffc73000[Exlist Debug]|r"
 -- GLOBALS: Exlist Exlist_Db Exlist_ConfigDB
 Exlist = {}

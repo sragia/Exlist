@@ -191,14 +191,42 @@ local function ScanIsles(bs)
   return t
 end
 
-local function Updater(event)
-  if not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
-  GetTime() - lastUpdate < 5 or -- throtle update every 10 seconds max
-  IsInRaid() or -- only update when outside of instances
-  select(2,IsInInstance()) ~= "none" then
-    -- scan trough WBs and check their status on every 5 sec max
-    if GetTime() - lastUpdate > 5 then
-      local t = Exlist.GetCharacterTableKey((GetRealmName()),(UnitName("player")),key)
+local function Updater(e,info)
+  if e == "WORLD_QUEST_SPOTTED" and #info > 0 then
+    -- got info from WQ module
+    local t = Exlist.GetCharacterTableKey((GetRealmName()),(UnitName('player')),key)
+    local gt = Exlist.GetCharacterTableKey("global","global",key)
+    gt.worldbosses = gt.worldbosses or {}
+    gt.worldbosses.isles = gt.worldbosses.isles or {}
+    -- update brokenshore building
+    gt.brokenshore = GetBrokenShoreBuildings()
+    local islesDB = gt.worldbosses.isles
+    for _,wq in ipairs(info) do
+      local defaultInfo = worldBossIDs[wq.questId]
+      if defaultInfo then
+        t[wq.questId] = {
+          name = defaultInfo.name or select(2,EJ_GetCreatureInfo(1,defaultInfo.eid)),
+          defeated = IsQuestFlaggedCompleted(wq.questId),
+          endTime = defaultInfo.endTime and defaultInfo.endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or wq.endTime,
+        }
+        islesDB[wq.questId] = {
+          name = defaultInfo.name or select(2,EJ_GetCreatureInfo(1,defaultInfo.eid)),
+          endTime = defaultInfo.endTime and defaultInfo.endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or wq.endTime,
+          questId = wq.questId
+        }
+      end
+    end
+    Exlist.UpdateChar(key,t)
+    Exlist.UpdateChar(key,gt,'global','global')
+    return
+
+  elseif not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
+  GetTime() - lastUpdate < 5 or
+  IsInRaid() or
+  select(2,IsInInstance()) ~= "none"
+  then
+    -- Check for cached WB kill status
+    local t = Exlist.GetCharacterTableKey((GetRealmName()),(UnitName("player")),key)
       local changed = false
       for questId,info in pairs(t) do
         if not info.defeated and IsQuestFlaggedCompleted(questId) then
@@ -207,8 +235,6 @@ local function Updater(event)
         end
       end
       if changed then Exlist.UpdateChar(key,t) end
-    end
-
     return
   end
   if event == "PLAYER_ENTERING_WORLD" or event == "EJ_DIFFICULTY_UPDATE" then
@@ -216,7 +242,7 @@ local function Updater(event)
     return
   end
   lastUpdate = GetTime()
-  local t = {}
+  local t = Exlist.GetCharacterTableKey((GetRealmName()),(UnitName('player')),key)
   local gt = Exlist.GetCharacterTableKey("global","global",key)
   gt.invasions = gt.invasions or {}
   gt.brokenshore = gt.brokenshore or {}
@@ -224,7 +250,7 @@ local function Updater(event)
   local timeNow = time()
   -- update brokenshore building
   gt.brokenshore = GetBrokenShoreBuildings()
-  local argusScan, islesScan
+  local argusScan
   -- Argus World Boss
   if gt.worldbosses.argus and #gt.worldbosses.argus > 0 then
       -- argus world boss already in DB, just check if it's not killed
@@ -278,102 +304,21 @@ local function Updater(event)
     else
     end
   end
-
-  -- Isles World Bosses
-  local NDup = gt.brokenshore[4] and gt.brokenshore[4].state == 2 or gt.brokenshore[4].state == 3
+  -- Isles World Bosses from "cache"
   if gt.worldbosses.isles and Exlist.GetTableNum(gt.worldbosses.isles) > 0 then
-    -- There won't be more than 2 bosses up in isles so if we have at least 2 in DB that's enough
     local islesDB = gt.worldbosses.isles
-    -- killed first
-    for questId,info in pairs(worldBossIDs) do
-      if IsQuestFlaggedCompleted(questId) then
+    -- have something
+    for questId,info in pairs(islesDB) do
+      if not t[questId] then
+        local defaultInfo = worldBossIDs[questId]
         t[questId] = {
-          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          defeated = true,
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime(),
-        }
-        islesDB[questId] = {
-          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime(),
-          questId = questId
-        }
-      end
-    end
-    if Exlist.GetTableNum(islesDB) >= 2 and NDup then
-      -- 2 bosses in DB and ND is up
-      for i in pairs(islesDB) do
-        t[islesDB[i].questId] = {
-          name = islesDB[i].name or "",
-          defeated = IsQuestFlaggedCompleted(islesDB[i].questId),
-          endTime = islesDB[i].endTime
-        }
-      end
-    elseif Exlist.GetTableNum(islesDB) <= 1 and NDup then
-      -- ND up but only 1 boss cached
-      islesScan = islesScan or ScanIsles(gt.brokenshore)
-      for i=1,#islesScan do
-        local info = islesScan[i]
-        if info.endTime then
-          t[info.questId] = {
-            name = info.name or "",
-            defeated = IsQuestFlaggedCompleted(info.questId),
-            endTime = info.endTime
-          }
-          islesDB[info.questId] = {
-            name = info.name,
-            endTime = info.endTime,
-            questId = info.questId
-          }
-        end
-      end
-    else
-      for i in pairs(islesDB) do
-        t[islesDB[i].questId] = {
-          name = islesDB[i].name or "",
-          defeated = IsQuestFlaggedCompleted(islesDB[i].questId),
-          endTime = islesDB[i].endTime
-        }
-      end
-    end
-  else
-    local add = 0
-    gt.worldbosses.isles = gt.worldbosses.isles or {}
-    local islesDB = gt.worldbosses.isles
-    -- killed first
-    for questId,info in pairs(worldBossIDs) do
-      if IsQuestFlaggedCompleted(questId) then
-        add = add + 1
-        t[questId] = {
-          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          defeated = true,
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime(),
-        }
-        islesDB[questId] = {
-          name = info.name or select(2,EJ_GetCreatureInfo(1,info.eid)),
-          endTime = worldBossIDs[questId].endTime and worldBossIDs[questId].endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime(),
-          questId = questId
-        }
-      end
-    end
-    if add < 2 then
-      -- fuck it just scan it
-      islesScan = islesScan or  ScanIsles(gt.brokenshore)
-      for i=1,#islesScan do
-        local info = islesScan[i]
-        t[info.questId] = {
           name = info.name or "",
-          defeated = false,
-          endTime = info.endTime
-        }
-        islesDB[info.questId] = {
-          name = info.name,
-          endTime = info.endTime,
-          questId = info.questId
+          defeated = IsQuestFlaggedCompleted(questId),
+          endTime = defaultInfo.endTime and defaultInfo.endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or info.endTime,
         }
       end
     end
   end
-
   -- Invasions
   local count = 0
   -- cleanup table and count elements in it
@@ -440,7 +385,7 @@ local function GlobalLineGenerator(tooltip,data)
   if data.brokenshore then
       Exlist.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")},14)
     for i,info in pairs(data.brokenshore or {}) do
-      local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow,{1800, 3600}) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
+      local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
       (info.rewards and (info.state == 2 or info.state == 3) and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ffffd200",info.rewards.name or "") or info.state == 1 and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ff494949",info.rewards.name or "")))})
       if info.rewards and info.state ~= 4 then
         Exlist.AddScript(tooltip,line,3,"OnEnter",function(self)
@@ -466,6 +411,14 @@ local function GlobalLineGenerator(tooltip,data)
   end
 end
 
+local function init()
+  local t = {}
+  for questId in pairs(worldBossIDs) do
+    t[#t+1] = questId
+  end
+  Exlist.RegisterWorldQuests(t,true)
+end
+
 local data = {
   name = 'World Bosses',
   key = key,
@@ -473,9 +426,10 @@ local data = {
   globallgenerator = GlobalLineGenerator,
   priority = prio,
   updater = Updater,
-  event = {"PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN","EJ_DIFFICULTY_UPDATE","PLAYER_ENTERING_WORLD_DELAYED"},
+  event = {"PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN","EJ_DIFFICULTY_UPDATE","PLAYER_ENTERING_WORLD_DELAYED","WORLD_QUEST_SPOTTED"},
   description = "Tracks World Boss availability for each character. Also tracks Broken Shore buildings status and invasion points on Argus.",
-  weeklyReset = true
+  weeklyReset = true,
+  init = init,
 }
 
 Exlist.RegisterModule(data)
