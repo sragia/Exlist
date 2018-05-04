@@ -10,7 +10,7 @@ local GetCurrentMapAreaID, SetMapByID, ToggleWorldMap = GetCurrentMapAreaID, Set
 local WrapTextInColorCode = WrapTextInColorCode
 local trackedQuests = {
 }
-
+local updateFrq = 30 -- every x minutes max
 local lastTrigger = 0
 
 local zones = {
@@ -99,6 +99,7 @@ function Exlist.ScanQuests()
   for questId,info in pairs(wq) do
     trackedQuests[questId] = {enabled = info.enabled , readOnly = false}
   end
+  if Exlist.GetTableNum(trackedQuests) < 1 then return end
   local currMapId = GetCurrentMapAreaID()
   for index,zoneId in ipairs(zones) do
     SetMapByID(zoneId)
@@ -122,8 +123,8 @@ function Exlist.ScanQuests()
     end
   end
   SetMapByID(currMapId)
-  if tl < 30 then
-    lastTrigger = lastTrigger - ((30 - tl) * 60)
+  if tl < updateFrq then
+    lastTrigger = lastTrigger - ((updateFrq - tl) * 60)
   end
   if #rt > 0 then
     Exlist.SendFakeEvent("WORLD_QUEST_SPOTTED",rt)
@@ -150,10 +151,10 @@ end
 
 local function Updater(event,questInfo)
   if event == "WORLD_MAP_OPEN" and 
-    GetTime() - lastTrigger > 1800
+    GetTime() - lastTrigger > (60 * updateFrq)
   then 
     lastTrigger = GetTime()
-    Exlist.ScanQuests() 
+    Exlist.ScanQuests()
     return 
   end
 

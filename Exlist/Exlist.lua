@@ -257,7 +257,7 @@ local frame = CreateFrame("FRAME")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterEvent("VARIABLES_LOADED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
+frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 frame:RegisterEvent("CHAT_MSG_SYSTEM")
 frame:RegisterEvent("Exlist_DELAY")
@@ -688,7 +688,7 @@ local function UpdateCharacterProfessions()
 end
 
 local UpdateCharacterSpecifics = function(event)
-  if event == "UNIT_INVENTORY_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
+  if event == "PLAYER_EQUIPMENT_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
     UpdateCharacterGear()
   --elseif event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_ENTERING_WORLD" then
     --UpdateCharacterTalents()
@@ -2102,7 +2102,7 @@ function frame:OnEvent(event, ...)
 
     end
   end
-  if event == "PLAYER_ENTERING_WORLD" or event == "UNIT_INVENTORY_CHANGED" or event == "PLAYER_TALENT_UPDATE" then
+  if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "PLAYER_TALENT_UPDATE" then
     local started = debugprofilestop()
     UpdateCharacterSpecifics(event)
     Exlist.Debug('Character Stat Updated: ' .. DebugTimeColors(debugprofilestop() - started))
