@@ -11,7 +11,6 @@ Exlist_Config = Exlist_Config or {}
 local debugMode = false
 local debugString = "|cffc73000[Exlist Debug]|r"
 -- GLOBALS: Exlist Exlist_Db Exlist_ConfigDB
-Exlist = {}
 Exlist.debugMode = debugMode
 Exlist.debugString = debugString
 local registeredUpdaters = {
