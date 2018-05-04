@@ -1,5 +1,3 @@
--- TODO: Can't add some quests
-
 local key = "worldquests"
 local prio = 100
 local Exlist = Exlist
@@ -156,23 +154,23 @@ local function Updater(event,questInfo)
     lastTrigger = GetTime()
     Exlist.ScanQuests()
     return 
-  end
-
-  local gt = Exlist.GetCharacterTableKey("global","global",key)
-  if questInfo and #questInfo > 0 then
-    local wq = Exlist.ConfigDB.settings.worldQuests
-    for i,info in ipairs(questInfo) do
-      if wq[info.questId] and not gt[info.questId] then
-        gt[info.questId] = info
-      elseif wq[info.questId] then
-        for key,value in ipairs(info) do
-          if gt[info.questId][key] == nil then
-            gt[info.questId][key] = value -- add info that is missed in previous scans
+  elseif event == "WORLD_QUEST_SPOTTED" then
+    local gt = Exlist.GetCharacterTableKey("global","global",key)
+    if questInfo and #questInfo > 0 then
+      local wq = Exlist.ConfigDB.settings.worldQuests
+      for i,info in ipairs(questInfo) do
+        if wq[info.questId] and not gt[info.questId] then
+          gt[info.questId] = info
+        elseif wq[info.questId] then
+          for key,value in ipairs(info) do
+            if gt[info.questId][key] == nil then
+              gt[info.questId][key] = value -- add info that is missed in previous scans
+            end
           end
         end
       end
+      Exlist.UpdateChar(key,gt,"global","global")
     end
-    Exlist.UpdateChar(key,gt,"global","global")
   end
 end
 

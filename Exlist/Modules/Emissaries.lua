@@ -49,8 +49,12 @@ end
 
 local function Updater(event)
   if UnitLevel('player') < 110 then return end
-  if event == "PLAYER_ENTERING_WORLD" then C_Timer.After(20,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
-  elseif event == "QUEST_TURNED_IN" or event ==  "QUEST_REMOVED" then C_Timer.After(5,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
+  if event == "PLAYER_ENTERING_WORLD" then 
+    C_Timer.After(5,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
+    return
+  elseif event == "QUEST_TURNED_IN" or event ==  "QUEST_REMOVED" then 
+    C_Timer.After(2,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
+    return
   end
   local timeNow = time()
   local emissaries = {
