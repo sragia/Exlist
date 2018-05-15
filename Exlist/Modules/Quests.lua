@@ -220,7 +220,7 @@ local function Linegenerator(tooltip,data,character)
     local v = data[type] or {}
     local added = false
     for questId,values in pairs(v) do
-      if trackedQuests[questId].enabled then
+      if trackedQuests[questId] and trackedQuests[questId].enabled then
         if not added then
           table.insert(sideTooltip.body,{WrapTextInColorCode(questTypes[type],colors.QuestTypeTitle[type]),"",{"headerseparator"}})
           added = true
@@ -396,7 +396,7 @@ local function SetupQuestConfig(refresh)
   local n = 2
   for questId,info in spairs(trackedQuests, function(t,a,b)
     if (not t[a].default and not t[b].default) or (t[a].default and t[b].default) then
-      local nameA = Exlist.GetCachedQuestTitle(a) -- could probably optimize this by having name in trackedQuests
+      local nameA = Exlist.GetCachedQuestTitle(a)  -- could probably optimize this by having name in trackedQuests
       local nameB = Exlist.GetCachedQuestTitle(b) -- but this shouldnt be running too many times so mehh.
       return nameA < nameB
     end
