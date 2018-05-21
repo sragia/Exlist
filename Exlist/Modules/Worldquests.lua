@@ -275,7 +275,7 @@ end
 
 local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
-  if data then
+  if data and Exlist.ConfigDB.settings.extraInfoToggles.worldquests.enabled then
     local wq = Exlist.ConfigDB.settings.worldQuests
     local first = true
     for questId,info in spairs(data,function(t,a,b) return t[a].endTime < t[b].endTime end) do
@@ -696,6 +696,11 @@ local function init()
     defaultType = "currency",
   }
   tmpConfigRule.ruleType = rewardRules.defaultType
+
+  Exlist.ConfigDB.settings.extraInfoToggles.worldquests = Exlist.ConfigDB.settings.extraInfoToggles.worldquests or {
+      name = "World Quests",
+      enabled = true,
+    }
 end
 
 local data = {

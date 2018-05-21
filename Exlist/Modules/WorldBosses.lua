@@ -374,7 +374,7 @@ end
 local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
   if not data then return end
-  if data.invasions then
+  if data.invasions and Exlist.ConfigDB.settings.extraInfoToggles.invasions.enabled then
     Exlist.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")},14)
     for questId,info in spairs((data.invasions or {}),function(t,a,b) return (t[a].endTime or 0) < (t[b].endTime or 0) end) do
       if info.endTime and info.endTime > timeNow then
@@ -382,7 +382,7 @@ local function GlobalLineGenerator(tooltip,data)
       end
     end
   end
-  if data.brokenshore then
+  if data.brokenshore and Exlist.ConfigDB.settings.extraInfoToggles.brokenshore.enabled then
       Exlist.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")},14)
     for i,info in pairs(data.brokenshore or {}) do
       local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
@@ -399,7 +399,7 @@ local function GlobalLineGenerator(tooltip,data)
       end
     end
   end
-  if data.worldbosses then
+  if data.worldbosses and Exlist.ConfigDB.settings.extraInfoToggles.worldbosses.enabled then
     Exlist.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")},14)
     for _,info in pairs(data.worldbosses) do
       for b in pairs(info) do
@@ -417,6 +417,19 @@ local function init()
     t[#t+1] = questId
   end
   Exlist.RegisterWorldQuests(t,true)
+  Exlist.ConfigDB.settings.extraInfoToggles.worldbosses = Exlist.ConfigDB.settings.extraInfoToggles.worldbosses or {
+      name = "World Bosses",
+      enabled = true,
+    }
+  Exlist.ConfigDB.settings.extraInfoToggles.invasions = Exlist.ConfigDB.settings.extraInfoToggles.invasions or {
+      name = "Argus Lesser Invasions",
+      enabled = true,
+    }
+  Exlist.ConfigDB.settings.extraInfoToggles.brokenshore = Exlist.ConfigDB.settings.extraInfoToggles.brokenshore or {
+      name = "Broken Shore Buildings",
+      enabled = true,
+    }
+
 end
 
 local data = {

@@ -364,7 +364,20 @@ Exlist.SetupConfig = function(refresh)
                         end
                     }
                 }
-            }
+            },
+            extratooltip = {
+            type = "group",
+            order = 4,
+            name = "Extra Tooltip Info",
+            args = {
+                description = {
+                    type = "description",
+                    order = 0,
+                    name = "Select data you want to see in Extra tooltip",
+                    width = "full",
+                }
+            },   
+            },
         }
     }
     
@@ -627,7 +640,22 @@ Exlist.SetupConfig = function(refresh)
                   StaticPopup_Show("DeleteDataPopup_"..charname..realm)
             end
         }
-        
+    
+    -- Extra Tooltip Options
+    local etargs = options.args.extratooltip.args
+    n = 0
+    for key,v in pairs(settings.extraInfoToggles) do
+        n = n + 1
+        etargs[key] = {
+            type = "toggle",
+            name = v.name,
+            order = n,
+            width = "full",
+            get = function() return v.enabled end,
+            set = function(_,value) v.enabled = value end,
+        }
+    end
+
     end
     if refresh then
         RefreshAdditionalOptions("Characters",charOptions,"Characters")

@@ -140,12 +140,21 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local function GlobalLineGenerator(tooltip,data)
+  if not Exlist.ConfigDB.settings.extraInfoToggles.emissary.enabled then return end
   local timeNow = time()
   Exlist.AddLine(tooltip,{WrapTextInColorCode("Emissaries","ffffd200")},14)
 
   for questId,info in spairs(data or {},function(t,a,b) return t[a].endTime < t[b].endTime end) do
     Exlist.AddLine(tooltip,{info.title,TimeLeftColor(info.endTime - timeNow,{36000, 72000})})
   end
+end
+
+local function init()
+  Exlist.ConfigDB.settings.extraInfoToggles.emissary = Exlist.ConfigDB.settings.extraInfoToggles.emissary 
+  or {
+      name = "Emissaries",
+      enabled = true,
+     }
 end
 
 local data = {
@@ -157,7 +166,8 @@ priority = prio,
 updater = Updater,
 event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED"},
 description = "Tracks available emissaries and their status for your character",
-weeklyReset = false
+weeklyReset = false,
+init = init,
 }
 
 Exlist.RegisterModule(data)

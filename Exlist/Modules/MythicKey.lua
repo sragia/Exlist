@@ -82,6 +82,7 @@ end
 
 local function GlobalLineGenerator(tooltip,data)
   if not data then return end
+  if not Exlist.ConfigDB.settings.extraInfoToggles.affixes.enabled then return end
   local added = false
   for i=1,#data do
     if not added then
@@ -120,6 +121,13 @@ local function Modernize(data)
   return data
 end
 
+local function init()
+  Exlist.ConfigDB.settings.extraInfoToggles.affixes = Exlist.ConfigDB.settings.extraInfoToggles.affixes or {
+      name = "Mythic+ Weekly Affixes",
+      enabled = true,
+     }
+end
+
 
 local data = {
   name = 'Mythic+ Key',
@@ -131,7 +139,8 @@ local data = {
   event = "BAG_UPDATE",
   description = "Tracks characters mythic+ key in their bags and weekly mythic+ affixes",
   weeklyReset = true,
-  modernize = Modernize
+  modernize = Modernize,
+  init = init
 }
 
 Exlist.RegisterModule(data)

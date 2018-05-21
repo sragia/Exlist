@@ -136,6 +136,7 @@ local settings = { -- default settings
     artifactpower = {},
   },
   quests = {},
+  extraInfoToggles = {},
   announceReset = false,
   showMinimapIcon = false,
   minimapTable = {},

@@ -264,7 +264,7 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local function GlobalLineGenerator(tooltip,data)
-  if Exlist.ConfigDB.settings.showQuestsInExtra then
+  if Exlist.ConfigDB.settings.showQuestsInExtra and Exlist.ConfigDB.settings.extraInfoToggles.quests.enabled then
     local charData = Exlist.GetCharacterTableKey(GetRealmName(),UnitName("player"),key)
     if charData then
       for _,type in ipairs(questTypeOrder) do
@@ -509,6 +509,12 @@ local function init()
   for questId,t in pairs(dbQuests) do
     trackedQuests[questId] = t
   end
+
+  Exlist.ConfigDB.settings.extraInfoToggles.quests = Exlist.ConfigDB.settings.extraInfoToggles.quests 
+  or {
+      name = "Weekly/Daily Quests",
+      enabled = true,
+     }
 end
 
 local data = {
