@@ -640,6 +640,7 @@ Exlist.SetupConfig = function(refresh)
                   StaticPopup_Show("DeleteDataPopup_"..charname..realm)
             end
         }
+    end
     
     -- Extra Tooltip Options
     local etargs = options.args.extratooltip.args
@@ -656,7 +657,6 @@ Exlist.SetupConfig = function(refresh)
         }
     end
 
-    end
     if refresh then
         RefreshAdditionalOptions("Characters",charOptions,"Characters")
         RefreshAdditionalOptions("Modules",moduleOptions,"Modules")
