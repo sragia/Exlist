@@ -29,7 +29,7 @@ local registeredModules = {
 local modernizeFunctions = {
   -- func,func,func
 }
-local tooltipData = {
+tooltipData = {
  --[[
     [character] = {
       [modules] = {
