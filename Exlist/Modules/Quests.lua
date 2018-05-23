@@ -51,10 +51,20 @@ local bquestIds = {
   {questId = 44172,name = "Arena Skirmish Bonus Event", spellId = 186401}, -- Arenas
   {questId = 44174,name = "Pet Battle Bonus Event", spellId = 186406}, -- Pet Battles
   -- timewalking
-  {questId = 44164,name = "Timewalking Dungeon Event", icon = 1129673}, -- BC
-  {questId = 44166,name = "Timewalking Dungeon Event", icon = 1129685}, -- Wotlk
-  {questId = 45799,name = "Timewalking Dungeon Event", icon = 1530589}, -- MoP
-  {questId = 44167,name = "Timewalking Dungeon Event", icon = 1304687} -- Cata
+  {questId = 44164,name = "Timewalking Dungeon Event"}, -- BC
+  {questId = 44166,name = "Timewalking Dungeon Event"}, -- Wotlk
+  {questId = 45799,name = "Timewalking Dungeon Event"}, -- MoP
+  {questId = 44167,name = "Timewalking Dungeon Event"} -- Cata
+}
+local twIconIds = {
+  [1129673] = 44164, -- BC
+  [1129674] = 44164, -- BC (alt)
+  [1129686] = 44166, -- Wotlk
+  [1129685] = 44166, -- Wotlk (alt)
+  [1530589] = 45799, -- MoP
+  [1530590] = 45799, -- MoP (alt)
+  [1304687] = 44167, -- Cata
+  [1304688] = 44167, -- Cata (alt)
 }
 local bonusQuestId
 function checkFunctions.WeeklyBonusQuest(questId)
@@ -105,15 +115,22 @@ function checkFunctions.WeeklyBonusQuest(questId)
   end
   -- oh well time to go hard way
   -- TODO: Somehow make this not rely on holiday name
-  local todayDate = date("*t", time()).day
+  --
+  local date = date("*t", time())
   for i=1,5 do
-    local holiday = C_Calendar.GetHolidayInfo(0,todayDate,i)
+    local holiday = C_Calendar.GetHolidayInfo(0,date.day,i)
     if holiday then
       if holidayNames[holiday.name] then
-        if holiday.endTime.monthDay > todayDate then
+        if holiday.endTime.monthDay > date.day or date.month < holiday.endTime.month then
           -- found it !!
-          bonusQuestId = holidayNames[holiday.name]
-          settings.unsortedFolder.weekly.bonusQuestId = holidayNames[holiday.name]
+          local tmpQuestId = 0
+          if twIconIds[holiday.texture] then
+          	tmpQuestId = twIconIds[holiday.texture]
+          else
+          	tmpQuestId = holidayNames[holiday.name]
+          end
+          bonusQuestId = tmpQuestId
+          settings.unsortedFolder.weekly.bonusQuestId = tmpQuestId
           if questId == bonusQuestId then
             local name = Exlist.GetCachedQuestTitle(questId)
             local completed = IsQuestFlaggedCompleted(questId)
