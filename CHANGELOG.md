@@ -1,14 +1,10 @@
-## 1.1.2
-####10 May 2018 - 16:15
+## 1.1.3
+####23 May 2018 - 18:38
 
 
 
--      Lower delay for reset check Previous delay was too long which caused some modules updating before reset handler kicked in
--      Forgot to disable debugMode
--      Use world quest module to update world bosses
--      More performance increases
--      ToggleCalendar to get holiday info
--      Reset stored bonusQuestId in settings
--      Fix quest caching /facepalm
--      Some performance improvements
+-      fix bonus weekly quests detection more
+-      Fix raids not showing up and ordering issue
+-      Option to select data to be shown in extra tooltip
+-      Add World Quest Rules Allows to track world quest by their rewards
 
