@@ -175,7 +175,7 @@ Exlist.SetupConfig = function(refresh)
                         order = 7,
                         name = "Shorten Info",
                         type = "toggle",
-                        desc = "Shortens text in main tooltip that you see in tooltip i.e. +15 Neltharions Lair -> +15 NL",
+                        desc = "Slimmed down version of main tooltip i.e. +15 Neltharions Lair -> +15 NL\nMostly affects tooltip in horizontal orientation",
                         width = "full",
                         get = function()
                             return Exlist.ConfigDB.settings.shortenInfo

@@ -1799,9 +1799,10 @@ local function PopulateTooltip(tooltip)
       local headerCol = settings.horizontalMode and col or 1
       local headerWidth = settings.horizontalMode and 3 or 4
       local header = tooltipData[character].modules["_Header"]
+      local logoTexSize = settings.shortenInfo and "30:60" or "40:80"
       if settings.horizontalMode then
         local headerText = settings.shortenInfo and header.data[1].data.." " .. header.data[2].data or header.data[1].data.."             " .. header.data[2].data
-        tooltip:SetCell(1,1,"|T"..[[Interface/Addons/Exlist/Media/Icons/ExlistLogo2.tga]]..":40:80|t","CENTER")
+        tooltip:SetCell(1,1,"|T"..[[Interface/Addons/Exlist/Media/Icons/ExlistLogo2.tga]]..":".. logoTexSize .."|t","CENTER")
         tooltip:SetCell(rowHeadNum-1,headerCol,headerText,"CENTER",4)
         tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnEnter",header.data[1].OnEnter,header.data[1].OnEnterData)
         tooltip:SetCellScript(rowHeadNum-1,headerCol,"OnLeave",header.data[1].OnLeave,header.data[1].OnLeaveData)
@@ -1910,10 +1911,19 @@ local function OnEnter(self)
       charData.name = name
       -- header
       local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
+      local headerText,subHeaderText = "",""
+      if settings.shortenInfo then
 
+        headerText = "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r " 
+        subHeaderText = string.format("|c%s%s","ffffd200",realm)
+
+      else
+        headerText = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
+        subHeaderText = string.format("|c%s%s - Level %i","ffffd200",realm,charData.level)
+      end
       -- Header Info
       Exlist.AddData({
-        data = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r ",
+        data = headerText,
         character = character,
         priority = -1000,
         moduleName = "_Header",
@@ -1931,7 +1941,7 @@ local function OnEnter(self)
         titleName = "Header",
       })
       Exlist.AddData({
-        data = string.format("|c%s%s - Level %i","ffffd200",realm,charData.level),
+        data = subHeaderText, --string.format("|c%s%s - Level %i","ffffd200",realm,charData.level),
         character = character,
         priority = -999,
         moduleName = "_HeaderSmall",
