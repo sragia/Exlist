@@ -1,6 +1,7 @@
 local key = "mail"
 local prio = 0
 local Exlist = Exlist
+local L = Exlist.L
 local WrapTextInColorCode = WrapTextInColorCode
 local HasNewMail, GetLatestThreeSenders = HasNewMail, GetLatestThreeSenders
 local table = table
@@ -21,10 +22,10 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     moduleName = key,
     priority = prio,
-    titleName = "Mail",
-    data = WrapTextInColorCode("Got Mail!","FF00FF00")
+    titleName = L["Mail"],
+    data = WrapTextInColorCode(L["Got Mail!"],"FF00FF00")
   }
-  local t = {title = WrapTextInColorCode("Senders","ffffd200"), body = {}}
+  local t = {title = WrapTextInColorCode(L["Senders"],"ffffd200"), body = {}}
   for i=1, #data.senders do
     table.insert(t.body,{data.senders[i]})
   end
@@ -40,14 +41,14 @@ local function Modernize(data)
 end
 
 local data = {
-  name = 'Mail',
+  name = L['Mail'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","UPDATE_PENDING_MAIL"},
   weeklyReset = false,
-  description = "Tracks incoming mail",
+  description = L["Tracks incoming mail"],
   -- modernize = Modernize
 }
   

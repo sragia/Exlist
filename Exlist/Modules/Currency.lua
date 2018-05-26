@@ -1,4 +1,5 @@
 local key = "currency"
+local L = Exlist.L
 local prio = 10
 local currencyAmount = {
 }
@@ -95,21 +96,21 @@ local function AddRefreshOptions()
             type = "description",
             order = 1,
             width = "full",
-            name = "Enable/Disable Currencies you want to see"
+            name = L["Enable/Disable Currencies you want to see"]
         },
         hideCurrency = {
           type = "toggle",
           order = 1.04,
           width = 2.15,
-          name = "Hide empty currencies",
-          desc = "Hides currency if it's not present on character",
+          name = L["Hide empty currencies"],
+          desc = L["Hides currency if it's not present on character"],
           get = function() return Exlist.ConfigDB.settings.hideEmptyCurrency end,
           set = function(self,v) Exlist.ConfigDB.settings.hideEmptyCurrency = v  AddRefreshOptions() end
         },
         itemInput = {
           type = "input",
           order = 1.06,
-          name = " Add Item (|cffffffffInput itemID or item name|r)",
+          name = L[" Add Item (|cffffffffInput itemID or item name|r)"],
           get = function() return "" end,
           set = function(self,v)
             local iInfo = Exlist.GetCachedItemInfo(v)
@@ -122,7 +123,7 @@ local function AddRefreshOptions()
               }
               AddRefreshOptions()
             else
-              print(Exlist.debugString,"Couldn't add item:",v)
+              print(Exlist.debugString,L["Couldn't add item:"],v)
             end
           end,
           width = 1,
@@ -132,21 +133,21 @@ local function AddRefreshOptions()
           order = 1.1,
           fontSize = "medium",
           width = "normal",
-          name = WrapTextInColorCode("Name","ffffd200")
+          name = WrapTextInColorCode(L["Name"],"ffffd200")
         },
         label2 = {
           type = "description",
           order = 1.2,
           fontSize = "medium",
           width = "half",
-          name = WrapTextInColorCode("Enable","ffffd200")
+          name = WrapTextInColorCode(L["Enable"],"ffffd200")
         },
         label3 = {
           type = "description",
           order = 1.3,
           fontSize = "medium",
           width = "normal",
-          name = WrapTextInColorCode("Show Separate","ffffd200")
+          name = WrapTextInColorCode(L["Show Separate"],"ffffd200")
         },
         spacer1 = {
           type = "description",
@@ -196,10 +197,10 @@ local function AddRefreshOptions()
   end
 
   if not added then
-    Exlist.AddModuleOptions(key,options,"Currency")
+    Exlist.AddModuleOptions(key,options,L["Currency"])
     added = true
   else
-    Exlist.RefreshModuleOptions(key,options,"Currency")
+    Exlist.RefreshModuleOptions(key,options,L["Currency"])
   end
 end
 Exlist.ModuleToBeAdded(AddRefreshOptions)
@@ -210,13 +211,13 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     moduleName = key,
     priority = prio,
-    titleName = "Currency",
+    titleName = L["Currency"],
     data = data.money.gold .. "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r",
   }
   local extraInfos = {}
   local currency = data.currency
   if currency then
-    local sideTooltip = {body = {},title= WrapTextInColorCode("Currency","ffffd200")}
+    local sideTooltip = {body = {},title= WrapTextInColorCode(L["Currency"],"ffffd200")}
     local settings = Exlist.ConfigDB.settings
     for i=1,#currency do
       if not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0 )) and
@@ -233,7 +234,7 @@ local function Linegenerator(tooltip,data,character)
         table.insert(sideTooltip.body,{"|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""), currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount})
       end
     end
-    table.insert(sideTooltip.body,"|cfff2b202To add additional items/currency check out config!")
+    table.insert(sideTooltip.body,"|cfff2b202"..L["To add additional items/currency check out config!"].."|r")
     info.OnEnter = Exlist.CreateSideTooltip()
     info.OnEnterData = sideTooltip
     info.OnLeave = Exlist.DisposeSideTooltip()
@@ -245,13 +246,13 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local data = {
-  name = 'Currency',
+  name = L['Currency'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","PLAYER_MONEY"},
-  description = "Collects information about different currencies  and user specified item amounts in inventory ",
+  description = L["Collects information about different currencies  and user specified item amounts in inventory"],
   weeklyReset = false
 }
 Exlist.RegisterModule(data)

@@ -1,6 +1,7 @@
 local key = "raiderIO"
 local prio = 20
 local Exlist = Exlist
+local L = Exlist.L
 local CM = C_ChallengeMode
 local table,print, string= table,print, string
 local WrapTextInColorCode = WrapTextInColorCode
@@ -61,7 +62,7 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     moduleName = key,
     priority = prio,
-    titleName = "RaiderIO M+ score",
+    titleName = L["RaiderIO M+ score"],
     data = data.score
   }
   local s = {}
@@ -81,13 +82,13 @@ local function Modernize(data)
 end
 
 local data = {
-  name = 'RaiderIO M+ Score',
+  name = L['RaiderIO M+ Score'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","PLAYER_ENTERING_WORLD_DELAYED"},
-  description = "Uses Raider.IO addon (Needs to be installed) to display your m+ score",
+  description = L["Uses Raider.IO addon (Needs to be installed) to display your m+ score"],
   weeklyReset = false,
   -- modernize = Modernize
 }

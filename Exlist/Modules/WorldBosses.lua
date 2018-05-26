@@ -1,6 +1,7 @@
 local key = "worldboss"
 local prio = 120
 local Exlist = Exlist
+local L = Exlist.L
 local MAX_CHARACTER_LEVEL = 110
 local EJ_GetEncounterInfo = EJ_GetEncounterInfo
 local UnitLevel,GetRealmName,UnitName = UnitLevel,GetRealmName,UnitName
@@ -351,17 +352,17 @@ local function Linegenerator(tooltip,data,character)
   for spellId,info in pairs(data) do
     availableWB = availableWB + 1
     killed = info.defeated and killed + 1 or killed
-    table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime > timeNow and Exlist.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode("Not Available","fff49e42")),
-                                          info.defeated and WrapTextInColorCode("Defeated","ffff0000") or WrapTextInColorCode("Available","ff00ff00")})
+    table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime > timeNow and Exlist.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode(L["Not Available"],"fff49e42")),
+                                          info.defeated and WrapTextInColorCode(L["Defeated"],"ffff0000") or WrapTextInColorCode(L["Available"],"ff00ff00")})
 
   end
   if availableWB > 0 then
-    local sideTooltip = {body = strings,title=WrapTextInColorCode("World Bosses","ffffd200")}
+    local sideTooltip = {body = strings,title=WrapTextInColorCode(L["World Bosses"],"ffffd200")}
     local info = {
       character = character,
       moduleName = key,
       priority = prio,
-      titleName = WrapTextInColorCode("World Bosses:","ffc1c1c1"),
+      titleName = WrapTextInColorCode(L["World Bosses"] .. ":","ffc1c1c1"),
       data = string.format("%i/%i",killed,availableWB),
       OnEnter = Exlist.CreateSideTooltip(),
       OnEnterData = sideTooltip,
@@ -375,7 +376,7 @@ local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
   if not data then return end
   if data.invasions and Exlist.ConfigDB.settings.extraInfoToggles.invasions.enabled then
-    Exlist.AddLine(tooltip,{WrapTextInColorCode("Invasion Points","ffffd200")},14)
+    Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Invasion Points"],"ffffd200")},14)
     for questId,info in spairs((data.invasions or {}),function(t,a,b) return (t[a].endTime or 0) < (t[b].endTime or 0) end) do
       if info.endTime and info.endTime > timeNow then
         Exlist.AddLine(tooltip,{info.name,Exlist.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map or "","ffc1c1c1")})
@@ -383,9 +384,9 @@ local function GlobalLineGenerator(tooltip,data)
     end
   end
   if data.brokenshore and Exlist.ConfigDB.settings.extraInfoToggles.brokenshore.enabled then
-      Exlist.AddLine(tooltip,{WrapTextInColorCode("Broken Shore","ffffd200")},14)
+      Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Broken Shore"],"ffffd200")},14)
     for i,info in pairs(data.brokenshore or {}) do
-      local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow) or info.progress,(info.state == 4 and WrapTextInColorCode("Destroyed","ffa1a1a1") or
+      local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow) or info.progress,(info.state == 4 and WrapTextInColorCode(L["Destroyed"],"ffa1a1a1") or
       (info.rewards and (info.state == 2 or info.state == 3) and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ffffd200",info.rewards.name or "") or info.state == 1 and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ff494949",info.rewards.name or "")))})
       if info.rewards and info.state ~= 4 then
         Exlist.AddScript(tooltip,line,3,"OnEnter",function(self)
@@ -400,7 +401,7 @@ local function GlobalLineGenerator(tooltip,data)
     end
   end
   if data.worldbosses and Exlist.ConfigDB.settings.extraInfoToggles.worldbosses.enabled then
-    Exlist.AddLine(tooltip,{WrapTextInColorCode("World Bosses","ffffd200")},14)
+    Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Bosses"],"ffffd200")},14)
     for _,info in pairs(data.worldbosses) do
       for b in pairs(info) do
         if info[b].endTime > timeNow then
@@ -418,29 +419,29 @@ local function init()
   end
   Exlist.RegisterWorldQuests(t,true)
   Exlist.ConfigDB.settings.extraInfoToggles.worldbosses = Exlist.ConfigDB.settings.extraInfoToggles.worldbosses or {
-      name = "World Bosses",
+      name = L["World Bosses"],
       enabled = true,
     }
   Exlist.ConfigDB.settings.extraInfoToggles.invasions = Exlist.ConfigDB.settings.extraInfoToggles.invasions or {
-      name = "Argus Lesser Invasions",
+      name = L["Argus Lesser Invasions"],
       enabled = true,
     }
   Exlist.ConfigDB.settings.extraInfoToggles.brokenshore = Exlist.ConfigDB.settings.extraInfoToggles.brokenshore or {
-      name = "Broken Shore Buildings",
+      name = L["Broken Shore Buildings"],
       enabled = true,
     }
 
 end
 
 local data = {
-  name = 'World Bosses',
+  name = L['World Bosses'],
   key = key,
   linegenerator = Linegenerator,
   globallgenerator = GlobalLineGenerator,
   priority = prio,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN","EJ_DIFFICULTY_UPDATE","PLAYER_ENTERING_WORLD_DELAYED","WORLD_QUEST_SPOTTED"},
-  description = "Tracks World Boss availability for each character. Also tracks Broken Shore buildings status and invasion points on Argus.",
+  description = L["Tracks World Boss availability for each character. Also tracks Broken Shore buildings status and invasion points on Argus."],
   weeklyReset = true,
   init = init,
 }

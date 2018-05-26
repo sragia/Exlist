@@ -7,6 +7,7 @@ local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local C_Calendar = C_Calendar
 local UnitName, GetRealmName = UnitName, GetRealmName
 local Exlist = Exlist
+local L = Exlist.L
 local colors = Exlist.Colors
 local strings = Exlist.Strings
 
@@ -35,8 +36,8 @@ end
 
 local checkFunctions = {}
 local questTypes = {
-  ["daily"] = "Daily",
-  ["weekly"] = "Weekly"
+  ["daily"] = L["Daily"],
+  ["weekly"] = L["Weekly"]
 }
 local questTypeOrder = {"daily","weekly"}
 
@@ -165,7 +166,7 @@ local DEFAULT_QUESTS = {
 local function AddQuest(questId,t)
   -- mby
   if type(questId) ~= "number" then
-    print(Exlist.debugString,"Invalid QuestId")
+    print(Exlist.debugString,L["Invalid QuestId"])
     return
   end
   local dbQuests = Exlist.ConfigDB.settings.quests
@@ -227,11 +228,11 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     priority = prio,
     moduleName = key,
-    titleName = "Quests",
+    titleName = L["Quests"],
   }
   local extraInfos = {}
   local done,available = 0,0
-  local sideTooltip = {title = "Quests", body ={}}
+  local sideTooltip = {title = L["Quests"], body ={}}
   local i = 1
   for _,type in ipairs(questTypeOrder) do
     local v = data[type] or {}
@@ -247,13 +248,13 @@ local function Linegenerator(tooltip,data,character)
         local name = Exlist.GetCachedQuestTitle(questId)
         table.insert(sideTooltip.body,{
           WrapTextInColorCode(name,colors.QuestTitle),
-          (values.completed and WrapTextInColorCode("Completed", "FFFF0000") or  WrapTextInColorCode("Available", "FF00FF00"))
+          (values.completed and WrapTextInColorCode(L["Completed"], "FFFF0000") or  WrapTextInColorCode(L["Available"], "FF00FF00"))
         })
         if trackedQuests[questId].showSeparate then
           local settings = Exlist.ConfigDB.settings
-          local completedString,availableString = "Completed","Available"
+          local completedString,availableString = L["Completed"],L["Available"]
           if settings.shortenInfo then
-            completedString,availableString = "Done","Avail"
+            completedString,availableString = L["Done"],L["Avail"]
           end
           table.insert(extraInfos,{
             character = character,
@@ -290,12 +291,12 @@ local function GlobalLineGenerator(tooltip,data)
         for questId,values in pairs(v) do
           if trackedQuests[questId].enabled then
             if not added then
-              Exlist.AddLine(tooltip,WrapTextInColorCode(questTypes[type] .. " Quests",colors.QuestTypeTitle[type]),14)
+              Exlist.AddLine(tooltip,WrapTextInColorCode(questTypes[type] .. " " .. L["Quests"],colors.QuestTypeTitle[type]),14)
               added = true
             end
             Exlist.AddLine(tooltip,{
               Exlist.GetCachedQuestTitle(questId),
-              (values.completed and WrapTextInColorCode("Completed", "FFFF0000") or  WrapTextInColorCode("Available", "FF00FF00"))
+              (values.completed and WrapTextInColorCode(L["Completed"], "FFFF0000") or  WrapTextInColorCode(L["Available"], "FF00FF00"))
             })
           end
         end
@@ -340,19 +341,19 @@ local function SetupQuestConfig(refresh)
           type = "description",
           order = 1,
           width = "full",
-          name = "Controls quests that are being tracked by addon\n"
+          name = L["Controls quests that are being tracked by addon\n"]
       },
       note = {
         type = "description",
         order = 1,
         width = "full",
         fontSize = "medium",
-        name = strings.Note .. "  Due to restrictions to API Quest Titles might take couple reloads to appear\n"
+        name = strings.Note .. "  " .. L["Due to restrictions to API Quest Titles might take couple reloads to appear\n"]
       },
       showExtraTooltip = {
         order = 1.05,
-        name = "Show in Extra Tooltip",
-        desc = "Show selected quests and their completetion in extra tooltip for current character",
+        name = L["Show in Extra Tooltip"],
+        desc = L["Show selected quests and their completetion in extra tooltip for current character"],
         type = "toggle",
         width = "full",
         get = function()
@@ -365,7 +366,7 @@ local function SetupQuestConfig(refresh)
       itemInput = {
         type = "input",
         order = 1.1,
-        name = "Add Quest ID",
+        name = L["Add Quest ID"],
         get = function() return "" end,
         set = function(self,v)
           local questId = tonumber(v)
@@ -386,21 +387,21 @@ local function SetupQuestConfig(refresh)
         order = 1.2,
         width = 1.35,
         fontSize = "large",
-        name = WrapTextInColorCode("Quest Title","ffffd200")
+        name = WrapTextInColorCode(L["Quest Title"],"ffffd200")
       },
       typeLabel = {
         type = "description",
         order = 1.3,
         width = 0.55,
         fontSize = "large",
-        name = WrapTextInColorCode("Type","ffffd200")
+        name = WrapTextInColorCode(L["Type"],"ffffd200")
       },
       separatelabel = {
         type = "description",
         order = 1.4,
         width = 0.75,
         fontSize = "large",
-        name = WrapTextInColorCode("Show Separate","ffffd200")
+        name = WrapTextInColorCode(L["Show Separate"],"ffffd200")
       },
       spacer1 = {
         type = "description",
@@ -472,12 +473,12 @@ local function SetupQuestConfig(refresh)
     o[questId.."delete"] = {
       type = "execute",
       order = n,
-      name = "Delete",
+      name = L["Delete"],
       disabled = function() return info.default end,
       width = 0.5,
       func = function()
         StaticPopupDialogs["DeleteQDataPopup_"..questId] = {
-          text = "Do you really want to delete "..WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),Exlist.Colors.QuestTitle).."?",
+          text = L["Do you really want to delete "]..WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),Exlist.Colors.QuestTitle).."?",
           button1 = "Ok",
           button3 = "Cancel",
           hasEditBox = false,
@@ -501,9 +502,9 @@ local function SetupQuestConfig(refresh)
     n = n + 1
   end
   if not refresh then
-    Exlist.AddModuleOptions(key,options,"Quests")
+    Exlist.AddModuleOptions(key,options,L["Quests"])
   else
-    Exlist.RefreshModuleOptions(key,options,"Quests")
+    Exlist.RefreshModuleOptions(key,options,L["Quests"])
   end
 end
 Exlist.ModuleToBeAdded(SetupQuestConfig)
@@ -529,13 +530,13 @@ local function init()
 
   Exlist.ConfigDB.settings.extraInfoToggles.quests = Exlist.ConfigDB.settings.extraInfoToggles.quests 
   or {
-      name = "Weekly/Daily Quests",
+      name = L["Weekly/Daily Quests"],
       enabled = true,
      }
 end
 
 local data = {
-  name = 'Quests',
+  name = L['Quests'],
   key = key,
   linegenerator = Linegenerator,
   globallgenerator = GlobalLineGenerator,
@@ -544,7 +545,7 @@ local data = {
   event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED","EXLIST_REFRESH_QUESTS"},
   weeklyReset = true,
   dailyReset = true,
-  description = "Allows user to track different daily or weekly quests",
+  description = L["Allows user to track different daily or weekly quests"],
   specialResetHandle = ResetHandle,
   init = init,
   -- modernize = Modernize

@@ -1,4 +1,5 @@
 local key = "artifact"
+local L = Exlist.L
 local prio = 30
 local LAD
 local AK_MAX_LEVEL = 40
@@ -150,7 +151,7 @@ end
 
 local function Linegenerator(tooltip,data,character)
   if not data then return end
-  local dataString = WrapTextInColorCode("Rank: ", "ffb2b2b2")..data.traits
+  local dataString = WrapTextInColorCode(L["Rank: "], "ffb2b2b2")..data.traits
   if data.availableRanks and data.availableRanks > 0 then
     dataString = dataString .. WrapTextInColorCode(" +"..data.availableRanks,"FF00FF00")
   end
@@ -158,27 +159,27 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     priority = prio,
     moduleName = key,
-    titleName = "Artifact",
+    titleName = L["Artifact"],
     data = dataString,
   }
-  local sideTooltip = {body= {}, title=WrapTextInColorCode("Artifact Weapon", "ffffd200")}
-  table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Power: ", "ffb2b2b2"),Exlist.ShortenNumber(data.AP.curr, 2) .. '/' .. Exlist.ShortenNumber(data.AP.max, 2)})
-  table.insert(sideTooltip.body,{WrapTextInColorCode("Artifact Knowledge level: ", "ffb2b2b2"), data.knowledge.level})
+  local sideTooltip = {body= {}, title=WrapTextInColorCode(L["Artifact Weapon"], "ffffd200")}
+  table.insert(sideTooltip.body,{WrapTextInColorCode(L["Artifact Power: "], "ffb2b2b2"),Exlist.ShortenNumber(data.AP.curr, 2) .. '/' .. Exlist.ShortenNumber(data.AP.max, 2)})
+  table.insert(sideTooltip.body,{WrapTextInColorCode(L["Artifact Knowledge level: "], "ffb2b2b2"), data.knowledge.level})
   local next = tonumber(data.knowledge.next)
   local nextIn = next and next - time or nil
   if nextIn and nextIn > 0 then
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), SecondsToTime(nextIn)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Next In: "], "ffb2b2b2"), SecondsToTime(nextIn)})
   elseif nextIn then
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Next In: ", "ffb2b2b2"), WrapTextInColorCode("Ready!", "ff62f442")})
+    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Next In: "], "ffb2b2b2"), WrapTextInColorCode(L["Ready!"], "ff62f442")})
   end
   if data.apTracking and data.apTracking[data.currentID] then
     local d = data.apTracking[data.currentID]
     local collectedToday = data.AP.totalAP - d[#d].ap
     local collectedThisWeek = data.AP.totalAP - d[1].ap
     local collectedPerDay = collectedThisWeek/7
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Collected Today: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedToday, 2)})
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Collected This Week: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedThisWeek, 2)})
-    table.insert(sideTooltip.body,{WrapTextInColorCode("Collected Per Day: ", "ffb2b2b2"),Exlist.ShortenNumber(collectedPerDay, 2)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Collected Today: "], "ffb2b2b2"),Exlist.ShortenNumber(collectedToday, 2)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Collected This Week: "], "ffb2b2b2"),Exlist.ShortenNumber(collectedThisWeek, 2)})
+    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Collected Per Day: "], "ffb2b2b2"),Exlist.ShortenNumber(collectedPerDay, 2)})
   end
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
@@ -187,13 +188,13 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local data = {
-  name = "Artifact",
+  name = L["Artifact"],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"ARTIFACT_UPDATE","ARTIFACT_UPDATE_DELAYED","ARTIFACT_XP_UPDATE"},
-  description = "Currently equipped artifact information (Rank/Current and Needed Artifact Power for next trait/Artifact Knowledge",
+  description = L["Currently equipped artifact information (Rank/Current and Needed Artifact Power for next trait/Artifact Knowledge"],
   weeklyReset = false
 }
 Exlist.RegisterModule(data)

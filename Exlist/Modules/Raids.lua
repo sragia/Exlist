@@ -1,18 +1,22 @@
 local key = "raids"
 local prio = 100
 local Exlist = Exlist
+local L = Exlist.L
 local pairs, ipairs, type = pairs, ipairs, type
 local WrapTextInColorCode = WrapTextInColorCode
 local LFRencounters = {}
+local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo = GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo
+local table, pairs = table, pairs
+local WrapTextInColorCode = WrapTextInColorCode
 
 local expansions = {
-  "Vanilla",
-  "The Burning Crusade",
-  "Wrath of The Lich King",
-  "Cataclysm",
-  "Mists of Pandaria",
-  "Warlords of Draenor",
-  "Legion"
+  L["Vanilla"],
+  L["The Burning Crusade"],
+  L["Wrath of The Lich King"],
+  L["Cataclysm"],
+  L["Mists of Pandaria"],
+  L["Warlords of Draenor"],
+  L["Legion"]
 }
 
 local defaultSettings = {}
@@ -29,15 +33,15 @@ local raidDifficultyIds = {
 	16, -- Mythic
 }
 local diffOrder = {"LFR"}
-local diffShortened = { LFR = " LFR"}
+local diffShortened = { LFR = L[" LFR"]}
 local diffShort = {
-	[3] = " 10M",
-	[5] = " 10HC",
-	[4] = " 25M",
-	[6] = " 25HC",
-	[14] = " N",
-	[15] = " HC",
-	[16] = " M"
+	[3] = L[" 10M"],
+	[5] = L[" 10HC"],
+	[4] = L[" 25M"],
+	[6] = L[" 25HC"],
+	[14] = L[" N"],
+	[15] = L[" HC"],
+	[16] = L[" M"]
 }
 local function AddRaidOptions()
   local settings = Exlist.ConfigDB.settings
@@ -56,7 +60,7 @@ local function AddRaidOptions()
     args = {
       desc = {
         type = "description",
-        name = "Enable raids you want to see\n",
+        name = L["Enable raids you want to see\n"],
         width = "full",
         order = 0,
       }
@@ -84,14 +88,10 @@ local function AddRaidOptions()
       set = function(self,v) opt.enabled = v end
     }
   end
-  Exlist.AddModuleOptions(key,configOpt,"Raids")
+  Exlist.AddModuleOptions(key,configOpt,L["Raids"])
 end
 Exlist.ModuleToBeAdded(AddRaidOptions)
 
-local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo = GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo
-local table, pairs = table, pairs
-local WrapTextInColorCode = WrapTextInColorCode
-local Exlist = Exlist
 
 local function spairs(t, order)
   -- collect the keys
@@ -247,8 +247,8 @@ local function Linegenerator(tooltip,data,character)
                   table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,"ffc1c1c1"),""})
                   for i=1,#b do
                     table.insert(sideTooltipTable.body,{b[i].name,
-                    b[i].killed and WrapTextInColorCode("Defeated","ffff0000") or
-                    WrapTextInColorCode("Available","ff00ff00")})
+                    b[i].killed and WrapTextInColorCode(L["Defeated"],"ffff0000") or
+                    WrapTextInColorCode(L["Available"],"ff00ff00")})
                   end
                 end
               end
@@ -257,8 +257,8 @@ local function Linegenerator(tooltip,data,character)
             -- normal people difficulties
             for boss=1,#raidInfo.bosses do
               table.insert(sideTooltipTable.body,{raidInfo.bosses[boss].name,
-              raidInfo.bosses[boss].killed and WrapTextInColorCode("Defeated","ffff0000") or
-              WrapTextInColorCode("Available","ff00ff00")})
+              raidInfo.bosses[boss].killed and WrapTextInColorCode(L["Defeated"],"ffff0000") or
+              WrapTextInColorCode(L["Available"],"ff00ff00")})
             end
           end
 
@@ -463,13 +463,13 @@ local function init()
 end
 
 local data = {
-  name = 'Raids',
+  name = L['Raids'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD"},
-  description = "Tracks lockouts for current expansion raids",
+  description = L["Tracks lockouts for current expansion raids"],
   weeklyReset = true,
   init = init
 }

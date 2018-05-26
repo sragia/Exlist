@@ -11,7 +11,8 @@ Exlist_Config = Exlist_Config or {}
 local debugMode = false
 local debugString = "|cffc73000[Exlist Debug]|r"
 -- GLOBALS: Exlist Exlist_Db Exlist_ConfigDB
-Exlist = {}
+local Exlist = Exlist
+local L = Exlist.L
 Exlist.debugMode = debugMode
 Exlist.debugString = debugString
 local registeredUpdaters = {
@@ -210,19 +211,19 @@ local iconPaths = {
   [0] = [[Interface\AddOns\Exlist\Media\Icons\SpecNone.tga]],
 }
 Exlist.ShortenedMPlus = {
-  [197] = "EoA",
-  [198] = "DHT",
-  [199] = "BRH",
-  [200] = "HoV",
-  [206] = "NL",
-  [207] = "VotW",
-  [208] = "MoS",
-  [209] = "Arc",
-  [210] = "CoS",
-  [227] = "LKara",
-  [233] = "CoEN",
-  [234] = "UKara",
-  [239] = "SotT",
+  [197] = L["EoA"],
+  [198] = L["DHT"],
+  [199] = L["BRH"],
+  [200] = L["HoV"],
+  [206] = L["NL"],
+  [207] = L["VotW"],
+  [208] = L["MoS"],
+  [209] = L["Arc"],
+  [210] = L["CoS"],
+  [227] = L["LKara"],
+  [233] = L["CoEN"],
+  [234] = L["UKara"],
+  [239] = L["SotT"],
 }
 Exlist.Colors = {
   QuestTitle = "ffffd200",
@@ -238,7 +239,7 @@ Exlist.Colors = {
   },
 }
 Exlist.Strings = {
-  Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode("Note!","ffffd200") ),
+  Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode(L["Note!"],"ffffd200") ),
 
 }
 
@@ -565,7 +566,7 @@ mediumFont:SetTextColor(1,1,1)
 local customFonts = {
   --[fontSize] = fontObject
 }
-local monthNames = {'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'}
+local monthNames = {L['January'], L['February'], L['March'], L['April'], L['May'], L['June'], L['July'], L['August'], L['September'], L['October'], L['November'], L['December']}
 
 -- register events
 local frame = CreateFrame("FRAME")
@@ -722,7 +723,7 @@ function Exlist.GetItemGems(itemLink)
     if tex then
       tex = tostring(tex)
       if tex:find("Interface\\ItemSocketingFrame\\UI--Empty") then
-        table.insert(t,{name = "|cFFccccccEmpty Slot",icon = tex})
+        table.insert(t,{name = "|cFFcccccc"..L["Empty Slot"],icon = tex})
       end
     end
   end
@@ -838,9 +839,11 @@ local function AddModulesToSettings()
   if not settings.allowedModules then settings.allowedModules = {} end
   local t = settings.allowedModules
   for i=1,#registeredModules do
-    if t[registeredModules[i]] == nil then
+    if t[registeredModules[i].key] == nil then
       -- first time seeing it
-      t[registeredModules[i]] = true
+      t[registeredModules[i].key] = {enabled = true, name = registeredModules[i].name}
+    else
+      t[registeredModules[i].key].name = registeredModules[i].name
     end
   end
 end
@@ -933,7 +936,7 @@ local WipeKey = function(key)
     for name in pairs(db[realm]) do
       for keys in pairs(db[realm][name]) do
         if keys == key then
-            Exlist.Debug(' - wiping ',key, ' Fromn:',name,'-',realm)
+            Exlist.Debug(' - wiping ',key, ' From:',name,'-',realm)
           db[realm][name][key] = nil
         end
       end
@@ -991,8 +994,8 @@ local enchantNames = {
   [5433] = "+150 Intellect",
   [5432] = "+150 Agility",
 }
-local slotNames = {"Head","Neck","Shoulders","Shirt","Chest","Waist","Legs","Feet","Wrists",
-"Hands","Ring","Ring","Trinket","Trinket","Back","Main Hand","Off Hand","Ranged"}
+local slotNames = {L["Head"],L["Neck"],L["Shoulders"],L["Shirt"],L["Chest"],L["Waist"],L["Legs"],L["Feet"],L["Wrists"],
+L["Hands"],L["Ring"],L["Ring"],L["Trinket"],L["Trinket"],L["Back"],L["Main Hand"],L["Off Hand"],L["Ranged"]}
 
 local function UpdateCharacterGear()
   local t = {}
@@ -1016,7 +1019,7 @@ local function UpdateCharacterGear()
       local name,icon,slotTypeName,link = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
       if name then
         local _,_,_,ilvl=GetItemInfo(link)
-        table.insert(t,{slot = slotTypeName .. " Relic", name = name,itemTexture = icon, itemLink = link,
+        table.insert(t,{slot = slotTypeName .. " "..L["Relic"], name = name,itemTexture = icon, itemLink = link,
                       ilvl = ilvl})
       end
     end
@@ -1368,12 +1371,12 @@ function Exlist.RegisterModule(data)
       -- multiple events
       for i=1,#data.event do
         registeredUpdaters[data.event[i]] = registeredUpdaters[data.event[i]] or {}
-        table.insert(registeredUpdaters[data.event[i]],{func = data.updater, name = data.name,override = data.override})
+        table.insert(registeredUpdaters[data.event[i]],{func = data.updater, name = data.name,override = data.override, key = data.key})
       end
     elseif type(data.event) == "string" then
       -- single event
       registeredUpdaters[data.event] = registeredUpdaters[data.event] or {}
-      table.insert(registeredUpdaters[data.event],{func = data.updater, name = data.name,override = data.override})
+      table.insert(registeredUpdaters[data.event],{func = data.updater, name = data.name,override = data.override, key = data.key})
     end
   end
   RegisterEvents()
@@ -1389,8 +1392,8 @@ function Exlist.RegisterModule(data)
     table.insert(globalLineGenerators,{name=data.name,func = data.globallgenerator,prio=data.priority,key=data.key})
   end
   -- Add module name to list
-  table.insert(registeredModules,data.name)
-  Exlist.ModuleDesc[data.name] = data.description or ""
+  table.insert(registeredModules,{name = data.name,key = data.key})
+  Exlist.ModuleDesc[data.key] = data.description or ""
   if data.weeklyReset then
     table.insert(keysToResetWeekly,data.key)
   end
@@ -1453,9 +1456,9 @@ function Exlist.DeleteCharacterFromDB(name,realm)
   if db[realm] then
     db[realm][name] = nil
     settings.allowedCharacters[name.."-"..realm] = nil
-    print(debugString,"Successfully deleted",name.."-"..realm,".")
+    print(debugString,L["Successfully deleted"],name.."-"..realm,".")
   else
-    print(debugString,"Deleting",name.."-"..realm,"failed.")
+    print(debugString,string.format(L["Deleting %s-%s failed."],name,realm))
   end
 end
 
@@ -1503,7 +1506,7 @@ local function AddNote(tooltip,data,realm,name)
   if data.note then
     -- show note
     StaticPopupDialogs["DeleteNotePopup_"..name..realm] = {
-      text = "Delete Note?",
+      text = L["Delete Note?"],
       button1 = "Yes",
       button3 = "Cancel",
       hasEditBox = false,
@@ -1611,10 +1614,10 @@ local function GearTooltip(self,info)
   (info.level or 0) .. ' level'
   local line = geartooltip:AddHeader()
   geartooltip:SetCell(line,1,header,"LEFT",3)
-  geartooltip:SetCell(line,7,string.format("%i ilvl",(info.iLvl or 0)),"RIGHT")
+  geartooltip:SetCell(line,7,string.format("%i "..L["ilvl"],(info.iLvl or 0)),"RIGHT")
   geartooltip:AddSeparator(1,.8,.8,.8,1)
   line = geartooltip:AddHeader()
-  geartooltip:SetCell(line,1,WrapTextInColorCode("Gear","ffffb600"),"CENTER",7)
+  geartooltip:SetCell(line,1,WrapTextInColorCode(L["Gear"],"ffffb600"),"CENTER",7)
   local gear = info.gear
   if gear then
     for i=1,#gear do
@@ -1633,7 +1636,7 @@ local function GearTooltip(self,info)
           end
         end
       elseif hasEnchantSlot[gear[i].slot] then
-        enchantements = WrapTextInColorCode("No Enchant!","ffff0000")
+        enchantements = WrapTextInColorCode(L["No Enchant!"],"ffff0000")
       end
       local line = geartooltip:AddLine(gear[i].slot)
       geartooltip:SetCell(line,2,string.format("|c%s%-5d|r",setIlvlColor(gear[i].ilvl),gear[i].ilvl or 0))
@@ -1668,7 +1671,7 @@ local function GearTooltip(self,info)
   if info.professions and #info.professions > 0 then
     -- professsions
     line = geartooltip:AddHeader()
-    geartooltip:SetCell(line,1,WrapTextInColorCode("Professions","ffffb600"),"CENTER",7)
+    geartooltip:SetCell(line,1,WrapTextInColorCode(L["Professions"],"ffffb600"),"CENTER",7)
     local p = info.professions
     local tipWidth = geartooltip:GetWidth()
     for i=1,#p do
@@ -1686,7 +1689,7 @@ local function GearTooltip(self,info)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
   end
-  local line = geartooltip:AddLine("Last Updated:")
+  local line = geartooltip:AddLine(L["Last Updated:"])
   geartooltip:SetCell(line, 2,info.updated,"LEFT",3)
   local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame)
   if position == "left" then
@@ -1935,7 +1938,7 @@ local function OnEnter(self)
 
       else
         headerText = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
-        subHeaderText = string.format("|c%s%s - Level %i","ffffd200",realm,charData.level)
+        subHeaderText = string.format("|c%s%s - "..L["Level"] .." %i","ffffd200",realm,charData.level)
       end
       -- Header Info
       Exlist.AddData({
@@ -1973,7 +1976,7 @@ local function OnEnter(self)
 
       -- Add Info
       for i = 1, #registeredLineGenerators do
-        if settings.allowedModules[registeredLineGenerators[i].name] then
+        if settings.allowedModules[registeredLineGenerators[i].key].enabled then
           registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key],character)
         end
       end
@@ -1994,7 +1997,7 @@ local function OnEnter(self)
       gTip:SetFont(smallFont)
       tooltip.globalTooltip = gTip
       for i=1, #globalLineGenerators do
-        if settings.allowedModules[globalLineGenerators[i].name] then
+        if settings.allowedModules[globalLineGenerators[i].key].enabled then
           globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
         end
       end
@@ -2139,6 +2142,24 @@ local function IsNewCharacter()
 end
 function Exlist.SetupConfig()
 end
+
+local function Modernize()
+  -- to new allowedModules format
+  local deleteList = {}
+  for name,value in pairs(settings.allowedModules) do
+    if type(value) ~= 'table' then
+      for i,t in ipairs(registeredModules) do
+        if t.name == name then
+          settings.allowedModules[t.key] = {enabled = value, name = name}
+          break
+        end
+      end
+      deleteList[#deleteList+1] = name
+    end
+  end
+  for i,name in ipairs(deleteList) do settings.allowedModules[name] = nil end
+end
+
 local function init()
   Exlist_DB = Exlist_DB or db
   Exlist_Config = Exlist_Config or config_db
@@ -2167,6 +2188,7 @@ local function init()
     func()
   end
 
+  Modernize()
   ModernizeCharacters()
 
   if IsNewCharacter() then
@@ -2368,7 +2390,7 @@ local function AnnounceReset(msg)
   end
 end
 hooksecurefunc("ResetInstances", function()
-  AnnounceReset("Reset All Instances")
+  AnnounceReset(L["Reset All Instances"])
 end)
 
 
@@ -2454,7 +2476,7 @@ function frame:OnEvent(event, ...)
   Exlist.Debug('Event ',event)
   if registeredUpdaters[event] then
     for i=1,#registeredUpdaters[event] do
-      if not settings.allowedModules[registeredUpdaters[event][i].name] and not registeredUpdaters[event][i].override then return end
+      if not settings.allowedModules[registeredUpdaters[event][i].key].enabled and not registeredUpdaters[event][i].override then return end
       local started = debugprofilestop()
       registeredUpdaters[event][i].func(event,...)
       Exlist.Debug(registeredUpdaters[event][i].name .. ' finished: ' .. DebugTimeColors(debugprofilestop() - started))
@@ -2510,12 +2532,12 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
   elseif args[1] == "update" then
     Exlist_PrintUpdates()
   elseif args[1] == "debug" then
-    print(debugMode and 'Debug: stopped' or 'Debug: started')
+    print(debugMode and L['Debug: stopped'] or L['Debug: started'])
     debugMode = not debugMode
     Exlist.debugMode = debugMode
   elseif args[1] == "reset" then
-    print('Weekly reset in: ', SecondsToTime(GetNextWeeklyResetTime()-time()))
-    print('Daily reset in: ', SecondsToTime(GetNextDailyResetTime()-time()))
+    print(L['Weekly reset in: '], SecondsToTime(GetNextWeeklyResetTime()-time()))
+    print(L['Daily reset in: '], SecondsToTime(GetNextDailyResetTime()-time()))
   elseif args[1] == "wipe" then
     if args[2] then
       -- testing purposes

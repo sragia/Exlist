@@ -1,4 +1,5 @@
 local key = "coins"
+local L = Exlist.L
 local prio = 60
 local MAX_CHARACTER_LEVEL = 110
 local UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo = UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo
@@ -21,7 +22,7 @@ local function Updater(event)
     [47864] = 1,
     [47865] = 1, 
   }
-  local coinsCurrency = UnitLevel'player' <= 100 and 1129 or 1273
+  local coinsCurrency = UnitLevel('player') <= 100 and 1129 or 1273
   local count = 0
   local quests = {}
   for id, _ in pairs(coinsQuests) do
@@ -44,16 +45,16 @@ end
 local function Linegenerator(tooltip,data,character)
   if not data then return end
   local settings = Exlist.ConfigDB.settings
-  local availableCoins = data.available > 0 and WrapTextInColorCode(settings.shortenInfo and "+" .. data.available or (data.available .. " available!"), "ff00ff00") or ""
+  local availableCoins = data.available > 0 and WrapTextInColorCode(settings.shortenInfo and "+" .. data.available or (data.available .. L[" available!"]), "ff00ff00") or ""
   local info = {
     data = data.curr .. "/" .. data.max .. " " .. availableCoins,
     character = character,
     priority = prio,
     moduleName = key,
-    titleName = "Coins"
+    titleName = L["Coins"]
   }
   if data.quests and #data.quests > 0 then
-    local sideTooltip = {title = WrapTextInColorCode("Quests Done This Week","ffffd200"), body = {}}
+    local sideTooltip = {title = WrapTextInColorCode(L["Quests Done This Week"],"ffffd200"), body = {}}
     for i=1,#data.quests do
       table.insert(sideTooltip.body,WrapTextInColorCode("[" .. data.quests[i] .. "]","fffee400"))
     end
@@ -65,13 +66,13 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local data = {
-  name = 'Coins',
+  name = L['Coins'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"CURRENCY_DISPLAY_UPDATE","QUEST_FINISHED","QUEST_TURNED_IN"},
-  description = "Tracks currently available bonus roll coins and amount of coins available from weekly quests",
+  description = L["Tracks currently available bonus roll coins and amount of coins available from weekly quests"],
   weeklyReset = false
 }
 

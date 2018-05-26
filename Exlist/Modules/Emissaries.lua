@@ -8,6 +8,7 @@ local UnitLevel = UnitLevel
 local GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo = GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo
 local table,pairs = table,pairs
 local Exlist = Exlist
+local L = Exlist.L
 
 
 local function TimeLeftColor(timeLeft, times, col)
@@ -112,7 +113,7 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     moduleName = key,
     priority = prio,
-    titleName = "Available Emissaries",
+    titleName = L["Available Emissaries"],
   }
   local timeNow = time()
   local availableEmissaries = 0
@@ -124,7 +125,7 @@ local function Linegenerator(tooltip,data,character)
   if availableEmissaries > 0 then
     info.data = WrapTextInColorCode(availableEmissaries, "FF00FF00")
     -- info {} {body = {'1st lane',{'2nd lane', 'side number w/e'}},title = ""}
-    local sideTooltip = {title = WrapTextInColorCode("Available Emissaries", "ffffd200"), body = {}}
+    local sideTooltip = {title = WrapTextInColorCode(L["Available Emissaries"], "ffffd200"), body = {}}
     local timeLeftColor
     for i = 1, #data do
       if data[i] and data[i].endTime > timeNow then
@@ -142,7 +143,7 @@ end
 local function GlobalLineGenerator(tooltip,data)
   if not Exlist.ConfigDB.settings.extraInfoToggles.emissary.enabled then return end
   local timeNow = time()
-  Exlist.AddLine(tooltip,{WrapTextInColorCode("Emissaries","ffffd200")},14)
+  Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Emissaries"],"ffffd200")},14)
 
   for questId,info in spairs(data or {},function(t,a,b) return t[a].endTime < t[b].endTime end) do
     Exlist.AddLine(tooltip,{info.title,TimeLeftColor(info.endTime - timeNow,{36000, 72000})})
@@ -152,20 +153,20 @@ end
 local function init()
   Exlist.ConfigDB.settings.extraInfoToggles.emissary = Exlist.ConfigDB.settings.extraInfoToggles.emissary 
   or {
-      name = "Emissaries",
+      name = L["Emissaries"],
       enabled = true,
      }
 end
 
 local data = {
-name = 'Emissary',
+name = L['Emissary'],
 key = key,
 linegenerator = Linegenerator,
 globallgenerator = GlobalLineGenerator,
 priority = prio,
 updater = Updater,
 event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED"},
-description = "Tracks available emissaries and their status for your character",
+description = L["Tracks available emissaries and their status for your character"],
 weeklyReset = false,
 init = init,
 }

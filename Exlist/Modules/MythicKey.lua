@@ -13,6 +13,7 @@ local ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat = ChatEd
 local GameTooltip = GameTooltip
 local ipairs = ipairs
 local Exlist = Exlist
+local L = Exlist.L
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local lastUpdate = 0
@@ -24,6 +25,7 @@ local function Updater(event)
   for bag = 0, NUM_BAG_SLOTS do
     for slot = 1, GetContainerNumSlots(bag) do
       local s = GetContainerItemLink(bag, slot)
+      -- TODO: Localize
       if s and string.find(s, "Keystone:") then
         local _, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
         local affixes = {affix1,affix2,affix3}
@@ -60,7 +62,7 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     moduleName = key,
     priority = prio,
-    titleName = "Key in bags",
+    titleName = L["Key in bags"],
     OnClick = function(self, arg1,...)
       if IsShiftKeyDown() then
         if not arg1 then return end
@@ -86,10 +88,10 @@ local function GlobalLineGenerator(tooltip,data)
   local added = false
   for i=1,#data do
     if not added then
-      Exlist.AddLine(tooltip,{WrapTextInColorCode("Mythic+ Affixes","ffffd200")},14)
+      Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Mythic+ Affixes"],"ffffd200")},14)
       added = true
     end
-    local line = Exlist.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or "Unknown")})
+    local line = Exlist.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or L["Unknown"])})
     if data[i].desc then
       Exlist.AddScript(tooltip,line,nil,"OnEnter",function(self)
         GameTooltip:SetOwner(self)
@@ -123,21 +125,21 @@ end
 
 local function init()
   Exlist.ConfigDB.settings.extraInfoToggles.affixes = Exlist.ConfigDB.settings.extraInfoToggles.affixes or {
-      name = "Mythic+ Weekly Affixes",
+      name = L["Mythic+ Weekly Affixes"],
       enabled = true,
      }
 end
 
 
 local data = {
-  name = 'Mythic+ Key',
+  name = L['Mythic+ Key'],
   key = key,
   linegenerator = Linegenerator,
   globallgenerator = GlobalLineGenerator,
   priority = prio,
   updater = Updater,
   event = "BAG_UPDATE",
-  description = "Tracks characters mythic+ key in their bags and weekly mythic+ affixes",
+  description = L["Tracks characters mythic+ key in their bags and weekly mythic+ affixes"],
   weeklyReset = true,
   modernize = Modernize,
   init = init

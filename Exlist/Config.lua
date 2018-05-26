@@ -1,5 +1,6 @@
 local name = ...
 local Exlist = Exlist
+local L = Exlist.L
 local AceGUI = LibStub("AceGUI-3.0")
 local AceConfReg = LibStub("AceConfigRegistry-3.0")
 local AceConfDia = LibStub("AceConfigDialog-3.0")
@@ -61,24 +62,24 @@ Exlist.SetupConfig = function(refresh)
             },
             version ={
                 order = 0.1,
-                name = "|cfff4bf42Version:|r " .. addonVersion,
+                name = "|cfff4bf42"..L["Version"]..":|r " .. addonVersion,
                 type = "description",
                 width = "full"
             },
             author ={
                 order = 0.2,
-                name = "|cfff4bf42Author:|r Exality - Silvermoon EU\n\n",
+                name = "|cfff4bf42"..L["Author"]..":|r Exality - Silvermoon EU\n\n",
                 type = "description",
                 width = "full"
             },
             general = {
                 type="group",
-                name = "General",
+                name = L["General"],
                 order = 1,
                 args = {
                     lock = {
                         order = 3,
-                        name = "Lock Icon",
+                        name = L["Lock Icon"],
                         type = "toggle",
                         width = "full",
                         get = function()
@@ -92,7 +93,7 @@ Exlist.SetupConfig = function(refresh)
                     iconscale = {
                         order = 1,
                         type = "range",
-                        name = "Icon Scale",
+                        name = L["Icon Scale"],
                         min = 0.2,
                         max = 2.0,
                         step = 0.01,
@@ -109,7 +110,7 @@ Exlist.SetupConfig = function(refresh)
                     iconalpha = {
                         order = 2,
                         type = "range",
-                        name = "Icon Alpha",
+                        name = L["Icon Alpha"],
                         min = 0,
                         max = 1,
                         step = 0.05,
@@ -123,7 +124,7 @@ Exlist.SetupConfig = function(refresh)
                     },
                     announceReset = {
                         order = 4,
-                        name = "Announce instance reset",
+                        name = L["Announce instance reset"],
                         type = "toggle",
                         width = "full",
                         get = function()
@@ -135,7 +136,7 @@ Exlist.SetupConfig = function(refresh)
                     },
                     showMinimapIcon = {
                         order = 5,
-                        name = "Show Minimap Icon",
+                        name = L["Show Minimap Icon"],
                         type = "toggle",
                         width = "full",
                         get = function()
@@ -148,7 +149,7 @@ Exlist.SetupConfig = function(refresh)
                     },
                     showExtraInfo = {
                         order = 6,
-                        name = "Show Extra Info Tooltip",
+                        name = L["Show Extra Info Tooltip"],
                         type = "toggle",
                         width = "full",
                         get = function()
@@ -160,7 +161,7 @@ Exlist.SetupConfig = function(refresh)
                     },
                     showIcon = {
                         order = 2.9,
-                        name = "Show Icon",
+                        name = L["Show Icon"],
                         type = "toggle",
                         width = "full",
                         get = function()
@@ -173,9 +174,9 @@ Exlist.SetupConfig = function(refresh)
                     },  
                     shortenInfo = {
                         order = 7,
-                        name = "Shorten Info",
+                        name = L["Shorten Info"],
                         type = "toggle",
-                        desc = "Slimmed down version of main tooltip i.e. +15 Neltharions Lair -> +15 NL\nMostly affects tooltip in horizontal orientation",
+                        desc = L["Slimmed down version of main tooltip i.e. +15 Neltharions Lair -> +15 NL\nMostly affects tooltip in horizontal orientation"],
                         width = "full",
                         get = function()
                             return Exlist.ConfigDB.settings.shortenInfo
@@ -189,12 +190,12 @@ Exlist.SetupConfig = function(refresh)
             },
             fonts ={
                 type="group",
-                name = "Fonts",
+                name = L["Fonts"],
                 order = 3,
                 args ={
                     font = {
                         type = "select",
-                        name = "Font",
+                        name = L["Font"],
                         order = 4,
                         dialogControl = "LSM30_Font",
                         values = AceGUIWidgetLSMlists.font,
@@ -215,7 +216,7 @@ Exlist.SetupConfig = function(refresh)
                     smallFontSize = {
                         order = 6,
                         type = "range",
-                        name = "Info Size",
+                        name = L["Info Size"],
                         min = 1,
                         max = 50,
                         step = 0.5,
@@ -232,7 +233,7 @@ Exlist.SetupConfig = function(refresh)
                     mediumFontSize = {
                         order = 7,
                         type = "range",
-                        name = "Character Title Size",
+                        name = L["Character Title Size"],
                         min = 1,
                         max = 50,
                         step = 0.5,
@@ -249,7 +250,7 @@ Exlist.SetupConfig = function(refresh)
                     bigFontSize = {
                         order = 8,
                         type = "range",
-                        name = "Extra Info Title Size",
+                        name = L["Extra Info Title Size"],
                         min = 1,
                         max = 50,
                         step = 0.5,
@@ -267,7 +268,7 @@ Exlist.SetupConfig = function(refresh)
             },
             tooltip = {
                 type = "group",
-                name = "Tooltip",
+                name = L["Tooltip"],
                 order = 2,
                 args = {
                     des = {
@@ -279,10 +280,10 @@ Exlist.SetupConfig = function(refresh)
                         type = "select",
                         order = 1.1,
                         width = "full",
-                        name = "Tooltip Orientation",
+                        name = L["Tooltip Orientation"],
                         values = {
-                            V = "Vertical",
-                            H = "Horizontal"
+                            V = L["Vertical"],
+                            H = L["Horizontal"]
                         },
                         set = function(self,v)
                             Exlist.ConfigDB.settings.horizontalMode = v == "H"
@@ -294,7 +295,7 @@ Exlist.SetupConfig = function(refresh)
                     },
                     tooltipHeight = {
                         type = "range",
-                        name = "Tooltip Max Height",
+                        name = L["Tooltip Max Height"],
                         width = "normal",
                         order = 2,
                         min = 100,
@@ -310,7 +311,7 @@ Exlist.SetupConfig = function(refresh)
                     },
                     tooltipScale = {
                         type = "range",
-                        name = "Tooltip Scale",
+                        name = L["Tooltip Scale"],
                         width = "normal",
                         order = 2.1,
                         min = 0.1,
@@ -325,7 +326,7 @@ Exlist.SetupConfig = function(refresh)
                     },
                     bgColor = {
                         type = "color",
-                        name = "Background Color",
+                        name = L["Background Color"],
                         order = 3,
                         width = "normal",
                         hasAlpha = true,
@@ -345,7 +346,7 @@ Exlist.SetupConfig = function(refresh)
                     },
                     borderColor = {
                         type = "color",
-                        name = "Border Color",
+                        name = L["Border Color"],
                         order = 4,
                         width = "normal",
                         hasAlpha = true,
@@ -368,12 +369,12 @@ Exlist.SetupConfig = function(refresh)
             extratooltip = {
             type = "group",
             order = 4,
-            name = "Extra Tooltip Info",
+            name = L["Extra Tooltip Info"],
             args = {
                 description = {
                     type = "description",
                     order = 0,
-                    name = "Select data you want to see in Extra tooltip",
+                    name = L["Select data you want to see in Extra tooltip"],
                     width = "full",
                 }
             },   
@@ -383,13 +384,13 @@ Exlist.SetupConfig = function(refresh)
     
     local moduleOptions = {
         type = "group",
-        name = "Modules",
+        name = L["Modules"],
         args ={
             desc = {
                 type = "description",
                 order = 1,
                 width = "full",
-                name = "Enable/Disable modules that you want to use"
+                name = L["Enable/Disable modules that you want to use"]
             },
     
         }
@@ -397,18 +398,18 @@ Exlist.SetupConfig = function(refresh)
     
     local charOptions = {
         type = "group",
-        name = "Characters",
+        name = L["Characters"],
         args = {
             desc = {
                 type = "description",
                 order = 1,
                 width = "full",
-                name = "Enable and set order in which characters are to be displayed (0 shows above 5)"
+                name = L["Enable and set order in which characters are to be displayed (0 shows above 5)"]
             },
             orderByIlvl = {
                 type = "toggle",
                 order = 1.1,
-                name = "Order by item level",
+                name = L["Order by item level"],
                 width = "full",
                 get = function()
                     return Exlist.ConfigDB.settings.orderByIlvl
@@ -422,8 +423,8 @@ Exlist.SetupConfig = function(refresh)
             showCurrentRealm = {
                 type = "toggle",
                 order = 1.11,
-                name = "Only current realm",
-                desc = "Show only characters from currently logged in realm in tooltips",
+                name = L["Only current realm"],
+                desc = L["Show only characters from currently logged in realm in tooltips"],
                 width = "full",
                 get = function()
                     return Exlist.ConfigDB.settings.showCurrentRealm
@@ -443,28 +444,28 @@ Exlist.SetupConfig = function(refresh)
                 order = 1.2,
                 width = 0.5,
                 fontSize = "large",
-                name = WrapTextInColorCode("Name","ffffd200")
+                name = WrapTextInColorCode(L["Name"],"ffffd200")
             },
             realmLabel = {
                 type = "description",
                 order = 1.3,
                 width = 1,
                 fontSize = "large",
-                name = WrapTextInColorCode("Realm","ffffd200")
+                name = WrapTextInColorCode(L["Realm"],"ffffd200")
             },
             ilvlLabel = {
                 type = "description",
                 order = 1.4,
                 width = 0.5,
                 fontSize = "large",
-                name = WrapTextInColorCode("Item Level","ffffd200")
+                name = WrapTextInColorCode(L["Item Level"],"ffffd200")
             },
             OrderLabel = {
                 type = "description",
                 order = 1.5,
                 width = 1.2,
                 fontSize = "large",
-                name = WrapTextInColorCode("Order","ffffd200")
+                name = WrapTextInColorCode(L["Order"],"ffffd200")
             },
     
         }
@@ -480,12 +481,12 @@ Exlist.SetupConfig = function(refresh)
             type = "toggle",
             order = n,
             width = 0.7,
-            name = WrapTextInColorCode(i,"ffffd200"),
+            name = WrapTextInColorCode(v.name,"ffffd200"),
             get = function()
-                return modules[i]
+                return modules[i].enabled
             end,
             set = function(info, value) 
-                modules[i] = value
+                modules[i].enabled = value
             end
         }
         n = n + 1
@@ -571,7 +572,7 @@ Exlist.SetupConfig = function(refresh)
                 if characters[char].enabled then
                     return tostring(characters[char].order or 0)
                 else
-                    return "Disabled"
+                    return L["Disabled"]
                 end
             end,
             set = function(info,value)
@@ -601,7 +602,7 @@ Exlist.SetupConfig = function(refresh)
             width = 0.5,
             func = function()
                 StaticPopupDialogs["DeleteDataPopup_"..charname..realm] = {
-                    text = "Do you really want to delete all data for "..charname.."-"..realm.."?\n\nType \"DELETE\" into the field to confirm.",
+                    text = string.format(L["Do you really want to delete all data for %s-%s?\n\nType \"DELETE\" into the field to confirm."],charname,realm),
                     button1 = "Ok",
                     button3 = "Cancel",
                     hasEditBox = 1,
@@ -658,13 +659,13 @@ Exlist.SetupConfig = function(refresh)
     end
 
     if refresh then
-        RefreshAdditionalOptions("Characters",charOptions,"Characters")
-        RefreshAdditionalOptions("Modules",moduleOptions,"Modules")
+        RefreshAdditionalOptions("Characters",charOptions,L["Characters"])
+        RefreshAdditionalOptions("Modules",moduleOptions,L["Modules"])
     else
         AceConfReg:RegisterOptionsTable(name, options)
         AceConfDia:AddToBlizOptions(name)
-        RegisterAdditionalOptions("Modules",moduleOptions,"Modules")
-        RegisterAdditionalOptions("Characters",charOptions,"Characters")
+        RegisterAdditionalOptions("Modules",moduleOptions,L["Modules"])
+        RegisterAdditionalOptions("Characters",charOptions,L["Characters"])
         for i=1,#addingOpt do
             addingOpt[i]()
         end

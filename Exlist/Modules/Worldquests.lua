@@ -1,6 +1,7 @@
 local key = "worldquests"
 local prio = 130
 local Exlist = Exlist
+local L = Exlist.L
 local table,pairs,ipairs,type,math,time,GetTime,string,tonumber,print = table,pairs,ipairs,type,math,time,GetTime,string,tonumber,print
 local C_TaskQuest, IsQuestFlaggedCompleted = C_TaskQuest, IsQuestFlaggedCompleted
 local GetQuestLogRewardInfo,GetNumQuestLogRewardCurrencies,GetQuestLogRewardCurrencyInfo,GetQuestLogRewardMoney = GetQuestLogRewardInfo,GetNumQuestLogRewardCurrencies,GetQuestLogRewardCurrencyInfo,GetQuestLogRewardMoney
@@ -87,7 +88,7 @@ local function GetQuestRewards(questId)
       local itemType = "item"
       if IsAPItem(itemId) then
         itemType = "artifactpower"
-        name = "Artifact Power"
+        name = L["Artifact Power"]
         numItems = Exlist.GetCachedArtifactPower(itemId)
       end
       table.insert( rewards,{name = name,amount = numItems,texture = texture, type = itemType})
@@ -282,9 +283,9 @@ local function GlobalLineGenerator(tooltip,data)
       if info.endTime < timeNow or (wq[questId] and not wq[questId].enabled) then 
         RemoveExpiredQuest(questId)
       else
-        if first then Exlist.AddLine(tooltip,{WrapTextInColorCode("World Quests","ffffd200")},14) first = false end
+        if first then Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],"ffffd200")},14) first = false end
         local lineNum = Exlist.AddLine(tooltip,{info.name,
-        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode("Completed","FFFF0000") or WrapTextInColorCode("Available","FF00FF00"),  
+        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode(L["Completed"],"FFFF0000") or WrapTextInColorCode(L["Available"],"FF00FF00"),  
         Exlist.TimeLeftColor(info.endTime - timeNow,{3600, 14400})})
         Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
           if not WorldMapFrame:IsShown() then
@@ -301,7 +302,7 @@ local function GlobalLineGenerator(tooltip,data)
           if reward.name == "Gold" then
           table.insert(sideTooltip.body,{reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"})
           elseif reward.type == "artifactpower" then
-            table.insert(sideTooltip.body,{string.format("%s Artifact Power", Exlist.ShortenNumber(reward.amount))})
+            table.insert(sideTooltip.body,{string.format("%s %s", Exlist.ShortenNumber(reward.amount),L["Artifact Power"])})
           else
             if reward.amount > 1 then
               table.insert(sideTooltip.body,string.format( "%ix|T%s:12|t%s",reward.amount,reward.texture,reward.name))
@@ -324,20 +325,20 @@ local function SetupWQConfig(refresh)
   local wqRules = Exlist.ConfigDB.settings.wqRules
   local options = {
     type = "group",
-    name = "World Quests",
+    name = L["World Quests"],
     args ={
         desc = {
             type = "description",
             order = 1,
             width = "full",
-            name = "Add World Quests you want to see"
+            name = L["Add World Quests you want to see"]
         },
         forceRefresh = {
           type = "execute",
           order = 1.1,
           width = 1,
-          desc = "Force Refresh World Quests",
-          name = "Force Refresh",
+          desc = L["Force Refresh World Quests"],
+          name = L["Force Refresh"],
           func = function()
             lastTrigger = 0
             ToggleWorldMap()
@@ -348,7 +349,7 @@ local function SetupWQConfig(refresh)
         itemInput = {
           type = "input",
           order = 1.5,
-          name = "Add World Quest ID",
+          name = L["Add World Quest ID"],
           get = function() return "" end,
           set = function(self,v)
             local questId = tonumber(v)
@@ -361,7 +362,7 @@ local function SetupWQConfig(refresh)
               SetupWQConfig(true)
               lastTrigger = 0
             else
-              print(Exlist.debugString,"Invalid World Quest ID:",v)
+              print(Exlist.debugString,L["Invalid World Quest ID:"],v)
             end
           end,
           width = "full",
@@ -421,7 +422,7 @@ local function SetupWQConfig(refresh)
       width = 0.5,
       func = function()
         StaticPopupDialogs["DeleteWQDataPopup_"..questID] = {
-          text = "Do you really want to delete "..WrapTextInColorCode(info.name,colors.QuestTitle).."?",
+          text = L["Do you really want to delete"].." "..WrapTextInColorCode(info.name,colors.QuestTitle).."?",
           button1 = "Ok",
           button3 = "Cancel",
           hasEditBox = false,
@@ -451,14 +452,14 @@ local function SetupWQConfig(refresh)
     order = n,
     fontSize = "large",
     width = "full",
-    name = WrapTextInColorCode("\nWorld Quest rules", colors.Config.heading2)
+    name = WrapTextInColorCode(L["\nWorld Quest rules"], colors.Config.heading2)
   }
   n = n + 1
   options.args["WQRulesdesc"] = {
     type = "description",
     order = n,
     width = "full",
-    name = "Add rules by which addon is going to track world quests. \nFor example, show all world quest that have more than 3 Bloods of Sargeras"
+    name = L["Add rules by which addon is going to track world quests. \nFor example, show all world quest that have more than 3 Bloods of Sargeras"]
   }
   n = n + 1
   options.args["WQRulesType"] = {
@@ -484,7 +485,7 @@ local function SetupWQConfig(refresh)
     type = "select",
     order = n,
     width = 1,
-    name = "Reward Name",
+    name = L["Reward Name"],
     disabled = function() 
       if not rewardRules.DEFAULT[tmpConfigRule.ruleType] then
         tmpConfigRule.ruleType = rewardRules.defaultType
@@ -513,7 +514,7 @@ local function SetupWQConfig(refresh)
     type = "select",
     order = n,
     width = 0.3,
-    name = "Amount",
+    name = L["Amount"],
     values = rewardRules.compareValues,
     get = function() return tmpConfigRule.compareValue end,
     set = function(_,v) 
@@ -540,7 +541,7 @@ local function SetupWQConfig(refresh)
     type = "execute",
     order = n,
     width = 0.4,
-    name = "Save",
+    name = L["Save"],
     func = function() 
     local name = rewardRules.DEFAULT[tmpConfigRule.ruleType].customFieldValue == tmpConfigRule.rewardName and tmpConfigRule.customReward or tmpConfigRule.rewardName 
       SetQuestRule(name,tmpConfigRule.ruleType,tmpConfigRule.amount,tmpConfigRule.compareValue)
@@ -556,7 +557,7 @@ local function SetupWQConfig(refresh)
     type = "input",
     order = n,
     width = "full",
-    name = "Custom Reward",
+    name = L["Custom Reward"],
     get = function()
     return tmpConfigRule.customReward or "" end,
     set = function(_,v) 
@@ -598,11 +599,11 @@ local function SetupWQConfig(refresh)
       options.args["WQRulesListItemDelete"..rewardName] = {
       type = "execute",
       order = n,
-      name = "Delete",
+      name = L["Delete"],
       width = 0.5,
       func = function()
         StaticPopupDialogs["DeleteWQRuleDataPopup_"..rewardName] = {
-          text = "Do you really want to delete this rule?",
+          text = L["Do you really want to delete this rule?"],
           button1 = "Ok",
           button3 = "Cancel",
           hasEditBox = false,
@@ -629,9 +630,9 @@ local function SetupWQConfig(refresh)
 
 
   if not refresh then
-    Exlist.AddModuleOptions(key,options,"World Quests")
+    Exlist.AddModuleOptions(key,options,L["World Quests"])
   else
-    Exlist.RefreshModuleOptions(key,options,"World Quests")
+    Exlist.RefreshModuleOptions(key,options,L["World Quests"])
   end
 end
 Exlist.ModuleToBeAdded(SetupWQConfig)
@@ -639,10 +640,10 @@ Exlist.ModuleToBeAdded(SetupWQConfig)
 local function init()
   rewardRules = {
     types = {
-      currency = "Currency",
-      item = "Item",
-      money = "Gold",
-      artifactpower = "Artifact Power"
+      currency = L["Currency"],
+      item = L["Item"],
+      money = L["Gold"],
+      artifactpower = L["Artifact Power"]
     },
     compareValues = {
       ["<"] = "<",
@@ -657,7 +658,7 @@ local function init()
           [1220] = GetCurrencyInfo(1220), -- Order Resources
           [1508] = GetCurrencyInfo(1508), -- Veiled Argunite
           [1226] = GetCurrencyInfo(1226), -- Nethershard
-          [0] = "Custom Currency",
+          [0] = L["Custom Currency"],
         },
         defaultValue = 1220,
         disableItems = false,
@@ -666,7 +667,7 @@ local function init()
       },
       artifactpower = {
         values = {
-          artifactpower = "Artifact Power",
+          artifactpower = L["Artifact Power"],
         },
         defaultValue = "artifactpower",
         disableItems = true,
@@ -686,7 +687,7 @@ local function init()
       },
       money = {
         values = {
-          gold = "Gold",
+          gold = L["Gold"],
         },
         defaultValue = "gold",
         disableItems = true,
@@ -698,13 +699,13 @@ local function init()
   tmpConfigRule.ruleType = rewardRules.defaultType
 
   Exlist.ConfigDB.settings.extraInfoToggles.worldquests = Exlist.ConfigDB.settings.extraInfoToggles.worldquests or {
-      name = "World Quests",
+      name = L["World Quests"],
       enabled = true,
     }
 end
 
 local data = {
-  name = 'World Quests',
+  name = L['World Quests'],
   key = key,
   linegenerator = Linegenerator,
   globallgenerator = GlobalLineGenerator,
@@ -712,7 +713,7 @@ local data = {
   updater = Updater,
   event = {"WORLD_QUEST_SPOTTED","WORLD_MAP_OPEN"},
   weeklyReset = false,
-  description = "Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character", 
+  description = L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"], 
   override = true,
   init = init,
 }

@@ -2,6 +2,7 @@ local key = "mythicPlus"
 local prio = 50
 local CM = C_ChallengeMode
 local Exlist = Exlist
+local L = Exlist.L
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table, ipairs = table, ipairs
 
@@ -72,7 +73,7 @@ local function MythicPlusTimeString(time,mapId)
   local colors = {"ffbfbfbf","fffaff00","fffbdb00","fffacd0c"}
   for i=1, #times do
     if secTime > times[i] then
-      if i == 1 then return WrapTextInColorCode("(Depleted) " .. Exlist.FormatTimeMilliseconds(time),colors[i])
+      if i == 1 then return WrapTextInColorCode("("..L["Depleted"]..") " .. Exlist.FormatTimeMilliseconds(time),colors[i])
       else return WrapTextInColorCode("(+".. (i-1) .. ") " .. Exlist.FormatTimeMilliseconds(time),colors[i]) end
     end
   end
@@ -87,12 +88,12 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     moduleName = key,
     priority = prio,
-    titleName = "Best Mythic+",
+    titleName = L["Best Mythic+"],
     data = "+" .. data.bestLvl .. " " .. dungeonName,
   }
 
   if data.mapsDone and #data.mapsDone > 0 then
-    local sideTooltip = {title = WrapTextInColorCode("Mythic+","ffffd200"), body = {}}
+    local sideTooltip = {title = WrapTextInColorCode(L["Mythic+"],"ffffd200"), body = {}}
     local maps = data.mapsDone
     for i=1, #maps do
       table.insert(sideTooltip.body,{"+" .. maps[i].level .. " " .. maps[i].name,MythicPlusTimeString(maps[i].time,maps[i].mapId)})
@@ -122,13 +123,13 @@ local function Modernize(data)
 end
 
 local data = {
-  name = 'Mythic+',
+  name = L['Mythic+'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD"},
-  description = "Tracks highest completed mythic+ in a week and all highest level runs per dungeon",
+  description = L["Tracks highest completed mythic+ in a week and all highest level runs per dungeon"],
   weeklyReset = true,
   modernize = Modernize
 }

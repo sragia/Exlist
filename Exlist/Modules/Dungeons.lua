@@ -1,11 +1,13 @@
 local key = "dungeons"
 local prio =  110
+local L = Exlist.L
 local NUMBER_OF_DUNGEONS_LEGION = 13
 local GetNumSavedInstances, GetSavedInstanceInfo = GetNumSavedInstances, GetSavedInstanceInfo
 local WrapTextInColorCode = WrapTextInColorCode
 local pairs, table = pairs, table
 local Exlist = Exlist
 local function Updater(event)
+  -- TODO: Localize
   local dungeonList = {
     ['Assault on Violet Hold'] = false,
     ['Black Rook Hold'] = false,
@@ -45,12 +47,12 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     moduleName = key,
     priority = prio,
-    titleName = WrapTextInColorCode('Dungeons',"ffc1c1c1"),
+    titleName = WrapTextInColorCode(L['Dungeons'],"ffc1c1c1"),
     data = data.done..'/'..data.max,
   }
-  local sideTooltip = {title = WrapTextInColorCode("Mythic Dungeons","ffffd200"), body = {}}
+  local sideTooltip = {title = WrapTextInColorCode(L["Mythic Dungeons"],"ffffd200"), body = {}}
   for name,locked in pairs(data.dungeonList) do
-    table.insert(sideTooltip.body,{name,locked and WrapTextInColorCode("Defeated", "FFFF0000") or  WrapTextInColorCode("Available", "FF00FF00")})
+    table.insert(sideTooltip.body,{name,locked and WrapTextInColorCode(L["Defeated"], "FFFF0000") or  WrapTextInColorCode(L["Available"], "FF00FF00")})
   end
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
@@ -59,13 +61,13 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local data = {
-  name = 'Dungeons',
+  name = L['Dungeons'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD"},
-  description = "Tracks weekly completed mythic dungeons",
+  description = L["Tracks weekly completed mythic dungeons"],
   weeklyReset = true
 }
 
