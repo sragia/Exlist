@@ -174,7 +174,7 @@ Exlist.SetupConfig = function(refresh)
                     },  
                     shortenInfo = {
                         order = 7,
-                        name = L["Shorten Info"],
+                        name = L["Slim Version"],
                         type = "toggle",
                         desc = L["Slimmed down version of main tooltip i.e. +15 Neltharions Lair -> +15 NL\nMostly affects tooltip in horizontal orientation"],
                         width = "full",
