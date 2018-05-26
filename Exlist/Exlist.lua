@@ -29,7 +29,7 @@ local registeredModules = {
 local modernizeFunctions = {
   -- func,func,func
 }
-tooltipData = {
+local tooltipData = {
  --[[
     [character] = {
       [modules] = {
@@ -553,14 +553,14 @@ local butTool
 local fontSet = settings.fonts
 local font = LSM:Fetch("font",settings.Font)
 local hugeFont = CreateFont("Exlist_HugeFont")
---hugeFont:CopyFontObject(GameTooltipText)
 hugeFont:SetFont(font, fontSet.big.size)
+hugeFont:SetTextColor(1,1,1)
 local smallFont = CreateFont("Exlist_SmallFont")
----smallFont:CopyFontObject(GameTooltipText)
 smallFont:SetFont(font, fontSet.small.size)
+smallFont:SetTextColor(1,1,1)
 local mediumFont = CreateFont("Exlist_MediumFont")
---mediumFont:CopyFontObject(GameTooltipText)
 mediumFont:SetFont(font, fontSet.medium.size)
+mediumFont:SetTextColor(1,1,1)
 
 local customFonts = {
   --[fontSize] = fontObject
@@ -1149,6 +1149,7 @@ function Exlist.AddLine(tooltip,info,fontSize)
     local font = LSM:Fetch("font",settings.Font)
     fontObj = CreateFont("Exlist_Font"..fontSize)
     fontObj:SetFont(font,fontSize)
+    fontObj:SetTextColor(1,1,1)
     customFonts[fontSize] = fontObj
   end
   tooltip:SetFont(fontObj)
