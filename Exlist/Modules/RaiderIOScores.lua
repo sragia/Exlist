@@ -1,5 +1,5 @@
 local key = "raiderIO"
-local prio = 0.5
+local prio = 20
 local Exlist = Exlist
 local CM = C_ChallengeMode
 local table,print, string= table,print, string

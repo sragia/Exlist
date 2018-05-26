@@ -1,5 +1,5 @@
 local key = "dungeons"
-local prio =  10
+local prio =  110
 local NUMBER_OF_DUNGEONS_LEGION = 13
 local GetNumSavedInstances, GetSavedInstanceInfo = GetNumSavedInstances, GetSavedInstanceInfo
 local WrapTextInColorCode = WrapTextInColorCode

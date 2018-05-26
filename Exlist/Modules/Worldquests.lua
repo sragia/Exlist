@@ -1,5 +1,5 @@
 local key = "worldquests"
-local prio = 100
+local prio = 130
 local Exlist = Exlist
 local table,pairs,ipairs,type,math,time,GetTime,string,tonumber,print = table,pairs,ipairs,type,math,time,GetTime,string,tonumber,print
 local C_TaskQuest, IsQuestFlaggedCompleted = C_TaskQuest, IsQuestFlaggedCompleted
@@ -246,7 +246,7 @@ local function Updater(event,questInfo)
     GetTime() - lastTrigger > (60 * updateFrq)
   then 
     lastTrigger = GetTime()
-    Exlist.ScanQuests()
+    C_Timer.After(2,Exlist.ScanQuests)
     return 
   elseif event == "WORLD_QUEST_SPOTTED" then
     local gt = Exlist.GetCharacterTableKey("global","global",key)

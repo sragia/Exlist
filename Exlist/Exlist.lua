@@ -531,7 +531,22 @@ local ArtifactPowerSpells = {
 }
 local AKMultiplier = 6300001 -- hardcoded because everyone right now has it by default
 
-
+--[[ Module prio list
+    0 - mail
+    10 - currency
+    20 - raiderio
+    30 - artifact
+    40 - mythicKey
+    50 - mythicPlus
+    60 - coins
+    70 - emissary
+    80 - missions
+    90 - quests
+    100 - raids
+    110 - dungeons
+    120 - worldbosses
+    130 - worldquests
+]]
 local butTool
 
 -- fonts
@@ -1941,7 +1956,7 @@ local function OnEnter(self)
         titleName = "Header",
       })
       Exlist.AddData({
-        data = subHeaderText, --string.format("|c%s%s - Level %i","ffffd200",realm,charData.level),
+        data = subHeaderText, 
         character = character,
         priority = -999,
         moduleName = "_HeaderSmall",

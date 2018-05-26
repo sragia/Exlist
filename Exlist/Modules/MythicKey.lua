@@ -1,5 +1,5 @@
 local key = "mythicKey"
-local prio = 3
+local prio = 40
 local CM = C_ChallengeMode
 local NUM_BAG_SLOTS = NUM_BAG_SLOTS
 local UnitName, GetRealmName = UnitName, GetRealmName

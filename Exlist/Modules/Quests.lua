@@ -1,5 +1,5 @@
 local key = "quests"
-local prio = 7
+local prio = 90
 local pairs, ipairs, table, print, type, string, tonumber = pairs, ipairs, table, print, type, string, tonumber
 local time,date = time,date
 local WrapTextInColorCode = WrapTextInColorCode

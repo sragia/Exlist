@@ -1,5 +1,5 @@
 local key = "emissary"
-local prio = 5
+local prio = 70
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local time = time
 local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted

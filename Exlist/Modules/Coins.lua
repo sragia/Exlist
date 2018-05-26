@@ -1,5 +1,5 @@
 local key = "coins"
-local prio = 4
+local prio = 60
 local MAX_CHARACTER_LEVEL = 110
 local UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo = UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo
 local pairs, table = pairs, table

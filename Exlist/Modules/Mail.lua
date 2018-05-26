@@ -1,5 +1,5 @@
 local key = "mail"
-local prio = -100
+local prio = 0
 local Exlist = Exlist
 local WrapTextInColorCode = WrapTextInColorCode
 local HasNewMail, GetLatestThreeSenders = HasNewMail, GetLatestThreeSenders

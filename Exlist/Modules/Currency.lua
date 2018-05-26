@@ -1,5 +1,5 @@
 local key = "currency"
-local prio = 0
+local prio = 10
 local currencyAmount = {
 }
 local GetMoney, GetCurrencyInfo, GetItemCount = GetMoney, GetCurrencyInfo, GetItemCount

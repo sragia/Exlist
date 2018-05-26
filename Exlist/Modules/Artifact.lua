@@ -1,5 +1,5 @@
 local key = "artifact"
-local prio = 1
+local prio = 30
 local LAD
 local AK_MAX_LEVEL = 40
 local LibStub = LibStub

@@ -1,5 +1,5 @@
 local key = "worldboss"
-local prio = 50
+local prio = 120
 local Exlist = Exlist
 local MAX_CHARACTER_LEVEL = 110
 local EJ_GetEncounterInfo = EJ_GetEncounterInfo

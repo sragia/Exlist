@@ -1,5 +1,5 @@
 local key = "missions"
-local prio = 6
+local prio = 80
 local CG = C_Garrison
 local LE_FOLLOWER_TYPE_GARRISON_7_0 = LE_FOLLOWER_TYPE_GARRISON_7_0
 local time, table, strlen, string, type, math = time, table, strlen, string, type, math

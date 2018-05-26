@@ -1,5 +1,5 @@
 local key = "mythicPlus"
-local prio = 4
+local prio = 50
 local CM = C_ChallengeMode
 local Exlist = Exlist
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime

@@ -1,5 +1,5 @@
 local key = "raids"
-local prio = 7
+local prio = 100
 local Exlist = Exlist
 local pairs, ipairs, type = pairs, ipairs, type
 local WrapTextInColorCode = WrapTextInColorCode
