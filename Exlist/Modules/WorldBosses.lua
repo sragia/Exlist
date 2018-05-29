@@ -2,7 +2,6 @@ local key = "worldboss"
 local prio = 120
 local Exlist = Exlist
 local L = Exlist.L
-local MAX_CHARACTER_LEVEL = 110
 local EJ_GetEncounterInfo = EJ_GetEncounterInfo
 local UnitLevel,GetRealmName,UnitName = UnitLevel,GetRealmName,UnitName
 local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
@@ -221,7 +220,7 @@ local function Updater(e,info)
     Exlist.UpdateChar(key,gt,'global','global')
     return
 
-  elseif not( UnitLevel('player') == MAX_CHARACTER_LEVEL ) or
+  elseif not( UnitLevel('player') == Exlist.CONSTANTS.MAX_CHARACTER_LEVEL ) or
   GetTime() - lastUpdate < 5 or
   IsInRaid() or
   select(2,IsInInstance()) ~= "none"

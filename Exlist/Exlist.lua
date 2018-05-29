@@ -90,9 +90,12 @@ local string = string
 local strlen = strlen
 local type,pairs,ipairs,table = type,pairs,ipairs,table
 local print,select,date,math,time = print,select,date,math,time
--- local
+-- CONSTANTS
 local MAX_CHARACTER_LEVEL = 110
+Exlist.CONSTANTS.MAX_CHARACTER_LEVEL = MAX_CHARACTER_LEVEL
 local MAX_PROFESSION_LEVEL = 800
+Exlist.CONSTANTS.MAX_PROFESSION_LEVEL = MAX_PROFESSION_LEVEL
+
 LSM:Register("font","PT_Sans_Narrow",[[Interface\Addons\Exlist\Media\Font\font.ttf]])
 local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
   edgeFile = "Interface\\BUTTONS\\WHITE8X8.blp",

@@ -7,7 +7,6 @@ local table,print, string= table,print, string
 local WrapTextInColorCode = WrapTextInColorCode
 local RaiderIO = RaiderIO
 local UnitLevel = UnitLevel
-local MAX_CHARACTER_LEVEL = 110
 local DUNGEON_NAME = {
   (CM.GetMapInfo(206)), -- NL
   (CM.GetMapInfo(200)), -- HoV
@@ -29,7 +28,7 @@ local function Updater(event,...)
   if not RaiderIO then
     Exlist.Debug("RaiderIO not installed -",key)
     return
-  elseif UnitLevel("player") < MAX_CHARACTER_LEVEL then
+  elseif UnitLevel("player") < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then
     return
   end
 

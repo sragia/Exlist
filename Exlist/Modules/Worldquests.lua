@@ -181,7 +181,7 @@ local function SetQuestRule(rewardId,rewardType,amount,compare)
   rules[rewardType][name] = {amount = amount, compare = compare, id = id}
 end
 local rescanMapIds = {}
-function Exlist.ScanQuests()
+function Exlist.ScanQuests(rescanRequest)
   -- add refresh quests
   if not Exlist.ConfigDB then return end
   local settings = Exlist.ConfigDB.settings
@@ -226,7 +226,7 @@ function Exlist.ScanQuests()
     end
   end
   SetMapByID(currMapId)
-  if rescan then C_Timer.After(0.5,Exlist.ScanQuests) end
+  if rescan and not rescanRequest then C_Timer.After(0.5,function() Exlist.ScanQuests(true) end) end
   if tl < updateFrq then
     lastTrigger = lastTrigger - ((updateFrq - tl) * 60)
   end
@@ -255,6 +255,7 @@ end
 local function Updater(event,questInfo)
   if event == "WORLD_MAP_OPEN" and 
     GetTime() - lastTrigger > (60 * updateFrq)
+    and UnitLevel("player") >= Exlist.CONSTANTS.MAX_CHARACTER_LEVEL
   then 
     lastTrigger = GetTime()
     C_Timer.After(1,Exlist.ScanQuests)

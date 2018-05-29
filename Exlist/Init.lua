@@ -1,2 +1,4 @@
-Exlist = {}
+Exlist = {
+	CONSTANTS = {}
+}
 Exlist.L = {}

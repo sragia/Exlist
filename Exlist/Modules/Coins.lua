@@ -1,14 +1,13 @@
 local key = "coins"
 local L = Exlist.L
 local prio = 60
-local MAX_CHARACTER_LEVEL = 110
 local UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo = UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo
 local pairs, table = pairs, table
 local WrapTextInColorCode = WrapTextInColorCode
 local Exlist = Exlist
 
 local function Updater(event)
-  if UnitLevel('player') < MAX_CHARACTER_LEVEL then return end
+  if UnitLevel('player') < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
   local coinsQuests = UnitLevel'player' <= 100 and {[36058] = 1, [36055] = 1, [37452] = 1, [37453] = 1, [36056] = 1, [37457] = 1, [37456] = 1, [36054] = 1, [37455] = 1, [37454] = 1, [36057] = 1, [37458] = 1, [37459] = 1, [36060] = 1, } or
   {
     [43895] = 1, 
