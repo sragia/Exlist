@@ -7,6 +7,7 @@ local C_TaskQuest, IsQuestFlaggedCompleted = C_TaskQuest, IsQuestFlaggedComplete
 local GetQuestLogRewardInfo,GetNumQuestLogRewardCurrencies,GetQuestLogRewardCurrencyInfo,GetQuestLogRewardMoney = GetQuestLogRewardInfo,GetNumQuestLogRewardCurrencies,GetQuestLogRewardCurrencyInfo,GetQuestLogRewardMoney
 local GetCurrentMapAreaID, SetMapByID, ToggleWorldMap = GetCurrentMapAreaID, SetMapByID, ToggleWorldMap
 local GetCurrencyInfo, GetSpellInfo, GetItemSpell = GetCurrencyInfo, GetSpellInfo, GetItemSpell
+local BonusObjectiveTracker_TrackWorldQuest = BonusObjectiveTracker_TrackWorldQuest
 local loadstring = loadstring
 local WrapTextInColorCode = WrapTextInColorCode
 local trackedQuests = {
@@ -303,6 +304,7 @@ local function GlobalLineGenerator(tooltip,data)
             ToggleWorldMap()
           end
           SetMapByID(info.zoneId)
+          BonusObjectiveTracker_TrackWorldQuest(questId)
         end)
         if not info.rewards or #info.rewards < 1 then 
           info.rewards = GetQuestRewards(questId) 
