@@ -180,21 +180,30 @@ local function SetQuestRule(rewardId,rewardType,amount,compare)
   rules[rewardType] = rules[rewardType] or {}
   rules[rewardType][name] = {amount = amount, compare = compare, id = id}
 end
-
+local rescanMapIds = {}
 function Exlist.ScanQuests()
   -- add refresh quests
   if not Exlist.ConfigDB then return end
   local settings = Exlist.ConfigDB.settings
   local rt = {}
+  local scanzones = zones
+  if #rescanMapIds > 0 then
+    scanzones = rescanMapIds
+    rescanMapIds = {}
+  end
   local tl = 100
+  local rescan = false
   for questId,info in pairs(settings.worldQuests) do
     trackedQuests[questId] = {enabled = info.enabled , readOnly = false}
   end
-  if Exlist.GetTableNum(trackedQuests) < 1 then return end
   local currMapId = GetCurrentMapAreaID()
-  for index,zoneId in ipairs(zones) do
+  for index,zoneId in ipairs(scanzones) do
     SetMapByID(zoneId)
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(zoneId)
+    if not wqs or #wqs < 1 then
+      table.insert(rescanMapIds,zoneId)
+      rescan = true
+    end
     for _,info in pairs(wqs or {}) do
       local timeLeft = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)
       local rewards = GetQuestRewards(info.questId)
@@ -217,6 +226,7 @@ function Exlist.ScanQuests()
     end
   end
   SetMapByID(currMapId)
+  if rescan then C_Timer.After(0.5,Exlist.ScanQuests) end
   if tl < updateFrq then
     lastTrigger = lastTrigger - ((updateFrq - tl) * 60)
   end
@@ -247,7 +257,7 @@ local function Updater(event,questInfo)
     GetTime() - lastTrigger > (60 * updateFrq)
   then 
     lastTrigger = GetTime()
-    C_Timer.After(2,Exlist.ScanQuests)
+    C_Timer.After(1,Exlist.ScanQuests)
     return 
   elseif event == "WORLD_QUEST_SPOTTED" then
     local gt = Exlist.GetCharacterTableKey("global","global",key)
