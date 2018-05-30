@@ -8,19 +8,19 @@ local WrapTextInColorCode = WrapTextInColorCode
 local RaiderIO = RaiderIO
 local UnitLevel = UnitLevel
 local DUNGEON_NAME = {
-  (CM.GetMapInfo(206)), -- NL
-  (CM.GetMapInfo(200)), -- HoV
-  (CM.GetMapInfo(198)), -- DHT
-  (CM.GetMapInfo(207)), -- VOTW
-  (CM.GetMapInfo(199)), -- BRH
-  (CM.GetMapInfo(208)), -- MOS
-  (CM.GetMapInfo(209)), -- ARC
-  (CM.GetMapInfo(197)), -- EOA
-  (CM.GetMapInfo(210)), -- COS
-  (CM.GetMapInfo(233)), -- CATH
-  (CM.GetMapInfo(239)), -- SEAT
-  (CM.GetMapInfo(227)), -- LOWER
-  (CM.GetMapInfo(234)), -- UPPER
+  (CM.GetMapUIInfo(206)), -- NL
+  (CM.GetMapUIInfo(200)), -- HoV
+  (CM.GetMapUIInfo(198)), -- DHT
+  (CM.GetMapUIInfo(207)), -- VOTW
+  (CM.GetMapUIInfo(199)), -- BRH
+  (CM.GetMapUIInfo(208)), -- MOS
+  (CM.GetMapUIInfo(209)), -- ARC
+  (CM.GetMapUIInfo(197)), -- EOA
+  (CM.GetMapUIInfo(210)), -- COS
+  (CM.GetMapUIInfo(233)), -- CATH
+  (CM.GetMapUIInfo(239)), -- SEAT
+  (CM.GetMapUIInfo(227)), -- LOWER
+  (CM.GetMapUIInfo(234)), -- UPPER
 }
 
 
