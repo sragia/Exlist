@@ -579,7 +579,7 @@ frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 frame:RegisterEvent("CHAT_MSG_SYSTEM")
-frame:RegisterEvent("Exlist_DELAY")
+--frame:RegisterEvent("Exlist_DELAY")
 
 -- utility
 Exlist.ShortenNumber = function(number)
@@ -1343,7 +1343,7 @@ local registeredEvents = {
 local function RegisterEvents()
   for i in pairs(registeredUpdaters) do
     if not registeredEvents[i] then
-      frame:RegisterEvent(i)
+      xpcall(frame.RegisterEvent,function() return true end,frame,i)
       registeredEvents[i] = true
     end
   end
