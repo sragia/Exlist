@@ -2,8 +2,8 @@
 local addonName, addonTable = ...
 local QTip = LibStub("LibQTip-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
-local LDB = LibStub:GetLibrary("LibDataBroker-1.1")
-local LDBI = LibStub("LibDBIcon-1.0")
+--local LDB = LibStub:GetLibrary("LibDataBroker-1.1")
+--local LDBI = LibStub("LibDBIcon-1.0")
 -- SavedVariables localized
 local db = {}
 local config_db = {}
@@ -2098,7 +2098,7 @@ end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
 
--- LibDataBroker Button
+--[[TODO LibDataBroker Button
 
 local LDB_Exlist = LDB:NewDataObject("Exlist",{
   type = "data source",
@@ -2106,7 +2106,7 @@ local LDB_Exlist = LDB:NewDataObject("Exlist",{
   icon = "Interface\\AddOns\\Exlist\\Media\\Icons\\logo",
   OnClick = OpenConfig,
   OnEnter = OnEnter
-})
+})]]
 
 
 
@@ -2125,11 +2125,13 @@ function Exlist_RefreshAppearance()
     f:SetFont(font,fontSize)
   end
   butTool:SetScale(settings.iconScale)
+  --[[ TODO
   if settings.showMinimapIcon then
     LDBI:Show("Exlist")
   else
     LDBI:Hide("Exlist")
   end
+  ]]
   if settings.showIcon then
     butTool:Show()
   else
@@ -2184,9 +2186,9 @@ local function init()
   settings = config_db.settings
   Exlist.ConfigDB = config_db
   settings.reorder = true
-  -- Minimap Icon
+  --[[TODO Minimap Icon
   LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
-
+  ]]
   for i,func in ipairs(moduleInitializers) do
     func()
   end
