@@ -2239,7 +2239,8 @@ local function GetRegion()
 end
 
 local function GetServerOffset()
-  local serverDay = CalendarGetDate() - 1 -- 1-based starts on Sun
+  local serverDay = C_Calendar.GetDate().weekday - 1
+  --local serverDay = CalendarGetDate() - 1 -- 1-based starts on Sun
   local localDay = tonumber(date("%w")) -- 0-based starts on Sun
   local serverHour, serverMinute = GetGameTime()
   local localHour, localMinute = tonumber(date("%H")), tonumber(date("%M"))
