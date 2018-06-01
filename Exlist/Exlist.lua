@@ -8,7 +8,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local db = {}
 local config_db = {}
 Exlist_Config = Exlist_Config or {}
-local debugMode = false
+local debugMode = true
 local debugString = "|cffc73000[Exlist Debug]|r"
 -- GLOBALS: Exlist Exlist_Db Exlist_ConfigDB
 local Exlist = Exlist
@@ -91,7 +91,7 @@ local strlen = strlen
 local type,pairs,ipairs,table = type,pairs,ipairs,table
 local print,select,date,math,time = print,select,date,math,time
 -- CONSTANTS
-local MAX_CHARACTER_LEVEL = 110
+local MAX_CHARACTER_LEVEL = 120
 Exlist.CONSTANTS.MAX_CHARACTER_LEVEL = MAX_CHARACTER_LEVEL
 local MAX_PROFESSION_LEVEL = 800
 Exlist.CONSTANTS.MAX_PROFESSION_LEVEL = MAX_PROFESSION_LEVEL
@@ -2434,7 +2434,6 @@ local function DebugTimeColors(timeSpent)
   return string.format("|cFFFF0000%.6f",timeSpent)
 end
 function frame:OnEvent(event, ...)
-  --print(event,arg1)
   if not IsEventEligible(event) then return end
   if event == "PLAYER_LOGOUT" then
     -- save things
@@ -2460,7 +2459,7 @@ function frame:OnEvent(event, ...)
       local eventFuncs = registeredUpdaters[e] or {}
       for i=1,#eventFuncs do
         local started = debugprofilestop()
-        eventFuncs[i].func(event,...)
+        eventFuncs[i].func(e,...)
         Exlist.Debug(eventFuncs[i].name .. ' (delayed) finished: ' .. DebugTimeColors(debugprofilestop() - started))
         GetLastUpdateTime()
       end
@@ -2468,6 +2467,7 @@ function frame:OnEvent(event, ...)
     return
   end
   if delay then
+    Exlist.Debug(event,"delayed")
     if not running then
       C_Timer.After(4,function() Exlist.SendFakeEvent("Exlist_DELAY") end)
       delayedEvents[event] = 1

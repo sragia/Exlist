@@ -10,14 +10,25 @@ local GetCurrencyInfo, GetSpellInfo, GetItemSpell = GetCurrencyInfo, GetSpellInf
 local BonusObjectiveTracker_TrackWorldQuest = BonusObjectiveTracker_TrackWorldQuest
 local loadstring = loadstring
 local WrapTextInColorCode = WrapTextInColorCode
+local timer = Exlist.timers
 local trackedQuests = {
 }
 local updateFrq = 30 -- every x minutes max
+local rescanTimer
 local lastTrigger = 0
 local colors = Exlist.Colors
 
 local zones = {
-  -- Broken Isles
+  -- Kultiras
+  895, -- Tiragarde Sound
+  896, -- Drustvar
+  942, -- Stormsong Valley
+  -- Zandalar
+  864, -- Vol'dun
+  863, -- Nazmir
+  862, -- Zuldazar
+  --[[TODO: Fix for Pre-Patch
+  Broken Isles
   1015, -- Aszuna
 	1018, -- Val'Sharah
 	1024, -- Highmountain
@@ -28,6 +39,7 @@ local zones = {
   1170, -- Mac'reee
 	1135, -- Kro'kuun
 	1171, -- Antoran Wastes
+  ]]
 }
 
 local rewardRules = {}
@@ -192,14 +204,12 @@ function Exlist.ScanQuests(rescanRequest)
     scanzones = rescanMapIds
     rescanMapIds = {}
   end
-  local tl = 100
+  local tl = 500
   local rescan = false
   for questId,info in pairs(settings.worldQuests) do
     trackedQuests[questId] = {enabled = info.enabled , readOnly = false}
   end
-  local currMapId = GetCurrentMapAreaID()
   for index,zoneId in ipairs(scanzones) do
-    SetMapByID(zoneId)
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(zoneId)
     if not wqs or #wqs < 1 then
       table.insert(rescanMapIds,zoneId)
@@ -226,11 +236,14 @@ function Exlist.ScanQuests(rescanRequest)
       tl = tl > timeLeft and timeLeft or tl
     end
   end
-  SetMapByID(currMapId)
   if rescan and not rescanRequest then C_Timer.After(0.5,function() Exlist.ScanQuests(true) end) end
-  if tl < updateFrq then
-    lastTrigger = lastTrigger - ((updateFrq - tl) * 60)
+  -- Rescan Scheduling
+  Exlist.Debug("Rescan Scheduled in:",tl,"minutes")
+  if rescanTimer then
+    timer:CancelTimer(rescanTimer)
   end
+  rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl)
+  
   if #rt > 0 then
     Exlist.SendFakeEvent("WORLD_QUEST_SPOTTED",rt)
   end
@@ -254,11 +267,11 @@ local function RemoveTrackedQuest(questId)
 end
 
 local function Updater(event,questInfo)
-  if event == "WORLD_MAP_OPEN" and 
-    GetTime() - lastTrigger > (60 * updateFrq)
+  if event == "PLAYER_ENTERING_WORLD"
     and UnitLevel("player") >= Exlist.CONSTANTS.MAX_CHARACTER_LEVEL
   then 
-    lastTrigger = GetTime()
+    --lastTrigger = GetTime()
+    TESTING = true
     C_Timer.After(1,Exlist.ScanQuests)
     return 
   elseif event == "WORLD_QUEST_SPOTTED" then
@@ -303,7 +316,7 @@ local function GlobalLineGenerator(tooltip,data)
           if not WorldMapFrame:IsShown() then
             ToggleWorldMap()
           end
-          SetMapByID(info.zoneId)
+          WorldMapFrame:SetMapID(info.zoneId)
           BonusObjectiveTracker_TrackWorldQuest(questId)
         end)
         if not info.rewards or #info.rewards < 1 then 
@@ -353,9 +366,7 @@ local function SetupWQConfig(refresh)
           desc = L["Force Refresh World Quests"],
           name = L["Force Refresh"],
           func = function()
-            lastTrigger = 0
-            ToggleWorldMap()
-            ToggleWorldMap()
+            Exlist.ScanQuests()
             
           end,
         },
@@ -651,6 +662,11 @@ end
 Exlist.ModuleToBeAdded(SetupWQConfig)
 
 local function init()
+
+  -- TODO: Add BFA rewards
+   -- Azerite
+   -- "maybe" ilvl rewards
+   -- 
   rewardRules = {
     types = {
       currency = L["Currency"],
@@ -668,12 +684,16 @@ local function init()
     DEFAULT = {
       currency = {
         values = {
+          -- Legion
           [1220] = GetCurrencyInfo(1220), -- Order Resources
           [1508] = GetCurrencyInfo(1508), -- Veiled Argunite
           [1226] = GetCurrencyInfo(1226), -- Nethershard
+          -- BFA
+          [1560] = GetCurrencyInfo(1560), -- War Resources
+          --
           [0] = L["Custom Currency"],
         },
-        defaultValue = 1220,
+        defaultValue = 1560,
         disableItems = false,
         useCustom = true,
         customFieldValue = 0,
@@ -724,7 +744,7 @@ local data = {
   globallgenerator = GlobalLineGenerator,
   priority = prio,
   updater = Updater,
-  event = {"WORLD_QUEST_SPOTTED","WORLD_MAP_OPEN"},
+  event = {"WORLD_QUEST_SPOTTED","PLAYER_ENTERING_WORLD"},
   weeklyReset = false,
   description = L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"], 
   override = true,

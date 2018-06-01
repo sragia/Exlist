@@ -16,6 +16,7 @@ local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmar
 local GetSpellInfo = GetSpellInfo
 local GameTooltip = GameTooltip
 
+-- TODO: Figure out BFA World Bosses (if they exist)
 local worldBossIDs = {
   [42270] = {eid = 1749}, -- Nithogg
   [42269] = {eid = 1756, name = EJ_GetEncounterInfo(1756)}, -- The Soultakers
@@ -42,9 +43,10 @@ local BrokenIslesZones = {
 	1021, -- Broken Shore
 }
 local ArgusZones = {
-	1170,
-	1135,
-	1171,
+	-- TODO PrePatch
+  --1170,
+	--1135,
+	--1171,
 }
 local greaterInvasionPOIId = {
   [5375] = {questId = 49167, eid = 2011}, -- Mistress Alluradel
@@ -135,10 +137,10 @@ local function ScanArgus()
   --  invasions = {}
   }
   local timeNow = time()
-  local currMapId = GetCurrentMapAreaID()
+  --local currMapId = GetCurrentMapAreaID()
 
   for i=1,#ArgusZones do
-    SetMapByID(ArgusZones[i])
+    --SetMapByID(ArgusZones[i])
     for j=1,GetNumMapLandmarks() do
       local _,name,desc,_,_,_,_,_,_,_,poiId = GetMapLandmarkInfo(j)
       if greaterInvasionPOIId[poiId] then
@@ -161,18 +163,18 @@ local function ScanArgus()
       end
     end
   end
-  SetMapByID(currMapId)
+  --SetMapByID(currMapId)
   return t
 end
 
 local function ScanIsles(bs)
   Exlist.Debug("Scanning Broken Isles -",key)
   local t = {}
-  local currMapId = GetCurrentMapAreaID()
+  --local currMapId = GetCurrentMapAreaID()
   local timeNow = time()
   bs = bs or GetBrokenShoreBuildings()
   for i=1,#BrokenIslesZones do
-    SetMapByID(BrokenIslesZones[i])
+    --SetMapByID(BrokenIslesZones[i])
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(BrokenIslesZones[i])
     for _,info in pairs(wqs or {}) do
       if worldBossIDs[info.questId] then
@@ -187,7 +189,7 @@ local function ScanIsles(bs)
       end
     end
   end
-  SetMapByID(currMapId)
+  --SetMapByID(currMapId)
   return t
 end
 
