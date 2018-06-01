@@ -32,6 +32,7 @@ local function Updater(event)
         local map = CM.GetMapInfo(mapID)
         for i=1,3 do
           if not gt[i] and affixes[i] and affixes[i] ~= "" then
+            -- TODO Use C_MythicPlus.GetCurrentAffixes()
             local id = string.match(affixes[i],"%d+")
             local name, desc, icon = CM.GetAffixInfo(tonumber(id))
             Exlist.Debug("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i," key:",key)

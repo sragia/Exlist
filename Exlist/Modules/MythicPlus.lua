@@ -1,6 +1,7 @@
 local key = "mythicPlus"
 local prio = 50
 local CM = C_ChallengeMode
+local C_MythicPlus = C_MythicPlus
 local Exlist = Exlist
 local L = Exlist.L
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
@@ -24,38 +25,39 @@ local mapTimes = {
 }
 
 local function Updater(event)
-  --CM.RequestMapInfo() -- request update
+  C_MythicPlus.RequestMapInfo() -- request update
   local mapIDs = CM.GetMapTable()
   local bestLvl = 0
   local bestLvlMap = ""
   local bestMapId = 0
   local mapsDone = {}
-  local affixes
+  local savedAffixes
   for i = 1, #mapIDs do
-    local _, bestTime, level, affixIDs = CM.GetMapPlayerStats(mapIDs[i])
+    local _, bestTime, level, affixIDs = C_MythicPlus.GetWeeklyBestForMap(mapIDs[i])
     if level and level > bestLvl then
       -- currently best map
       affixes = affixIDs
       bestLvl = level
       bestMapId = mapIDs[i]
-      bestLvlMap = CM.GetMapInfo(mapIDs[i])
+      bestLvlMap = CM.GetMapUIInfo(mapIDs[i])
       table.insert(mapsDone,{mapId = mapIDs[i], name = bestLvlMap,level = level, time = bestTime})
     elseif level and level > 0 then
-      local mapName = CM.GetMapInfo(mapIDs[i])
+      local mapName = CM.GetMapUIInfo(mapIDs[i])
       table.insert(mapsDone,{mapId = mapIDs[i], name = mapName,level = level, time = bestTime})
     end
   end
   table.sort(mapsDone,function(a,b) return a.level > b.level end)
   -- add affixes to global table
-  local savedAffixes = Exlist.GetCharacterTableKey('global','global',"mythicKey")
+  --[[local savedAffixes = Exlist.GetCharacterTableKey('global','global',"mythicKey")
   if #savedAffixes < 3 and affixes then
     for i=1,#affixes do
+
       local name, desc, icon = CM.GetAffixInfo(affixes[i])
       Exlist.Debug("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i,"key:",key)
       savedAffixes[i] = {name = name, icon = icon, desc = desc}
     end
     Exlist.UpdateChar("mythicKey",savedAffixes,'global','global')
-  end
+  end]]
   local t= {
     ["bestLvl"] = bestLvl,
     ["bestLvlMap"] = bestLvlMap,
