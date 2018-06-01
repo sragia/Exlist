@@ -24,7 +24,7 @@ local mapTimes = {
 }
 
 local function Updater(event)
-  CM.RequestMapInfo() -- request update
+  --CM.RequestMapInfo() -- request update
   local mapIDs = CM.GetMapTable()
   local bestLvl = 0
   local bestLvlMap = ""
