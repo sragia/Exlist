@@ -288,13 +288,14 @@ end
 
 local function init()
 	defaultSettings = {
-    -- TODO: ADD BFA
+    -- BFA
+    [GetLFGDungeonInfo(1887) or "Uldir"] = {enabled = true,expansion = 8, order = 9},
 	  -- LEGION
-	  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {enabled = true, expansion = 7,order = 1},
-	  [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {enabled = true, expansion = 7,order = 2},
-	  [GetLFGDungeonInfo(1353) or "The Nighthold"] = {enabled = true, expansion = 7,order = 3},
-	  [GetLFGDungeonInfo(1439) or "Trials of Valor"] = {enabled = true, expansion = 7,order = 4},
-	  [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = {enabled = true, expansion = 7,order = 5},
+	  [GetLFGDungeonInfo(1640) or "Antorus, the Burning Throne"] = {enabled = false, expansion = 7,order = 1},
+	  [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {enabled = false, expansion = 7,order = 2},
+	  [GetLFGDungeonInfo(1353) or "The Nighthold"] = {enabled = false, expansion = 7,order = 3},
+	  [GetLFGDungeonInfo(1439) or "Trials of Valor"] = {enabled = false, expansion = 7,order = 4},
+	  [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = {enabled = false, expansion = 7,order = 5},
 	  -- WoD
 	  [GetLFGDungeonInfo(987) or "Hellfire Citadel"] = {enabled = false, expansion = 6,order = 1},
 	  [GetLFGDungeonInfo(898) or "Blackrock Foundry"] = {enabled = false, expansion = 6,order = 2},
@@ -448,13 +449,18 @@ local function init()
 	    [1497] = {name = "Deceiver’s Fall", totalEncounters = 1, order = 4} --?? KJ
 	  },
 	  -- Antorus
-	  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {
+	  [GetLFGDungeonInfo(1640) or "Antorus, the Burning Throne"] = {
 	    [1610] = {name = "Light's Breach", totalEncounters = 3, order = 1}, -- Light's Breach
 	    [1611] = {name = "Forbidden Descent", totalEncounters = 3, order = 2}, -- Forbidden Descent
 	    [1612] = {name = "Hope's End", totalEncounters = 3, order = 3}, -- Hope's End
 	    [1613] = {name = "Seat of the Pantheon", totalEncounters = 2, order = 4}, -- Seat of the Pantheon
-	  }
-    -- TODO: ADD BFA
+	  },
+    -- BFA
+    -- Uldir
+    [GetLFGDungeonInfo(1887) or "Uldir"] = {
+    -- TODO: Find Uldir LFR IDs
+    },
+
 	}
 
 	-- Order and Affixes
