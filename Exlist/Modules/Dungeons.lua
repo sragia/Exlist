@@ -3,31 +3,42 @@ local prio =  110
 local L = Exlist.L
 local NUMBER_OF_DUNGEONS_LEGION = 13
 local GetNumSavedInstances, GetSavedInstanceInfo = GetNumSavedInstances, GetSavedInstanceInfo
+local GetLFGDungeonInfo = GetLFGDungeonInfo
 local WrapTextInColorCode = WrapTextInColorCode
-local pairs, table = pairs, table
+local pairs, table,ipairs = pairs, table,ipairs
 local Exlist = Exlist
+local dungeonNames = {}
+local dungeonIds = {
+  --[[TODO: Legion for Pre-Patch
+  1208, -- Violet Hold
+  1205, -- Black Rock Hold
+  1488, -- Cathedral of Eternal Light
+  1319, -- Court of Stars
+  1202, -- Darkheart Thicket
+  1175, -- Eye of Azshara
+  1473, -- Halls of Valor
+  1192, -- Maw of Souls
+  1207, -- Neltharion's Lair
+  1190, -- The Arcway
+  1044, -- Vault of the Wardens
+  1535, -- Seat of the Triumvirate
+  ]]
+  -- BFA
+  1669, -- Atal'Dazar
+  1710, -- Shrine of the Storm
+  1695, -- Temple of Sethraliss
+  1708, -- The MOTHERLODE!!
+  1712, -- The Underrot
+  1714, -- Tol Dagor
+  1706, -- Waycrest Manor
+  1701, -- Siege of Boralus
+  1785, -- Kings' Rest]]
+}
 local function Updater(event)
-  -- TODO: Localize
-  -- TODO: Replace with BFA
-  local dungeonList = {
-    ['Assault on Violet Hold'] = false,
-    ['Black Rook Hold'] = false,
-    ['Cathedral of Eternal Night'] = false,
-    ['Court of Stars'] = false,
-    ['Darkheart Thicket'] = false,
-    ['Eye of Azshara'] = false,
-    ['Halls of Valor'] = false,
-    ['Maw of Souls'] = false,
-    ["Neltharion's Lair"] = false,
-    ['Return to Karazhan'] = false,
-    ['The Arcway'] = false,
-    ['Vault of the Wardens'] = false,
-    ['Seat of the Triumvirate'] = false
-  }
   local t = {
     ['done'] = 0,
-    ['max'] = NUMBER_OF_DUNGEONS_LEGION,
-    ['dungeonList'] = dungeonList
+    ['max'] = #dungeonIds,
+    ['dungeonList'] = dungeonNames
   }
   for i = 1, GetNumSavedInstances() do
     local name, _, _, _, locked, extended, _, isRaid, _, difficultyName, numEncounters, encounterProgress = GetSavedInstanceInfo(i)
@@ -43,7 +54,7 @@ local function Updater(event)
 end
 
 local function Linegenerator(tooltip,data,character)
-  if not data or data.done == 0 then return end
+  if not data then return end
   local info = {
     character = character,
     moduleName = key,
@@ -61,6 +72,12 @@ local function Linegenerator(tooltip,data,character)
   Exlist.AddData(info)
 end
 
+local function init()
+  for _,id in ipairs(dungeonIds) do
+    dungeonNames[(GetLFGDungeonInfo(id))] = false
+  end
+end
+
 local data = {
   name = L['Dungeons'],
   key = key,
@@ -69,7 +86,8 @@ local data = {
   updater = Updater,
   event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD"},
   description = L["Tracks weekly completed mythic dungeons"],
-  weeklyReset = true
+  weeklyReset = true,
+  init = init,
 }
 
 Exlist.RegisterModule(data)

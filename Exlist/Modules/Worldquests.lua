@@ -234,6 +234,14 @@ function Exlist.ScanQuests(rescanRequest)
           ruleid = ruleid, 
         }
       end
+      if timeLeft == 0 then 
+        -- TODO: Recheck this at launch
+        -- in beta some wq return timeleft as 0
+        -- and show on the map as expiring soon
+        -- but doesnt show time left and doesnt expire
+        -- SO BETA THINGS ONLY????
+        timeLeft = 10000
+      end
       tl = tl > timeLeft and timeLeft or tl
     end
   end
