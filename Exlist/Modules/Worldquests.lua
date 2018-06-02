@@ -15,10 +15,10 @@ local trackedQuests = {
 }
 local updateFrq = 30 -- every x minutes max
 local rescanTimer
-local lastTrigger = 0
 local colors = Exlist.Colors
 
 local zones = {
+  -- BFA
   -- Kultiras
   895, -- Tiragarde Sound
   896, -- Drustvar
@@ -27,19 +27,21 @@ local zones = {
   864, -- Vol'dun
   863, -- Nazmir
   862, -- Zuldazar
-  --[[TODO: Fix for Pre-Patch
-  Broken Isles
-  1015, -- Aszuna
-	1018, -- Val'Sharah
-	1024, -- Highmountain
-	1017, -- Stormheim
-	1033, -- Suramar
-  1021, -- Broken Shore
+  --[[TODO: Make it work for prepatch
+  -- Legion
+  -- Broken Isles
+  630, -- Aszuna
+  641, -- Val'Sharah
+  650, -- Highmountain
+  634, -- Stormheim
+  680, -- Suramar
+  646, -- Broken Shore
   -- Argus
-  1170, -- Mac'reee
-	1135, -- Kro'kuun
-	1171, -- Antoran Wastes
+  882, -- Mac'reee
+  830, -- Kro'kuun
+  885, -- Antoran Wastes
   ]]
+  
 }
 
 local rewardRules = {}
@@ -232,19 +234,21 @@ function Exlist.ScanQuests(rescanRequest)
           ruleid = ruleid, 
         }
       end
-      -- optimization (scan only once an half hour)
-      if tl == 0 then print(info.questId,zoneId) end
       tl = tl > timeLeft and timeLeft or tl
     end
   end
-  if rescan and not rescanRequest then C_Timer.After(0.5,function() Exlist.ScanQuests(true) end) end
-  -- Rescan Scheduling
-  Exlist.Debug("Rescan Scheduled in:",tl,"minutes")
-  if rescanTimer then
-    timer:CancelTimer(rescanTimer)
+  if rescan and not rescanRequest then 
+    rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,1,true)
+  else
+    -- Rescan Scheduling
+    Exlist.Debug("Rescan Scheduled in:",tl,"minutes")
+    if rescanTimer then
+      timer:CancelTimer(rescanTimer)
+    end
+    rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl+30)
   end
-  rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl+30)
   
+  -- Send Data
   if #rt > 0 then
     Exlist.SendFakeEvent("WORLD_QUEST_SPOTTED",rt)
   end
@@ -271,9 +275,7 @@ local function Updater(event,questInfo)
   if event == "PLAYER_ENTERING_WORLD"
     and UnitLevel("player") >= Exlist.CONSTANTS.MAX_CHARACTER_LEVEL
   then 
-    --lastTrigger = GetTime()
-    TESTING = true
-    C_Timer.After(1,Exlist.ScanQuests)
+    rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,1)
     return 
   elseif event == "WORLD_QUEST_SPOTTED" then
     local gt = Exlist.GetCharacterTableKey("global","global",key)
@@ -385,7 +387,7 @@ local function SetupWQConfig(refresh)
               rewards = GetQuestRewards(v)
               }
               SetupWQConfig(true)
-              lastTrigger = 0
+              Exlist.ScanQuests()
             else
               print(Exlist.debugString,L["Invalid World Quest ID:"],v)
             end
@@ -570,7 +572,7 @@ local function SetupWQConfig(refresh)
     func = function() 
     local name = rewardRules.DEFAULT[tmpConfigRule.ruleType].customFieldValue == tmpConfigRule.rewardName and tmpConfigRule.customReward or tmpConfigRule.rewardName 
       SetQuestRule(name,tmpConfigRule.ruleType,tmpConfigRule.amount,tmpConfigRule.compareValue)
-      lastTrigger = 0
+      Exlist.ScanQuests()
       SetupWQConfig(true)
     end,
   }
