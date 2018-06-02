@@ -4,6 +4,7 @@ local key = "missions"
 local prio = 80
 local CG = C_Garrison
 local LE_FOLLOWER_TYPE_GARRISON_7_0 = LE_FOLLOWER_TYPE_GARRISON_7_0
+local LE_FOLLOWER_TYPE_GARRISON_8_0 = LE_FOLLOWER_TYPE_GARRISON_8_0
 local time, table, strlen, string, type, math = time, table, strlen, string, type, math
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local GetCurrencyInfo = GetCurrencyInfo
@@ -16,8 +17,10 @@ local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 
 local function Updater(event)
   if event == "Exlist_DELAY" then return end
-  local mission = CG.GetInProgressMissions(LE_FOLLOWER_TYPE_GARRISON_7_0)
-  local availMissions = CG.GetAvailableMissions(LE_FOLLOWER_TYPE_GARRISON_7_0)
+  local followerType = UnitLevel("player") < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL and LE_FOLLOWER_TYPE_GARRISON_7_0 or 
+    LE_FOLLOWER_TYPE_GARRISON_8_0
+  local mission = CG.GetInProgressMissions(followerType)
+  local availMissions = CG.GetAvailableMissions(followerType)
   local t =  {
   }
   local currTime = time()
