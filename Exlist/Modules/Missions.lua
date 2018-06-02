@@ -1,3 +1,5 @@
+--TODO: Change to BFA mission board
+--TODO: Make it work in prepatch too with legion one
 local key = "missions"
 local prio = 80
 local CG = C_Garrison

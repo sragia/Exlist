@@ -29,7 +29,7 @@ local function Updater(event)
       if s and string.find(s, "Keystone:") then
         local _, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
         local affixes = {affix1,affix2,affix3}
-        local map = CM.GetMapInfo(mapID)
+        local map = CM.GetMapUIInfo(mapID)
         for i=1,3 do
           if not gt[i] and affixes[i] and affixes[i] ~= "" then
             -- TODO Use C_MythicPlus.GetCurrentAffixes()

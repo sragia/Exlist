@@ -87,6 +87,7 @@ local function Updater(event)
     end
   else
     for i = 1, GetNumQuestLogEntries() do
+      -- TODO: somehow only track BFA emissaries
       local title, _, _, _, _, _, _, questID, _, _, _, _, _, isBounty = GetQuestLogTitle(i)
       if isBounty then
         local text, _, completed, current, total = GetQuestObjectiveInfo(questID, 1, false)

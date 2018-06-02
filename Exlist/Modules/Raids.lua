@@ -16,7 +16,8 @@ local expansions = {
   L["Cataclysm"],
   L["Mists of Pandaria"],
   L["Warlords of Draenor"],
-  L["Legion"]
+  L["Legion"],
+  L["Battle for Azeroth"]
 }
 
 local defaultSettings = {}
@@ -287,6 +288,7 @@ end
 
 local function init()
 	defaultSettings = {
+    -- TODO: ADD BFA
 	  -- LEGION
 	  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {enabled = true, expansion = 7,order = 1},
 	  [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {enabled = true, expansion = 7,order = 2},
@@ -452,6 +454,7 @@ local function init()
 	    [1612] = {name = "Hope's End", totalEncounters = 3, order = 3}, -- Hope's End
 	    [1613] = {name = "Seat of the Pantheon", totalEncounters = 2, order = 4}, -- Seat of the Pantheon
 	  }
+    -- TODO: ADD BFA
 	}
 
 	-- Order and Affixes

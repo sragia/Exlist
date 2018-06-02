@@ -233,6 +233,7 @@ function Exlist.ScanQuests(rescanRequest)
         }
       end
       -- optimization (scan only once an half hour)
+      if tl == 0 then print(info.questId,zoneId) end
       tl = tl > timeLeft and timeLeft or tl
     end
   end
@@ -242,7 +243,7 @@ function Exlist.ScanQuests(rescanRequest)
   if rescanTimer then
     timer:CancelTimer(rescanTimer)
   end
-  rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl)
+  rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl+30)
   
   if #rt > 0 then
     Exlist.SendFakeEvent("WORLD_QUEST_SPOTTED",rt)

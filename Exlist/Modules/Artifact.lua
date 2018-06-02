@@ -14,7 +14,7 @@ local UnitName, GetRealmName = UnitName, GetRealmName
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local Exlist = Exlist
 
-
+--TODO: Retire this on launch
 local ArtifactInfo = function()
   local loaded = IsAddOnLoaded('LibArtifactData-1.0') or LoadAddOn('LibArtifactData-1.0')
   if not loaded then return end

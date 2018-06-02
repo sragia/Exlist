@@ -8,6 +8,7 @@ local pairs, table = pairs, table
 local Exlist = Exlist
 local function Updater(event)
   -- TODO: Localize
+  -- TODO: Replace with BFA
   local dungeonList = {
     ['Assault on Violet Hold'] = false,
     ['Black Rook Hold'] = false,

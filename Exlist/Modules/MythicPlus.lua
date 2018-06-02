@@ -9,6 +9,7 @@ local table, ipairs = table, ipairs
 
 local mapTimes = {
   --[mapId] = {+3Time,+2Time,+1Time} in seconds
+  -- TODO: Add BFA map times
   [197] = {2100,1680,1260}, -- Eye of Azshara
   [198] = {1800,1440,1080}, -- Darkheart Thicket
   [199] = {2340,1872,1405}, -- BRH
@@ -114,7 +115,7 @@ local function Modernize(data)
     CM.RequestMapInfo() -- request update
     local mapIDs = CM.GetMapTable()
     for i,id in ipairs(mapIDs) do
-      if data.bestLvlMap == (CM.GetMapInfo(id)) then
+      if data.bestLvlMap == (CM.GetMapUIInfo(id)) then
         Exlist.Debug("Added mapId",id)
         data.mapId = id
         break
