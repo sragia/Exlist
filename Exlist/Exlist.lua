@@ -232,6 +232,7 @@ Exlist.Colors = {
   QuestTitle = "ffffd200",
   Debug = "ffc73000",
   QuestTypeHeading = "ff42c8f4",
+  Faded = "ffc1c1c1",
   QuestTypeTitle = {
     daily = "ff70afd8",
     weekly = "ffe0a34e"
@@ -240,6 +241,7 @@ Exlist.Colors = {
     heading1 = "ffffd200",
     heading2 = "ffffb600"
   },
+  SideTooltipTitle = "ffffd200",
 }
 Exlist.Strings = {
   Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode(L["Note!"],"ffffd200") ),
@@ -539,6 +541,7 @@ local AKMultiplier = 6300001 -- hardcoded because everyone right now has it by d
     0 - mail
     10 - currency
     20 - raiderio
+    30 - azerite
     30 - artifact
     40 - mythicKey
     50 - mythicPlus
@@ -1195,6 +1198,7 @@ function Exlist.AddData(info)
         data = "string" text to be displayed
         character = "name-realm" which column to display
         moduleName = "key" Module key
+        priority = number Priority in tooltip
         titleName = "string" row title
         colOff = number (optional) offset from first column defaults:0
         dontResize = boolean (optional) if cell should span across

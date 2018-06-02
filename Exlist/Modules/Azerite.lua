@@ -1,34 +1,46 @@
-local key = "worldboss"
-local prio = 5
+local key = "azerite"
+local prio = 30
 local Exlist = Exlist
 local L = Exlist.L
---local colors = Exlist.Colors
+local C_AzeriteItem = C_AzeriteItem
+local colors = Exlist.Colors
 --local strings = Exlist.Strings
 
-local function Updater(event)
-  local t = {}
+local function GetAzeriteInfo()
+  if not C_AzeriteItem.HasActiveAzeriteItem() then return end
+  local itemLocation = C_AzeriteItem.FindActiveAzeriteItem()
+  local xp,maxXp = C_AzeriteItem.GetAzeriteItemXPInfo(itemLocation)
+  local powerLevel = C_AzeriteItem.GetPowerLevel(itemLocation)
+  local t = {
+    xp = xp,
+    maxXp = maxXp,
+    powerLevel = powerLevel,
+  }
+  return t
+end
 
-  Exlist.UpdateChar(key,t)
+local function Updater(event)
+  Exlist.UpdateChar(key,GetAzeriteInfo())
 end
 
 local function Linegenerator(tooltip,data,character)
+  if not data then return end
   local info = {
     character = character,
     priority = prio,
     moduleName = key,
     titleName = L["Title Name"],
-    -- data = "",
-    -- colOff = 0,
-    -- dontResize = false,
-    -- OnEnter = function() end,
-    -- OnEnterData = {},
-    -- OnLeave = function() end,
-    -- OnLeaveData = {},
-    -- OnClick = function() end,
-    -- OnClickData = {},
-
+    data = string.format("|c%s%s:|r %i",colors.Faded,L["Level"],data.powerLevel),
+    OnEnter = Exlist.CreateSideTooltip(),
+    OnEnterData = {
+      title = WrapTextInColorCode(L["Azerite Power"], colors.SideTooltipTitle),
+      body = {
+        { L["Progress"], string.format("%.1f%% (%i/%i)",(data.xp/data.maxXp)*100,data.xp,data.maxXp)},
+        { L["Level"],data.powerLevel },
+      }
+    },
+    OnLeave = Exlist.DisposeSideTooltip(),
   }
-
   Exlist.AddData(info)
 end
 
@@ -60,7 +72,7 @@ end
 ]]
 
 local data = {
-  name = L['Currency'],
+  name = L['Azerite'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
