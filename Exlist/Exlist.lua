@@ -249,6 +249,7 @@ Exlist.Strings = {
 
 }
 
+--TODO: Retire on launch
 -- Legion: Artifact Weapon Stuff
 local ArtifactPowerSpells = {
     [216876] = 10,
@@ -898,6 +899,7 @@ local function GetCachedQuestTitle(questId)
 end
 Exlist.GetCachedQuestTitle = GetCachedQuestTitle
 
+--TODO: Retire on launch
 local function GetCachedArtifactPower(itemId)
   if config_db.ap_cache and config_db.ap_cache[itemId] then
     return config_db.ap_cache[itemId]

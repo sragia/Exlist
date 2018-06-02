@@ -88,6 +88,7 @@ function Exlist.RegisterWorldQuests(quests,readOnly)
     end
 end
 
+--TODO: Retire on launch
 local apSpell = GetSpellInfo(228111)
 local function IsAPItem(itemId)
   local itemSpell = GetItemSpell(itemId)
@@ -101,6 +102,8 @@ local function GetQuestRewards(questId)
     local name, texture, numItems, quality, isUsable, itemId = GetQuestLogRewardInfo(1,questId)
     if name then
       local itemType = "item"
+
+      --TODO: Retire on launch
       if IsAPItem(itemId) then
         itemType = "artifactpower"
         name = L["Artifact Power"]
@@ -113,7 +116,7 @@ local function GetQuestRewards(questId)
        for i=1,numQuestCurrencies do
          local name, texture, numItems = GetQuestLogRewardCurrencyInfo(i,questId)
          if name then
-            table.insert( rewards, {name = name, amount = numItems,texture = texture, type = "currency"})
+          table.insert( rewards, {name = name, amount = numItems,texture = texture, type = "currency"})
         end
        end
     end
@@ -701,10 +704,11 @@ local function init()
           [1226] = GetCurrencyInfo(1226), -- Nethershard
           -- BFA
           [1560] = GetCurrencyInfo(1560), -- War Resources
+          [1553] = GetCurrencyInfo(1553), -- Azerite
           --
           [0] = L["Custom Currency"],
         },
-        defaultValue = 1560,
+        defaultValue = 1553,
         disableItems = false,
         useCustom = true,
         customFieldValue = 0,
