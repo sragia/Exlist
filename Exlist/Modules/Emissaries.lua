@@ -49,7 +49,8 @@ local function spairs(t, order)
 end
 
 local function Updater(event)
-  if UnitLevel('player') < 110 then return end
+  local playerLevel = UnitLevel("player")
+  if playerLevel < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
   if event == "PLAYER_ENTERING_WORLD" then 
     C_Timer.After(5,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
     return
@@ -64,7 +65,7 @@ local function Updater(event)
   local trackedBounties = 0 -- if we already know all bounties
   for questId,info in pairs(gt) do
     -- cleanup
-    if info.endTime < timeNow then
+    if info.endTime < timeNow or info.level ~= playerLevel then
       gt[questId] = nil
     else
       trackedBounties = trackedBounties + 1
@@ -81,22 +82,21 @@ local function Updater(event)
     for questId, info in pairs(gt) do
       if not IsQuestFlaggedCompleted(questId) then
         local _, _, _, current, total = GetQuestObjectiveInfo(questId, 1, false)
-        local t = {name = info.title, current = current, total = total, endTime = info.endTime}
+        local t = {name = info.title, current = current, total = total, endTime = info.endTime,level = info.level}
         table.insert(emissaries, t)
       end
     end
   else
     for i = 1, GetNumQuestLogEntries() do
-      -- TODO: somehow only track BFA emissaries
-      local title, _, _, _, _, _, _, questID, _, _, _, _, _, isBounty = GetQuestLogTitle(i)
-      if isBounty then
+      local title, level, _, _, _, _, _, questID, _, _, _, _, _, isBounty = GetQuestLogTitle(i)
+      if isBounty and level == playerLevel then
         local text, _, completed, current, total = GetQuestObjectiveInfo(questID, 1, false)
         local timeleft = C_TaskQuest.GetQuestTimeLeftMinutes(questID)
         local endTime = timeNow + timeleft * 60
         if endTime > timeNow then
           -- make sure if there's actually any time left.
           -- paragon chests show up as bounty quests but obv doesnt have time limit
-          local t = {name = title, current = current, total = total, endTime = endTime}
+          local t = {name = title, current = current, total = total, endTime = endTime,level = level}
           gt[questID] = {title = title, endTime = endTime}
           table.insert(emissaries, t)
         end

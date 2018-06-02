@@ -91,6 +91,7 @@ local strlen = strlen
 local type,pairs,ipairs,table = type,pairs,ipairs,table
 local print,select,date,math,time = print,select,date,math,time
 -- CONSTANTS
+-- TODO: Change this back to 110 for pre-patch
 local MAX_CHARACTER_LEVEL = 120
 Exlist.CONSTANTS.MAX_CHARACTER_LEVEL = MAX_CHARACTER_LEVEL
 local MAX_PROFESSION_LEVEL = 800
