@@ -377,16 +377,24 @@ local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
   if not data then return end
   if data.invasions and Exlist.ConfigDB.settings.extraInfoToggles.invasions.enabled then
-    Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Invasion Points"],"ffffd200")},14)
+    local added = false
     for questId,info in spairs((data.invasions or {}),function(t,a,b) return (t[a].endTime or 0) < (t[b].endTime or 0) end) do
       if info.endTime and info.endTime > timeNow then
+        if not added then 
+          added = true
+          Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Invasion Points"],"ffffd200")},14)
+        end
         Exlist.AddLine(tooltip,{info.name,Exlist.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map or "","ffc1c1c1")})
       end
     end
   end
   if data.brokenshore and Exlist.ConfigDB.settings.extraInfoToggles.brokenshore.enabled then
-      Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Broken Shore"],"ffffd200")},14)
+    local added = false
     for i,info in pairs(data.brokenshore or {}) do
+      if not added then 
+        added = true
+        Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Broken Shore"],"ffffd200")},14)
+      end
       local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow) or info.progress,(info.state == 4 and WrapTextInColorCode(L["Destroyed"],"ffa1a1a1") or
       (info.rewards and (info.state == 2 or info.state == 3) and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ffffd200",info.rewards.name or "") or info.state == 1 and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ff494949",info.rewards.name or "")))})
       if info.rewards and info.state ~= 4 then
@@ -402,10 +410,14 @@ local function GlobalLineGenerator(tooltip,data)
     end
   end
   if data.worldbosses and Exlist.ConfigDB.settings.extraInfoToggles.worldbosses.enabled then
-    Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Bosses"],"ffffd200")},14)
+    local added = false
     for _,info in pairs(data.worldbosses) do
       for b in pairs(info) do
         if info[b].endTime > timeNow then
+          if not added then 
+            added = true
+            Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Bosses"],"ffffd200")},14)
+          end
           Exlist.AddLine(tooltip,{info[b].name,Exlist.TimeLeftColor(info[b].endTime - timeNow)})
         end
       end
