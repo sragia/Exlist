@@ -14,30 +14,41 @@ local ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat = ChatEd
 local GameTooltip = GameTooltip
 local ipairs = ipairs
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local lastUpdate = 0
+local affixThreshold = {
+  --TODO: Temporary, Revisit when m+ out
+  4,
+  7,
+  10,
+  20, 
+}
 
 local function Updater(event)
   if GetTime() - lastUpdate < 5 then return end
   lastUpdate = GetTime()
   local gt = Exlist.GetCharacterTableKey("global","global",key)
+  -- Get Affixes
+  C_MythicPlus.RequestCurrentAffixes()
+  local affixes = C_MythicPlus.GetCurrentAffixes()
+  for i,affixId in ipairs(affixes or {}) do
+    local name, desc, icon = CM.GetAffixInfo(affixId)
+    gt[i] = {name = name, icon = icon, desc = desc}
+  end
+  Exlist.UpdateChar(key,gt,"global","global")
   for bag = 0, NUM_BAG_SLOTS do
     for slot = 1, GetContainerNumSlots(bag) do
       local s = GetContainerItemLink(bag, slot)
       -- TODO: Localize
+      -- if GetContainerItemID(bag, slot) == 138019 then --TODO: check this on Live and Beta when m+ come out
       if s and string.find(s, "Keystone:") then
         local _, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
         local affixes = {affix1,affix2,affix3}
         local map = CM.GetMapUIInfo(mapID)
-        -- Get Affixes
-        C_MythicPlus.RequestCurrentAffixes()
-        local affixes = C_MythicPlus.GetCurrentAffixes()
-        for i,affixId in ipairs(affixes) do
-        	local name, desc, icon = CM.GetAffixInfo(affixId)
-        	gt[i] = {name = name, icon = icon, desc = desc}
-        end
+        
         local table = {
           ["dungeon"] = map,
           ["mapId"] = mapID,
@@ -45,7 +56,6 @@ local function Updater(event)
           ["itemLink"] = s,
         }
         Exlist.UpdateChar(key,table)
-        Exlist.UpdateChar(key,gt,"global","global")
         break;
       end
     end
@@ -91,7 +101,10 @@ local function GlobalLineGenerator(tooltip,data)
       Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Mythic+ Affixes"],"ffffd200")},14)
       added = true
     end
-    local line = Exlist.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or L["Unknown"])})
+    local line = Exlist.AddLine(tooltip,
+      {string.format("|T%s:15|t %s %s",data[i].icon or unknownIcon,data[i].name or L["Unknown"],
+        WrapTextInColorCode(string.format("- %s %i+", L["Level"],affixThreshold[i]),colors.Faded))
+      })
     if data[i].desc then
       Exlist.AddScript(tooltip,line,nil,"OnEnter",function(self)
         GameTooltip:SetOwner(self)
