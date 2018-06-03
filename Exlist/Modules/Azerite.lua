@@ -29,7 +29,7 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     priority = prio,
     moduleName = key,
-    titleName = L["Title Name"],
+    titleName = L["Azerite Power"],
     data = string.format("|c%s%s:|r %i",colors.Faded,L["Level"],data.powerLevel),
     OnEnter = Exlist.CreateSideTooltip(),
     OnEnterData = {

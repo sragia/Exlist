@@ -42,6 +42,7 @@ end
 local function Modernize(data)
   -- data is table of module table from character
   -- always return table or don't use at all
+  return data
 end
 ]]
 

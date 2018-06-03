@@ -100,6 +100,8 @@ local filterBuffs = {
   [239645] = true, -- Forces of Order
   [239647] = true, -- Epic Hunter
 }
+
+--TODO: Retire
 local function GetBrokenShoreBuildings()
   local t = {}
   for i=1,4,1 do
@@ -130,6 +132,7 @@ local function GetBrokenShoreBuildings()
   return t
 end
 
+--TOOD: Retire
 local function ScanArgus()
   Exlist.Debug("Scanning Argus -",key)
   local t = {
@@ -159,32 +162,6 @@ local function ScanArgus()
             endTime = timeNow + timeLeft * 60,
             map = GetMapNameByID(ArgusZones[i])
           }
-        end
-      end
-    end
-  end
-  --SetMapByID(currMapId)
-  return t
-end
-
-local function ScanIsles(bs)
-  Exlist.Debug("Scanning Broken Isles -",key)
-  local t = {}
-  --local currMapId = GetCurrentMapAreaID()
-  local timeNow = time()
-  bs = bs or GetBrokenShoreBuildings()
-  for i=1,#BrokenIslesZones do
-    --SetMapByID(BrokenIslesZones[i])
-    local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(BrokenIslesZones[i])
-    for _,info in pairs(wqs or {}) do
-      if worldBossIDs[info.questId] then
-        local endTime = worldBossIDs[info.questId].endTime and worldBossIDs[info.questId].endTime==0 and (bs[4].timeEnd or 0) or Exlist.GetNextWeeklyResetTime()
-        if endTime > 0 then
-          table.insert(t,{
-            name = worldBossIDs[info.questId].name or select(2,EJ_GetCreatureInfo(1,worldBossIDs[info.questId].eid)),
-            endTime = endTime,
-            questId = info.questId
-          })
         end
       end
     end
