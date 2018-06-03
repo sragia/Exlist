@@ -233,7 +233,8 @@ function Exlist.ScanQuests(rescanRequest)
           questId = info.questId,
           endTime = endTime,
           rewards = rewards,
-          zoneId = zoneId,
+          zoneId = info.mapID, -- Use mapId provided from API... however Tiragarde Sound still return
+                               -- Drustvar WQs.. soo why ???? 
           ruleid = ruleid, 
         }
       end
