@@ -1,6 +1,7 @@
 local key = "mythicKey"
 local prio = 40
 local CM = C_ChallengeMode
+local C_MythicPlus = C_MythicPlus
 local NUM_BAG_SLOTS = NUM_BAG_SLOTS
 local UnitName, GetRealmName = UnitName, GetRealmName
 local GetContainerNumSlots, GetContainerItemLink = GetContainerNumSlots, GetContainerItemLink
@@ -30,14 +31,12 @@ local function Updater(event)
         local _, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
         local affixes = {affix1,affix2,affix3}
         local map = CM.GetMapUIInfo(mapID)
-        for i=1,3 do
-          if not gt[i] and affixes[i] and affixes[i] ~= "" then
-            -- TODO Use C_MythicPlus.GetCurrentAffixes()
-            local id = string.match(affixes[i],"%d+")
-            local name, desc, icon = CM.GetAffixInfo(tonumber(id))
-            Exlist.Debug("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i," key:",key)
-            gt[i] = {name = name, icon = icon, desc = desc}
-          end
+        -- Get Affixes
+        C_MythicPlus.RequestCurrentAffixes()
+        local affixes = C_MythicPlus.GetCurrentAffixes()
+        for i,affixId in ipairs(affixes) do
+        	local name, desc, icon = CM.GetAffixInfo(affixId)
+        	gt[i] = {name = name, icon = icon, desc = desc}
         end
         local table = {
           ["dungeon"] = map,
@@ -111,7 +110,7 @@ local function Modernize(data)
   -- data is table of module table from character
   -- always return table or don't use at all
   if not data.mapId then
-    CM.RequestMapInfo() -- request update
+    C_MythicPlus.RequestMapInfo() -- request update
     local mapIDs = CM.GetMapTable()
     for i,id in ipairs(mapIDs) do
       if data.dungeon == (CM.GetMapInfo(id)) then

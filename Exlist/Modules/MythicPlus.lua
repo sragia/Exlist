@@ -10,6 +10,18 @@ local table, ipairs = table, ipairs
 local mapTimes = {
   --[mapId] = {+3Time,+2Time,+1Time} in seconds
   -- TODO: Add BFA map times
+  --[[BFA
+  [244] = {??,??,??}, -- Atal'dazar
+  [245] = {??,??,??}, -- Freehold
+  [246] = {??,??,??}, -- Tol Dagor
+  [247] = {??,??,??}, -- The MOTHERLODE!!
+  [248] = {??,??,??}, -- Waycrest Manor
+  [249] = {??,??,??}, -- Kings' Rest
+  [250] = {??,??,??}, -- Temple of Sethraliss
+  [251] = {??,??,??}, -- The Underrot
+  [252] = {??,??,??}, -- Shrine of the Storm
+  [353] = {??,??,??}, -- Siege of Boralus
+  ]]
   [197] = {2100,1680,1260}, -- Eye of Azshara
   [198] = {1800,1440,1080}, -- Darkheart Thicket
   [199] = {2340,1872,1405}, -- BRH
@@ -37,7 +49,6 @@ local function Updater(event)
     local _, bestTime, level, affixIDs = C_MythicPlus.GetWeeklyBestForMap(mapIDs[i])
     if level and level > bestLvl then
       -- currently best map
-      affixes = affixIDs
       bestLvl = level
       bestMapId = mapIDs[i]
       bestLvlMap = CM.GetMapUIInfo(mapIDs[i])
@@ -48,17 +59,6 @@ local function Updater(event)
     end
   end
   table.sort(mapsDone,function(a,b) return a.level > b.level end)
-  -- add affixes to global table
-  --[[local savedAffixes = Exlist.GetCharacterTableKey('global','global',"mythicKey")
-  if #savedAffixes < 3 and affixes then
-    for i=1,#affixes do
-
-      local name, desc, icon = CM.GetAffixInfo(affixes[i])
-      Exlist.Debug("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i,"key:",key)
-      savedAffixes[i] = {name = name, icon = icon, desc = desc}
-    end
-    Exlist.UpdateChar("mythicKey",savedAffixes,'global','global')
-  end]]
   local t= {
     ["bestLvl"] = bestLvl,
     ["bestLvlMap"] = bestLvlMap,
