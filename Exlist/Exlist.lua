@@ -2457,7 +2457,7 @@ function frame:OnEvent(event, ...)
       local eventFuncs = registeredUpdaters[e] or {}
       for i=1,#eventFuncs do
         local started = debugprofilestop()
-        eventFuncs[i].func(event,...)
+        eventFuncs[i].func(e,...)
         Exlist.Debug(eventFuncs[i].name .. ' (delayed) finished: ' .. DebugTimeColors(debugprofilestop() - started))
         GetLastUpdateTime()
       end

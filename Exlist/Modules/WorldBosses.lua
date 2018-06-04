@@ -237,7 +237,7 @@ local function Updater(e,info)
       if changed then Exlist.UpdateChar(key,t) end
     return
   end
-  if event == "PLAYER_ENTERING_WORLD" or event == "EJ_DIFFICULTY_UPDATE" then
+  if e == "PLAYER_ENTERING_WORLD" or e == "EJ_DIFFICULTY_UPDATE" then
     C_Timer.After(1,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end) -- delay update
     return
   end
