@@ -1564,17 +1564,30 @@ local function AddNote(tooltip,data,realm,name)
 end
 
 local ilvlColors = {
-  {ilvl = 750 , str = "ff26ff3f"},
+-- BFA --
+  {ilvl = 270 , str ="ff26ff3f"},
+  {ilvl = 290 , str ="ff26ffba"},
+  {ilvl = 300 , str ="ff26e2ff"},
+  {ilvl = 320 , str ="ff26a0ff"},
+  {ilvl = 340 , str ="ff2663ff"},
+  {ilvl = 360 , str ="ff8e26ff"},
+  {ilvl = 380 , str ="ffe226ff"},
+  {ilvl = 400 , str ="ffff2696"},
+  {ilvl = 420 , str ="ffff2634"},
+  {ilvl = 440 , str ="ffff7526"},
+  {ilvl = 460 , str ="ffffc526"},
+-- Legion -- 
+  {ilvl = 750 , str ="ff26ff3f"},
   {ilvl = 800 , str ="ff26ffba"},
   {ilvl = 850 , str ="ff26e2ff"},
   {ilvl = 880 , str ="ff26a0ff"},
   {ilvl = 900 , str ="ff2663ff"},
   {ilvl = 910 , str ="ff8e26ff"},
   {ilvl = 920 , str ="ffe226ff"},
-  {ilvl = 935 ,str = "ffff2696"},
+  {ilvl = 935 , str ="ffff2696"},
   {ilvl = 950 , str ="ffff2634"},
   {ilvl = 980 , str ="ffff7526"},
-  {ilvl = 1000 , str ="ffffc526"}
+  {ilvl = 1000 ,str ="ffffc526"}
 }
 local setIlvlColor = function(ilvl)
   if not ilvl then return "ffffffff" end
