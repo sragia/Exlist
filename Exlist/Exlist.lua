@@ -2,6 +2,7 @@
 local addonName, addonTable = ...
 local QTip = LibStub("LibQTip-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
+--TODO:
 --local LDB = LibStub:GetLibrary("LibDataBroker-1.1")
 --local LDBI = LibStub("LibDBIcon-1.0")
 -- SavedVariables localized
@@ -90,6 +91,7 @@ local string = string
 local strlen = strlen
 local type,pairs,ipairs,table = type,pairs,ipairs,table
 local print,select,date,math,time = print,select,date,math,time
+local timer = Exlist.timers
 -- CONSTANTS
 -- TODO: Change this back to 110 for pre-patch
 local MAX_CHARACTER_LEVEL = 120
@@ -2317,13 +2319,16 @@ local function GetNextWeeklyResetTime()
 end
 Exlist.GetNextWeeklyResetTime = GetNextWeeklyResetTime
 Exlist.GetNextDailyResetTime = GetNextDailyResetTime
-
+local function ResetHandling() end
 local function HasWeeklyResetHappened()
   if not config_db.resetTime then return end
   local weeklyReset = GetNextWeeklyResetTime()
   if weeklyReset ~= config_db.resetTime then
     -- reset has happened because next weekly reset time is different from stored one
     return true
+  else
+    Exlist.Debug("Reset recheck in:",weeklyReset-time()+1)
+    timer:ScheduleTimer(ResetHandling,weeklyReset-time()+1)
   end
   return false
 end
@@ -2334,6 +2339,9 @@ local function HasDailyResetHappened()
   if dailyReset ~= config_db.resetDailyTime then
     -- reset has happened because next weekly reset time is different from stored one
     return true
+  else
+    Exlist.Debug("Reset recheck in:",dailyReset-time()+1)
+    timer:ScheduleTimer(ResetHandling,dailyReset-time()+1)
   end
   return false
 end
@@ -2384,7 +2392,8 @@ local function GetLastUpdateTime()
   UpdateCharacter(nil, nil, t)
 end
 
-local function ResetHandling()
+function ResetHandling()
+  Exlist.Debug("Reset Check")
   if HasWeeklyResetHappened() then
     -- check for reset
     WipeKeysForReset("weekly")
