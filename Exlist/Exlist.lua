@@ -1620,7 +1620,7 @@ local function ProfessionValueColor(value)
       return profColors[i].color
     end
   end
-  return "FFFFFF"
+  return "FFFFFFFF"
 end
 
 local function GearTooltip(self,info)
