@@ -54,7 +54,7 @@ local function Updater(event)
 end
 
 local function Linegenerator(tooltip,data,character)
-  if not data then return end
+  if not data or data.done < 1 then return end
   local info = {
     character = character,
     moduleName = key,
