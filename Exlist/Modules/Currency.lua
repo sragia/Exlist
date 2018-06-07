@@ -10,6 +10,8 @@ local WrapTextInColorCode = WrapTextInColorCode
 local GetCurrencyListSize, GetCurrencyListInfo = GetCurrencyListSize, GetCurrencyListInfo
 local print, string, ipairs = print, string, ipairs 
 local Exlist = Exlist
+local colors = Exlist.Colors
+
 local config_defaults = {
   icon = "",
   name = "Name",
@@ -56,12 +58,8 @@ local function Updater(event)
 
   -- update all currencies
   -- Check Setting Table
-  for name, t in pairs(cur) do
-    for i,v in pairs(config_defaults) do
-      if t[i] == nil then
-        t[i] = v
-      end
-    end
+  for name,t in pairs(cur) do
+    t = Exlist.AddMissingTableEntries(t,config_defaults)
   end
 
   for i=1, GetCurrencyListSize() do
@@ -133,21 +131,21 @@ local function AddRefreshOptions()
           order = 1.1,
           fontSize = "medium",
           width = "normal",
-          name = WrapTextInColorCode(L["Name"],"ffffd200")
+          name = WrapTextInColorCode(L["Name"],colors.config.tableColumn)
         },
         label2 = {
           type = "description",
           order = 1.2,
           fontSize = "medium",
           width = "half",
-          name = WrapTextInColorCode(L["Enable"],"ffffd200")
+          name = WrapTextInColorCode(L["Enable"],colors.config.tableColumn)
         },
         label3 = {
           type = "description",
           order = 1.3,
           fontSize = "medium",
           width = "normal",
-          name = WrapTextInColorCode(L["Show Separate"],"ffffd200")
+          name = WrapTextInColorCode(L["Show Separate"],colors.config.tableColumn)
         },
         spacer1 = {
           type = "description",
@@ -217,7 +215,7 @@ local function Linegenerator(tooltip,data,character)
   local extraInfos = {}
   local currency = data.currency
   if currency then
-    local sideTooltip = {body = {},title= WrapTextInColorCode(L["Currency"],"ffffd200")}
+    local sideTooltip = {body = {},title= WrapTextInColorCode(L["Currency"],colors.sideTooltipTitle)}
     local settings = Exlist.ConfigDB.settings
     for i=1,#currency do
       if not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0 )) and

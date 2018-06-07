@@ -103,7 +103,7 @@ local function GlobalLineGenerator(tooltip,data)
     end
     local line = Exlist.AddLine(tooltip,
       {string.format("|T%s:15|t %s %s",data[i].icon or unknownIcon,data[i].name or L["Unknown"],
-        WrapTextInColorCode(string.format("- %s %i+", L["Level"],affixThreshold[i]),colors.Faded))
+        WrapTextInColorCode(string.format("- %s %i+", L["Level"],affixThreshold[i]),colors.faded))
       })
     if data[i].desc then
       Exlist.AddScript(tooltip,line,nil,"OnEnter",function(self)

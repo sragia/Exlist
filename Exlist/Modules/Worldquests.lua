@@ -338,7 +338,7 @@ local function GlobalLineGenerator(tooltip,data)
           info.rewards = GetQuestRewards(questId) 
         end
 
-        local sideTooltip = {title = WrapTextInColorCode("Rewards", colors.QuestTitle), body = {}}
+        local sideTooltip = {title = WrapTextInColorCode("Rewards", colors.questTitle), body = {}}
         for i,reward in ipairs(info.rewards) do
           if reward.name == "Gold" then
           table.insert(sideTooltip.body,{reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"})
@@ -419,7 +419,7 @@ local function SetupWQConfig(refresh)
             name = Exlist.GetCachedQuestTitle(questID)
             info.name = name
           end
-          return WrapTextInColorCode(name,colors.QuestTitle)
+          return WrapTextInColorCode(name,colors.questTitle)
         end,
         type = "toggle",
         width = "normal",
@@ -461,7 +461,7 @@ local function SetupWQConfig(refresh)
       width = 0.5,
       func = function()
         StaticPopupDialogs["DeleteWQDataPopup_"..questID] = {
-          text = L["Do you really want to delete"].." "..WrapTextInColorCode(info.name,colors.QuestTitle).."?",
+          text = L["Do you really want to delete"].." "..WrapTextInColorCode(info.name,colors.questTitle).."?",
           button1 = "Ok",
           button3 = "Cancel",
           hasEditBox = false,
@@ -491,7 +491,7 @@ local function SetupWQConfig(refresh)
     order = n,
     fontSize = "large",
     width = "full",
-    name = WrapTextInColorCode(L["\nWorld Quest rules"], colors.Config.heading2)
+    name = WrapTextInColorCode(L["\nWorld Quest rules"], colors.config.heading2)
   }
   n = n + 1
   options.args["WQRulesdesc"] = {

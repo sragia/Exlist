@@ -7,6 +7,7 @@ local GetLFGDungeonInfo = GetLFGDungeonInfo
 local WrapTextInColorCode = WrapTextInColorCode
 local pairs, table,ipairs = pairs, table,ipairs
 local Exlist = Exlist
+local colors = Exlist.Colors
 local dungeonNames = {}
 local dungeonIds = {
   --[[TODO: Legion for Pre-Patch
@@ -59,12 +60,12 @@ local function Linegenerator(tooltip,data,character)
     character = character,
     moduleName = key,
     priority = prio,
-    titleName = WrapTextInColorCode(L['Dungeons'],"ffc1c1c1"),
+    titleName = WrapTextInColorCode(L['Dungeons'],colors.faded),
     data = data.done..'/'..data.max,
   }
-  local sideTooltip = {title = WrapTextInColorCode(L["Mythic Dungeons"],"ffffd200"), body = {}}
+  local sideTooltip = {title = WrapTextInColorCode(L["Mythic Dungeons"],colors.sideTooltipTitle), body = {}}
   for name,locked in pairs(data.dungeonList) do
-    table.insert(sideTooltip.body,{name,locked and WrapTextInColorCode(L["Defeated"], "FFFF0000") or  WrapTextInColorCode(L["Available"], "FF00FF00")})
+    table.insert(sideTooltip.body,{name,locked and WrapTextInColorCode(L["Defeated"], colors.completed) or  WrapTextInColorCode(L["Available"], colors.available)})
   end
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip

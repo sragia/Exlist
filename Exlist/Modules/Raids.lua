@@ -48,11 +48,7 @@ local function AddRaidOptions()
   local settings = Exlist.ConfigDB.settings
   settings.raids = settings.raids or {}
   -- add missing raids
-  for raid,opt in pairs(defaultSettings) do
-    if settings.raids[raid] == nil then
-      settings.raids[raid] = opt
-    end
-  end
+  settings.raids = Exlist.AddMissingTableEntries(settings.raids,defaultSettings)
   -- Options
   local numExpansions = #expansions
   local configOpt = {

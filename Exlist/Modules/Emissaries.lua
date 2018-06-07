@@ -8,6 +8,7 @@ local UnitLevel = UnitLevel
 local GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo = GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo
 local table,pairs = table,pairs
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 
 
@@ -124,9 +125,9 @@ local function Linegenerator(tooltip,data,character)
     end
   end
   if availableEmissaries > 0 then
-    info.data = WrapTextInColorCode(availableEmissaries, "FF00FF00")
+    info.data = WrapTextInColorCode(availableEmissaries, colors.available)
     -- info {} {body = {'1st lane',{'2nd lane', 'side number w/e'}},title = ""}
-    local sideTooltip = {title = WrapTextInColorCode(L["Available Emissaries"], "ffffd200"), body = {}}
+    local sideTooltip = {title = WrapTextInColorCode(L["Available Emissaries"], colors.sideTooltipTitle), body = {}}
     local timeLeftColor
     for i = 1, #data do
       if data[i] and data[i].endTime > timeNow then
@@ -144,9 +145,10 @@ end
 local function GlobalLineGenerator(tooltip,data)
   if not Exlist.ConfigDB.settings.extraInfoToggles.emissary.enabled then return end
   local timeNow = time()
-  Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Emissaries"],"ffffd200")},14)
+  Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Emissaries"],colors.sideTooltipTitle)},14)
 
   for questId,info in spairs(data or {},function(t,a,b) return t[a].endTime < t[b].endTime end) do
+    --TODO: Colors
     Exlist.AddLine(tooltip,{info.title,TimeLeftColor(info.endTime - timeNow,{36000, 72000})})
   end
 end

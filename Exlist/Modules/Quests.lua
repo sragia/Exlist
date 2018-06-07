@@ -240,14 +240,14 @@ local function Linegenerator(tooltip,data,character)
     for questId,values in pairs(v) do
       if trackedQuests[questId] and trackedQuests[questId].enabled then
         if not added then
-          table.insert(sideTooltip.body,{WrapTextInColorCode(questTypes[type],colors.QuestTypeTitle[type]),"",{"headerseparator"}})
+          table.insert(sideTooltip.body,{WrapTextInColorCode(questTypes[type],colors.questTypeTitle[type]),"",{"headerseparator"}})
           added = true
         end
         available = available + 1
         done = values.completed and done + 1 or done
         local name = Exlist.GetCachedQuestTitle(questId)
         table.insert(sideTooltip.body,{
-          WrapTextInColorCode(name,colors.QuestTitle),
+          WrapTextInColorCode(name,colors.questTitle),
           (values.completed and WrapTextInColorCode(L["Completed"], "FFFF0000") or  WrapTextInColorCode(L["Available"], "FF00FF00"))
         })
         if trackedQuests[questId].showSeparate then
@@ -260,7 +260,7 @@ local function Linegenerator(tooltip,data,character)
             character = character,
             moduleName = key .. questId,
             priority = prio+i/1000,
-            titleName = WrapTextInColorCode(name,colors.QuestTypeTitle[type]),
+            titleName = WrapTextInColorCode(name,colors.questTypeTitle[type]),
             data = (values.completed and WrapTextInColorCode(completedString, "FFFF0000") or  WrapTextInColorCode(availableString, "FF00FF00")),
           })
           i = i + 1
@@ -291,7 +291,7 @@ local function GlobalLineGenerator(tooltip,data)
         for questId,values in pairs(v) do
           if trackedQuests[questId].enabled then
             if not added then
-              Exlist.AddLine(tooltip,WrapTextInColorCode(questTypes[type] .. " " .. L["Quests"],colors.QuestTypeTitle[type]),14)
+              Exlist.AddLine(tooltip,WrapTextInColorCode(questTypes[type] .. " " .. L["Quests"],colors.questTypeTitle[type]),14)
               added = true
             end
             Exlist.AddLine(tooltip,{
@@ -423,7 +423,7 @@ local function SetupQuestConfig(refresh)
     local o = options.args
     o[questId.."enabled"] = {
         order = n,
-        name = WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),Exlist.Colors.QuestTitle),
+        name = WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),colors.questTitle),
         type = "toggle",
         width = 1.5,
         get = function()
@@ -478,7 +478,7 @@ local function SetupQuestConfig(refresh)
       width = 0.5,
       func = function()
         StaticPopupDialogs["DeleteQDataPopup_"..questId] = {
-          text = L["Do you really want to delete "]..WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),Exlist.Colors.QuestTitle).."?",
+          text = L["Do you really want to delete "]..WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),colors.questTitle).."?",
           button1 = "Ok",
           button3 = "Cancel",
           hasEditBox = false,
@@ -512,17 +512,8 @@ Exlist.ModuleToBeAdded(SetupQuestConfig)
 local function init()
   -- setup quests
   local dbQuests = Exlist.ConfigDB.settings.quests
-  for questId,t in pairs(DEFAULT_QUESTS) do
-    if dbQuests[questId] == nil then
-      dbQuests[questId] = t
-    else
-      for k,v in pairs(t) do
-        if dbQuests[questId][k] == nil then
-          dbQuests[questId][k] = v
-        end
-      end
-    end
-  end
+  dbQuests = Exlist.AddMissingTableEntries(dbQuests,DEFAULT_QUESTS)
+ 
   -- add all to tracked
   for questId,t in pairs(dbQuests) do
     trackedQuests[questId] = t

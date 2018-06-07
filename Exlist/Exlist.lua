@@ -229,20 +229,28 @@ Exlist.ShortenedMPlus = {
   [234] = L["UKara"],
   [239] = L["SotT"],
 }
-Exlist.Colors = {
-  QuestTitle = "ffffd200",
-  Debug = "ffc73000",
-  QuestTypeHeading = "ff42c8f4",
-  Faded = "ffc1c1c1",
-  QuestTypeTitle = {
+Exlist.Colors = { --default colors
+  questTitle = "ffffd200",
+  debug = "ffc73000",
+  questTypeHeading = "ff42c8f4",
+  faded = "ffc1c1c1",
+  questTypeTitle = {
     daily = "ff70afd8",
     weekly = "ffe0a34e"
   },
-  Config = {
+  config = {
     heading1 = "ffffd200",
-    heading2 = "ffffb600"
+    heading2 = "ffffb600",
+    tableColumn = "ffffd200",
   },
-  SideTooltipTitle = "ffffd200",
+  sideTooltipTitle = "ffffd200",
+  available = "ff00ff00",
+  completed = "ffff0000",
+  time = {
+    long = "",
+    medium = "",
+    short = "ffff0000"
+  },
 }
 Exlist.Strings = {
   Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode(L["Note!"],"ffffd200") ),
@@ -609,6 +617,20 @@ local function spairs(t, order)
   end
 end
 
+local function AddMissingTableEntries(data,DEFAULT)
+   if not data or not DEFAULT then return data end
+   local rv = data
+   for k,v in pairs(DEFAULT) do
+      if rv[k] == nil then
+         rv[k] = v
+      elseif type(v) == "table" then
+         rv[k] = AddMissingTableEntries(rv[k],v)
+      end
+   end
+   return rv
+end
+Exlist.AddMissingTableEntries = AddMissingTableEntries
+
 local function ShortenNumber(number)
     if type(number) ~= "number" then
         number = tonumber(number)
@@ -686,6 +708,7 @@ end
 Exlist.ColorDecToHex = ColorDecToHex
 
 local function TimeLeftColor(timeLeft, times, col)
+  -- TODO: COLORS
   -- times (opt) = {red,orange} upper limit
   -- i.e {100,1000} = 0-100 Green 100-1000 Orange 1000-inf Green
   -- colors (opt) - colors to use
@@ -818,7 +841,7 @@ Exlist.AuraFromId = AuraFromId
 
 function Exlist.Debug(...)
   if debugMode then
-    local debugString = string.format("|c%s[Exlist Debug]|r",Exlist.Colors.Debug)
+    local debugString = string.format("|c%s[Exlist Debug]|r",Exlist.Colors.debug)
     print(debugString,...)
   end
 end
@@ -864,17 +887,20 @@ local function AddModulesToSettings()
 end
 
 local function UpdateChar(key,data,charname,charrealm)
-  if not data or not key then return end
+  if not data then return end
   charrealm = charrealm or GetRealmName()
   charname = charname or UnitName('player')
   if not key then
-  	-- table is {key = value}
+    print('no key update!!!!')
+  	ViragDevTool_AddData(data)
+    -- table is {key = value}
   	db[charrealm] = db[charrealm] or {}
- 	db[charrealm][charname] = db[charrealm][charname] or {}
- 	local charToUpdate = db[charrealm][charname]
- 	for i, v in pairs(data) do
-    	charToUpdate[i] = v
-	end
+ 	  db[charrealm][charname] = db[charrealm][charname] or {}
+   	local charToUpdate = db[charrealm][charname]
+   	for i, v in pairs(data) do
+      print(i,v)
+      	charToUpdate[i] = v
+  	end
   else
   	db[charrealm] = db[charrealm] or {}
  	db[charrealm][charname] = db[charrealm][charname] or {}
@@ -2125,16 +2151,9 @@ end
 local function init()
   Exlist_DB = Exlist_DB or db
   Exlist_Config = Exlist_Config or config_db
-  if not Exlist_Config.settings then
-    Exlist_Config.settings = settings
-  else
-   -- set Defaults
-    for i,v in pairs(settings) do
-      if Exlist_Config.settings[i] == nil then
-        Exlist_Config.settings[i] = v
-      end
-   end
-  end
+  -- setupt settings
+  Exlist_Config.settings = AddMissingTableEntries(Exlist_Config.settings or {},settings)
+
   db = Exlist.copyTable(Exlist_DB)
   db.global = db.global or {}
   db.global.global = db.global.global or {}
@@ -2143,8 +2162,9 @@ local function init()
   settings = config_db.settings
   Exlist.ConfigDB = config_db
   settings.reorder = true
-
-  LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
+  if not LDBI:IsRegistered("Exlist") then
+    LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
+  end
 
   for i,func in ipairs(moduleInitializers) do
     func()
@@ -2370,6 +2390,13 @@ local delay = true
 local delayedEvents = {}
 local running = false
 local runEvents = {}
+
+local function SendDelayedEvents()
+  for e in pairs(delayedEvents) do
+    Exlist.SendFakeEvent(e)
+  end
+end
+
 local function IsEventEligible(event)
   if runEvents[event] then
       if GetTime() - runEvents[event] > 0.5 then
@@ -2414,19 +2441,12 @@ function frame:OnEvent(event, ...)
     SetTooltipBut()
     Exlist.Debug('Init ran for: ' .. DebugTimeColors(debugprofilestop() - started))
 	C_Timer.After(3,function() ResetHandling() end)
+    return
   end
   -- Delays
   if event == "Exlist_DELAY" then
     delay = false
-    for e in pairs(delayedEvents) do
-      local eventFuncs = registeredUpdaters[e] or {}
-      for i=1,#eventFuncs do
-        local started = debugprofilestop()
-        eventFuncs[i].func(e,...)
-        Exlist.Debug(eventFuncs[i].name .. ' (delayed) finished: ' .. DebugTimeColors(debugprofilestop() - started))
-        GetLastUpdateTime()
-      end
-    end
+    SendDelayedEvents()
     return
   end
   if delay then
