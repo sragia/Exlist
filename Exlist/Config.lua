@@ -87,7 +87,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.lockIcon = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     iconscale = {
@@ -104,7 +104,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.iconScale = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     iconalpha = {
@@ -119,7 +119,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(self,v)
                             Exlist.ConfigDB.settings.iconAlpha = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     announceReset = {
@@ -144,7 +144,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.showMinimapIcon = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     showExtraInfo = {
@@ -169,7 +169,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.showIcon = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },  
                     shortenInfo = {
@@ -204,7 +204,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.Font = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end
                     },
                     spacer2 ={
@@ -227,7 +227,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.fonts.small.size = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     mediumFontSize = {
@@ -244,7 +244,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.fonts.medium.size = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     bigFontSize = {
@@ -261,7 +261,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.fonts.big.size = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                 }
