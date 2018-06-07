@@ -1014,7 +1014,8 @@ local function UpdateCharacterGear()
   for i=1,#order do
     local iLink = GetInventoryItemLink('player',order[i])
     if iLink then
-      local itemName, itemLink, itemRarity, itemLevel, _, _, _, _, _, itemTexture, _ = GetItemInfo(iLink)
+      local itemName, itemLink, itemRarity, _, _, _, _, _, _, itemTexture, _ = GetItemInfo(iLink)
+      local ilvl = GetDetailedItemLevelInfo(iLink)
       local relics = {}
       local enchant,gem
       if not (order[i] == 16 or order[i] == 17 or order[i] == 18) then
@@ -1022,14 +1023,14 @@ local function UpdateCharacterGear()
         gem = Exlist.GetItemGems(iLink)
       end
       table.insert(t,{slot = slotNames[order[i]], name = itemName,itemTexture = itemTexture, itemLink = itemLink,
-                      ilvl = itemLevel, enchant = enchant, gem = gem})
+                      ilvl = ilvl, enchant = enchant, gem = gem})
     end
   end
   if HasArtifactEquipped() then
     for i=1,3 do
       local name,icon,slotTypeName,link = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
       if name then
-        local _,_,_,ilvl=GetItemInfo(link)
+      	local ilvl = GetDetailedItemLevelInfo(link)
         table.insert(t,{slot = slotTypeName .. " "..L["Relic"], name = name,itemTexture = icon, itemLink = link,
                       ilvl = ilvl})
       end
