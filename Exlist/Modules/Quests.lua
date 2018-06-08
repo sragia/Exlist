@@ -115,7 +115,6 @@ function checkFunctions.WeeklyBonusQuest(questId)
     holidayNames[qId.name] = qId.questId
   end
   -- oh well time to go hard way
-  -- TODO: Somehow make this not rely on holiday name
   --
   local date = date("*t", time())
   for i=1,5 do

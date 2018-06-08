@@ -10,6 +10,7 @@ local string, strsplit, time, tonumber = string, strsplit, time, tonumber
 local WrapTextInColorCode = WrapTextInColorCode
 local GetTime = GetTime
 local IsShiftKeyDown = IsShiftKeyDown
+local GetContainerItemID = GetContainerItemID
 local ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat = ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat
 local GameTooltip = GameTooltip
 local ipairs = ipairs
@@ -42,9 +43,7 @@ local function Updater(event)
   for bag = 0, NUM_BAG_SLOTS do
     for slot = 1, GetContainerNumSlots(bag) do
       local s = GetContainerItemLink(bag, slot)
-      -- TODO: Localize
-      -- if GetContainerItemID(bag, slot) == 138019 then --TODO: check this on Live and Beta when m+ come out
-      if s and string.find(s, "Keystone:") then
+      if GetContainerItemID(bag, slot) == 138019 then 
         local _, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
         local affixes = {affix1,affix2,affix3}
         local map = CM.GetMapUIInfo(mapID)

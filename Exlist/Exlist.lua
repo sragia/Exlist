@@ -924,25 +924,20 @@ end
 
 --------------
 local function AddMissingCharactersToSettings()
-  --TODO: Rewrite this abomination
-  if not settings.allowedCharacters then settings.allowedCharacters = {} end
-  local t = settings.allowedCharacters
-  for i, v in pairs(db) do
-    -- i=server
-    if i ~= "global" then
-      for b, c in pairs(v) do
-        --b = name
-        local s = b.."-"..i
-        if (t[s] == nil or type(t[s]) ~= "table") or (not t[s].ilvl) then
-          t[s] = {
+  settings.allowedCharacters = settings.allowedCharacters or {}
+  local chars = settings.allowedCharacters
+  for realm,v in pairs(db) do
+    if realm ~= "global" then
+      for name,values in pairs(v) do
+        local charFullName = name .. "-" .. realm
+        if not chars[charFullName] then
+          chars[charFullName] = {
             enabled = true,
-            name = b,
-            order = 100,
-            classClr = v[b].class and RAID_CLASS_COLORS[v[b].class].colorStr or b == UnitName('player') and RAID_CLASS_COLORS[select(2, UnitClass('player'))].colorStr or "FFFFFFFF",
-            ilvl = v[b].iLvl or 0
+            name = name,
+            order = 70,
+            classClr = values.class and RAID_CLASS_COLORS[values.class].colorStr or name == UnitName("player") and RAID_CLASS_COLORS[select(2, UnitClass('player'))].colorStr or "FFFFFFFF",
+            ilvl = values.iLvl or 0,
           }
-        else
-          t[s].ilvl = v[b].iLvl
         end
       end
     end

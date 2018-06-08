@@ -9,7 +9,6 @@ local WrapTextInColorCode = WrapTextInColorCode
 local RaiderIO = RaiderIO
 local UnitLevel = UnitLevel
 local DUNGEON_NAME = {
--- TODO: ADD BFA DUNGEONS
   (CM.GetMapUIInfo(206)), -- NL
   (CM.GetMapUIInfo(200)), -- HoV
   (CM.GetMapUIInfo(198)), -- DHT
@@ -23,6 +22,18 @@ local DUNGEON_NAME = {
   (CM.GetMapUIInfo(239)), -- SEAT
   (CM.GetMapUIInfo(227)), -- LOWER
   (CM.GetMapUIInfo(234)), -- UPPER
+
+  -- BFA
+  (CM.GetMapUIInfo(244)), -- Atal'dazar
+  (CM.GetMapUIInfo(245)), -- Freehold
+  (CM.GetMapUIInfo(246)), -- Tol Dagor
+  (CM.GetMapUIInfo(247)), -- The MOTHERLODE!!
+  (CM.GetMapUIInfo(248)), -- Kings' Rest
+  (CM.GetMapUIInfo(249)), -- Waycrest Manor
+  (CM.GetMapUIInfo(250)), -- Temple of Sethraliss
+  (CM.GetMapUIInfo(251)), -- The Underrot
+  (CM.GetMapUIInfo(252)), -- Shrine of the Storm
+  (CM.GetMapUIInfo(353)), -- Siege of Boralus
 }
 
 
