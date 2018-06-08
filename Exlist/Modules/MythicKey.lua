@@ -68,7 +68,7 @@ local function Linegenerator(tooltip,data,character)
   local mapId = tonumber(data.mapId)
   local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[mapId] or data.dungeon
   local info = {
-    data = WrapTextInColorCode("[" .. dungeonName .. " +" .. data.level .. "]", "ffd541e2"),
+    data = WrapTextInColorCode("[" .. dungeonName .. " +" .. data.level .. "]", colors.mythicplus.key),
     character = character,
     moduleName = key,
     priority = prio,
@@ -98,7 +98,7 @@ local function GlobalLineGenerator(tooltip,data)
   local added = false
   for i=1,#data do
     if not added then
-      Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Mythic+ Affixes"],"ffffd200")},14)
+      Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Mythic+ Affixes"],colors.sideTooltipTitle)},14)
       added = true
     end
     local line = Exlist.AddLine(tooltip,

@@ -2,6 +2,7 @@ local key = "raiderIO"
 local prio = 20
 local Exlist = Exlist
 local L = Exlist.L
+local colors = Exlist.Colors
 local CM = C_ChallengeMode
 local table,print, string= table,print, string
 local WrapTextInColorCode = WrapTextInColorCode
@@ -69,7 +70,7 @@ local function Linegenerator(tooltip,data,character)
   for i=1,#data.dungeons do
     s[i] = {data.dungeons[i].name,data.dungeons[i].lvl}
   end
-  local sideTooltip = {body = s,title=WrapTextInColorCode(string.format("%s - %s",data.playerName,data.score),"ffffd200")}
+  local sideTooltip = {body = s,title=WrapTextInColorCode(string.format("%s - %s",data.playerName,data.score),colors.sideTooltipTitle)}
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()

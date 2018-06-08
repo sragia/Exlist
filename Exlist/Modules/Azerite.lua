@@ -30,10 +30,10 @@ local function Linegenerator(tooltip,data,character)
     priority = prio,
     moduleName = key,
     titleName = L["Azerite Power"],
-    data = string.format("|c%s%s:|r %i",colors.Faded,L["Level"],data.powerLevel),
+    data = string.format("|c%s%s:|r %i",colors.faded,L["Level"],data.powerLevel),
     OnEnter = Exlist.CreateSideTooltip(),
     OnEnterData = {
-      title = WrapTextInColorCode(L["Azerite Power"], colors.SideTooltipTitle),
+      title = WrapTextInColorCode(L["Azerite Power"], colors.sideTooltipTitle),
       body = {
         { L["Progress"], string.format("%.1f%% (%i/%i)",(data.xp/data.maxXp)*100,data.xp,data.maxXp)},
         { L["Level"],data.powerLevel },

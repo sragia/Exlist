@@ -248,7 +248,7 @@ local function Linegenerator(tooltip,data,character)
         local name = Exlist.GetCachedQuestTitle(questId)
         table.insert(sideTooltip.body,{
           WrapTextInColorCode(name,colors.questTitle),
-          (values.completed and WrapTextInColorCode(L["Completed"], "FFFF0000") or  WrapTextInColorCode(L["Available"], "FF00FF00"))
+          (values.completed and WrapTextInColorCode(L["Completed"], colors.completed) or  WrapTextInColorCode(L["Available"], colors.available))
         })
         if trackedQuests[questId].showSeparate then
           local settings = Exlist.ConfigDB.settings
@@ -261,7 +261,7 @@ local function Linegenerator(tooltip,data,character)
             moduleName = key .. questId,
             priority = prio+i/1000,
             titleName = WrapTextInColorCode(name,colors.questTypeTitle[type]),
-            data = (values.completed and WrapTextInColorCode(completedString, "FFFF0000") or  WrapTextInColorCode(availableString, "FF00FF00")),
+            data = (values.completed and WrapTextInColorCode(completedString, colors.completed) or  WrapTextInColorCode(availableString, colors.available)),
           })
           i = i + 1
         end
@@ -296,7 +296,7 @@ local function GlobalLineGenerator(tooltip,data)
             end
             Exlist.AddLine(tooltip,{
               Exlist.GetCachedQuestTitle(questId),
-              (values.completed and WrapTextInColorCode(L["Completed"], "FFFF0000") or  WrapTextInColorCode(L["Available"], "FF00FF00"))
+              (values.completed and WrapTextInColorCode(L["Completed"], colors.completed) or  WrapTextInColorCode(L["Available"], colors.available))
             })
           end
         end
@@ -387,21 +387,21 @@ local function SetupQuestConfig(refresh)
         order = 1.2,
         width = 1.35,
         fontSize = "large",
-        name = WrapTextInColorCode(L["Quest Title"],"ffffd200")
+        name = WrapTextInColorCode(L["Quest Title"],colors.config.tableColumn)
       },
       typeLabel = {
         type = "description",
         order = 1.3,
         width = 0.55,
         fontSize = "large",
-        name = WrapTextInColorCode(L["Type"],"ffffd200")
+        name = WrapTextInColorCode(L["Type"],colors.config.tableColumn)
       },
       separatelabel = {
         type = "description",
         order = 1.4,
         width = 0.75,
         fontSize = "large",
-        name = WrapTextInColorCode(L["Show Separate"],"ffffd200")
+        name = WrapTextInColorCode(L["Show Separate"],colors.config.tableColumn)
       },
       spacer1 = {
         type = "description",

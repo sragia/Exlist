@@ -3,6 +3,7 @@ local prio = 50
 local CM = C_ChallengeMode
 local C_MythicPlus = C_MythicPlus
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table, ipairs = table, ipairs
@@ -73,7 +74,7 @@ local function MythicPlusTimeString(time,mapId)
   local times = mapTimes[mapId] or {}
   local rstring = ""
   local secTime = time/1000
-  local colors = {"ffbfbfbf","fffaff00","fffbdb00","fffacd0c"}
+  local colors = colors.mythicplus.times
   for i=1, #times do
     if secTime > times[i] then
       if i == 1 then return WrapTextInColorCode("("..L["Depleted"]..") " .. Exlist.FormatTimeMilliseconds(time),colors[i])
@@ -96,7 +97,7 @@ local function Linegenerator(tooltip,data,character)
   }
 
   if data.mapsDone and #data.mapsDone > 0 then
-    local sideTooltip = {title = WrapTextInColorCode(L["Mythic+"],"ffffd200"), body = {}}
+    local sideTooltip = {title = WrapTextInColorCode(L["Mythic+"],colors.sideTooltipTitle), body = {}}
     local maps = data.mapsDone
     for i=1, #maps do
       table.insert(sideTooltip.body,{"+" .. maps[i].level .. " " .. maps[i].name,MythicPlusTimeString(maps[i].time,maps[i].mapId)})

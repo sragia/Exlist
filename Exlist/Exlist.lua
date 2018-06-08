@@ -228,12 +228,38 @@ Exlist.ShortenedMPlus = {
   [233] = L["CoEN"],
   [234] = L["UKara"],
   [239] = L["SotT"],
+  --BFA
+  [244] = L["AD"], -- Atal'dazar
+  [245] = L["FH"], -- Freehold
+  [246] = L["TD"], -- Tol Dagor
+  [247] = L["MOTHER"], -- The MOTHERLODE!!
+  [248] = L["WM"], -- Waycrest Manor
+  [249] = L["KR"], -- Kings' Rest
+  [250] = L["ToS"], -- Temple of Sethraliss
+  [251] = L["URot"], -- The Underrot
+  [252] = L["SotS"], -- Shrine of the Storm
+  [353] = L["SoB"], -- Siege of Boralus
+
 }
-Exlist.Colors = { --default colors
+
+local Colors = { --default colors
   questTitle = "ffffd200",
-  debug = "ffc73000",
+  missionName = "ffffd200",
   questTypeHeading = "ff42c8f4",
   faded = "ffc1c1c1",
+  hardfaded = "ff494949",
+  sideTooltipTitle = "ffffd200",
+  available = "ff00ff00",
+  completed = "ffff0000",
+  notavailable = "fff49e42",
+  enchantName = "ff98f907",
+  debug = "ffc73000",
+  debugTime = {
+    short = "FF00FF00",
+    medium = "ffe5f441",
+    almostlong = "FFf48c42",
+    long = "FFFF0000",
+  },
   questTypeTitle = {
     daily = "ff70afd8",
     weekly = "ffe0a34e"
@@ -243,17 +269,67 @@ Exlist.Colors = { --default colors
     heading2 = "ffffb600",
     tableColumn = "ffffd200",
   },
-  sideTooltipTitle = "ffffd200",
-  available = "ff00ff00",
-  completed = "ffff0000",
   time = {
-    long = "",
-    medium = "",
-    short = "ffff0000"
+    long = "fff44141",
+    medium = "FFf4a142",
+    short = "FF00FF00"
   },
+  missions = {
+    completed = "ff00ff00",
+    inprogress = "FFf48642",
+    available = "FFefe704"
+  },
+  mythicplus = {
+    key = "ffd541e2",
+    times = {
+      "ffbfbfbf", -- depleted 
+      "fffaff00", -- +1
+      "fffbdb00", -- +2
+      "fffacd0c", -- +3
+    }
+  },
+  ilvlColors = {
+    -- BFA --
+    {ilvl = 270 , str ="ff26ff3f"},
+    {ilvl = 290 , str ="ff26ffba"},
+    {ilvl = 300 , str ="ff26e2ff"},
+    {ilvl = 320 , str ="ff26a0ff"},
+    {ilvl = 340 , str ="ff2663ff"},
+    {ilvl = 360 , str ="ff8e26ff"},
+    {ilvl = 380 , str ="ffe226ff"},
+    {ilvl = 400 , str ="ffff2696"},
+    {ilvl = 420 , str ="ffff2634"},
+    {ilvl = 440 , str ="ffff7526"},
+    {ilvl = 460 , str ="ffffc526"},
+    -- Legion -- TODO: CHECK on prepatch
+    {ilvl = 750 , str ="ff26ff3f"},
+    {ilvl = 800 , str ="ff26ffba"},
+    {ilvl = 850 , str ="ff26e2ff"},
+    {ilvl = 880 , str ="ff26a0ff"},
+    {ilvl = 900 , str ="ff2663ff"},
+    {ilvl = 910 , str ="ff8e26ff"},
+    {ilvl = 920 , str ="ffe226ff"},
+    {ilvl = 935 , str ="ffff2696"},
+    {ilvl = 950 , str ="ffff2634"},
+    {ilvl = 980 , str ="ffff7526"},
+    {ilvl = 1000 ,str ="ffffc526"}
+  },
+  profColors = {
+    {val = 75, color = "c6c3b4"},
+    {val = 150, color = "dbd3ab"},
+    {val = 225, color = "e2d388"},
+    {val = 300, color = "efd96b"},
+    {val = 400, color = "ffe254"},
+    {val = 500, color = "ffde3d"},
+    {val = 600, color = "ffd921"},
+    {val = 700, color = "ffd50c"},
+    {val = 800, color = "ffae00"}
+  }
 }
+Exlist.Colors = Colors
+
 Exlist.Strings = {
-  Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode(L["Note!"],"ffffd200") ),
+  Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode(L["Note!"],Colors.questTitle) ),
 }
 
 --TODO: Retire on launch
@@ -708,12 +784,11 @@ end
 Exlist.ColorDecToHex = ColorDecToHex
 
 local function TimeLeftColor(timeLeft, times, col)
-  -- TODO: COLORS
   -- times (opt) = {red,orange} upper limit
   -- i.e {100,1000} = 0-100 Green 100-1000 Orange 1000-inf Green
   -- colors (opt) - colors to use
   times = times or {3600, 18000} --default
-  local colors = col or {"FFFF0000", "FFe09602", "FF00FF00"} -- default
+  local colors = col or {Colors.time.long, Colors.time.medium, Colors.time.short} -- default
   for i = 1, #times do
     if timeLeft < times[i] then
       return WrapTextInColorCode(SecondsToTime(timeLeft), colors[i])
@@ -781,7 +856,7 @@ local function GetItemGems(itemLink)
     if tex then
       tex = tostring(tex)
       if tex:find("Interface\\ItemSocketingFrame\\UI--Empty") then
-        table.insert(t,{name = "|cFFcccccc"..L["Empty Slot"],icon = tex})
+        table.insert(t,{name = WrapTextInColorCode(L["Empty Slot"], Colors.faded),icon = tex})
       end
     end
   end
@@ -824,10 +899,10 @@ Exlist.GetTableNum = GetTableNum
 local function AuraFromId(unit,ID,filter)
   -- Already Preparing for BFA
   for i=1,40 do
-    local name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3 = UnitAura(unit,i,filter)
+    local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3 = UnitAura(unit,i,filter)
     if name then
       if spellId and spellId == ID then
-        return name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3
+        return name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3
       end
     else
       -- afaik auras always are in list w/o gaps ie 1,2,3,4,5,6 instead of 1,2,4,5,8...
@@ -849,6 +924,7 @@ end
 
 --------------
 local function AddMissingCharactersToSettings()
+  --TODO: Rewrite this abomination
   if not settings.allowedCharacters then settings.allowedCharacters = {} end
   local t = settings.allowedCharacters
   for i, v in pairs(db) do
@@ -891,15 +967,12 @@ local function UpdateChar(key,data,charname,charrealm)
   charrealm = charrealm or GetRealmName()
   charname = charname or UnitName('player')
   if not key then
-    print('no key update!!!!')
-  	ViragDevTool_AddData(data)
     -- table is {key = value}
   	db[charrealm] = db[charrealm] or {}
  	  db[charrealm][charname] = db[charrealm][charname] or {}
    	local charToUpdate = db[charrealm][charname]
    	for i, v in pairs(data) do
-      print(i,v)
-      	charToUpdate[i] = v
+      charToUpdate[i] = v
   	end
   else
   	db[charrealm] = db[charrealm] or {}
@@ -1329,6 +1402,7 @@ local function RegisterEvents()
     end
   end
 end
+
 function Exlist.RegisterModule(data)
   --[[
   data = table
@@ -1535,37 +1609,12 @@ local function AddNote(tooltip,data,realm,name)
   end
 end
 
-local ilvlColors = {
--- BFA --
-  {ilvl = 270 , str ="ff26ff3f"},
-  {ilvl = 290 , str ="ff26ffba"},
-  {ilvl = 300 , str ="ff26e2ff"},
-  {ilvl = 320 , str ="ff26a0ff"},
-  {ilvl = 340 , str ="ff2663ff"},
-  {ilvl = 360 , str ="ff8e26ff"},
-  {ilvl = 380 , str ="ffe226ff"},
-  {ilvl = 400 , str ="ffff2696"},
-  {ilvl = 420 , str ="ffff2634"},
-  {ilvl = 440 , str ="ffff7526"},
-  {ilvl = 460 , str ="ffffc526"},
--- Legion -- 
-  {ilvl = 750 , str ="ff26ff3f"},
-  {ilvl = 800 , str ="ff26ffba"},
-  {ilvl = 850 , str ="ff26e2ff"},
-  {ilvl = 880 , str ="ff26a0ff"},
-  {ilvl = 900 , str ="ff2663ff"},
-  {ilvl = 910 , str ="ff8e26ff"},
-  {ilvl = 920 , str ="ffe226ff"},
-  {ilvl = 935 , str ="ffff2696"},
-  {ilvl = 950 , str ="ffff2634"},
-  {ilvl = 980 , str ="ffff7526"},
-  {ilvl = 1000 ,str ="ffffc526"}
-}
 local function setIlvlColor(ilvl)
   if not ilvl then return "ffffffff" end
-  for i=1,#ilvlColors do
-    if ilvlColors[i].ilvl > ilvl then
-      return ilvlColors[i].str
+  local colors = Colors.ilvlColors
+  for i=1,#colors do
+    if colors[i].ilvl > ilvl then
+      return colors[i].str
     end
   end
   return "fffffb26"
@@ -1575,21 +1624,11 @@ local hasEnchantSlot = {
   Ring = true,
   Back = true
 }
-local profColors = {
-  {val = 75, color = "c6c3b4"},
-  {val = 150, color = "dbd3ab"},
-  {val = 225, color = "e2d388"},
-  {val = 300, color = "efd96b"},
-  {val = 400, color = "ffe254"},
-  {val = 500, color = "ffde3d"},
-  {val = 600, color = "ffd921"},
-  {val = 700, color = "ffd50c"},
-  {val = 800, color = "ffae00"}
-}
 local function ProfessionValueColor(value)
-  for i=1,#profColors do
-    if value <= profColors[i].val then
-      return profColors[i].color
+  local colors = Colors.profColors
+  for i=1,#colors do
+    if value <= colors[i].val then
+      return colors[i].color
     end
   end
   return "FFFFFFFF"
@@ -1614,7 +1653,7 @@ local function GearTooltip(self,info)
   geartooltip:SetCell(line,7,string.format("%i "..L["ilvl"],(info.iLvl or 0)),"RIGHT")
   geartooltip:AddSeparator(1,.8,.8,.8,1)
   line = geartooltip:AddHeader()
-  geartooltip:SetCell(line,1,WrapTextInColorCode(L["Gear"],"ffffb600"),"CENTER",7)
+  geartooltip:SetCell(line,1,WrapTextInColorCode(L["Gear"],Colors.sideTooltipTitle),"CENTER",7)
   local gear = info.gear
   if gear then
     for i=1,#gear do
@@ -1622,7 +1661,7 @@ local function GearTooltip(self,info)
       if gear[i].enchant or gear[i].gem then
         if type(gear[i].gem) == 'table' then
           if gear[i].enchant then
-            enchantements = string.format("%s%s|r","|cff00ff00",gear[i].enchant or "")
+            enchantements = string.format("|c%s%s|r",Colors.enchantName,gear[i].enchant or "")
           end
           for b=1,#gear[i].gem do
             if enchantements ~= "" then
@@ -1908,13 +1947,6 @@ local function OnEnter(self)
   tooltip:SetHeaderFont(mediumFont)
   tooltip:SetFont(smallFont)
 
-  --[[if settings.horizontalMode then
-    -- Setup Header for horizontal
-    tooltip:AddHeader()
-    tooltip:SetFont(smallFont)
-    tooltip:AddLine()
-    tooltip:AddSeparator(1, 1, 1, 1, .85)
-  end]]
   -- character info main tooltip
   for i=1,#charOrder do
       local name = charOrder[i].name
@@ -1928,11 +1960,11 @@ local function OnEnter(self)
       if settings.shortenInfo then
 
         headerText = "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r " 
-        subHeaderText = string.format("|c%s%s","ffffd200",realm)
+        subHeaderText = string.format("|c%s%s",Colors.sideTooltipTitle,realm)
 
       else
         headerText = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
-        subHeaderText = string.format("|c%s%s - "..L["Level"] .." %i","ffffd200",realm,charData.level)
+        subHeaderText = string.format("|c%s%s - "..L["Level"] .." %i",Colors.sideTooltipTitle,realm,charData.level)
       end
       -- Header Info
       Exlist.AddData({
@@ -1974,12 +2006,8 @@ local function OnEnter(self)
           registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key],character)
         end
       end
-      --AddNote(tooltip,charData,realm,name)
-      --[[if i < #charOrder and not settings.horizontalMode then
-        tooltip:AddSeparator(1, 1, 1, 1, .85)
-      end]]
   end
-  -- Add Data
+  -- Add Data to tooltip
   PopulateTooltip(tooltip)
   -- global data
   if settings.showExtraInfoTooltip then
@@ -2414,13 +2442,13 @@ end
 
 local function DebugTimeColors(timeSpent)
   if timeSpent < 0.2 then
-    return string.format("|cFF00FF00%.6f",timeSpent)
+    return WrapTextInColorCode(string.format("%.6f",timeSpent), Colors.debugTime.short)
   elseif timeSpent <= 1 then
-    return string.format("|cffe5f441%.6f",timeSpent)
+    return WrapTextInColorCode(string.format("%.6f",timeSpent), Colors.debugTime.medium)
   elseif timeSpent <= 2 then
-    return string.format("|cFFf48c42%.6f",timeSpent)
+    return WrapTextInColorCode(string.format("%.6f",timeSpent), Colors.debugTime.almostlong)
   end
-  return string.format("|cFFFF0000%.6f",timeSpent)
+  return WrapTextInColorCode(string.format("%.6f",timeSpent), Colors.debugTime.long)
 end
 
 function frame:OnEvent(event, ...)

@@ -323,9 +323,9 @@ local function GlobalLineGenerator(tooltip,data)
       if info.endTime < timeNow or (wq[questId] and not wq[questId].enabled) then 
         RemoveExpiredQuest(questId)
       else
-        if first then Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],"ffffd200")},14) first = false end
+        if first then Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],colors.sideTooltipTitle)},14) first = false end
         local lineNum = Exlist.AddLine(tooltip,{info.name,
-        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode(L["Completed"],"FFFF0000") or WrapTextInColorCode(L["Available"],"FF00FF00"),  
+        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode(L["Completed"],colors.completed) or WrapTextInColorCode(L["Available"],colors.available),  
         Exlist.TimeLeftColor(info.endTime - timeNow,{3600, 14400})})
         Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
           if not WorldMapFrame:IsShown() then

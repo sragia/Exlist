@@ -5,6 +5,7 @@ local L = Exlist.L
 local WrapTextInColorCode = WrapTextInColorCode
 local HasNewMail, GetLatestThreeSenders = HasNewMail, GetLatestThreeSenders
 local table = table
+local colors = Exlist.Colors
 
 local function Updater(event)
   local t = {}
@@ -23,9 +24,9 @@ local function Linegenerator(tooltip,data,character)
     moduleName = key,
     priority = prio,
     titleName = L["Mail"],
-    data = WrapTextInColorCode(L["Got Mail!"],"FF00FF00")
+    data = WrapTextInColorCode(L["Got Mail!"],colors.available)
   }
-  local t = {title = WrapTextInColorCode(L["Senders"],"ffffd200"), body = {}}
+  local t = {title = WrapTextInColorCode(L["Senders"],colors.sideTooltipTitle), body = {}}
   for i=1, #data.senders do
     table.insert(t.body,{data.senders[i]})
   end

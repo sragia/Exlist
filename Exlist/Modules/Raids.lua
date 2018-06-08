@@ -1,6 +1,7 @@
 local key = "raids"
 local prio = 100
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 local pairs, ipairs, type = pairs, ipairs, type
 local WrapTextInColorCode = WrapTextInColorCode
@@ -67,7 +68,7 @@ local function AddRaidOptions()
   for i=numExpansions,1,-1 do
     configOpt.args["expac"..i] = {
       type = "description",
-      name = WrapTextInColorCode(expansions[i],"ffffd200"),
+      name = WrapTextInColorCode(expansions[i],colors.config.heading1),
       fontSize = "large",
       width = "full",
       order = numExpansions - i + 1,
@@ -149,7 +150,6 @@ local function Updater(event)
       t[raid].LFR = t[raid].LFR or {}
       t[raid].LFR = {bosses = {}}
       for id, lfr in spairs(c,function(t,a,b) return t[a].order < t[b].order end) do
-        Exlist.Debug("LFR ID",id,"Wing Name",lfr.name)
         total = not lfr.dontCount and total + lfr.totalEncounters or total
         local saveId = lfr.saveId or id
         if lfr.map then
@@ -178,15 +178,6 @@ local function Updater(event)
             index = index + 1
           end
         end
-
-        --[[for i = 1, lfr.totalEncounters do
-          local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
-          killed = isKilled and killed + 1 or killed
-          t[raid].LFR.bosses[id] = t[raid].LFR.bosses[id] or {}
-          t[raid].LFR.bosses[id].order = lfr.order
-          t[raid].LFR.bosses[id][lfr.name] = t[raid].LFR.bosses[id][lfr.name] or {}
-          table.insert(t[raid].LFR.bosses[id][lfr.name], {name = bossName, killed = isKilled})
-        end]]
       end
       t[raid].LFR.done = killed
       t[raid].LFR.max = total
@@ -228,11 +219,11 @@ local function Linegenerator(tooltip,data,character)
           if not added then
             -- raid shows up first time
             info.moduleName = raidOrder[index]
-            info.titleName = WrapTextInColorCode(raidOrder[index],"ffc1c1c1")
+            info.titleName = WrapTextInColorCode(raidOrder[index],colors.faded)
             added = true
             cellIndex = cellIndex + 1
           end
-          local sideTooltipTable = {title = WrapTextInColorCode(raidOrder[index].. " (" .. diffOrder[difIndex] .. ")","ffffd200"),body = {}}
+          local sideTooltipTable = {title = WrapTextInColorCode(raidOrder[index].. " (" .. diffOrder[difIndex] .. ")",colors.sideTooltipTitle),body = {}}
 
           -- Side Tooltip Data
           if difIndex == 1 then
@@ -241,11 +232,11 @@ local function Linegenerator(tooltip,data,character)
               Exlist.Debug("Adding LFR id:",id," -",key)
               for name,b in pairs(raidInfo.bosses[id]) do
                 if type(b) == "table" then
-                  table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,"ffc1c1c1"),""})
+                  table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,colors.faded),""})
                   for i=1,#b do
                     table.insert(sideTooltipTable.body,{b[i].name,
-                    b[i].killed and WrapTextInColorCode(L["Defeated"],"ffff0000") or
-                    WrapTextInColorCode(L["Available"],"ff00ff00")})
+                    b[i].killed and WrapTextInColorCode(L["Defeated"],colors.completed) or
+                    WrapTextInColorCode(L["Available"],colors.available)})
                   end
                 end
               end
@@ -254,8 +245,8 @@ local function Linegenerator(tooltip,data,character)
             -- normal people difficulties
             for boss=1,#raidInfo.bosses do
               table.insert(sideTooltipTable.body,{raidInfo.bosses[boss].name,
-              raidInfo.bosses[boss].killed and WrapTextInColorCode(L["Defeated"],"ffff0000") or
-              WrapTextInColorCode(L["Available"],"ff00ff00")})
+              raidInfo.bosses[boss].killed and WrapTextInColorCode(L["Defeated"],colors.completed) or
+              WrapTextInColorCode(L["Available"],colors.available)})
             end
           end
 

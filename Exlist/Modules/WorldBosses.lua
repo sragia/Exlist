@@ -1,6 +1,7 @@
 local key = "worldboss"
 local prio = 120
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 local EJ_GetEncounterInfo = EJ_GetEncounterInfo
 local UnitLevel,GetRealmName,UnitName = UnitLevel,GetRealmName,UnitName
@@ -330,17 +331,17 @@ local function Linegenerator(tooltip,data,character)
   for spellId,info in pairs(data) do
     availableWB = availableWB + 1
     killed = info.defeated and killed + 1 or killed
-    table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime > timeNow and Exlist.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode(L["Not Available"],"fff49e42")),
-                                          info.defeated and WrapTextInColorCode(L["Defeated"],"ffff0000") or WrapTextInColorCode(L["Available"],"ff00ff00")})
+    table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime > timeNow and Exlist.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode(L["Not Available"],colors.notavailable)),
+                                          info.defeated and WrapTextInColorCode(L["Defeated"],colors.completed) or WrapTextInColorCode(L["Available"],colors.available)})
 
   end
   if availableWB > 0 then
-    local sideTooltip = {body = strings,title=WrapTextInColorCode(L["World Bosses"],"ffffd200")}
+    local sideTooltip = {body = strings,title=WrapTextInColorCode(L["World Bosses"],colors.sideTooltipTitle)}
     local info = {
       character = character,
       moduleName = key,
       priority = prio,
-      titleName = WrapTextInColorCode(L["World Bosses"] .. ":","ffc1c1c1"),
+      titleName = WrapTextInColorCode(L["World Bosses"] .. ":",colors.faded),
       data = string.format("%i/%i",killed,availableWB),
       OnEnter = Exlist.CreateSideTooltip(),
       OnEnterData = sideTooltip,
@@ -359,9 +360,9 @@ local function GlobalLineGenerator(tooltip,data)
       if info.endTime and info.endTime > timeNow then
         if not added then 
           added = true
-          Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Invasion Points"],"ffffd200")},14)
+          Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Invasion Points"],colors.sideTooltipTitle)},14)
         end
-        Exlist.AddLine(tooltip,{info.name,Exlist.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map or "","ffc1c1c1")})
+        Exlist.AddLine(tooltip,{info.name,Exlist.TimeLeftColor(info.endTime - timeNow,{1800, 3600}),WrapTextInColorCode(info.map or "",colors.faded)})
       end
     end
   end
@@ -370,10 +371,10 @@ local function GlobalLineGenerator(tooltip,data)
     for i,info in pairs(data.brokenshore or {}) do
       if not added then 
         added = true
-        Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Broken Shore"],"ffffd200")},14)
+        Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Broken Shore"],colors.sideTooltipTitle)},14)
       end
-      local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow) or info.progress,(info.state == 4 and WrapTextInColorCode(L["Destroyed"],"ffa1a1a1") or
-      (info.rewards and (info.state == 2 or info.state == 3) and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ffffd200",info.rewards.name or "") or info.state == 1 and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,"ff494949",info.rewards.name or "")))})
+      local line = Exlist.AddLine(tooltip,{info.name,info.timeEnd and Exlist.TimeLeftColor(info.timeEnd - timeNow) or info.progress,(info.state == 4 and WrapTextInColorCode(L["Destroyed"],colors.faded) or
+      (info.rewards and (info.state == 2 or info.state == 3) and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,colors.sideTooltipTitle,info.rewards.name or "") or info.state == 1 and string.format("|T%s:15|t|c%s %s",info.rewards.icon or unknownIcon,colors.hardfaded,info.rewards.name or "")))})
       if info.rewards and info.state ~= 4 then
         Exlist.AddScript(tooltip,line,3,"OnEnter",function(self)
           GameTooltip:SetOwner(self)
@@ -393,7 +394,7 @@ local function GlobalLineGenerator(tooltip,data)
         if info[b].endTime > timeNow then
           if not added then 
             added = true
-            Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Bosses"],"ffffd200")},14)
+            Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Bosses"],colors.sideTooltipTitle)},14)
           end
           Exlist.AddLine(tooltip,{info[b].name,Exlist.TimeLeftColor(info[b].endTime - timeNow)})
         end
