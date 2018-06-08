@@ -248,6 +248,7 @@ local Colors = { --default colors
   questTypeHeading = "ff42c8f4",
   faded = "ffc1c1c1",
   hardfaded = "ff494949",
+  note = "fff4c842",
   sideTooltipTitle = "ffffd200",
   available = "ff00ff00",
   completed = "ffff0000",
@@ -638,6 +639,7 @@ local AKMultiplier = 6300001 -- hardcoded because everyone right now has it by d
     110 - dungeons
     120 - worldbosses
     130 - worldquests
+    10000 - note
 ]]
 local butTool
 
@@ -1257,8 +1259,9 @@ function Exlist.AddData(info)
   ]]
   if not info then return end
   info.colOff = info.colOff or 0
-  tooltipData[info.character] =  tooltipData[info.character] or {modules = {},num = 0}
-  local t = tooltipData[info.character]
+  local char = info.character.name .. info.character.realm
+  tooltipData[char] =  tooltipData[char] or {modules = {},num = 0}
+  local t = tooltipData[char]
   if t.modules[info.moduleName] then
     table.insert(t.modules[info.moduleName].data,info)
     t.modules[info.moduleName].num = t.modules[info.moduleName].num + 1
@@ -1946,7 +1949,10 @@ local function OnEnter(self)
   for i=1,#charOrder do
       local name = charOrder[i].name
       local realm = charOrder[i].realm
-      local character = name..realm
+      local character = {
+        name = name,
+        realm = realm
+      }
       local charData = Exlist.GetCharacterTable(realm,name)
       charData.name = name
       -- header
@@ -1993,7 +1999,7 @@ local function OnEnter(self)
 
 
       local col = settings.horizontalMode and ((i-1)*4)+2 or 2
-      tooltipColCoords[character] = col
+      tooltipColCoords[name..realm] = col
 
       -- Add Info
       for i = 1, #registeredLineGenerators do
@@ -2559,5 +2565,8 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
     if args[2] then
       WipeKeysForReset(args[2])
     end
+  elseif args[1] == "resetsettings" then
+    Exlist.ConfigDB.settings = {}
+    ReloadUI()
   end
 end

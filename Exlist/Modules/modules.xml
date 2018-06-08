@@ -16,6 +16,7 @@
 <Script file="RaiderIOScores.lua"/>
 <Script file="Raids.lua"/>
 <Script file="WorldBosses.lua"/>
+<Script file="Note.lua"/>
 
 
 </Ui>
