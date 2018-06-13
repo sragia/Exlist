@@ -22,7 +22,7 @@ local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local lastUpdate = 0
 local affixThreshold = {
   --TODO: Temporary, Revisit when m+ out
-  4,
+  2, -- confirmed
   7,
   10,
   20, 
