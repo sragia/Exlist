@@ -23,9 +23,9 @@ local lastUpdate = 0
 local affixThreshold = {
   --TODO: Temporary, Revisit when m+ out
   2, -- confirmed
+  4,
   7,
-  10,
-  20, 
+  10, 
 }
 
 local function Updater(event)
@@ -44,7 +44,8 @@ local function Updater(event)
     for slot = 1, GetContainerNumSlots(bag) do
       local s = GetContainerItemLink(bag, slot)
       if GetContainerItemID(bag, slot) == 138019 then 
-        local _, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
+
+        local _,_, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
         local affixes = {affix1,affix2,affix3}
         local map = CM.GetMapUIInfo(mapID)
         
