@@ -17,7 +17,7 @@ local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmar
 local GetSpellInfo = GetSpellInfo
 local GameTooltip = GameTooltip
 
--- TODO: Figure out BFA World Bosses (if they exist)
+-- TODO: Figure out BFA World Bosses questIDs
 local worldBossIDs = {
   [42270] = {eid = 1749}, -- Nithogg
   [42269] = {eid = 1756, name = EJ_GetEncounterInfo(1756)}, -- The Soultakers
@@ -34,6 +34,15 @@ local worldBossIDs = {
   [46947] = {eid = 1883, endTime = 0}, -- Brutalus
   [46948] = {eid = 1884, endTime = 0}, -- Malificus
   [46945] = {eid = 1885, endTime = 0}, -- Si'vash
+
+  -- BFA
+  [52847] = {eid = 2213}, -- Doom's Howl
+  [0]  = {eid = 2210}, -- Dunegorger Kraulok
+  [0] =  {eid = 2139}, -- T'zane
+  [0] =  {eid = 2141}, -- Ji'arak
+  [0] =  {eid = 2197}, -- Hailstone Construct
+  [0] =  {eid = 2199}, -- Azurethos, The Winged Typhoon
+  [0] =  {eid = 2198}, -- Warbringer Yenajz
 }
 local BrokenIslesZones = {
 	1015, -- Aszuna

@@ -19,6 +19,8 @@ local colors = Exlist.Colors
 
 local zones = {
   -- BFA
+  -- EK (World bosses for now?)
+  14, -- Arathi Highlands
   -- Kultiras
   895, -- Tiragarde Sound
   896, -- Drustvar
