@@ -54,9 +54,9 @@ local BrokenIslesZones = {
 }
 local ArgusZones = {
 	-- TODO PrePatch
-  --1170,
-	--1135,
-	--1171,
+  830, -- Krokuun
+  885,  --Antoran Wastes
+  882 -- Macree
 }
 local greaterInvasionPOIId = {
   [5375] = {questId = 49167, eid = 2011}, -- Mistress Alluradel
@@ -151,11 +151,9 @@ local function ScanArgus()
   }
   local timeNow = time()
   --local currMapId = GetCurrentMapAreaID()
-
-  for i=1,#ArgusZones do
-    --SetMapByID(ArgusZones[i])
-    for j=1,GetNumMapLandmarks() do
-      local _,name,desc,_,_,_,_,_,_,_,poiId = GetMapLandmarkInfo(j)
+  for _,mapId in ipairs(ArgusZones) do
+    local POIs = C_AreaPoiInfo.GetAreaPOIForMap(mapId)
+    for _,poiId in ipairs(POIs) do
       if greaterInvasionPOIId[poiId] then
         t.worldBoss = {
           questId = greaterInvasionPOIId[poiId].questId,
@@ -164,19 +162,20 @@ local function ScanArgus()
           eid = greaterInvasionPOIId[poiId].eid,
         }
       elseif invasionPointPOIId[poiId] then -- assuming that same invasion isn't up in 2 places
-        local timeLeft = C_WorldMap.GetAreaPOITimeLeft(poiId)
+        local timeLeft = C_AreaPoiInfo.GetAreaPOITimeLeft(poiId)
+        local desc = C_AreaPoiInfo.GetAreaPOIInfo(mapId,poiId).description
         if timeLeft then
+          local mapInfo = C_Map.GetMapInfo(mapId) 
           t.invasions = t.invasions or {}
-          t.invasions[ArgusZones[i]] = {
+          t.invasions[mapId] = {
             name = desc,
             endTime = timeNow + timeLeft * 60,
-            map = GetMapNameByID(ArgusZones[i])
+            map = mapInfo.name
           }
         end
       end
     end
   end
-  --SetMapByID(currMapId)
   return t
 end
 

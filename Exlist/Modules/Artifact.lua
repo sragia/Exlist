@@ -198,4 +198,4 @@ local data = {
   description = L["Currently equipped artifact information (Rank/Current and Needed Artifact Power for next trait/Artifact Knowledge"],
   weeklyReset = false
 }
-Exlist.RegisterModule(data)
+--Exlist.RegisterModule(data)

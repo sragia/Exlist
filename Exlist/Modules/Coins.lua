@@ -35,6 +35,7 @@ local function Updater(event)
     [52840] = true, -- 2xResources
 }
   local coinsCurrency = UnitLevel('player') <= 110 and 1273 or 1580
+  local maxCoins = UnitLevel('player') <= 110 and 3 or 2
   local count = 0
   local quests = {}
   for id, _ in pairs(coinsQuests) do

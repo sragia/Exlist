@@ -90,10 +90,13 @@ local print,select,date,math,time = print,select,date,math,time
 local timer = Exlist.timers
 
 -- CONSTANTS
--- TODO: Change this back to 110 for pre-patch
 local MAX_CHARACTER_LEVEL = 120
-Exlist.CONSTANTS.MAX_CHARACTER_LEVEL = MAX_CHARACTER_LEVEL
 local MAX_PROFESSION_LEVEL = 800
+if GetExpansionLevel() == 6 then
+  MAX_CHARACTER_LEVEL = 110
+  MAX_PROFESSION_LEVEL = 800
+end
+Exlist.CONSTANTS.MAX_CHARACTER_LEVEL = MAX_CHARACTER_LEVEL
 Exlist.CONSTANTS.MAX_PROFESSION_LEVEL = MAX_PROFESSION_LEVEL
 
 -- SETTINGS
