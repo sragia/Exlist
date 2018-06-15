@@ -29,7 +29,7 @@ local zones = {
   864, -- Vol'dun
   863, -- Nazmir
   862, -- Zuldazar
-  --[[TODO: Make it work for prepatch
+  --TODO: Scan Everything in Pre-Patch
   -- Legion
   -- Broken Isles
   630, -- Aszuna
@@ -42,7 +42,7 @@ local zones = {
   882, -- Mac'reee
   830, -- Kro'kuun
   885, -- Antoran Wastes
-  ]]
+  
   
 }
 
