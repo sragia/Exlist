@@ -10,7 +10,7 @@ local colors = Exlist.Colors
 local function Updater(event)
   if UnitLevel('player') < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
   -- TODO: Add BFA Quests
-  local coinsQuests = UnitLevel'player' <= 100 and {[36058] = 1, [36055] = 1, [37452] = 1, [37453] = 1, [36056] = 1, [37457] = 1, [37456] = 1, [36054] = 1, [37455] = 1, [37454] = 1, [36057] = 1, [37458] = 1, [37459] = 1, [36060] = 1, } or
+  local coinsQuests = UnitLevel'player' <= 110 and
   {
     [43895] = 1, 
     [43897] = 1, 
@@ -22,8 +22,19 @@ local function Updater(event)
     [47851] = 1, 
     [47864] = 1,
     [47865] = 1, 
-  }
-  local coinsCurrency = UnitLevel('player') <= 100 and 1129 or 1273
+  } or 
+  { -- BFA
+    --TODO: Revisit, ATM there's only max 2 seals per week
+    -- Bug,just beta? anyway there's no 3rd quest that I could find
+    -- so I guess 2 it is
+    [52834] = true, -- Gold
+    [52835] = true, -- Honor
+    [52837] = true, -- Resources
+    [52838] = true, -- 2xGold
+    [52839] = true, -- 2xHonor
+    [52840] = true, -- 2xResources
+}
+  local coinsCurrency = UnitLevel('player') <= 110 and 1273 or 1580
   local count = 0
   local quests = {}
   for id, _ in pairs(coinsQuests) do
@@ -37,7 +48,7 @@ local function Updater(event)
   local table = {
     ["curr"] = amount,
     ["max"] = totalMax,
-    ["available"] = 3 - count,
+    ["available"] = 2 - count, -- 2 in BFA?? TODO: Revisit
     ["quests"] = quests
   }
   Exlist.UpdateChar(key,table)

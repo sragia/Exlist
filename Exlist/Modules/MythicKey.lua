@@ -21,8 +21,7 @@ local L = Exlist.L
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local lastUpdate = 0
 local affixThreshold = {
-  --TODO: Temporary, Revisit when m+ out
-  2, -- confirmed
+  2, 
   4,
   7,
   10, 
@@ -40,10 +39,13 @@ local function Updater(event)
     gt[i] = {name = name, icon = icon, desc = desc}
   end
   Exlist.UpdateChar(key,gt,"global","global")
+  -- TODO: Soon to be added 
+  -- local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() -- for map
+  -- local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel() -- for level (already Implelented)
   for bag = 0, NUM_BAG_SLOTS do
     for slot = 1, GetContainerNumSlots(bag) do
       local s = GetContainerItemLink(bag, slot)
-      if GetContainerItemID(bag, slot) == 138019 then 
+      if GetContainerItemID(bag, slot) == 158923 then -- for Now in Beta
 
         local _,_, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
         local affixes = {affix1,affix2,affix3}
