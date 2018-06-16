@@ -144,6 +144,7 @@ end
 
 --TOOD: Retire
 local function ScanArgus()
+  if GetExpansionLevel() > 6 then return end
   Exlist.Debug("Scanning Argus -",key)
   local t = {
   --  worldBoss = {},
