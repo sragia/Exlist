@@ -41,6 +41,7 @@ local function Updater(event)
   Exlist.UpdateChar(key,gt,"global","global")
   -- Get Key
   local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() -- for map
+  if not challengeMapID then return end
   local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel() -- for level 
   local mapName = CM.GetMapUIInfo(challengeMapID)
   -- For Prepatch
