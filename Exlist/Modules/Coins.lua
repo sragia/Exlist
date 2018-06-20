@@ -9,7 +9,6 @@ local colors = Exlist.Colors
 
 local function Updater(event)
   if UnitLevel('player') < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
-  -- TODO: Add BFA Quests
   local coinsQuests = UnitLevel'player' <= 110 and
   {
     [43895] = 1, 
@@ -49,7 +48,7 @@ local function Updater(event)
   local table = {
     ["curr"] = amount,
     ["max"] = totalMax,
-    ["available"] = 2 - count, -- 2 in BFA?? TODO: Revisit
+    ["available"] = maxCoins - count, -- 2 in BFA?? TODO: Revisit
     ["quests"] = quests
   }
   Exlist.UpdateChar(key,table)
