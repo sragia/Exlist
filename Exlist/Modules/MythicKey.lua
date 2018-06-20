@@ -39,31 +39,37 @@ local function Updater(event)
     gt[i] = {name = name, icon = icon, desc = desc}
   end
   Exlist.UpdateChar(key,gt,"global","global")
-  -- TODO: Soon to be added 
-  -- local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() -- for map
-  -- local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel() -- for level (already Implelented)
-  for bag = 0, NUM_BAG_SLOTS do
-    for slot = 1, GetContainerNumSlots(bag) do
-      local s = GetContainerItemLink(bag, slot)
-      if GetContainerItemID(bag, slot) == 158923 then -- for Now in Beta
+  -- Get Key
+  local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() -- for map
+  local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel() -- for level 
+  local mapName = CM.GetMapUIInfo(challengeMapID)
+  -- For Prepatch
+  local keyId = UnitLevel("player") < 120 and 138019 or 158923 
 
-        local _,_, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
-        local affixes = {affix1,affix2,affix3}
-        local map = CM.GetMapUIInfo(mapID)
-        
-        local table = {
-          ["dungeon"] = map,
-          ["mapId"] = mapID,
-          ["level"] = level,
-          ["itemLink"] = s,
-        }
-        Exlist.UpdateChar(key,table)
-        break;
-      end
-    end
+  local availableAffixes = {}
+  for i,affixLevel in ipairs(affixThreshold) do
+    if keyLevel < affixLevel then break end
+    availableAffixes[#availableAffixes+1] = affixes[i]
   end
+  local t = {
+    dungeon = mapName,
+    mapId = challengeMapID,
+    level = keyLevel,
+    itemLink = string.format("\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r", 
+                          keyId,
+                          challengeMapID,
+                          keyLevel,
+                          availableAffixes[1] or "",
+                          availableAffixes[2] or "",
+                          availableAffixes[3] or "",
+                          availableAffixes[4] or "",
+                          L["Keystone"],
+                          mapName,
+                          keyLevel
+                          )
+  }
+  Exlist.UpdateChar(key,t)
 end
-
 local function Linegenerator(tooltip,data,character)
   if not data then return end
   local settings = Exlist.ConfigDB.settings
