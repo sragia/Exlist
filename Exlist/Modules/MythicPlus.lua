@@ -47,7 +47,7 @@ local function Updater(event)
   local mapsDone = {}
   local savedAffixes
   for i = 1, #mapIDs do
-    local _, bestTime, level, affixIDs = C_MythicPlus.GetWeeklyBestForMap(mapIDs[i])
+    local bestTime, level = C_MythicPlus.GetWeeklyBestForMap(mapIDs[i])
     if level and level > bestLvl then
       -- currently best map
       bestLvl = level
