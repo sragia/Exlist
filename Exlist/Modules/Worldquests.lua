@@ -200,30 +200,21 @@ local function SetQuestRule(rewardId,rewardType,amount,compare)
   rules[rewardType] = rules[rewardType] or {}
   rules[rewardType][name] = {amount = amount, compare = compare, id = id}
 end
-local rescanMapIds = {}
-function Exlist.ScanQuests(rescanRequest)
+function Exlist.ScanQuests()
   -- add refresh quests
   if not Exlist.ConfigDB then return end
   local settings = Exlist.ConfigDB.settings
   local rt = {}
   local scanzones = zones
-  if #rescanMapIds > 0 then
-    scanzones = rescanMapIds
-    rescanMapIds = {}
-  end
   local tl = 500
-  local rescan = false
   for questId,info in pairs(settings.worldQuests) do
     trackedQuests[questId] = {enabled = info.enabled , readOnly = false}
   end
   for index,zoneId in ipairs(scanzones) do
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(zoneId)
-    if not wqs or #wqs < 1 then
-      table.insert(rescanMapIds,zoneId)
-      rescan = true
-    end
     for _,info in pairs(wqs or {}) do
       local timeLeft = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)
+      print(timeLeft)
       local rewards = GetQuestRewards(info.questId)
       local checkRules,ruleid = CheckRewardRules(rewards)
       if (trackedQuests[info.questId] and trackedQuests[info.questId].enabled) or checkRules then
@@ -251,16 +242,12 @@ function Exlist.ScanQuests(rescanRequest)
       tl = tl > timeLeft and timeLeft or tl
     end
   end
-  if rescan and not rescanRequest then 
-    rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,1,true)
-  else
-    -- Rescan Scheduling
-    Exlist.Debug("Rescan Scheduled in:",tl,"minutes")
-    if rescanTimer then
-      timer:CancelTimer(rescanTimer)
-    end
-    rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl+30)
+  -- Rescan Scheduling
+  Exlist.Debug("Rescan Scheduled in:",tl,"minutes")
+  if rescanTimer then
+    timer:CancelTimer(rescanTimer)
   end
+  rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl+30)
   
   -- Send Data
   if #rt > 0 then
