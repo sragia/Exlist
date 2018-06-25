@@ -214,7 +214,6 @@ function Exlist.ScanQuests()
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(zoneId)
     for _,info in pairs(wqs or {}) do
       local timeLeft = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)
-      print(timeLeft)
       local rewards = GetQuestRewards(info.questId)
       local checkRules,ruleid = CheckRewardRules(rewards)
       if (trackedQuests[info.questId] and trackedQuests[info.questId].enabled) or checkRules then
@@ -681,7 +680,7 @@ local function init()
     compareValues = {
       ["<"] = "<",
       ["<="] = "<=",
-      ["="] = "=",
+      ["=="] = "=",
       [">"] = ">",
       [">="] = ">="
     },
