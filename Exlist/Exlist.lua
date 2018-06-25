@@ -952,14 +952,17 @@ end
 local function AddModulesToSettings()
   if not settings.allowedModules then settings.allowedModules = {} end
   local t = settings.allowedModules
+  local newT = {}
   for i=1,#registeredModules do
     if t[registeredModules[i].key] == nil then
       -- first time seeing it
-      t[registeredModules[i].key] = {enabled = true, name = registeredModules[i].name}
+      newT[registeredModules[i].key] = {enabled = true, name = registeredModules[i].name}
     else
-      t[registeredModules[i].key].name = registeredModules[i].name
+      newT[registeredModules[i].key] = t[registeredModules[i].key]
+      newT[registeredModules[i].key].name = registeredModules[i].name
     end
   end
+  settings.allowedModules = newT
 end
 
 local function UpdateChar(key,data,charname,charrealm)
