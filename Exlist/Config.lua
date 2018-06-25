@@ -43,8 +43,23 @@ end
 local function RefreshAdditionalOptions(modName, optionTbl, displayName)
     AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
 end
-
-
+local charOrder = {}
+local addedChars = false
+local function UpdateCharOrder()
+  local chars = Exlist.ConfigDB.settings.allowedCharacters
+  local order = 0
+  for _,char in ipairs(charOrder) do
+    chars[char].order = order
+    order = order + 1
+  end
+end
+local function GetCharPosition(char)
+  for i,c in ipairs(charOrder) do
+    if char == c then
+      return i
+    end
+  end
+end
 Exlist.SetupConfig = function(refresh)
     local options = {
         type = "group",
@@ -404,7 +419,7 @@ Exlist.SetupConfig = function(refresh)
                 type = "description",
                 order = 1,
                 width = "full",
-                name = L["Enable and set order in which characters are to be displayed (0 shows above 5)"]
+                name = L["Enable and set order in which characters are to be displayed"]
             },
             orderByIlvl = {
                 type = "toggle",
@@ -512,6 +527,9 @@ Exlist.SetupConfig = function(refresh)
             end
         end     
     end) do
+        if not addedChars then 
+          table.insert(charOrder,char)
+        end
         local charname = v.name
         local realm = char:match("^.*-(.*)")
         n = n+1
@@ -561,36 +579,66 @@ Exlist.SetupConfig = function(refresh)
         }
         
         -- ORDER
-        n = n+1
-        charOptions.args[char.."order"] = {
-            type = "input",
-            order = n,
-            name = "",
-            width = 0.4,
-            disabled = function() return not characters[char].enabled or Exlist.ConfigDB.settings.orderByIlvl end,
-            get = function()
-                if characters[char].enabled then
-                    return tostring(characters[char].order or 0)
-                else
-                    return L["Disabled"]
-                end
-            end,
-            set = function(info,value)
-                value = tonumber(value)
-                if value then
-                    characters[char].order = value
-                    Exlist.ConfigDB.settings.reorder = true
-                    Exlist.SetupConfig(true)
-                end
-            end,
+        -- Order Up
+        n = n + 1
+        charOptions.args[char.."orderUp"] = {
+          type = "execute",
+          order = n,
+          name = "",
+          width = 0.1,
+          disabled = function()
+            return GetCharPosition(char) == 1
+          end,
+          func = function()
+            for i,c in ipairs(charOrder) do
+              if c == char then
+                charOrder[i] = charOrder[i-1]
+                charOrder[i-1] = char
+                break
+              end
+            end
+            UpdateCharOrder()
+            Exlist.ConfigDB.settings.reorder = true
+            Exlist.SetupConfig(true)
+          end,
+          image = [[Interface\AddOns\Exlist\Media\Icons\up-arrow]],
+          imageWidth = 16,
+          imageHeight = 16,
         }
+        -- Order Down
+        n = n + 1
+        charOptions.args[char.."orderDown"] = {
+          type = "execute",
+          order = n,
+          name = "",
+          width = 0.1,
+          disabled = function()
+            return GetCharPosition(char) == #charOrder
+          end,
+          func = function()
+            for i,c in ipairs(charOrder) do
+              if c == char then
+                charOrder[i] = charOrder[i+1]
+                charOrder[i+1] = char
+                break
+              end
+            end
+            UpdateCharOrder()
+            Exlist.ConfigDB.settings.reorder = true
+            Exlist.SetupConfig(true)
+          end,
+          image = [[Interface\AddOns\Exlist\Media\Icons\down-arrow]],
+          imageWidth = 16,
+          imageHeight = 16,
+        }
+
         -- Spacer
         n = n+1
         charOptions.args[char.."spacer"] = {
             type = "description",
             order = n,
             name =  "",
-            width = 0.3,
+            width = 0.5,
         }
 
         -- Delete Data
@@ -642,7 +690,7 @@ Exlist.SetupConfig = function(refresh)
             end
         }
     end
-    
+    addedChars = true
     -- Extra Tooltip Options
     local etargs = options.args.extratooltip.args
     n = 0

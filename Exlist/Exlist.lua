@@ -2178,6 +2178,14 @@ local function Modernize()
     end
   end
   for i,name in ipairs(deleteList) do settings.allowedModules[name] = nil end
+
+  -- Normalize character Order
+  local chars = settings.allowedCharacters
+  local order = 100
+  for char,t in spairs(chars,function(t,a,b) return t[a].order < t[b].order end) do
+    chars[char].order = order
+    order = order + 100
+  end
 end
 
 local function init()
@@ -2208,7 +2216,7 @@ local function init()
   if IsNewCharacter() then
     -- for config page if it's first time that character logins
     C_Timer.After(0.2, function()
-      UpdateCharacterSpecifics()
+      UpdateCharacterSpecifics("PLAYER_ENTERING_WORLD")
       AddMissingCharactersToSettings()
       AddModulesToSettings()
       Exlist.SetupConfig()
