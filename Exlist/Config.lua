@@ -587,7 +587,7 @@ Exlist.SetupConfig = function(refresh)
           name = "",
           width = 0.1,
           disabled = function()
-            return GetCharPosition(char) == 1
+            return GetCharPosition(char) == 1 or Exlist.ConfigDB.settings.orderByIlvl
           end,
           func = function()
             for i,c in ipairs(charOrder) do
@@ -613,7 +613,7 @@ Exlist.SetupConfig = function(refresh)
           name = "",
           width = 0.1,
           disabled = function()
-            return GetCharPosition(char) == #charOrder
+            return GetCharPosition(char) == #charOrder or Exlist.ConfigDB.settings.orderByIlvl
           end,
           func = function()
             for i,c in ipairs(charOrder) do
