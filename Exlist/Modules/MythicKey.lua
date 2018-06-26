@@ -34,6 +34,7 @@ local function Updater(event)
   -- Get Affixes
   C_MythicPlus.RequestCurrentAffixes()
   local affixes = C_MythicPlus.GetCurrentAffixes()
+  if not affixes then return end -- not ready
   for i,affixId in ipairs(affixes or {}) do
     local name, desc, icon = CM.GetAffixInfo(affixId)
     gt[i] = {name = name, icon = icon, desc = desc}
