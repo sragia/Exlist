@@ -9,8 +9,8 @@ local pairs, table,ipairs = pairs, table,ipairs
 local Exlist = Exlist
 local colors = Exlist.Colors
 local dungeonNames = {}
-local dungeonIds = {
-  --[[TODO: Legion for Pre-Patch
+local legionDungeons = {
+  --TODO: Legion for Pre-Patch
   1208, -- Violet Hold
   1205, -- Black Rock Hold
   1488, -- Cathedral of Eternal Light
@@ -23,8 +23,9 @@ local dungeonIds = {
   1190, -- The Arcway
   1044, -- Vault of the Wardens
   1535, -- Seat of the Triumvirate
-  ]]
+}
   -- BFA
+local bfaDungeons = {
   1669, -- Atal'Dazar
   1710, -- Shrine of the Storm
   1695, -- Temple of Sethraliss
@@ -33,12 +34,12 @@ local dungeonIds = {
   1714, -- Tol Dagor
   1706, -- Waycrest Manor
   1701, -- Siege of Boralus
-  1785, -- Kings' Rest]]
+  1785, -- Kings' Rest
 }
 local function Updater(event)
   local t = {
     ['done'] = 0,
-    ['max'] = #dungeonIds,
+    ['max'] = Exlist.GetTableNum(dungeonNames),
     ['dungeonList'] = dungeonNames
   }
   for i = 1, GetNumSavedInstances() do
@@ -74,7 +75,8 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local function init()
-  for _,id in ipairs(dungeonIds) do
+  local d = UnitLevel('player') < 120 and legionDungeons or bfaDungeons
+  for _,id in ipairs(d) do
     dungeonNames[(GetLFGDungeonInfo(id))] = false
   end
 end
