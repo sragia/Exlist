@@ -38,11 +38,11 @@ local worldBossIDs = {
   -- BFA
   [52847] = {eid = 2213}, -- Doom's Howl
   [0]  = {eid = 2210}, -- Dunegorger Kraulok
-  [0] =  {eid = 2139}, -- T'zane
-  [0] =  {eid = 2141}, -- Ji'arak
-  [0] =  {eid = 2197}, -- Hailstone Construct
+  [52181] =  {eid = 2139}, -- T'zane
+  [52169] =  {eid = 2141}, -- Ji'arak
+  [52157] =  {eid = 2197}, -- Hailstone Construct
   [0] =  {eid = 2199}, -- Azurethos, The Winged Typhoon
-  [0] =  {eid = 2198}, -- Warbringer Yenajz
+  [52166] =  {eid = 2198}, -- Warbringer Yenajz
 }
 local BrokenIslesZones = {
 	1015, -- Aszuna
