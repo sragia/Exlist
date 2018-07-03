@@ -37,7 +37,7 @@ local worldBossIDs = {
 
   -- BFA
   [52847] = {eid = 2213}, -- Doom's Howl
-  [0]  = {eid = 2210}, -- Dunegorger Kraulok
+  [52196]  = {eid = 2210}, -- Dunegorger Kraulok
   [52181] =  {eid = 2139}, -- T'zane
   [52169] =  {eid = 2141}, -- Ji'arak
   [52157] =  {eid = 2197}, -- Hailstone Construct
