@@ -163,7 +163,7 @@ local function Linegenerator(tooltip,data,character)
   if completed > 0 then completed = "|cFF00FF00" .. completed end
   local t2 = string.format("%s/%i",completed,ip) or ""
   info.data = t2
-  local sideTooltip = {body={},title = WrapTextInColorCode(L["Order Hall Missions"],colors.sideTooltipTitle)}
+  local sideTooltip = {body={},title = WrapTextInColorCode(L["Missions"],colors.sideTooltipTitle)}
   if #done > 0 then
     table.insert(sideTooltip.body,{WrapTextInColorCode(L["Completed"],colors.missions.completed),"",{"headerseparator"}})
     local t = missionStrings(done,true)
