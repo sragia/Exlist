@@ -8,7 +8,6 @@
 #Libs
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
 Libs\LibQTip-1.0\LibQTip-1.0.lua
 Libs\AceGUI-3.0\AceGUI-3.0.xml
 Libs\AceConfigRegistry-3.0\AceConfigRegistry-3.0.xml

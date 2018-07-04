@@ -19,6 +19,7 @@ local GameTooltip = GameTooltip
 
 -- TODO: Figure out BFA World Bosses questIDs
 local worldBossIDs = {
+	--[questId] = {encounterId, name,endtime}
 	[42270] = {eid = 1749}, -- Nithogg
 	[42269] = {eid = 1756, name = EJ_GetEncounterInfo(1756)}, -- The Soultakers
 	[42779] = {eid = 1763}, -- Shar'thos

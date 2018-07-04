@@ -2,7 +2,6 @@
 ..\FrameXML\UI.xsd">
 
 <Script file="Worldquests.lua"/>
-<Script file="Artifact.lua"/>
 <Script file="Azerite.lua"/>
 <Script file="Coins.lua"/>
 <Script file="Currency.lua"/>

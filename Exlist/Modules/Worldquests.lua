@@ -104,13 +104,6 @@ local function GetQuestRewards(questId)
     local name, texture, numItems, quality, isUsable, itemId = GetQuestLogRewardInfo(1,questId)
     if name then
       local itemType = "item"
-
-      --TODO: Retire on launch
-      if IsAPItem(itemId) then
-        itemType = "artifactpower"
-        name = L["Artifact Power"]
-        numItems = Exlist.GetCachedArtifactPower(itemId)
-      end
       table.insert( rewards,{name = name,amount = numItems,texture = texture, type = itemType})
     end
     local numQuestCurrencies = GetNumQuestLogRewardCurrencies(questId)
@@ -330,8 +323,6 @@ local function GlobalLineGenerator(tooltip,data)
         for i,reward in ipairs(info.rewards) do
           if reward.name == "Gold" then
           table.insert(sideTooltip.body,{reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"})
-          elseif reward.type == "artifactpower" then
-            table.insert(sideTooltip.body,{string.format("%s %s", Exlist.ShortenNumber(reward.amount),L["Artifact Power"])})
           else
             if reward.amount > 1 then
               table.insert(sideTooltip.body,string.format( "%ix|T%s:12|t%s",reward.amount,reward.texture,reward.name))
@@ -675,7 +666,6 @@ local function init()
       currency = L["Currency"],
       item = L["Item"],
       money = L["Gold"],
-      artifactpower = L["Artifact Power"]
     },
     compareValues = {
       ["<"] = "<",
@@ -701,14 +691,6 @@ local function init()
         disableItems = false,
         useCustom = true,
         customFieldValue = 0,
-      },
-      artifactpower = {
-        values = {
-          artifactpower = L["Artifact Power"],
-        },
-        defaultValue = "artifactpower",
-        disableItems = true,
-        useCustom = false
       },
       item = {
         values = {

@@ -14,16 +14,20 @@ local colors = Exlist.Colors
 local function GetAvailableTraits(powerLevel)
 	local t = {}
 	for _,slot in next, { 1, 3, 5 } do
+		-- 1=head,3=shoulders,5=chest
 		local item = Item:CreateFromEquipmentSlot(slot)
 		if not item:IsItemEmpty() then
 			local itemLoc = item:GetItemLocation()
 			if C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLoc) and C_AzeriteEmpoweredItem.HasAnyUnselectedPowers(itemLoc) then
+				-- check if azerite armor has available traits
 				local tiers = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLoc)
 				t[slot] = 0
 				for _,tierInfo in ipairs(tiers) do
 					if tierInfo.unlockLevel <= powerLevel then
+						-- is tier available to player
 						local empty = true
 						for _,powerId in ipairs(tierInfo.azeritePowerIDs) do
+							-- check if player has selected any of tier's traits
 							if C_AzeriteEmpoweredItem.IsPowerSelected(itemLoc,powerId) then
 								empty = false
 								break
