@@ -303,7 +303,7 @@ local Colors = { --default colors
     {ilvl = 400 , str ="ffff2696"},
     {ilvl = 420 , str ="ffff2634"},
     {ilvl = 440 , str ="ffff7526"},
-    {ilvl = 460 , str ="ffffc526"},
+    {ilvl = 460 , str ="ffffc526"},	
   },
   profColors = {
     {val = 75, color = "c6c3b4"},

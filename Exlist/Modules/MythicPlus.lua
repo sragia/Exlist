@@ -73,7 +73,7 @@ local function MythicPlusTimeString(time,mapId)
   if not time or not mapId then return end
   local times = mapTimes[mapId] or {}
   local rstring = ""
-  local secTime = time/1000
+  local secTime = time
   local colors = colors.mythicplus.times
   for i=1, #times do
     if secTime > times[i] then
