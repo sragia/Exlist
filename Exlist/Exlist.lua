@@ -304,18 +304,6 @@ local Colors = { --default colors
     {ilvl = 420 , str ="ffff2634"},
     {ilvl = 440 , str ="ffff7526"},
     {ilvl = 460 , str ="ffffc526"},
-    -- Legion -- TODO: CHECK on prepatch
-    {ilvl = 750 , str ="ff26ff3f"},
-    {ilvl = 800 , str ="ff26ffba"},
-    {ilvl = 850 , str ="ff26e2ff"},
-    {ilvl = 880 , str ="ff26a0ff"},
-    {ilvl = 900 , str ="ff2663ff"},
-    {ilvl = 910 , str ="ff8e26ff"},
-    {ilvl = 920 , str ="ffe226ff"},
-    {ilvl = 935 , str ="ffff2696"},
-    {ilvl = 950 , str ="ffff2634"},
-    {ilvl = 980 , str ="ffff7526"},
-    {ilvl = 1000 ,str ="ffffc526"}
   },
   profColors = {
     {val = 75, color = "c6c3b4"},

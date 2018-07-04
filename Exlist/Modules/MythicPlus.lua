@@ -9,20 +9,20 @@ local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table, ipairs = table, ipairs
 
 local mapTimes = {
-  --[mapId] = {+3Time,+2Time,+1Time} in seconds
+  --[mapId] = {+1Time,+2Time,+3Time} in seconds
   -- TODO: Add BFA map times
-  --[[BFA
-  [244] = {??,??,??}, -- Atal'dazar
-  [245] = {??,??,??}, -- Freehold
-  [246] = {??,??,??}, -- Tol Dagor
-  [247] = {??,??,??}, -- The MOTHERLODE!!
-  [248] = {??,??,??}, -- Waycrest Manor
-  [249] = {??,??,??}, -- Kings' Rest
-  [250] = {??,??,??}, -- Temple of Sethraliss
-  [251] = {??,??,??}, -- The Underrot
-  [252] = {??,??,??}, -- Shrine of the Storm
-  [353] = {??,??,??}, -- Siege of Boralus
-  ]]
+  --BFA
+  [244] = {2340,1872,1405}, -- Atal'dazar
+  [245] = {1800,1440,1080}, -- Freehold
+  [246] = {1980,1584,1188}, -- Tol Dagor
+  [247] = {2340,1872,1405}, -- The MOTHERLODE!!
+  [248] = {2340,1872,1405}, -- Waycrest Manor
+  [249] = {1800,1440,1080}, -- Kings' Rest
+  [250] = {1980,1584,1188}, -- Temple of Sethraliss
+  [251] = {1800,1440,1080}, -- The Underrot
+  [252] = {2340,1872,1405}, -- Shrine of the Storm
+  [353] = {2340,1872,1405}, -- Siege of Boralus
+
   [197] = {2100,1680,1260}, -- Eye of Azshara
   [198] = {1800,1440,1080}, -- Darkheart Thicket
   [199] = {2340,1872,1405}, -- BRH
