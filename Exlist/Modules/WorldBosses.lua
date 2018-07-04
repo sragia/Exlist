@@ -34,7 +34,12 @@ local worldBossIDs = {
 	[46947] = {eid = 1883, endTime = 0}, -- Brutalus
 	[46948] = {eid = 1884, endTime = 0}, -- Malificus
 	[46945] = {eid = 1885, endTime = 0}, -- Si'vash
-
+	[49167] = {eid = 2011}, -- Mistress Alluradel
+	[49170] = {eid = 2013}, -- Occularus
+	[49168] = {eid = 2015}, -- Pit Lord Vilemus
+	[49166] = {eid = 2012}, -- Inquisitor Meto
+	[49171] = {eid = 2014}, -- Sotanathor
+	[49169] = {eid = 2010, name=EJ_GetEncounterInfo(2010)}, -- Matron Foluna
 	-- BFA
 	[52847] = {eid = 2213}, -- Doom's Howl
 	[52196]  = {eid = 2210}, -- Dunegorger Kraulok
@@ -236,11 +241,13 @@ local function Updater(e,info)
 	for questId,info in pairs(gt.worldbosses) do
 		if not t[questId] then
 			local defaultInfo = worldBossIDs[questId]
-			t[questId] = {
-				name = info.name or "",
-				defeated = IsQuestFlaggedCompleted(questId),
-				endTime = defaultInfo.endTime and defaultInfo.endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or info.endTime,
-			}
+			if defaultInfo then
+				t[questId] = {
+					name = info.name or "",
+					defeated = IsQuestFlaggedCompleted(questId),
+					endTime = defaultInfo.endTime and defaultInfo.endTime==0 and (gt.brokenshore[4] and gt.brokenshore[4].timeEnd or 0) or info.endTime,
+				}
+			end
 		end
 	end
 	--TODO:Prepatch
