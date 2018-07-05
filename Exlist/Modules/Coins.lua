@@ -23,9 +23,6 @@ local function Updater(event)
     [47865] = 1, 
   } or 
   { -- BFA
-    --TODO: Revisit, ATM there's only max 2 seals per week
-    -- Bug,just beta? anyway there's no 3rd quest that I could find
-    -- so I guess 2 it is
     [52834] = true, -- Gold
     [52835] = true, -- Honor
     [52837] = true, -- Resources
@@ -48,7 +45,7 @@ local function Updater(event)
   local table = {
     ["curr"] = amount,
     ["max"] = totalMax,
-    ["available"] = maxCoins - count, -- 2 in BFA?? TODO: Revisit
+    ["available"] = maxCoins - count,
     ["quests"] = quests
   }
   Exlist.UpdateChar(key,table)
