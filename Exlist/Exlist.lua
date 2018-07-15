@@ -1842,7 +1842,7 @@ local function IsNewCharacter()
   return db[realm] == nil or db[realm][name] == nil
 end
 
-function Exlist.SetupConfig()
+function Exlist.InitConfig()
 end
 
 local function Modernize()
@@ -1901,12 +1901,12 @@ local function init()
       UpdateCharacterSpecifics("PLAYER_ENTERING_WORLD")
       AddMissingCharactersToSettings()
       AddModulesToSettings()
-      Exlist.SetupConfig()
+      Exlist.InitConfig()
     end)
   else
     AddMissingCharactersToSettings()
     AddModulesToSettings()
-    Exlist.SetupConfig()
+    Exlist.InitConfig()
   end
   C_Timer.After(0.5, function() Exlist.RefreshAppearance() end)
 end

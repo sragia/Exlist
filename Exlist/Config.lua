@@ -526,7 +526,7 @@ Exlist.SetupConfig = function(refresh)
                 return t[a].order<t[b].order 
             end
         end     
-    end) do
+      end) do
         if not addedChars then 
           table.insert(charOrder,char)
         end
@@ -710,8 +710,7 @@ Exlist.SetupConfig = function(refresh)
         RefreshAdditionalOptions("Characters",charOptions,L["Characters"])
         RefreshAdditionalOptions("Modules",moduleOptions,L["Modules"])
     else
-        AceConfReg:RegisterOptionsTable(name, options)
-        AceConfDia:AddToBlizOptions(name)
+        RefreshAdditionalOptions("",options)
         RegisterAdditionalOptions("Modules",moduleOptions,L["Modules"])
         RegisterAdditionalOptions("Characters",charOptions,L["Characters"])
         for i=1,#addingOpt do
@@ -719,6 +718,49 @@ Exlist.SetupConfig = function(refresh)
         end
     end
 end
+function Exlist.InitConfig() 
+  local options = {
+    type = "group",
+    name = name,
+    args = {
+        logo = {
+            order = 0,
+            type = "description",
+            image = function()
+                return [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]],
+                150,150
+            end,
+            name ="",
+            width = "normal"
+        },
+        version ={
+            order = 0.1,
+            name = "|cfff4bf42"..L["Version"]..":|r " .. addonVersion,
+            type = "description",
+            width = "full"
+        },
+        author ={
+            order = 0.2,
+            name = "|cfff4bf42"..L["Author"]..":|r Exality - Silvermoon EU\n\n",
+            type = "description",
+            width = "full"
+        },
+        SetupConfig = {
+          type = "execute",
+          order = 1,
+          name = L["Show Config"],
+          func = function() 
+            Exlist.SetupConfig()
+            C_Timer.After(0.1, function() InterfaceOptionsFrame_Show() InterfaceOptionsFrame_Show() end)
+	        --	InterfaceOptionsFrame_OpenToCategory(name)
+          end
+        }
+    }
+  }
+  AceConfReg:RegisterOptionsTable(name, options)
+  AceConfDia:AddToBlizOptions(name)
+end
+
 Exlist.AddModuleOptions = RegisterAdditionalOptions
 Exlist.RefreshModuleOptions = RefreshAdditionalOptions
 Exlist.NotifyOptionsChange = function(module)
