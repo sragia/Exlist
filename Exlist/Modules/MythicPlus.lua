@@ -10,7 +10,6 @@ local table, ipairs = table, ipairs
 
 local mapTimes = {
   --[mapId] = {+1Time,+2Time,+3Time} in seconds
-  -- TODO: Add BFA map times
   --BFA
   [244] = {2340,1872,1405}, -- Atal'dazar
   [245] = {1800,1440,1080}, -- Freehold

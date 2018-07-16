@@ -10,7 +10,6 @@ local Exlist = Exlist
 local colors = Exlist.Colors
 local dungeonNames = {}
 local legionDungeons = {
-  --TODO: Legion for Pre-Patch
   1208, -- Violet Hold
   1205, -- Black Rock Hold
   1488, -- Cathedral of Eternal Light

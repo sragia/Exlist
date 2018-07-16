@@ -657,7 +657,6 @@ Exlist.ModuleToBeAdded(SetupWQConfig)
 
 local function init()
 
-  -- TODO: Add BFA rewards
    -- Azerite
    -- "maybe" ilvl rewards
    -- 

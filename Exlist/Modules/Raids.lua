@@ -445,7 +445,6 @@ local function init()
     -- BFA
     -- Uldir
     [GetLFGDungeonInfo(1887) or "Uldir"] = {
-    -- TODO: Figure out totalEncounters
     	[1731] = {name = "Halls of Containment", totalEncounters = 3, order = 1},
     	[1732] = {name = "Crimson Descent",totalEncounters = 3, order = 2}, 
     	[1733] = {name = "Heart of Corruption", totalEncounters = 3, order = 2},

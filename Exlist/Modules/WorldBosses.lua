@@ -17,7 +17,6 @@ local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmar
 local GetSpellInfo = GetSpellInfo
 local GameTooltip = GameTooltip
 
--- TODO: Figure out BFA World Bosses questIDs
 local worldBossIDs = {
 	--[questId] = {encounterId, name,endtime}
 	[42270] = {eid = 1749}, -- Nithogg
@@ -47,11 +46,10 @@ local worldBossIDs = {
 	[52181] =  {eid = 2139}, -- T'zane
 	[52169] =  {eid = 2141}, -- Ji'arak
 	[52157] =  {eid = 2197}, -- Hailstone Construct
-	[0] =  {eid = 2199}, -- Azurethos, The Winged Typhoon
+	[0] =  {eid = 2199}, -- Azurethos, The Winged Typhoon TODO
 	[52166] =  {eid = 2198}, -- Warbringer Yenajz
 }
 local ArgusZones = {
-	-- TODO PrePatch
 	830, -- Krokuun
 	885,  --Antoran Wastes
 	882 -- Macree
