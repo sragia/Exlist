@@ -2,20 +2,24 @@ local key = "missions"
 local prio = 80
 local CG = C_Garrison
 local LE_FOLLOWER_TYPE_GARRISON_7_0 = LE_FOLLOWER_TYPE_GARRISON_7_0
+local LE_FOLLOWER_TYPE_GARRISON_8_0 = LE_FOLLOWER_TYPE_GARRISON_8_0
 local time, table, strlen, string, type, math = time, table, strlen, string, type, math
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local GetCurrencyInfo = GetCurrencyInfo
 local GetMoneyString = GetMoneyString
 local GetTime = GetTime
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 
 local function Updater(event)
   if event == "Exlist_DELAY" then return end
-  local mission = CG.GetInProgressMissions(LE_FOLLOWER_TYPE_GARRISON_7_0)
-  local availMissions = CG.GetAvailableMissions(LE_FOLLOWER_TYPE_GARRISON_7_0)
+  local followerType = UnitLevel("player") <= 110 and LE_FOLLOWER_TYPE_GARRISON_7_0 or 
+    LE_FOLLOWER_TYPE_GARRISON_8_0
+  local mission = CG.GetInProgressMissions(followerType)
+  local availMissions = CG.GetAvailableMissions(followerType)
   local t =  {
   }
   local currTime = time()
@@ -103,18 +107,17 @@ end
 
 local function missionStrings(source,hasSuccess)
   local t = {}
-  local col = "ffffd200"
   if type(source) ~= "table" then return end
   local ti = time()
   for i=1,#source do
     if hasSuccess then
       if source[i].endTime > ti then
-        table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("%s: %s (%i%%)",L["Time Left"],Exlist.TimeLeftColor((source[i].endTime - ti) or 0,{1800,7200},{"FF00FF00","FFf4a142","fff44141"}),source[i].successChance)})
+        table.insert(t,{WrapTextInColorCode(source[i].name,colors.missionName),string.format("%s: %s (%i%%)",L["Time Left"],Exlist.TimeLeftColor((source[i].endTime - ti) or 0,{1800,7200},{colors.time.short,colors.time.medium,colors.time.long}),source[i].successChance)})
       else
-        table.insert(t,{WrapTextInColorCode(source[i].name,col),string.format("%i%%",source[i].successChance)})
+        table.insert(t,{WrapTextInColorCode(source[i].name,colors.missionName),string.format("%i%%",source[i].successChance)})
       end
     else
-      table.insert(t,{WrapTextInColorCode(source[i].name,col),source[i].offerEndTime and (L["Expires in"]..": " ..Exlist.TimeLeftColor((source[i].offerEndTime - ti) or 0,{14400,28800},{"fff44141","FFf4a142","FF00FF00"})) or ""})
+      table.insert(t,{WrapTextInColorCode(source[i].name,colors.missionName),source[i].offerEndTime and (L["Expires in"]..": " ..Exlist.TimeLeftColor((source[i].offerEndTime - ti) or 0,{14400,28800},{colors.time.long,colors.time.medium,colors.time.short})) or ""})
     end
     local reward = source[i].rewards
     local rewardString = ""
@@ -160,16 +163,16 @@ local function Linegenerator(tooltip,data,character)
   if completed > 0 then completed = "|cFF00FF00" .. completed end
   local t2 = string.format("%s/%i",completed,ip) or ""
   info.data = t2
-  local sideTooltip = {body={},title = WrapTextInColorCode(L["Order Hall Missions"],"ffffd200")}
+  local sideTooltip = {body={},title = WrapTextInColorCode(L["Missions"],colors.sideTooltipTitle)}
   if #done > 0 then
-    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Completed"],"FF00FF00"),"",{"headerseparator"}})
+    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Completed"],colors.missions.completed),"",{"headerseparator"}})
     local t = missionStrings(done,true)
     for i=1,#t do
       table.insert(sideTooltip.body,t[i])
     end
   end
   if #inprogress > 0 then
-    table.insert(sideTooltip.body,{WrapTextInColorCode(L["In Progress"],"FFf48642"),"",{"headerseparator"}})
+    table.insert(sideTooltip.body,{WrapTextInColorCode(L["In Progress"],colors.missions.inprogress),"",{"headerseparator"}})
     table.sort(inprogress,function(a,b) return a.endTime < b.endTime end)
     local t = missionStrings(inprogress,true)
     for i=1,#t do
@@ -177,7 +180,7 @@ local function Linegenerator(tooltip,data,character)
     end
   end
   if #available > 0 then
-    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Available"],"FFefe704"),"",{"headerseparator"}})
+    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Available"],colors.missions.available),"",{"headerseparator"}})
     table.sort(available,function(a,b)
       local aValue = a.offerEndTime or 0
       local bValue = b.offerEndTime or 0

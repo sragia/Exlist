@@ -1,4 +1,4 @@
-
+-- GLOBALS: Exlist Exlist_Db Exlist_Config
 local addonName, addonTable = ...
 local QTip = LibStub("LibQTip-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -10,7 +10,6 @@ local config_db = {}
 Exlist_Config = Exlist_Config or {}
 local debugMode = false
 local debugString = "|cffc73000[Exlist Debug]|r"
--- GLOBALS: Exlist Exlist_Db Exlist_ConfigDB
 local Exlist = Exlist
 local L = Exlist.L
 Exlist.debugMode = debugMode
@@ -51,9 +50,7 @@ local tooltipColCoords = {
   ]]
 }
 Exlist.ModuleDesc = {}
-local moduleInitializers = {
-  --func,func,func
-}
+local moduleInitializers = {}
 -- Resets
 local keysToResetWeekly = {}
 local keysToResetDaily = {}
@@ -90,12 +87,19 @@ local string = string
 local strlen = strlen
 local type,pairs,ipairs,table = type,pairs,ipairs,table
 local print,select,date,math,time = print,select,date,math,time
+local timer = Exlist.timers
+
 -- CONSTANTS
-local MAX_CHARACTER_LEVEL = 110
-Exlist.CONSTANTS.MAX_CHARACTER_LEVEL = MAX_CHARACTER_LEVEL
+local MAX_CHARACTER_LEVEL = 120
 local MAX_PROFESSION_LEVEL = 800
+if GetExpansionLevel() == 6 then
+  MAX_CHARACTER_LEVEL = 110
+  MAX_PROFESSION_LEVEL = 800
+end
+Exlist.CONSTANTS.MAX_CHARACTER_LEVEL = MAX_CHARACTER_LEVEL
 Exlist.CONSTANTS.MAX_PROFESSION_LEVEL = MAX_PROFESSION_LEVEL
 
+-- SETTINGS
 LSM:Register("font","PT_Sans_Narrow",[[Interface\Addons\Exlist\Media\Font\font.ttf]])
 local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
   edgeFile = "Interface\\BUTTONS\\WHITE8X8.blp",
@@ -137,7 +141,6 @@ local settings = { -- default settings
     money = {},
     currency = {},
     item = {},
-    artifactpower = {},
   },
   quests = {},
   extraInfoToggles = {},
@@ -227,319 +230,104 @@ Exlist.ShortenedMPlus = {
   [233] = L["CoEN"],
   [234] = L["UKara"],
   [239] = L["SotT"],
+  --BFA
+  [244] = L["AD"], -- Atal'dazar
+  [245] = L["FH"], -- Freehold
+  [246] = L["TD"], -- Tol Dagor
+  [247] = L["MOTHER"], -- The MOTHERLODE!!
+  [248] = L["WM"], -- Waycrest Manor
+  [249] = L["KR"], -- Kings' Rest
+  [250] = L["ToS"], -- Temple of Sethraliss
+  [251] = L["URot"], -- The Underrot
+  [252] = L["SotS"], -- Shrine of the Storm
+  [353] = L["SoB"], -- Siege of Boralus
+
 }
-Exlist.Colors = {
-  QuestTitle = "ffffd200",
-  Debug = "ffc73000",
-  QuestTypeHeading = "ff42c8f4",
-  QuestTypeTitle = {
+
+local Colors = { --default colors
+  questTitle = "ffffd200",
+  missionName = "ffffd200",
+  questTypeHeading = "ff42c8f4",
+  faded = "ffc1c1c1",
+  hardfaded = "ff494949",
+  note = "fff4c842",
+  sideTooltipTitle = "ffffd200",
+  available = "ff00ff00",
+  completed = "ffff0000",
+  notavailable = "fff49e42",
+  enchantName = "ff98f907",
+  debug = "ffc73000",
+  debugTime = {
+    short = "FF00FF00",
+    medium = "ffe5f441",
+    almostlong = "FFf48c42",
+    long = "FFFF0000",
+  },
+  questTypeTitle = {
     daily = "ff70afd8",
     weekly = "ffe0a34e"
   },
-  Config = {
+  config = {
     heading1 = "ffffd200",
-    heading2 = "ffffb600"
+    heading2 = "ffffb600",
+    tableColumn = "ffffd200",
   },
+  time = {
+    long = "fff44141",
+    medium = "FFf4a142",
+    short = "FF00FF00"
+  },
+  missions = {
+    completed = "ff00ff00",
+    inprogress = "FFf48642",
+    available = "FFefe704"
+  },
+  mythicplus = {
+    key = "ffd541e2",
+    times = {
+      "ffbfbfbf", -- depleted
+      "fffaff00", -- +1
+      "fffbdb00", -- +2
+      "fffacd0c", -- +3
+    }
+  },
+  ilvlColors = {
+    -- BFA --
+    {ilvl = 270 , str ="ff26ff3f"},
+    {ilvl = 290 , str ="ff26ffba"},
+    {ilvl = 300 , str ="ff26e2ff"},
+    {ilvl = 320 , str ="ff26a0ff"},
+    {ilvl = 340 , str ="ff2663ff"},
+    {ilvl = 360 , str ="ff8e26ff"},
+    {ilvl = 380 , str ="ffe226ff"},
+    {ilvl = 400 , str ="ffff2696"},
+    {ilvl = 420 , str ="ffff2634"},
+    {ilvl = 440 , str ="ffff7526"},
+    {ilvl = 460 , str ="ffffc526"},
+  },
+  profColors = {
+    {val = 75, color = "c6c3b4"},
+    {val = 150, color = "dbd3ab"},
+    {val = 225, color = "e2d388"},
+    {val = 300, color = "efd96b"},
+    {val = 400, color = "ffe254"},
+    {val = 500, color = "ffde3d"},
+    {val = 600, color = "ffd921"},
+    {val = 700, color = "ffd50c"},
+    {val = 800, color = "ffae00"}
+  }
 }
+Exlist.Colors = Colors
+
 Exlist.Strings = {
-  Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode(L["Note!"],"ffffd200") ),
-
+  Note = string.format( "|T%s:15|t %s",[[Interface/MINIMAP/TRACKING/QuestBlob]],WrapTextInColorCode(L["Note!"],Colors.questTitle) ),
 }
-
--- Legion: Artifact Weapon Stuff
-local ArtifactPowerSpells = {
-    [216876] = 10,
-    [217024] = 400,
-    [217026] = 25,
-    [217045] = 75,
-    [217055] = 100,
-    [217299] = 35,
-    [217300] = 35,
-    [217301] = 100,
-    [217355] = 100,
-    [217511] = 50,
-    [217512] = 60,
-    [217670] = 200,
-    [217671] = 400,
-    [217689] = 150,
-    [220547] = 100,
-    [220548] = 235,
-    [220549] = 480,
-    [220550] = 450,
-    [220551] = 530,
-    [220553] = 550,
-    [225897] = 100,
-    [227531] = 200,
-    [227535] = 300,
-    [227886] = 545,
-    [227889] = 210,
-    [227904] = 35,
-    [227905] = 55,
-    [227907] = 200,
-    [227941] = 150,
-    [227942] = 200,
-    [227943] = 465,
-    [227944] = 520,
-    [227945] = 165,
-    [227946] = 190,
-    [227947] = 210,
-    [227948] = 230,
-    [227949] = 475,
-    [227950] = 515,
-    [228067] = 400,
-    [228069] = 100,
-    [228078] = 500,
-    [228079] = 600,
-    [228080] = 250,
-    [228106] = 490,
-    [228107] = 250,
-    [228108] = 210,
-    [228109] = 170,
-    [228110] = 205,
-    [228111] = 245,
-    [228112] = 160,
-    [228130] = 125,
-    [228131] = 400,
-    [228135] = 250,
-    [228220] = 150,
-    [228310] = 50,
-    [228352] = 500,
-    [228422] = 175,
-    [228423] = 350,
-    [228436] = 170,
-    [228437] = 220,
-    [228438] = 195,
-    [228439] = 185,
-    [228440] = 190,
-    [228442] = 215,
-    [228443] = 180,
-    [228444] = 750,
-    [228647] = 400,
-    [228921] = 500,
-    [228955] = 25,
-    [228956] = 50,
-    [228957] = 35,
-    [228959] = 45,
-    [228960] = 20,
-    [228961] = 25,
-    [228962] = 40,
-    [228963] = 80,
-    [228964] = 150,
-    [229746] = 100,
-    [229747] = 200,
-    [229776] = 1000,
-    [229778] = 100,
-    [229779] = 300,
-    [229780] = 350,
-    [229781] = 300,
-    [229782] = 500,
-    [229783] = 100,
-    [229784] = 150,
-    [229785] = 800,
-    [229786] = 350,
-    [229787] = 300,
-    [229788] = 600,
-    [229789] = 250,
-    [229790] = 2000,
-    [229791] = 1000,
-    [229792] = 4000,
-    [229793] = 900,
-    [229794] = 1000,
-    [229795] = 650,
-    [229796] = 450,
-    [229798] = 750,
-    [229799] = 1200,
-    [229803] = 500,
-    [229804] = 875,
-    [229805] = 1250,
-    [229806] = 2500,
-    [229807] = 20,
-    [229857] = 100,
-    [229858] = 100,
-    [229859] = 1000,
-    [231035] = 100,
-    [231041] = 100,
-    [231047] = 1000,
-    [231048] = 500,
-    [231337] = 600,
-    [231362] = 200,
-    [231453] = 500,
-    [231512] = 500,
-    [231538] = 250,
-    [231543] = 500,
-    [231544] = 100,
-    [231556] = 500,
-    [231581] = 250,
-    [231647] = 500,
-    [231669] = 500,
-    [231709] = 500,
-    [231727] = 800,
-    [232755] = 90,
-    [232832] = 95,
-    [232890] = 400,
-    [232994] = 100,
-    [232995] = 120,
-    [232996] = 180,
-    [232997] = 800,
-    [233030] = 150,
-    [233031] = 100,
-    [233204] = 500,
-    [233209] = 500,
-    [233211] = 800,
-    [233242] = 300,
-    [233243] = 1000,
-    [233244] = 250,
-    [233245] = 250,
-    [233348] = 3000,
-    [233816] = 250,
-    [234045] = 250,
-    [234047] = 400,
-    [234048] = 500,
-    [234049] = 600,
-    [235245] = 175,
-    [235246] = 195,
-    [235247] = 220,
-    [235248] = 240,
-    [235256] = 250,
-    [235257] = 155,
-    [235266] = 500,
-    [237344] = 320,
-    [237345] = 380,
-    [238029] = 85,
-    [238030] = 115,
-    [238031] = 300,
-    [238032] = 400,
-    [238033] = 750,
-    [239094] = 600,
-    [239095] = 650,
-    [239096] = 270,
-    [239097] = 225,
-    [239098] = 285,
-    [240331] = 200,
-    [240332] = 125,
-    [240333] = 600,
-    [240335] = 240,
-    [240337] = 360,
-    [240339] = 1600,
-    [240483] = 2500,
-    [241156] = 175,
-    [241157] = 290,
-    [241158] = 325,
-    [241159] = 465,
-    [241160] = 300,
-    [241161] = 475,
-    [241162] = 540,
-    [241163] = 775,
-    [241164] = 375,
-    [241165] = 600,
-    [241166] = 675,
-    [241167] = 1000,
-    [241471] = 750,
-    [241476] = 1000,
-    [241752] = 800,
-    [241753] = 255,
-    [242062] = 500,
-    [242116] = 3125,
-    [242117] = 2150,
-    [242118] = 1925,
-    [242119] = 1250,
-    [242564] = 1200,
-    [242572] = 725,
-    [242573] = 1500,
-    [242575] = 5000,
-    [242884] = 625,
-    [242886] = 125,
-    [242887] = 100,
-    [242890] = 50,
-    [242891] = 500,
-    [242893] = 250,
-    [242911] = 2000,
-    [242912] = 400,
-    [244814] = 600,
-    [246165] = 500,
-    [246166] = 525,
-    [246167] = 625,
-    [246168] = 275,
-    [247040] = 750,
-    [247075] = 250,
-    [247316] = 450,
-    [247319] = 125,
-    [247631] = 300,
-    [247633] = 700,
-    [247634] = 1000,
-    [248047] = 800,
-    [248841] = 20,
-    [248842] = 30,
-    [248843] = 40,
-    [248844] = 50,
-    [248845] = 60,
-    [248846] = 70,
-    [248847] = 80,
-    [248848] = 90,
-    [248849] = 100,
-    [250374] = 550,
-    [250375] = 590,
-    [250376] = 575,
-    [250377] = 625,
-    [250378] = 610,
-    [250379] = 650,
-    [251039] = 3500,
-    [252078] = 200,
-    [253833] = 400,
-    [253834] = 600,
-    [253902] = 1200,
-    [253931] = 875,
-    [254000] = 10000,
-    [254387] = 500,
-    [254593] = 200,
-    [254603] = 570,
-    [254608] = 630,
-    [254609] = 565,
-    [254610] = 635,
-    [254656] = 645,
-    [254657] = 745,
-    [254658] = 550,
-    [254659] = 650,
-    [254660] = 640,
-    [254661] = 560,
-    [254662] = 625,
-    [254663] = 575,
-    [254699] = 50,
-    [254761] = 750,
-    [255161] = 650,
-    [255162] = 550,
-    [255163] = 750,
-    [255165] = 800,
-    [255166] = 600,
-    [255167] = 900,
-    [255168] = 1000,
-    [255169] = 1250,
-    [255170] = 1000,
-    [255171] = 450,
-    [255172] = 600,
-    [255173] = 750,
-    [255175] = 850,
-    [255176] = 600,
-    [255177] = 520,
-    [255178] = 550,
-    [255179] = 535,
-    [255180] = 305,
-    [255181] = 315,
-    [255182] = 330,
-    [255183] = 345,
-    [255184] = 350,
-    [255185] = 555,
-    [255186] = 60,
-    [255187] = 90,
-    [255188] = 75,
-}
-local AKMultiplier = 6300001 -- hardcoded because everyone right now has it by default
 
 --[[ Module prio list
     0 - mail
     10 - currency
     20 - raiderio
-    30 - artifact
+    30 - azerite
     40 - mythicKey
     50 - mythicPlus
     60 - coins
@@ -550,6 +338,7 @@ local AKMultiplier = 6300001 -- hardcoded because everyone right now has it by d
     110 - dungeons
     120 - worldbosses
     130 - worldquests
+    10000 - note
 ]]
 local butTool
 
@@ -579,10 +368,47 @@ frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 frame:RegisterEvent("CHAT_MSG_SYSTEM")
-frame:RegisterEvent("Exlist_DELAY")
+--frame:RegisterEvent("Exlist_DELAY")
 
 -- utility
-Exlist.ShortenNumber = function(number)
+local function spairs(t, order)
+  -- collect the keys
+  local keys = {}
+  for k in pairs(t) do keys[#keys + 1] = k end
+
+  -- if order function given, sort by it by passing the table and keys a, b,
+  -- otherwise just sort the keys
+  if order then
+    table.sort(keys, function(a, b) return order(t, a, b) end)
+  else
+    table.sort(keys)
+  end
+
+  -- return the iterator function
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], t[keys[i]]
+    end
+  end
+end
+
+local function AddMissingTableEntries(data,DEFAULT)
+   if not data or not DEFAULT then return data end
+   local rv = data
+   for k,v in pairs(DEFAULT) do
+      if rv[k] == nil then
+         rv[k] = v
+      elseif type(v) == "table" then
+         rv[k] = AddMissingTableEntries(rv[k],v)
+      end
+   end
+   return rv
+end
+Exlist.AddMissingTableEntries = AddMissingTableEntries
+
+local function ShortenNumber(number)
     if type(number) ~= "number" then
         number = tonumber(number)
     end
@@ -614,10 +440,10 @@ Exlist.ShortenNumber = function(number)
     if number < 0 then
         num1 = -num1
     end
-    
+
     return string.format("%."..dec.."f"..affixes[affix], num1)
 end
-
+Exlist.ShortenNumber = ShortenNumber
 local function copyTableInternal(source, seen)
   if type(source) ~= "table" then return source end
   if seen[source] then return seen[source] end
@@ -629,15 +455,17 @@ local function copyTableInternal(source, seen)
   return rv
 end
 
-function Exlist.copyTable(source)
+local function copyTable(source)
   return copyTableInternal(source, {})
 end
+Exlist.copyTable = copyTable
 
-function Exlist.ConvertColor(color)
+local function ConvertColor(color)
   return (color / 255)
 end
+Exlist.ConvertColor = ConvertColor
 
-function Exlist.ColorHexToDec(hex)
+local function ColorHexToDec(hex)
   if not hex or strlen(hex) < 6 then return end
   local values = {}
   for i = 1, 6, 2 do
@@ -645,21 +473,23 @@ function Exlist.ColorHexToDec(hex)
   end
   return (values[1]/ 255),(values[2]/ 255),(values[3]/ 255)
 end
+Exlist.ColorHexToDec = ColorHexToDec
 
-function Exlist.ColorDecToHex(col1,col2,col3)
+local function ColorDecToHex(col1,col2,col3)
   col1 = col1 or 0
   col2 = col2 or 0
   col3 = col3 or 0
   local hexColor = string.format("%02x%02x%02x",col1*255,col2*255,col3*255)
   return hexColor
 end
+Exlist.ColorDecToHex = ColorDecToHex
 
-function Exlist.TimeLeftColor(timeLeft, times, col)
+local function TimeLeftColor(timeLeft, times, col)
   -- times (opt) = {red,orange} upper limit
   -- i.e {100,1000} = 0-100 Green 100-1000 Orange 1000-inf Green
   -- colors (opt) - colors to use
   times = times or {3600, 18000} --default
-  local colors = col or {"FFFF0000", "FFe09602", "FF00FF00"} -- default
+  local colors = col or {Colors.time.long, Colors.time.medium, Colors.time.short} -- default
   for i = 1, #times do
     if timeLeft < times[i] then
       return WrapTextInColorCode(SecondsToTime(timeLeft), colors[i])
@@ -667,6 +497,7 @@ function Exlist.TimeLeftColor(timeLeft, times, col)
   end
   return WrapTextInColorCode(SecondsToTime(timeLeft), colors[#colors])
 end
+Exlist.TimeLeftColor = TimeLeftColor
 
 -- To find quest name from questID
 local MyScanningTooltip = CreateFrame("GameTooltip", "ExlistScanningTooltip", UIParent, "GameTooltipTemplate")
@@ -693,7 +524,7 @@ Exlist.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
          end
 end })
 
-function Exlist.GetItemEnchant(itemLink)
+local function GetItemEnchant(itemLink)
   MyScanningTooltip:ClearTooltip()
   MyScanningTooltip:SetOwner(UIParent,"ANCHOR_NONE")
   MyScanningTooltip:SetHyperlink(itemLink)
@@ -708,8 +539,8 @@ function Exlist.GetItemEnchant(itemLink)
     end
   end
 end
-
-function Exlist.GetItemGems(itemLink)
+Exlist.GetItemEnchant = GetItemEnchant
+local function GetItemGems(itemLink)
   local t = {}
   for i=1,MAX_NUM_SOCKETS do
     local name,iLink = GetItemGem(itemLink,i)
@@ -726,13 +557,13 @@ function Exlist.GetItemGems(itemLink)
     if tex then
       tex = tostring(tex)
       if tex:find("Interface\\ItemSocketingFrame\\UI--Empty") then
-        table.insert(t,{name = "|cFFcccccc"..L["Empty Slot"],icon = tex})
+        table.insert(t,{name = WrapTextInColorCode(L["Empty Slot"], Colors.faded),icon = tex})
       end
     end
   end
   return t
 end
-
+Exlist.GetItemGems = GetItemGems
 local function QuestInfo(questid)
   if not questid or questid == 0 then return nil end
   MyScanningTooltip:ClearTooltip()
@@ -745,15 +576,16 @@ local function QuestInfo(questid)
 end
 Exlist.QuestInfo = QuestInfo
 
-Exlist.FormatTimeMilliseconds = function(time)
+local function FormatTimeMilliseconds(time)
   if not time then return end
   local minutes = math.floor((time/1000)/60)
   local seconds = math.floor((time - (minutes*60000))/1000)
   local milliseconds = time-(minutes*60000)-(seconds*1000)
   return string.format("%02d:%02d:%02d",minutes,seconds,milliseconds)
 end
+Exlist.FormatTimeMilliseconds = FormatTimeMilliseconds
 
-function Exlist.GetTableNum(t)
+local function GetTableNum(t)
   if type(t) ~= "table" then
     return 0
   end
@@ -763,14 +595,15 @@ function Exlist.GetTableNum(t)
   end
   return count
 end
+Exlist.GetTableNum = GetTableNum
 
 local function AuraFromId(unit,ID,filter)
   -- Already Preparing for BFA
   for i=1,40 do
-    local name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3 = UnitAura(unit,i,filter)
+    local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3 = UnitAura(unit,i,filter)
     if name then
       if spellId and spellId == ID then
-        return name, REMOVEBFA, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3
+        return name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3
       end
     else
       -- afaik auras always are in list w/o gaps ie 1,2,3,4,5,6 instead of 1,2,4,5,8...
@@ -784,54 +617,28 @@ Exlist.AuraFromId = AuraFromId
 
 function Exlist.Debug(...)
   if debugMode then
-    local debugString = string.format("|c%s[Exlist Debug]|r",Exlist.Colors.Debug)
+    local debugString = string.format("|c%s[Exlist Debug]|r",Exlist.Colors.debug)
     print(debugString,...)
   end
 end
 
 
-local function spairs(t, order)
-  -- collect the keys
-  local keys = {}
-  for k in pairs(t) do keys[#keys + 1] = k end
-
-  -- if order function given, sort by it by passing the table and keys a, b,
-  -- otherwise just sort the keys
-  if order then
-    table.sort(keys, function(a, b) return order(t, a, b) end)
-  else
-    table.sort(keys)
-  end
-
-  -- return the iterator function
-  local i = 0
-  return function()
-    i = i + 1
-    if keys[i] then
-      return keys[i], t[keys[i]]
-    end
-  end
-end
 --------------
 local function AddMissingCharactersToSettings()
-  if not settings.allowedCharacters then settings.allowedCharacters = {} end
-  local t = settings.allowedCharacters
-  for i, v in pairs(db) do
-    -- i=server
-    if i ~= "global" then
-      for b, c in pairs(v) do
-        --b = name
-        local s = b.."-"..i
-        if (t[s] == nil or type(t[s]) ~= "table") or (not t[s].ilvl) then
-          t[s] = {
+  settings.allowedCharacters = settings.allowedCharacters or {}
+  local chars = settings.allowedCharacters
+  for realm,v in pairs(db) do
+    if realm ~= "global" then
+      for name,values in pairs(v) do
+        local charFullName = name .. "-" .. realm
+        if not chars[charFullName] then
+          chars[charFullName] = {
             enabled = true,
-            name = b,
-            order = 100,
-            classClr = v[b].class and RAID_CLASS_COLORS[v[b].class].colorStr or b == UnitName('player') and RAID_CLASS_COLORS[select(2, UnitClass('player'))].colorStr or "FFFFFFFF",
-            ilvl = v[b].iLvl or 0
+            name = name,
+            order = 70,
+            classClr = values.class and RAID_CLASS_COLORS[values.class].colorStr or name == UnitName("player") and RAID_CLASS_COLORS[select(2, UnitClass('player'))].colorStr or "FFFFFFFF",
+            ilvl = values.iLvl or 0,
           }
-        else
-          t[s].ilvl = v[b].iLvl
         end
       end
     end
@@ -841,25 +648,39 @@ end
 local function AddModulesToSettings()
   if not settings.allowedModules then settings.allowedModules = {} end
   local t = settings.allowedModules
+  local newT = {}
   for i=1,#registeredModules do
     if t[registeredModules[i].key] == nil then
       -- first time seeing it
-      t[registeredModules[i].key] = {enabled = true, name = registeredModules[i].name}
+      newT[registeredModules[i].key] = {enabled = true, name = registeredModules[i].name}
     else
-      t[registeredModules[i].key].name = registeredModules[i].name
+      newT[registeredModules[i].key] = t[registeredModules[i].key]
+      newT[registeredModules[i].key].name = registeredModules[i].name
     end
   end
+  settings.allowedModules = newT
 end
 
-function Exlist.UpdateChar(key,data,charname,charrealm)
-  if not data or not key then return end
+local function UpdateChar(key,data,charname,charrealm)
+  if not data then return end
   charrealm = charrealm or GetRealmName()
   charname = charname or UnitName('player')
-  db[charrealm] = db[charrealm] or {}
-  db[charrealm][charname] = db[charrealm][charname] or {}
-  local charToUpdate = db[charrealm][charname]
-  charToUpdate[key] = data
+  if not key then
+    -- table is {key = value}
+  	db[charrealm] = db[charrealm] or {}
+ 	  db[charrealm][charname] = db[charrealm][charname] or {}
+   	local charToUpdate = db[charrealm][charname]
+   	for i, v in pairs(data) do
+      charToUpdate[i] = v
+  	end
+  else
+  	db[charrealm] = db[charrealm] or {}
+ 	db[charrealm][charname] = db[charrealm][charname] or {}
+  	local charToUpdate = db[charrealm][charname]
+  	charToUpdate[key] = data
+  end
 end
+Exlist.UpdateChar = UpdateChar
 
 local function GetCachedItemInfo(itemId)
   if config_db.item_cache and config_db.item_cache[itemId] then
@@ -876,6 +697,7 @@ local function GetCachedItemInfo(itemId)
   end
 end
 Exlist.GetCachedItemInfo = GetCachedItemInfo
+
 local function GetCachedQuestTitle(questId)
   if config_db.quest_cache and config_db.quest_cache[questId] then
     return config_db.quest_cache[questId]
@@ -894,44 +716,12 @@ local function GetCachedQuestTitle(questId)
 end
 Exlist.GetCachedQuestTitle = GetCachedQuestTitle
 
-local function GetCachedArtifactPower(itemId)
-  if config_db.ap_cache and config_db.ap_cache[itemId] then
-    return config_db.ap_cache[itemId]
-  else
-    local _, _, spellId = GetItemSpell(itemId)
-    if ArtifactPowerSpells[spellId] then
-      local value = ArtifactPowerSpells[spellId] * AKMultiplier
-      config_db.ap_cache = config_db.ap_cache or {}
-      config_db.ap_cache[itemId] = value
-      return value
-    end
-    return 0
-  end 
-end
-Exlist.GetCachedArtifactPower = GetCachedArtifactPower
-
--- charinfo updater functions
-local UpdateCharacter = function(name, realm, updatedInfo)
-  -- check if realm and/or character is already in table, if isn't create them
-  -- in updatedInfo table check all keys only in first level
-  -- update them 1 by 1
-  realm = realm or GetRealmName()
-  name = name or UnitName('player')
-  db[realm] = db[realm] or {}
-  db[realm][name] = db[realm][name] or {}
-  if not updatedInfo then return end
-  local charToUpdate = db[realm][name]
-  for i, v in pairs(updatedInfo) do
-    charToUpdate[i] = v
-  end
-end
-
-local DeleteCharacterKey = function(name, realm, key)
+local function DeleteCharacterKey(name, realm, key)
   if not key or not db[realm] or not db[realm][name] then return end
   db[realm][name][key] = nil
 end
 
-local WipeKey = function(key)
+local function WipeKey(key)
   -- ... yea
   -- if i need to delete 1 key info from all characters on all realms
   Exlist.Debug('wiped ' .. key)
@@ -948,55 +738,6 @@ local WipeKey = function(key)
     Exlist.Debug(' Wiping Key (',key,') completed.')
 end
 
-local function UpdateCharacterTalents()
-  local t = {}
-  --[[
-  {
-    {-- tier 1
-      {name,icon,selected} -- talent 1
-      {} -- talent 2
-      {} -- talent 3
-    }
-  }
-  ]]
-  for tier=1,7 do
-    -- tiers
-    t[tier] = {}
-    local tierT = t[tier]
-    for talent=1,3 do
-      local _, name, texture, selected, _, _, _, _,_,_, selectedalt = GetTalentInfo(tier,talent,1)
-      table.insert(tierT,{name=name,icon=texture,selected = selected or selectedalt})
-    end
-  end
-  Exlist.UpdateChar("talents",t)
-end
-
-local enchantNames = {
-  --neck
-  [5889] = "Mark of Heavy Hide",
-  [5891] = "Mark of the Ancient Priestess",
-  [5437] = "Mark of the Claw",
-  [5438] = "Mark of the Distant Army",
-  [5889] = "Mark of Heavy Hide",
-  [5439] = "Mark of the Hidden Satyr",
-  [5890] = "Mark of the Trained Soldier",
-  --ring
-  [5430] = "+200 Versatility",
-  [5429] = "+200 Mastery",
-  [5427] = "+200 Critical Strike",
-  [5428] = "+200 Haste",
-  [5426] = "+150 Versatility",
-  [5424] = "+150 Haste",
-  [5425] = "+150 Mastery",
-  [5423] = "+150 Critical Strike",
-  --cloak
-  [5434] = "+200 Strength",
-  [5436] = "+200 Intellect",
-  [5435] = "+200 Agility",
-  [5431] = "+150 Strength",
-  [5433] = "+150 Intellect",
-  [5432] = "+150 Agility",
-}
 local slotNames = {L["Head"],L["Neck"],L["Shoulders"],L["Shirt"],L["Chest"],L["Waist"],L["Legs"],L["Feet"],L["Wrists"],
 L["Hands"],L["Ring"],L["Ring"],L["Trinket"],L["Trinket"],L["Back"],L["Main Hand"],L["Off Hand"],L["Ranged"]}
 
@@ -1006,29 +747,31 @@ local function UpdateCharacterGear()
   for i=1,#order do
     local iLink = GetInventoryItemLink('player',order[i])
     if iLink then
-      local itemName, itemLink, itemRarity, itemLevel, _, _, _, _, _, itemTexture, _ = GetItemInfo(iLink)
+      local itemName, itemLink, itemRarity, _, _, _, _, _, _, itemTexture, _ = GetItemInfo(iLink)
+      local ilvl = GetDetailedItemLevelInfo(iLink)
       local relics = {}
       local enchant,gem
       if not (order[i] == 16 or order[i] == 17 or order[i] == 18) then
-        enchant = Exlist.GetItemEnchant(iLink)
-        gem = Exlist.GetItemGems(iLink)
+        enchant = GetItemEnchant(iLink)
+        gem = GetItemGems(iLink)
       end
       table.insert(t,{slot = slotNames[order[i]], name = itemName,itemTexture = itemTexture, itemLink = itemLink,
-                      ilvl = itemLevel, enchant = enchant, gem = gem})
+                      ilvl = ilvl, enchant = enchant, gem = gem})
     end
   end
   if HasArtifactEquipped() then
     for i=1,3 do
       local name,icon,slotTypeName,link = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
       if name then
-        local _,_,_,ilvl=GetItemInfo(link)
+      	local ilvl = GetDetailedItemLevelInfo(link)
         table.insert(t,{slot = slotTypeName .. " "..L["Relic"], name = name,itemTexture = icon, itemLink = link,
                       ilvl = ilvl})
       end
     end
   end
-  Exlist.UpdateChar("gear",t)
+  UpdateChar("gear",t)
 end
+
 local function UpdateCharacterProfessions()
   local profIndexes = {GetProfessions()}
   local t = {}
@@ -1041,11 +784,9 @@ local function UpdateCharacterProfessions()
   Exlist.UpdateChar("professions",t)
 end
 
-local UpdateCharacterSpecifics = function(event)
+local function UpdateCharacterSpecifics(event)
   if event == "PLAYER_EQUIPMENT_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
     UpdateCharacterGear()
-  --elseif event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_ENTERING_WORLD" then
-    --UpdateCharacterTalents()
   end
   UpdateCharacterProfessions()
   local name = UnitName('player')
@@ -1061,7 +802,7 @@ local UpdateCharacterSpecifics = function(event)
   table.spec = spec
   table.specId = specId
   table.realm = realm
-  UpdateCharacter(name, realm, table)
+  UpdateChar(nil,table,name,realm)
 end
 
 local function GetRealms()
@@ -1075,12 +816,7 @@ local function GetRealms()
     end
   end
   local numRealms = #realms
-  local function itemsInTable(table)
-    local i = 0
-    for _ in pairs(table) do i = i + 1 end
-    return i
-  end
-  table.sort(realms, function(a, b) return itemsInTable(db[a]) > itemsInTable(db[b]) end)
+  table.sort(realms, function(a, b) return GetTableNum(db[a]) > GetTableNum(db[b]) end)
   return realms, numRealms
 end
 
@@ -1177,7 +913,6 @@ function Exlist.AddLine(tooltip,info,fontSize)
   return n
 end
 
-
 local lineNums = {} -- only for Horizontal
 local columnNums = {} -- only for Horizontal
 local lastLineNum = 1 -- only for Horizontal
@@ -1195,6 +930,7 @@ function Exlist.AddData(info)
         data = "string" text to be displayed
         character = "name-realm" which column to display
         moduleName = "key" Module key
+        priority = number Priority in tooltip
         titleName = "string" row title
         colOff = number (optional) offset from first column defaults:0
         dontResize = boolean (optional) if cell should span across
@@ -1208,8 +944,9 @@ function Exlist.AddData(info)
   ]]
   if not info then return end
   info.colOff = info.colOff or 0
-  tooltipData[info.character] =  tooltipData[info.character] or {modules = {},num = 0}
-  local t = tooltipData[info.character]
+  local char = info.character.name .. info.character.realm
+  tooltipData[char] =  tooltipData[char] or {modules = {},num = 0}
+  local t = tooltipData[char]
   if t.modules[info.moduleName] then
     table.insert(t.modules[info.moduleName].data,info)
     t.modules[info.moduleName].num = t.modules[info.moduleName].num + 1
@@ -1275,7 +1012,7 @@ function Exlist.CreateSideTooltip(statusbar)
         sideTooltip:AddLine(body[i])
       end
     end
-    local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame or 
+    local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame or
               self:GetParent():GetParent():GetParent())
     if position == "left" then
       sideTooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1)
@@ -1343,11 +1080,12 @@ local registeredEvents = {
 local function RegisterEvents()
   for i in pairs(registeredUpdaters) do
     if not registeredEvents[i] then
-      frame:RegisterEvent(i)
+      xpcall(frame.RegisterEvent,function() return true end,frame,i)
       registeredEvents[i] = true
     end
   end
 end
+
 function Exlist.RegisterModule(data)
   --[[
   data = table
@@ -1539,7 +1277,7 @@ local function AddNote(tooltip,data,realm,name)
       end,
       OnAccept = function(self)
         StaticPopup_Hide("AddNotePopup_"..name..realm)
-        UpdateCharacter(name, realm, {note = self.editBox:GetText()})
+        UpdateChar("note",self.editBox:GetText(),name,realm)
       end,
       timeout = 0,
       cancels = "AddNotePopup_"..name..realm,
@@ -1554,24 +1292,12 @@ local function AddNote(tooltip,data,realm,name)
   end
 end
 
-local ilvlColors = {
-  {ilvl = 750 , str = "ff26ff3f"},
-  {ilvl = 800 , str ="ff26ffba"},
-  {ilvl = 850 , str ="ff26e2ff"},
-  {ilvl = 880 , str ="ff26a0ff"},
-  {ilvl = 900 , str ="ff2663ff"},
-  {ilvl = 910 , str ="ff8e26ff"},
-  {ilvl = 920 , str ="ffe226ff"},
-  {ilvl = 935 ,str = "ffff2696"},
-  {ilvl = 950 , str ="ffff2634"},
-  {ilvl = 980 , str ="ffff7526"},
-  {ilvl = 1000 , str ="ffffc526"}
-}
-local setIlvlColor = function(ilvl)
+local function setIlvlColor(ilvl)
   if not ilvl then return "ffffffff" end
-  for i=1,#ilvlColors do
-    if ilvlColors[i].ilvl > ilvl then
-      return ilvlColors[i].str
+  local colors = Colors.ilvlColors
+  for i=1,#colors do
+    if colors[i].ilvl > ilvl then
+      return colors[i].str
     end
   end
   return "fffffb26"
@@ -1581,24 +1307,14 @@ local hasEnchantSlot = {
   Ring = true,
   Back = true
 }
-local profColors = {
-  {val = 75, color = "c6c3b4"},
-  {val = 150, color = "dbd3ab"},
-  {val = 225, color = "e2d388"},
-  {val = 300, color = "efd96b"},
-  {val = 400, color = "ffe254"},
-  {val = 500, color = "ffde3d"},
-  {val = 600, color = "ffd921"},
-  {val = 700, color = "ffd50c"},
-  {val = 800, color = "ffae00"}
-}
 local function ProfessionValueColor(value)
-  for i=1,#profColors do
-    if value <= profColors[i].val then
-      return profColors[i].color
+  local colors = Colors.profColors
+  for i=1,#colors do
+    if value <= colors[i].val then
+      return colors[i].color
     end
   end
-  return "FFFFFF"
+  return "FFFFFFFF"
 end
 
 local function GearTooltip(self,info)
@@ -1620,7 +1336,7 @@ local function GearTooltip(self,info)
   geartooltip:SetCell(line,7,string.format("%i "..L["ilvl"],(info.iLvl or 0)),"RIGHT")
   geartooltip:AddSeparator(1,.8,.8,.8,1)
   line = geartooltip:AddHeader()
-  geartooltip:SetCell(line,1,WrapTextInColorCode(L["Gear"],"ffffb600"),"CENTER",7)
+  geartooltip:SetCell(line,1,WrapTextInColorCode(L["Gear"],Colors.sideTooltipTitle),"CENTER",7)
   local gear = info.gear
   if gear then
     for i=1,#gear do
@@ -1628,7 +1344,7 @@ local function GearTooltip(self,info)
       if gear[i].enchant or gear[i].gem then
         if type(gear[i].gem) == 'table' then
           if gear[i].enchant then
-            enchantements = string.format("%s%s|r","|cff00ff00",gear[i].enchant or "")
+            enchantements = string.format("|c%s%s|r",Colors.enchantName,gear[i].enchant or "")
           end
           for b=1,#gear[i].gem do
             if enchantements ~= "" then
@@ -1723,9 +1439,6 @@ local function GearTooltip(self,info)
     geartooltip.statusBars[i]:SetWidth(tipWidth+tipWidth/3)
   end
 end
-
-
-
 
 -- DISPLAY INFO
 butTool = CreateFrame("Frame", "Exlist_Tooltip", UIParent)
@@ -1917,18 +1630,14 @@ local function OnEnter(self)
   tooltip:SetHeaderFont(mediumFont)
   tooltip:SetFont(smallFont)
 
-  --[[if settings.horizontalMode then
-    -- Setup Header for horizontal
-    tooltip:AddHeader()
-    tooltip:SetFont(smallFont)
-    tooltip:AddLine()
-    tooltip:AddSeparator(1, 1, 1, 1, .85)
-  end]]
   -- character info main tooltip
   for i=1,#charOrder do
       local name = charOrder[i].name
       local realm = charOrder[i].realm
-      local character = name..realm
+      local character = {
+        name = name,
+        realm = realm
+      }
       local charData = Exlist.GetCharacterTable(realm,name)
       charData.name = name
       -- header
@@ -1936,12 +1645,12 @@ local function OnEnter(self)
       local headerText,subHeaderText = "",""
       if settings.shortenInfo then
 
-        headerText = "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r " 
-        subHeaderText = string.format("|c%s%s","ffffd200",realm)
+        headerText = "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
+        subHeaderText = string.format("|c%s%s",Colors.sideTooltipTitle,realm)
 
       else
         headerText = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
-        subHeaderText = string.format("|c%s%s - "..L["Level"] .." %i","ffffd200",realm,charData.level)
+        subHeaderText = string.format("|c%s%s - "..L["Level"] .." %i",Colors.sideTooltipTitle,realm,charData.level)
       end
       -- Header Info
       Exlist.AddData({
@@ -1963,7 +1672,7 @@ local function OnEnter(self)
         titleName = "Header",
       })
       Exlist.AddData({
-        data = subHeaderText, 
+        data = subHeaderText,
         character = character,
         priority = -999,
         moduleName = "_HeaderSmall",
@@ -1975,7 +1684,7 @@ local function OnEnter(self)
 
 
       local col = settings.horizontalMode and ((i-1)*4)+2 or 2
-      tooltipColCoords[character] = col
+      tooltipColCoords[name..realm] = col
 
       -- Add Info
       for i = 1, #registeredLineGenerators do
@@ -1983,12 +1692,8 @@ local function OnEnter(self)
           registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key],character)
         end
       end
-      --AddNote(tooltip,charData,realm,name)
-      --[[if i < #charOrder and not settings.horizontalMode then
-        tooltip:AddSeparator(1, 1, 1, 1, .85)
-      end]]
   end
-  -- Add Data
+  -- Add Data to tooltip
   PopulateTooltip(tooltip)
   -- global data
   if settings.showExtraInfoTooltip then
@@ -2086,19 +1791,13 @@ end
 
 butTool:SetScript("OnEnter", OnEnter)
 
-
-
-
 -- config --
-
 local function OpenConfig(self, button)
     InterfaceOptionsFrame_OpenToCategory(addonName)
 		InterfaceOptionsFrame_OpenToCategory(addonName)
 end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
-
--- LibDataBroker Button
 
 local LDB_Exlist = LDB:NewDataObject("Exlist",{
   type = "data source",
@@ -2108,10 +1807,8 @@ local LDB_Exlist = LDB:NewDataObject("Exlist",{
   OnEnter = OnEnter
 })
 
-
-
 -- refresh
-function Exlist_RefreshAppearance()
+function Exlist.RefreshAppearance()
   --texplore(fontSet)
   butTool:SetAlpha(settings.iconAlpha or 1)
   butTool:SetMovable(not settings.lockIcon)
@@ -2125,6 +1822,7 @@ function Exlist_RefreshAppearance()
     f:SetFont(font,fontSize)
   end
   butTool:SetScale(settings.iconScale)
+
   if settings.showMinimapIcon then
     LDBI:Show("Exlist")
   else
@@ -2143,7 +1841,8 @@ local function IsNewCharacter()
   local realm = GetRealmName()
   return db[realm] == nil or db[realm][name] == nil
 end
-function Exlist.SetupConfig()
+
+function Exlist.InitConfig()
 end
 
 local function Modernize()
@@ -2161,21 +1860,22 @@ local function Modernize()
     end
   end
   for i,name in ipairs(deleteList) do settings.allowedModules[name] = nil end
+
+  -- Normalize character Order
+  local chars = settings.allowedCharacters
+  local order = 100
+  for char,t in spairs(chars,function(t,a,b) return t[a].order < t[b].order end) do
+    chars[char].order = order
+    order = order + 100
+  end
 end
 
 local function init()
   Exlist_DB = Exlist_DB or db
   Exlist_Config = Exlist_Config or config_db
-  if not Exlist_Config.settings then
-    Exlist_Config.settings = settings
-  else
-   -- set Defaults
-    for i,v in pairs(settings) do
-      if Exlist_Config.settings[i] == nil then
-        Exlist_Config.settings[i] = v
-      end
-   end
-  end
+  -- setupt settings
+  Exlist_Config.settings = AddMissingTableEntries(Exlist_Config.settings or {},settings)
+
   db = Exlist.copyTable(Exlist_DB)
   db.global = db.global or {}
   db.global.global = db.global.global or {}
@@ -2184,8 +1884,9 @@ local function init()
   settings = config_db.settings
   Exlist.ConfigDB = config_db
   settings.reorder = true
-  -- Minimap Icon
-  LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
+  if not LDBI:IsRegistered("Exlist") then
+    LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
+  end
 
   for i,func in ipairs(moduleInitializers) do
     func()
@@ -2197,18 +1898,17 @@ local function init()
   if IsNewCharacter() then
     -- for config page if it's first time that character logins
     C_Timer.After(0.2, function()
-      UpdateCharacterSpecifics()
+      UpdateCharacterSpecifics("PLAYER_ENTERING_WORLD")
       AddMissingCharactersToSettings()
       AddModulesToSettings()
-      Exlist.SetupConfig()
+      Exlist.InitConfig()
     end)
   else
     AddMissingCharactersToSettings()
     AddModulesToSettings()
-    Exlist.SetupConfig()
+    Exlist.InitConfig()
   end
-  C_Timer.After(0.5, function() Exlist_RefreshAppearance() end)
-
+  C_Timer.After(0.5, function() Exlist.RefreshAppearance() end)
 end
 
 -- Reset handling Credit to SavedInstances
@@ -2237,7 +1937,8 @@ local function GetRegion()
 end
 
 local function GetServerOffset()
-  local serverDay = CalendarGetDate() - 1 -- 1-based starts on Sun
+  local serverDay = C_Calendar.GetDate().weekday - 1
+  --local serverDay = CalendarGetDate() - 1 -- 1-based starts on Sun
   local localDay = tonumber(date("%w")) -- 0-based starts on Sun
   local serverHour, serverMinute = GetGameTime()
   local localHour, localMinute = tonumber(date("%H")), tonumber(date("%M"))
@@ -2308,12 +2009,17 @@ end
 Exlist.GetNextWeeklyResetTime = GetNextWeeklyResetTime
 Exlist.GetNextDailyResetTime = GetNextDailyResetTime
 
+local function ResetHandling() end
+
 local function HasWeeklyResetHappened()
   if not config_db.resetTime then return end
   local weeklyReset = GetNextWeeklyResetTime()
   if weeklyReset ~= config_db.resetTime then
     -- reset has happened because next weekly reset time is different from stored one
     return true
+  else
+    Exlist.Debug("Reset recheck in:",weeklyReset-time()+1)
+    timer:ScheduleTimer(ResetHandling,weeklyReset-time()+1)
   end
   return false
 end
@@ -2324,6 +2030,9 @@ local function HasDailyResetHappened()
   if dailyReset ~= config_db.resetDailyTime then
     -- reset has happened because next weekly reset time is different from stored one
     return true
+  else
+    Exlist.Debug("Reset recheck in:",dailyReset-time()+1)
+    timer:ScheduleTimer(ResetHandling,dailyReset-time()+1)
   end
   return false
 end
@@ -2370,11 +2079,11 @@ end
 local function GetLastUpdateTime()
   local d = date("*t", time())
   local gameTime = GetGameTime()
-  local t = {updated = string.format("%d %s %02d:%02d",d.day,monthNames[d.month],d.hour,d.min)}
-  UpdateCharacter(nil, nil, t)
+  UpdateChar("updated",string.format("%d %s %02d:%02d",d.day,monthNames[d.month],d.hour,d.min))
 end
 
-local function ResetHandling()
+function ResetHandling()
+  Exlist.Debug("Reset Check")
   if HasWeeklyResetHappened() then
     -- check for reset
     WipeKeysForReset("weekly")
@@ -2396,15 +2105,20 @@ hooksecurefunc("ResetInstances", function()
   AnnounceReset(L["Reset All Instances"])
 end)
 
-
 -- Updaters
-
 function Exlist.SendFakeEvent(event) end
+
 local delay = true
 local delayedEvents = {}
 local running = false
-
 local runEvents = {}
+
+local function SendDelayedEvents()
+  for e in pairs(delayedEvents) do
+    Exlist.SendFakeEvent(e)
+  end
+end
+
 local function IsEventEligible(event)
   if runEvents[event] then
       if GetTime() - runEvents[event] > 0.5 then
@@ -2422,16 +2136,16 @@ end
 
 local function DebugTimeColors(timeSpent)
   if timeSpent < 0.2 then
-    return string.format("|cFF00FF00%.6f",timeSpent)
+    return WrapTextInColorCode(string.format("%.6f",timeSpent), Colors.debugTime.short)
   elseif timeSpent <= 1 then
-    return string.format("|cffe5f441%.6f",timeSpent)
+    return WrapTextInColorCode(string.format("%.6f",timeSpent), Colors.debugTime.medium)
   elseif timeSpent <= 2 then
-    return string.format("|cFFf48c42%.6f",timeSpent)
+    return WrapTextInColorCode(string.format("%.6f",timeSpent), Colors.debugTime.almostlong)
   end
-  return string.format("|cFFFF0000%.6f",timeSpent)
+  return WrapTextInColorCode(string.format("%.6f",timeSpent), Colors.debugTime.long)
 end
+
 function frame:OnEvent(event, ...)
-  --print(event,arg1)
   if not IsEventEligible(event) then return end
   if event == "PLAYER_LOGOUT" then
     -- save things
@@ -2449,22 +2163,16 @@ function frame:OnEvent(event, ...)
     SetTooltipBut()
     Exlist.Debug('Init ran for: ' .. DebugTimeColors(debugprofilestop() - started))
 	C_Timer.After(3,function() ResetHandling() end)
+    return
   end
   -- Delays
   if event == "Exlist_DELAY" then
     delay = false
-    for e in pairs(delayedEvents) do
-      local eventFuncs = registeredUpdaters[e] or {}
-      for i=1,#eventFuncs do
-        local started = debugprofilestop()
-        eventFuncs[i].func(e,...)
-        Exlist.Debug(eventFuncs[i].name .. ' (delayed) finished: ' .. DebugTimeColors(debugprofilestop() - started))
-        GetLastUpdateTime()
-      end
-    end
+    SendDelayedEvents()
     return
   end
   if delay then
+    Exlist.Debug(event,"delayed")
     if not running then
       C_Timer.After(4,function() Exlist.SendFakeEvent("Exlist_DELAY") end)
       delayedEvents[event] = 1
@@ -2513,7 +2221,7 @@ function Exlist.SendFakeEvent(event,...)
 
  hooksecurefunc(WorldMapFrame,"Show",func)
 
-function Exlist_PrintUpdates()
+function Exlist.PrintUpdates()
   local realms, numRealms = GetRealms()
   for j = 1, numRealms do
     local charInfo, charNum = GetRealmCharInfo(realms[j])
@@ -2533,7 +2241,7 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
   elseif args[1] == "refresh" then
     UpdateCharacterSpecifics()
   elseif args[1] == "update" then
-    Exlist_PrintUpdates()
+    Exlist.PrintUpdates()
   elseif args[1] == "debug" then
     print(debugMode and L['Debug: stopped'] or L['Debug: started'])
     debugMode = not debugMode
@@ -2550,5 +2258,8 @@ function SlashCmdList.CHARINF(msg, editbox) -- 4.
     if args[2] then
       WipeKeysForReset(args[2])
     end
+  elseif args[1] == "resetsettings" then
+    Exlist.ConfigDB.settings = {}
+    ReloadUI()
   end
 end

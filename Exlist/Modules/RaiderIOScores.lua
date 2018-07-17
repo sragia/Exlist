@@ -2,25 +2,38 @@ local key = "raiderIO"
 local prio = 20
 local Exlist = Exlist
 local L = Exlist.L
+local colors = Exlist.Colors
 local CM = C_ChallengeMode
 local table,print, string= table,print, string
 local WrapTextInColorCode = WrapTextInColorCode
 local RaiderIO = RaiderIO
 local UnitLevel = UnitLevel
 local DUNGEON_NAME = {
-  (CM.GetMapInfo(206)), -- NL
-  (CM.GetMapInfo(200)), -- HoV
-  (CM.GetMapInfo(198)), -- DHT
-  (CM.GetMapInfo(207)), -- VOTW
-  (CM.GetMapInfo(199)), -- BRH
-  (CM.GetMapInfo(208)), -- MOS
-  (CM.GetMapInfo(209)), -- ARC
-  (CM.GetMapInfo(197)), -- EOA
-  (CM.GetMapInfo(210)), -- COS
-  (CM.GetMapInfo(233)), -- CATH
-  (CM.GetMapInfo(239)), -- SEAT
-  (CM.GetMapInfo(227)), -- LOWER
-  (CM.GetMapInfo(234)), -- UPPER
+  (CM.GetMapUIInfo(206)), -- NL
+  (CM.GetMapUIInfo(200)), -- HoV
+  (CM.GetMapUIInfo(198)), -- DHT
+  (CM.GetMapUIInfo(207)), -- VOTW
+  (CM.GetMapUIInfo(199)), -- BRH
+  (CM.GetMapUIInfo(208)), -- MOS
+  (CM.GetMapUIInfo(209)), -- ARC
+  (CM.GetMapUIInfo(197)), -- EOA
+  (CM.GetMapUIInfo(210)), -- COS
+  (CM.GetMapUIInfo(233)), -- CATH
+  (CM.GetMapUIInfo(239)), -- SEAT
+  (CM.GetMapUIInfo(227)), -- LOWER
+  (CM.GetMapUIInfo(234)), -- UPPER
+
+  -- BFA
+  (CM.GetMapUIInfo(244)), -- Atal'dazar
+  (CM.GetMapUIInfo(245)), -- Freehold
+  (CM.GetMapUIInfo(246)), -- Tol Dagor
+  (CM.GetMapUIInfo(247)), -- The MOTHERLODE!!
+  (CM.GetMapUIInfo(248)), -- Kings' Rest
+  (CM.GetMapUIInfo(249)), -- Waycrest Manor
+  (CM.GetMapUIInfo(250)), -- Temple of Sethraliss
+  (CM.GetMapUIInfo(251)), -- The Underrot
+  (CM.GetMapUIInfo(252)), -- Shrine of the Storm
+  (CM.GetMapUIInfo(353)), -- Siege of Boralus
 }
 
 
@@ -68,7 +81,7 @@ local function Linegenerator(tooltip,data,character)
   for i=1,#data.dungeons do
     s[i] = {data.dungeons[i].name,data.dungeons[i].lvl}
   end
-  local sideTooltip = {body = s,title=WrapTextInColorCode(string.format("%s - %s",data.playerName,data.score),"ffffd200")}
+  local sideTooltip = {body = s,title=WrapTextInColorCode(string.format("%s - %s",data.playerName,data.score),colors.sideTooltipTitle)}
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()

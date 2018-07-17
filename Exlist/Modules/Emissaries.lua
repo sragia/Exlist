@@ -8,6 +8,7 @@ local UnitLevel = UnitLevel
 local GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo = GetNumQuestLogEntries, GetQuestLogTitle, GetQuestObjectiveInfo
 local table,pairs = table,pairs
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 
 
@@ -49,7 +50,8 @@ local function spairs(t, order)
 end
 
 local function Updater(event)
-  if UnitLevel('player') < 110 then return end
+  local playerLevel = UnitLevel("player")
+  if playerLevel < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
   if event == "PLAYER_ENTERING_WORLD" then 
     C_Timer.After(5,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
     return
@@ -64,7 +66,7 @@ local function Updater(event)
   local trackedBounties = 0 -- if we already know all bounties
   for questId,info in pairs(gt) do
     -- cleanup
-    if info.endTime < timeNow then
+    if info.endTime < timeNow or info.level ~= playerLevel then
       gt[questId] = nil
     else
       trackedBounties = trackedBounties + 1
@@ -81,21 +83,21 @@ local function Updater(event)
     for questId, info in pairs(gt) do
       if not IsQuestFlaggedCompleted(questId) then
         local _, _, _, current, total = GetQuestObjectiveInfo(questId, 1, false)
-        local t = {name = info.title, current = current, total = total, endTime = info.endTime}
+        local t = {name = info.title, current = current, total = total, endTime = info.endTime,level = info.level}
         table.insert(emissaries, t)
       end
     end
   else
     for i = 1, GetNumQuestLogEntries() do
-      local title, _, _, _, _, _, _, questID, _, _, _, _, _, isBounty = GetQuestLogTitle(i)
-      if isBounty then
+      local title, level, _, _, _, _, _, questID, _, _, _, _, _, isBounty = GetQuestLogTitle(i)
+      if isBounty and level == playerLevel then
         local text, _, completed, current, total = GetQuestObjectiveInfo(questID, 1, false)
         local timeleft = C_TaskQuest.GetQuestTimeLeftMinutes(questID)
         local endTime = timeNow + timeleft * 60
         if endTime > timeNow then
           -- make sure if there's actually any time left.
           -- paragon chests show up as bounty quests but obv doesnt have time limit
-          local t = {name = title, current = current, total = total, endTime = endTime}
+          local t = {name = title, current = current, total = total, endTime = endTime,level = level}
           gt[questID] = {title = title, endTime = endTime}
           table.insert(emissaries, t)
         end
@@ -123,9 +125,9 @@ local function Linegenerator(tooltip,data,character)
     end
   end
   if availableEmissaries > 0 then
-    info.data = WrapTextInColorCode(availableEmissaries, "FF00FF00")
+    info.data = WrapTextInColorCode(availableEmissaries, colors.available)
     -- info {} {body = {'1st lane',{'2nd lane', 'side number w/e'}},title = ""}
-    local sideTooltip = {title = WrapTextInColorCode(L["Available Emissaries"], "ffffd200"), body = {}}
+    local sideTooltip = {title = WrapTextInColorCode(L["Available Emissaries"], colors.sideTooltipTitle), body = {}}
     local timeLeftColor
     for i = 1, #data do
       if data[i] and data[i].endTime > timeNow then
@@ -143,7 +145,7 @@ end
 local function GlobalLineGenerator(tooltip,data)
   if not Exlist.ConfigDB.settings.extraInfoToggles.emissary.enabled then return end
   local timeNow = time()
-  Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Emissaries"],"ffffd200")},14)
+  Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Emissaries"],colors.sideTooltipTitle)},14)
 
   for questId,info in spairs(data or {},function(t,a,b) return t[a].endTime < t[b].endTime end) do
     Exlist.AddLine(tooltip,{info.title,TimeLeftColor(info.endTime - timeNow,{36000, 72000})})

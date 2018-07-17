@@ -1,13 +1,27 @@
 local key = "mythicPlus"
 local prio = 50
 local CM = C_ChallengeMode
+local C_MythicPlus = C_MythicPlus
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table, ipairs = table, ipairs
 
 local mapTimes = {
-  --[mapId] = {+3Time,+2Time,+1Time} in seconds
+  --[mapId] = {+1Time,+2Time,+3Time} in seconds
+  --BFA
+  [244] = {2340,1872,1405}, -- Atal'dazar
+  [245] = {1800,1440,1080}, -- Freehold
+  [246] = {1980,1584,1188}, -- Tol Dagor
+  [247] = {2340,1872,1405}, -- The MOTHERLODE!!
+  [248] = {2340,1872,1405}, -- Waycrest Manor
+  [249] = {1800,1440,1080}, -- Kings' Rest
+  [250] = {1980,1584,1188}, -- Temple of Sethraliss
+  [251] = {1800,1440,1080}, -- The Underrot
+  [252] = {2340,1872,1405}, -- Shrine of the Storm
+  [353] = {2340,1872,1405}, -- Siege of Boralus
+
   [197] = {2100,1680,1260}, -- Eye of Azshara
   [198] = {1800,1440,1080}, -- Darkheart Thicket
   [199] = {2340,1872,1405}, -- BRH
@@ -24,38 +38,27 @@ local mapTimes = {
 }
 
 local function Updater(event)
-  CM.RequestMapInfo() -- request update
+  C_MythicPlus.RequestMapInfo() -- request update
   local mapIDs = CM.GetMapTable()
   local bestLvl = 0
   local bestLvlMap = ""
   local bestMapId = 0
   local mapsDone = {}
-  local affixes
+  local savedAffixes
   for i = 1, #mapIDs do
-    local _, bestTime, level, affixIDs = CM.GetMapPlayerStats(mapIDs[i])
+    local bestTime, level = C_MythicPlus.GetWeeklyBestForMap(mapIDs[i])
     if level and level > bestLvl then
       -- currently best map
-      affixes = affixIDs
       bestLvl = level
       bestMapId = mapIDs[i]
-      bestLvlMap = CM.GetMapInfo(mapIDs[i])
+      bestLvlMap = CM.GetMapUIInfo(mapIDs[i])
       table.insert(mapsDone,{mapId = mapIDs[i], name = bestLvlMap,level = level, time = bestTime})
     elseif level and level > 0 then
-      local mapName = CM.GetMapInfo(mapIDs[i])
+      local mapName = CM.GetMapUIInfo(mapIDs[i])
       table.insert(mapsDone,{mapId = mapIDs[i], name = mapName,level = level, time = bestTime})
     end
   end
   table.sort(mapsDone,function(a,b) return a.level > b.level end)
-  -- add affixes to global table
-  local savedAffixes = Exlist.GetCharacterTableKey('global','global',"mythicKey")
-  if #savedAffixes < 3 and affixes then
-    for i=1,#affixes do
-      local name, desc, icon = CM.GetAffixInfo(affixes[i])
-      Exlist.Debug("Adding Affix- ID:",affixes[i]," name:",name," icon:",icon," i:",i,"key:",key)
-      savedAffixes[i] = {name = name, icon = icon, desc = desc}
-    end
-    Exlist.UpdateChar("mythicKey",savedAffixes,'global','global')
-  end
   local t= {
     ["bestLvl"] = bestLvl,
     ["bestLvlMap"] = bestLvlMap,
@@ -69,8 +72,8 @@ local function MythicPlusTimeString(time,mapId)
   if not time or not mapId then return end
   local times = mapTimes[mapId] or {}
   local rstring = ""
-  local secTime = time/1000
-  local colors = {"ffbfbfbf","fffaff00","fffbdb00","fffacd0c"}
+  local secTime = time
+  local colors = colors.mythicplus.times
   for i=1, #times do
     if secTime > times[i] then
       if i == 1 then return WrapTextInColorCode("("..L["Depleted"]..") " .. Exlist.FormatTimeMilliseconds(time),colors[i])
@@ -93,7 +96,7 @@ local function Linegenerator(tooltip,data,character)
   }
 
   if data.mapsDone and #data.mapsDone > 0 then
-    local sideTooltip = {title = WrapTextInColorCode(L["Mythic+"],"ffffd200"), body = {}}
+    local sideTooltip = {title = WrapTextInColorCode(L["Mythic+"],colors.sideTooltipTitle), body = {}}
     local maps = data.mapsDone
     for i=1, #maps do
       table.insert(sideTooltip.body,{"+" .. maps[i].level .. " " .. maps[i].name,MythicPlusTimeString(maps[i].time,maps[i].mapId)})
@@ -112,7 +115,7 @@ local function Modernize(data)
     CM.RequestMapInfo() -- request update
     local mapIDs = CM.GetMapTable()
     for i,id in ipairs(mapIDs) do
-      if data.bestLvlMap == (CM.GetMapInfo(id)) then
+      if data.bestLvlMap == (CM.GetMapUIInfo(id)) then
         Exlist.Debug("Added mapId",id)
         data.mapId = id
         break

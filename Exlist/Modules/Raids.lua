@@ -1,6 +1,7 @@
 local key = "raids"
 local prio = 100
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 local pairs, ipairs, type = pairs, ipairs, type
 local WrapTextInColorCode = WrapTextInColorCode
@@ -16,7 +17,8 @@ local expansions = {
   L["Cataclysm"],
   L["Mists of Pandaria"],
   L["Warlords of Draenor"],
-  L["Legion"]
+  L["Legion"],
+  L["Battle for Azeroth"]
 }
 
 local defaultSettings = {}
@@ -47,11 +49,7 @@ local function AddRaidOptions()
   local settings = Exlist.ConfigDB.settings
   settings.raids = settings.raids or {}
   -- add missing raids
-  for raid,opt in pairs(defaultSettings) do
-    if settings.raids[raid] == nil then
-      settings.raids[raid] = opt
-    end
-  end
+  settings.raids = Exlist.AddMissingTableEntries(settings.raids,defaultSettings)
   -- Options
   local numExpansions = #expansions
   local configOpt = {
@@ -70,7 +68,7 @@ local function AddRaidOptions()
   for i=numExpansions,1,-1 do
     configOpt.args["expac"..i] = {
       type = "description",
-      name = WrapTextInColorCode(expansions[i],"ffffd200"),
+      name = WrapTextInColorCode(expansions[i],colors.config.heading1),
       fontSize = "large",
       width = "full",
       order = numExpansions - i + 1,
@@ -152,7 +150,6 @@ local function Updater(event)
       t[raid].LFR = t[raid].LFR or {}
       t[raid].LFR = {bosses = {}}
       for id, lfr in spairs(c,function(t,a,b) return t[a].order < t[b].order end) do
-        Exlist.Debug("LFR ID",id,"Wing Name",lfr.name)
         total = not lfr.dontCount and total + lfr.totalEncounters or total
         local saveId = lfr.saveId or id
         if lfr.map then
@@ -181,15 +178,6 @@ local function Updater(event)
             index = index + 1
           end
         end
-
-        --[[for i = 1, lfr.totalEncounters do
-          local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
-          killed = isKilled and killed + 1 or killed
-          t[raid].LFR.bosses[id] = t[raid].LFR.bosses[id] or {}
-          t[raid].LFR.bosses[id].order = lfr.order
-          t[raid].LFR.bosses[id][lfr.name] = t[raid].LFR.bosses[id][lfr.name] or {}
-          table.insert(t[raid].LFR.bosses[id][lfr.name], {name = bossName, killed = isKilled})
-        end]]
       end
       t[raid].LFR.done = killed
       t[raid].LFR.max = total
@@ -231,11 +219,11 @@ local function Linegenerator(tooltip,data,character)
           if not added then
             -- raid shows up first time
             info.moduleName = raidOrder[index]
-            info.titleName = WrapTextInColorCode(raidOrder[index],"ffc1c1c1")
+            info.titleName = WrapTextInColorCode(raidOrder[index],colors.faded)
             added = true
             cellIndex = cellIndex + 1
           end
-          local sideTooltipTable = {title = WrapTextInColorCode(raidOrder[index].. " (" .. diffOrder[difIndex] .. ")","ffffd200"),body = {}}
+          local sideTooltipTable = {title = WrapTextInColorCode(raidOrder[index].. " (" .. diffOrder[difIndex] .. ")",colors.sideTooltipTitle),body = {}}
 
           -- Side Tooltip Data
           if difIndex == 1 then
@@ -244,11 +232,11 @@ local function Linegenerator(tooltip,data,character)
               Exlist.Debug("Adding LFR id:",id," -",key)
               for name,b in pairs(raidInfo.bosses[id]) do
                 if type(b) == "table" then
-                  table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,"ffc1c1c1"),""})
+                  table.insert(sideTooltipTable.body,{WrapTextInColorCode(name,colors.faded),""})
                   for i=1,#b do
                     table.insert(sideTooltipTable.body,{b[i].name,
-                    b[i].killed and WrapTextInColorCode(L["Defeated"],"ffff0000") or
-                    WrapTextInColorCode(L["Available"],"ff00ff00")})
+                    b[i].killed and WrapTextInColorCode(L["Defeated"],colors.completed) or
+                    WrapTextInColorCode(L["Available"],colors.available)})
                   end
                 end
               end
@@ -257,8 +245,8 @@ local function Linegenerator(tooltip,data,character)
             -- normal people difficulties
             for boss=1,#raidInfo.bosses do
               table.insert(sideTooltipTable.body,{raidInfo.bosses[boss].name,
-              raidInfo.bosses[boss].killed and WrapTextInColorCode(L["Defeated"],"ffff0000") or
-              WrapTextInColorCode(L["Available"],"ff00ff00")})
+              raidInfo.bosses[boss].killed and WrapTextInColorCode(L["Defeated"],colors.completed) or
+              WrapTextInColorCode(L["Available"],colors.available)})
             end
           end
 
@@ -287,12 +275,14 @@ end
 
 local function init()
 	defaultSettings = {
+    -- BFA
+    [GetLFGDungeonInfo(1887) or "Uldir"] = {enabled = true,expansion = 8, order = 9},
 	  -- LEGION
-	  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {enabled = true, expansion = 7,order = 1},
-	  [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {enabled = true, expansion = 7,order = 2},
-	  [GetLFGDungeonInfo(1353) or "The Nighthold"] = {enabled = true, expansion = 7,order = 3},
-	  [GetLFGDungeonInfo(1439) or "Trials of Valor"] = {enabled = true, expansion = 7,order = 4},
-	  [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = {enabled = true, expansion = 7,order = 5},
+	  [GetLFGDungeonInfo(1640) or "Antorus, the Burning Throne"] = {enabled = false, expansion = 7,order = 1},
+	  [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {enabled = false, expansion = 7,order = 2},
+	  [GetLFGDungeonInfo(1353) or "The Nighthold"] = {enabled = false, expansion = 7,order = 3},
+	  [GetLFGDungeonInfo(1439) or "Trials of Valor"] = {enabled = false, expansion = 7,order = 4},
+	  [GetLFGDungeonInfo(1350) or "Emerald Nightmare"] = {enabled = false, expansion = 7,order = 5},
 	  -- WoD
 	  [GetLFGDungeonInfo(987) or "Hellfire Citadel"] = {enabled = false, expansion = 6,order = 1},
 	  [GetLFGDungeonInfo(898) or "Blackrock Foundry"] = {enabled = false, expansion = 6,order = 2},
@@ -446,12 +436,20 @@ local function init()
 	    [1497] = {name = "Deceiver’s Fall", totalEncounters = 1, order = 4} --?? KJ
 	  },
 	  -- Antorus
-	  [GetLFGDungeonInfo(1712) or "Antorus, the Burning Throne"] = {
+	  [GetLFGDungeonInfo(1640) or "Antorus, the Burning Throne"] = {
 	    [1610] = {name = "Light's Breach", totalEncounters = 3, order = 1}, -- Light's Breach
 	    [1611] = {name = "Forbidden Descent", totalEncounters = 3, order = 2}, -- Forbidden Descent
 	    [1612] = {name = "Hope's End", totalEncounters = 3, order = 3}, -- Hope's End
 	    [1613] = {name = "Seat of the Pantheon", totalEncounters = 2, order = 4}, -- Seat of the Pantheon
-	  }
+	  },
+    -- BFA
+    -- Uldir
+    [GetLFGDungeonInfo(1887) or "Uldir"] = {
+    	[1731] = {name = "Halls of Containment", totalEncounters = 3, order = 1},
+    	[1732] = {name = "Crimson Descent",totalEncounters = 3, order = 2}, 
+    	[1733] = {name = "Heart of Corruption", totalEncounters = 3, order = 2},
+    },
+
 	}
 
 	-- Order and Affixes

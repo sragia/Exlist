@@ -1,6 +1,7 @@
 local key = "mythicKey"
 local prio = 40
 local CM = C_ChallengeMode
+local C_MythicPlus = C_MythicPlus
 local NUM_BAG_SLOTS = NUM_BAG_SLOTS
 local UnitName, GetRealmName = UnitName, GetRealmName
 local GetContainerNumSlots, GetContainerItemLink = GetContainerNumSlots, GetContainerItemLink
@@ -9,56 +10,75 @@ local string, strsplit, time, tonumber = string, strsplit, time, tonumber
 local WrapTextInColorCode = WrapTextInColorCode
 local GetTime = GetTime
 local IsShiftKeyDown = IsShiftKeyDown
+local GetContainerItemID = GetContainerItemID
 local ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat = ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat
 local GameTooltip = GameTooltip
 local ipairs = ipairs
 local Exlist = Exlist
+local colors = Exlist.Colors
 local L = Exlist.L
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local lastUpdate = 0
+local affixThreshold = {
+  2, 
+  4,
+  7,
+  10, 
+}
 
 local function Updater(event)
   if GetTime() - lastUpdate < 5 then return end
   lastUpdate = GetTime()
   local gt = Exlist.GetCharacterTableKey("global","global",key)
-  for bag = 0, NUM_BAG_SLOTS do
-    for slot = 1, GetContainerNumSlots(bag) do
-      local s = GetContainerItemLink(bag, slot)
-      -- TODO: Localize
-      if s and string.find(s, "Keystone:") then
-        local _, mapID, level,affix1,affix2,affix3 = strsplit(":", s, 8)
-        local affixes = {affix1,affix2,affix3}
-        local map = CM.GetMapInfo(mapID)
-        for i=1,3 do
-          if not gt[i] and affixes[i] and affixes[i] ~= "" then
-            local id = string.match(affixes[i],"%d+")
-            local name, desc, icon = CM.GetAffixInfo(tonumber(id))
-            Exlist.Debug("Adding Affix- ID:",id," name:",name," icon:",icon," i:",i," key:",key)
-            gt[i] = {name = name, icon = icon, desc = desc}
-          end
-        end
-        local table = {
-          ["dungeon"] = map,
-          ["mapId"] = mapID,
-          ["level"] = level,
-          ["itemLink"] = s,
-        }
-        Exlist.UpdateChar(key,table)
-        Exlist.UpdateChar(key,gt,"global","global")
-        break;
-      end
-    end
+  -- Get Affixes
+  C_MythicPlus.RequestCurrentAffixes()
+  local affixes = C_MythicPlus.GetCurrentAffixes()
+  if not affixes then return end -- not ready
+  for i,affixId in ipairs(affixes or {}) do
+    local name, desc, icon = CM.GetAffixInfo(affixId)
+    gt[i] = {name = name, icon = icon, desc = desc}
   end
-end
+  Exlist.UpdateChar(key,gt,"global","global")
+  -- Get Key
+  local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() -- for map
+  if not challengeMapID then return end
+  local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel() -- for level 
+  local mapName = CM.GetMapUIInfo(challengeMapID)
+  -- For Prepatch
+  local keyId = UnitLevel("player") < 120 and 138019 or 158923 
 
+  local availableAffixes = {}
+  for i,affixLevel in ipairs(affixThreshold) do
+    if keyLevel < affixLevel then break end
+    availableAffixes[#availableAffixes+1] = affixes[i]
+  end
+  local t = {
+    dungeon = mapName,
+    mapId = challengeMapID,
+    level = keyLevel,
+    itemLink = string.format("\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r", 
+                          keyId,
+                          challengeMapID,
+                          keyLevel,
+                          availableAffixes[1] or "",
+                          availableAffixes[2] or "",
+                          availableAffixes[3] or "",
+                          availableAffixes[4] or "",
+                          L["Keystone"],
+                          mapName,
+                          keyLevel
+                          )
+  }
+  Exlist.UpdateChar(key,t)
+end
 local function Linegenerator(tooltip,data,character)
   if not data then return end
   local settings = Exlist.ConfigDB.settings
   local mapId = tonumber(data.mapId)
   local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[mapId] or data.dungeon
   local info = {
-    data = WrapTextInColorCode("[" .. dungeonName .. " +" .. data.level .. "]", "ffd541e2"),
+    data = WrapTextInColorCode("[" .. dungeonName .. " +" .. data.level .. "]", colors.mythicplus.key),
     character = character,
     moduleName = key,
     priority = prio,
@@ -88,10 +108,13 @@ local function GlobalLineGenerator(tooltip,data)
   local added = false
   for i=1,#data do
     if not added then
-      Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Mythic+ Affixes"],"ffffd200")},14)
+      Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Mythic+ Affixes"],colors.sideTooltipTitle)},14)
       added = true
     end
-    local line = Exlist.AddLine(tooltip,{string.format("|T%s:15|t %s",data[i].icon or unknownIcon,data[i].name or L["Unknown"])})
+    local line = Exlist.AddLine(tooltip,
+      {string.format("|T%s:15|t %s %s",data[i].icon or unknownIcon,data[i].name or L["Unknown"],
+        WrapTextInColorCode(string.format("- %s %i+", L["Level"],affixThreshold[i]),colors.faded))
+      })
     if data[i].desc then
       Exlist.AddScript(tooltip,line,nil,"OnEnter",function(self)
         GameTooltip:SetOwner(self)
@@ -110,7 +133,7 @@ local function Modernize(data)
   -- data is table of module table from character
   -- always return table or don't use at all
   if not data.mapId then
-    CM.RequestMapInfo() -- request update
+    C_MythicPlus.RequestMapInfo() -- request update
     local mapIDs = CM.GetMapTable()
     for i,id in ipairs(mapIDs) do
       if data.dungeon == (CM.GetMapInfo(id)) then

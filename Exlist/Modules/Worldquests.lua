@@ -10,24 +10,40 @@ local GetCurrencyInfo, GetSpellInfo, GetItemSpell = GetCurrencyInfo, GetSpellInf
 local BonusObjectiveTracker_TrackWorldQuest = BonusObjectiveTracker_TrackWorldQuest
 local loadstring = loadstring
 local WrapTextInColorCode = WrapTextInColorCode
+local timer = Exlist.timers
 local trackedQuests = {
 }
 local updateFrq = 30 -- every x minutes max
-local lastTrigger = 0
+local rescanTimer
 local colors = Exlist.Colors
 
 local zones = {
+  -- BFA
+  -- EK (World bosses for now?)
+  14, -- Arathi Highlands
+  -- Kultiras
+  895, -- Tiragarde Sound
+  896, -- Drustvar
+  942, -- Stormsong Valley
+  -- Zandalar
+  864, -- Vol'dun
+  863, -- Nazmir
+  862, -- Zuldazar
+  --TODO: Scan Everything in Pre-Patch
+  -- Legion
   -- Broken Isles
-  1015, -- Aszuna
-	1018, -- Val'Sharah
-	1024, -- Highmountain
-	1017, -- Stormheim
-	1033, -- Suramar
-  1021, -- Broken Shore
+  630, -- Aszuna
+  641, -- Val'Sharah
+  650, -- Highmountain
+  634, -- Stormheim
+  680, -- Suramar
+  646, -- Broken Shore
   -- Argus
-  1170, -- Mac'reee
-	1135, -- Kro'kuun
-	1171, -- Antoran Wastes
+  882, -- Mac'reee
+  830, -- Kro'kuun
+  885, -- Antoran Wastes
+  
+  
 }
 
 local rewardRules = {}
@@ -74,6 +90,7 @@ function Exlist.RegisterWorldQuests(quests,readOnly)
     end
 end
 
+--TODO: Retire on launch
 local apSpell = GetSpellInfo(228111)
 local function IsAPItem(itemId)
   local itemSpell = GetItemSpell(itemId)
@@ -87,11 +104,6 @@ local function GetQuestRewards(questId)
     local name, texture, numItems, quality, isUsable, itemId = GetQuestLogRewardInfo(1,questId)
     if name then
       local itemType = "item"
-      if IsAPItem(itemId) then
-        itemType = "artifactpower"
-        name = L["Artifact Power"]
-        numItems = Exlist.GetCachedArtifactPower(itemId)
-      end
       table.insert( rewards,{name = name,amount = numItems,texture = texture, type = itemType})
     end
     local numQuestCurrencies = GetNumQuestLogRewardCurrencies(questId)
@@ -99,7 +111,7 @@ local function GetQuestRewards(questId)
        for i=1,numQuestCurrencies do
          local name, texture, numItems = GetQuestLogRewardCurrencyInfo(i,questId)
          if name then
-            table.insert( rewards, {name = name, amount = numItems,texture = texture, type = "currency"})
+          table.insert( rewards, {name = name, amount = numItems,texture = texture, type = "currency"})
         end
        end
     end
@@ -181,30 +193,18 @@ local function SetQuestRule(rewardId,rewardType,amount,compare)
   rules[rewardType] = rules[rewardType] or {}
   rules[rewardType][name] = {amount = amount, compare = compare, id = id}
 end
-local rescanMapIds = {}
-function Exlist.ScanQuests(rescanRequest)
+function Exlist.ScanQuests()
   -- add refresh quests
   if not Exlist.ConfigDB then return end
   local settings = Exlist.ConfigDB.settings
   local rt = {}
   local scanzones = zones
-  if #rescanMapIds > 0 then
-    scanzones = rescanMapIds
-    rescanMapIds = {}
-  end
-  local tl = 100
-  local rescan = false
+  local tl = 500
   for questId,info in pairs(settings.worldQuests) do
     trackedQuests[questId] = {enabled = info.enabled , readOnly = false}
   end
-  local currMapId = GetCurrentMapAreaID()
   for index,zoneId in ipairs(scanzones) do
-    SetMapByID(zoneId)
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(zoneId)
-    if not wqs or #wqs < 1 then
-      table.insert(rescanMapIds,zoneId)
-      rescan = true
-    end
     for _,info in pairs(wqs or {}) do
       local timeLeft = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)
       local rewards = GetQuestRewards(info.questId)
@@ -218,19 +218,30 @@ function Exlist.ScanQuests(rescanRequest)
           questId = info.questId,
           endTime = endTime,
           rewards = rewards,
-          zoneId = zoneId,
+          zoneId = info.mapID, -- Use mapId provided from API... however Tiragarde Sound still return
+                               -- Drustvar WQs.. soo why ???? 
           ruleid = ruleid, 
         }
       end
-      -- optimization (scan only once an half hour)
+      if timeLeft == 0 then 
+        -- TODO: Recheck this at launch
+        -- in beta some wq return timeleft as 0
+        -- and show on the map as expiring soon
+        -- but doesnt show time left and doesnt expire
+        -- SO BETA THINGS ONLY????
+        timeLeft = 10000
+      end
       tl = tl > timeLeft and timeLeft or tl
     end
   end
-  SetMapByID(currMapId)
-  if rescan and not rescanRequest then C_Timer.After(0.5,function() Exlist.ScanQuests(true) end) end
-  if tl < updateFrq then
-    lastTrigger = lastTrigger - ((updateFrq - tl) * 60)
+  -- Rescan Scheduling
+  Exlist.Debug("Rescan Scheduled in:",tl,"minutes")
+  if rescanTimer then
+    timer:CancelTimer(rescanTimer)
   end
+  rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl+30)
+  
+  -- Send Data
   if #rt > 0 then
     Exlist.SendFakeEvent("WORLD_QUEST_SPOTTED",rt)
   end
@@ -254,12 +265,10 @@ local function RemoveTrackedQuest(questId)
 end
 
 local function Updater(event,questInfo)
-  if event == "WORLD_MAP_OPEN" and 
-    GetTime() - lastTrigger > (60 * updateFrq)
+  if event == "PLAYER_ENTERING_WORLD"
     and UnitLevel("player") >= Exlist.CONSTANTS.MAX_CHARACTER_LEVEL
   then 
-    lastTrigger = GetTime()
-    C_Timer.After(1,Exlist.ScanQuests)
+    rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,1)
     return 
   elseif event == "WORLD_QUEST_SPOTTED" then
     local gt = Exlist.GetCharacterTableKey("global","global",key)
@@ -295,27 +304,25 @@ local function GlobalLineGenerator(tooltip,data)
       if info.endTime < timeNow or (wq[questId] and not wq[questId].enabled) then 
         RemoveExpiredQuest(questId)
       else
-        if first then Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],"ffffd200")},14) first = false end
+        if first then Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],colors.sideTooltipTitle)},14) first = false end
         local lineNum = Exlist.AddLine(tooltip,{info.name,
-        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode(L["Completed"],"FFFF0000") or WrapTextInColorCode(L["Available"],"FF00FF00"),  
+        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode(L["Completed"],colors.completed) or WrapTextInColorCode(L["Available"],colors.available),  
         Exlist.TimeLeftColor(info.endTime - timeNow,{3600, 14400})})
         Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
           if not WorldMapFrame:IsShown() then
             ToggleWorldMap()
           end
-          SetMapByID(info.zoneId)
+          WorldMapFrame:SetMapID(info.zoneId)
           BonusObjectiveTracker_TrackWorldQuest(questId)
         end)
         if not info.rewards or #info.rewards < 1 then 
           info.rewards = GetQuestRewards(questId) 
         end
 
-        local sideTooltip = {title = WrapTextInColorCode("Rewards", colors.QuestTitle), body = {}}
+        local sideTooltip = {title = WrapTextInColorCode("Rewards", colors.questTitle), body = {}}
         for i,reward in ipairs(info.rewards) do
           if reward.name == "Gold" then
           table.insert(sideTooltip.body,{reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"})
-          elseif reward.type == "artifactpower" then
-            table.insert(sideTooltip.body,{string.format("%s %s", Exlist.ShortenNumber(reward.amount),L["Artifact Power"])})
           else
             if reward.amount > 1 then
               table.insert(sideTooltip.body,string.format( "%ix|T%s:12|t%s",reward.amount,reward.texture,reward.name))
@@ -353,9 +360,7 @@ local function SetupWQConfig(refresh)
           desc = L["Force Refresh World Quests"],
           name = L["Force Refresh"],
           func = function()
-            lastTrigger = 0
-            ToggleWorldMap()
-            ToggleWorldMap()
+            Exlist.ScanQuests()
             
           end,
         },
@@ -373,7 +378,7 @@ local function SetupWQConfig(refresh)
               rewards = GetQuestRewards(v)
               }
               SetupWQConfig(true)
-              lastTrigger = 0
+              Exlist.ScanQuests()
             else
               print(Exlist.debugString,L["Invalid World Quest ID:"],v)
             end
@@ -393,7 +398,7 @@ local function SetupWQConfig(refresh)
             name = Exlist.GetCachedQuestTitle(questID)
             info.name = name
           end
-          return WrapTextInColorCode(name,colors.QuestTitle)
+          return WrapTextInColorCode(name,colors.questTitle)
         end,
         type = "toggle",
         width = "normal",
@@ -435,7 +440,7 @@ local function SetupWQConfig(refresh)
       width = 0.5,
       func = function()
         StaticPopupDialogs["DeleteWQDataPopup_"..questID] = {
-          text = L["Do you really want to delete"].." "..WrapTextInColorCode(info.name,colors.QuestTitle).."?",
+          text = L["Do you really want to delete"].." "..WrapTextInColorCode(info.name,colors.questTitle).."?",
           button1 = "Ok",
           button3 = "Cancel",
           hasEditBox = false,
@@ -465,7 +470,7 @@ local function SetupWQConfig(refresh)
     order = n,
     fontSize = "large",
     width = "full",
-    name = WrapTextInColorCode(L["\nWorld Quest rules"], colors.Config.heading2)
+    name = WrapTextInColorCode(L["\nWorld Quest rules"], colors.config.heading2)
   }
   n = n + 1
   options.args["WQRulesdesc"] = {
@@ -558,7 +563,7 @@ local function SetupWQConfig(refresh)
     func = function() 
     local name = rewardRules.DEFAULT[tmpConfigRule.ruleType].customFieldValue == tmpConfigRule.rewardName and tmpConfigRule.customReward or tmpConfigRule.rewardName 
       SetQuestRule(name,tmpConfigRule.ruleType,tmpConfigRule.amount,tmpConfigRule.compareValue)
-      lastTrigger = 0
+      Exlist.ScanQuests()
       SetupWQConfig(true)
     end,
   }
@@ -651,40 +656,40 @@ end
 Exlist.ModuleToBeAdded(SetupWQConfig)
 
 local function init()
+
+   -- Azerite
+   -- "maybe" ilvl rewards
+   -- 
   rewardRules = {
     types = {
       currency = L["Currency"],
       item = L["Item"],
       money = L["Gold"],
-      artifactpower = L["Artifact Power"]
     },
     compareValues = {
       ["<"] = "<",
       ["<="] = "<=",
-      ["="] = "=",
+      ["=="] = "=",
       [">"] = ">",
       [">="] = ">="
     },
     DEFAULT = {
       currency = {
         values = {
+          -- Legion
           [1220] = GetCurrencyInfo(1220), -- Order Resources
           [1508] = GetCurrencyInfo(1508), -- Veiled Argunite
           [1226] = GetCurrencyInfo(1226), -- Nethershard
+          -- BFA
+          [1560] = GetCurrencyInfo(1560), -- War Resources
+          [1553] = GetCurrencyInfo(1553), -- Azerite
+          --
           [0] = L["Custom Currency"],
         },
-        defaultValue = 1220,
+        defaultValue = 1553,
         disableItems = false,
         useCustom = true,
         customFieldValue = 0,
-      },
-      artifactpower = {
-        values = {
-          artifactpower = L["Artifact Power"],
-        },
-        defaultValue = "artifactpower",
-        disableItems = true,
-        useCustom = false
       },
       item = {
         values = {
@@ -724,7 +729,7 @@ local data = {
   globallgenerator = GlobalLineGenerator,
   priority = prio,
   updater = Updater,
-  event = {"WORLD_QUEST_SPOTTED","WORLD_MAP_OPEN"},
+  event = {"WORLD_QUEST_SPOTTED","PLAYER_ENTERING_WORLD"},
   weeklyReset = false,
   description = L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"], 
   override = true,

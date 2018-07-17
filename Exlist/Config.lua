@@ -43,8 +43,23 @@ end
 local function RefreshAdditionalOptions(modName, optionTbl, displayName)
     AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
 end
-
-
+local charOrder = {}
+local addedChars = false
+local function UpdateCharOrder()
+  local chars = Exlist.ConfigDB.settings.allowedCharacters
+  local order = 0
+  for _,char in ipairs(charOrder) do
+    chars[char].order = order
+    order = order + 1
+  end
+end
+local function GetCharPosition(char)
+  for i,c in ipairs(charOrder) do
+    if char == c then
+      return i
+    end
+  end
+end
 Exlist.SetupConfig = function(refresh)
     local options = {
         type = "group",
@@ -87,7 +102,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.lockIcon = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     iconscale = {
@@ -104,7 +119,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.iconScale = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     iconalpha = {
@@ -119,7 +134,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(self,v)
                             Exlist.ConfigDB.settings.iconAlpha = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     announceReset = {
@@ -144,7 +159,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.showMinimapIcon = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     showExtraInfo = {
@@ -169,7 +184,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.showIcon = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },  
                     shortenInfo = {
@@ -204,7 +219,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.Font = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end
                     },
                     spacer2 ={
@@ -227,7 +242,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.fonts.small.size = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     mediumFontSize = {
@@ -244,7 +259,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.fonts.medium.size = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                     bigFontSize = {
@@ -261,7 +276,7 @@ Exlist.SetupConfig = function(refresh)
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.fonts.big.size = v
-                            Exlist_RefreshAppearance()
+                            Exlist.RefreshAppearance()
                         end,
                     },
                 }
@@ -404,7 +419,7 @@ Exlist.SetupConfig = function(refresh)
                 type = "description",
                 order = 1,
                 width = "full",
-                name = L["Enable and set order in which characters are to be displayed (0 shows above 5)"]
+                name = L["Enable and set order in which characters are to be displayed"]
             },
             orderByIlvl = {
                 type = "toggle",
@@ -511,7 +526,10 @@ Exlist.SetupConfig = function(refresh)
                 return t[a].order<t[b].order 
             end
         end     
-    end) do
+      end) do
+        if not addedChars then 
+          table.insert(charOrder,char)
+        end
         local charname = v.name
         local realm = char:match("^.*-(.*)")
         n = n+1
@@ -561,36 +579,66 @@ Exlist.SetupConfig = function(refresh)
         }
         
         -- ORDER
-        n = n+1
-        charOptions.args[char.."order"] = {
-            type = "input",
-            order = n,
-            name = "",
-            width = 0.4,
-            disabled = function() return not characters[char].enabled or Exlist.ConfigDB.settings.orderByIlvl end,
-            get = function()
-                if characters[char].enabled then
-                    return tostring(characters[char].order or 0)
-                else
-                    return L["Disabled"]
-                end
-            end,
-            set = function(info,value)
-                value = tonumber(value)
-                if value then
-                    characters[char].order = value
-                    Exlist.ConfigDB.settings.reorder = true
-                    Exlist.SetupConfig(true)
-                end
-            end,
+        -- Order Up
+        n = n + 1
+        charOptions.args[char.."orderUp"] = {
+          type = "execute",
+          order = n,
+          name = "",
+          width = 0.1,
+          disabled = function()
+            return GetCharPosition(char) == 1 or Exlist.ConfigDB.settings.orderByIlvl
+          end,
+          func = function()
+            for i,c in ipairs(charOrder) do
+              if c == char then
+                charOrder[i] = charOrder[i-1]
+                charOrder[i-1] = char
+                break
+              end
+            end
+            UpdateCharOrder()
+            Exlist.ConfigDB.settings.reorder = true
+            Exlist.SetupConfig(true)
+          end,
+          image = [[Interface\AddOns\Exlist\Media\Icons\up-arrow]],
+          imageWidth = 16,
+          imageHeight = 16,
         }
+        -- Order Down
+        n = n + 1
+        charOptions.args[char.."orderDown"] = {
+          type = "execute",
+          order = n,
+          name = "",
+          width = 0.1,
+          disabled = function()
+            return GetCharPosition(char) == #charOrder or Exlist.ConfigDB.settings.orderByIlvl
+          end,
+          func = function()
+            for i,c in ipairs(charOrder) do
+              if c == char then
+                charOrder[i] = charOrder[i+1]
+                charOrder[i+1] = char
+                break
+              end
+            end
+            UpdateCharOrder()
+            Exlist.ConfigDB.settings.reorder = true
+            Exlist.SetupConfig(true)
+          end,
+          image = [[Interface\AddOns\Exlist\Media\Icons\down-arrow]],
+          imageWidth = 16,
+          imageHeight = 16,
+        }
+
         -- Spacer
         n = n+1
         charOptions.args[char.."spacer"] = {
             type = "description",
             order = n,
             name =  "",
-            width = 0.3,
+            width = 0.5,
         }
 
         -- Delete Data
@@ -642,7 +690,7 @@ Exlist.SetupConfig = function(refresh)
             end
         }
     end
-    
+    addedChars = true
     -- Extra Tooltip Options
     local etargs = options.args.extratooltip.args
     n = 0
@@ -662,8 +710,7 @@ Exlist.SetupConfig = function(refresh)
         RefreshAdditionalOptions("Characters",charOptions,L["Characters"])
         RefreshAdditionalOptions("Modules",moduleOptions,L["Modules"])
     else
-        AceConfReg:RegisterOptionsTable(name, options)
-        AceConfDia:AddToBlizOptions(name)
+        RefreshAdditionalOptions("",options)
         RegisterAdditionalOptions("Modules",moduleOptions,L["Modules"])
         RegisterAdditionalOptions("Characters",charOptions,L["Characters"])
         for i=1,#addingOpt do
@@ -671,6 +718,49 @@ Exlist.SetupConfig = function(refresh)
         end
     end
 end
+function Exlist.InitConfig() 
+  local options = {
+    type = "group",
+    name = name,
+    args = {
+        logo = {
+            order = 0,
+            type = "description",
+            image = function()
+                return [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]],
+                150,150
+            end,
+            name ="",
+            width = "normal"
+        },
+        version ={
+            order = 0.1,
+            name = "|cfff4bf42"..L["Version"]..":|r " .. addonVersion,
+            type = "description",
+            width = "full"
+        },
+        author ={
+            order = 0.2,
+            name = "|cfff4bf42"..L["Author"]..":|r Exality - Silvermoon EU\n\n",
+            type = "description",
+            width = "full"
+        },
+        SetupConfig = {
+          type = "execute",
+          order = 1,
+          name = L["Show Config"],
+          func = function() 
+            Exlist.SetupConfig()
+            C_Timer.After(0.1, function() InterfaceOptionsFrame_Show() InterfaceOptionsFrame_Show() end)
+	        --	InterfaceOptionsFrame_OpenToCategory(name)
+          end
+        }
+    }
+  }
+  AceConfReg:RegisterOptionsTable(name, options)
+  AceConfDia:AddToBlizOptions(name)
+end
+
 Exlist.AddModuleOptions = RegisterAdditionalOptions
 Exlist.RefreshModuleOptions = RefreshAdditionalOptions
 Exlist.NotifyOptionsChange = function(module)

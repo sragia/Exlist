@@ -5,10 +5,11 @@ local UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo = UnitLevel, IsQuestFl
 local pairs, table = pairs, table
 local WrapTextInColorCode = WrapTextInColorCode
 local Exlist = Exlist
+local colors = Exlist.Colors
 
 local function Updater(event)
   if UnitLevel('player') < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
-  local coinsQuests = UnitLevel'player' <= 100 and {[36058] = 1, [36055] = 1, [37452] = 1, [37453] = 1, [36056] = 1, [37457] = 1, [37456] = 1, [36054] = 1, [37455] = 1, [37454] = 1, [36057] = 1, [37458] = 1, [37459] = 1, [36060] = 1, } or
+  local coinsQuests = UnitLevel'player' <= 110 and
   {
     [43895] = 1, 
     [43897] = 1, 
@@ -20,8 +21,17 @@ local function Updater(event)
     [47851] = 1, 
     [47864] = 1,
     [47865] = 1, 
-  }
-  local coinsCurrency = UnitLevel('player') <= 100 and 1129 or 1273
+  } or 
+  { -- BFA
+    [52834] = true, -- Gold
+    [52835] = true, -- Honor
+    [52837] = true, -- Resources
+    [52838] = true, -- 2xGold
+    [52839] = true, -- 2xHonor
+    [52840] = true, -- 2xResources
+}
+  local coinsCurrency = UnitLevel('player') <= 110 and 1273 or 1580
+  local maxCoins = UnitLevel('player') <= 110 and 3 or 2
   local count = 0
   local quests = {}
   for id, _ in pairs(coinsQuests) do
@@ -35,7 +45,7 @@ local function Updater(event)
   local table = {
     ["curr"] = amount,
     ["max"] = totalMax,
-    ["available"] = 3 - count,
+    ["available"] = maxCoins - count,
     ["quests"] = quests
   }
   Exlist.UpdateChar(key,table)
@@ -44,7 +54,7 @@ end
 local function Linegenerator(tooltip,data,character)
   if not data then return end
   local settings = Exlist.ConfigDB.settings
-  local availableCoins = data.available > 0 and WrapTextInColorCode(settings.shortenInfo and "+" .. data.available or (data.available .. L[" available!"]), "ff00ff00") or ""
+  local availableCoins = data.available > 0 and WrapTextInColorCode(settings.shortenInfo and "+" .. data.available or (data.available .. L[" available!"]), colors.available) or ""
   local info = {
     data = data.curr .. "/" .. data.max .. " " .. availableCoins,
     character = character,
@@ -53,9 +63,9 @@ local function Linegenerator(tooltip,data,character)
     titleName = L["Coins"]
   }
   if data.quests and #data.quests > 0 then
-    local sideTooltip = {title = WrapTextInColorCode(L["Quests Done This Week"],"ffffd200"), body = {}}
+    local sideTooltip = {title = WrapTextInColorCode(L["Quests Done This Week"],colors.sideTooltipTitle), body = {}}
     for i=1,#data.quests do
-      table.insert(sideTooltip.body,WrapTextInColorCode("[" .. data.quests[i] .. "]","fffee400"))
+      table.insert(sideTooltip.body,WrapTextInColorCode("[" .. data.quests[i] .. "]",colors.questTitle))
     end
     info.OnEnter = Exlist.CreateSideTooltip()
     info.OnEnterData = sideTooltip

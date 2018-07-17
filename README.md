@@ -6,7 +6,6 @@ Mainly built to allow checking various things on your other characters without h
 ## Features (Tracking)
 * Gear and Professions
 * Currency
-* Artifact
 * M+ Key
 * M+ done this week
 * Seals
@@ -20,3 +19,7 @@ Mainly built to allow checking various things on your other characters without h
 * Argus Invasion Points
 * Broken Shore Buildings
 * M+ Affixes
+* World Quests
+* Daily/Weekly Quests
+* Add Note to your character
+

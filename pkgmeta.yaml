@@ -8,9 +8,8 @@ externals:
  Exlist/Libs/LibQTip-1.0:
      url: svn://svn.wowace.com/wow/libqtip-1-0/mainline/trunk
      tag: latest 
- Exlist/Libs/LibArtifactData-1.0:
-  url: https://github.com/Rainrider/LibArtifactData-1.0.git
-  tag: latest
+ Exlist/Libs/AceTimer-3.0:
+  url: https://repos.wowace.com/wow/ace3/trunk/AceTimer-3.0
  Exlist/Libs/AceGUI-3.0:
   url: https://repos.wowace.com/wow/ace3/trunk/AceGUI-3.0
  Exlist/Libs/AceConfigDialog-3.0: 
