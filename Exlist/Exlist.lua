@@ -91,10 +91,10 @@ local timer = Exlist.timers
 
 -- CONSTANTS
 local MAX_CHARACTER_LEVEL = 120
-local MAX_PROFESSION_LEVEL = 800
+local MAX_PROFESSION_LEVEL = 200 -- TODO: Check on Beta
 if GetExpansionLevel() == 6 then
   MAX_CHARACTER_LEVEL = 110
-  MAX_PROFESSION_LEVEL = 800
+  MAX_PROFESSION_LEVEL = 100
 end
 Exlist.CONSTANTS.MAX_CHARACTER_LEVEL = MAX_CHARACTER_LEVEL
 Exlist.CONSTANTS.MAX_PROFESSION_LEVEL = MAX_PROFESSION_LEVEL
@@ -306,15 +306,15 @@ local Colors = { --default colors
     {ilvl = 460 , str ="ffffc526"},
   },
   profColors = {
-    {val = 75, color = "c6c3b4"},
-    {val = 150, color = "dbd3ab"},
-    {val = 225, color = "e2d388"},
-    {val = 300, color = "efd96b"},
-    {val = 400, color = "ffe254"},
-    {val = 500, color = "ffde3d"},
-    {val = 600, color = "ffd921"},
-    {val = 700, color = "ffd50c"},
-    {val = 800, color = "ffae00"}
+    {val = 20, color = "c6c3b4"},
+    {val = 30, color = "dbd3ab"},
+    {val = 40, color = "e2d388"},
+    {val = 50, color = "efd96b"},
+    {val = 60, color = "ffe254"},
+    {val = 70, color = "ffde3d"},
+    {val = 80, color = "ffd921"},
+    {val = 90, color = "ffd50c"},
+    {val = 100, color = "ffae00"}
   }
 }
 Exlist.Colors = Colors
@@ -1314,14 +1314,15 @@ local hasEnchantSlot = {
   Ring = true,
   Back = true
 }
-local function ProfessionValueColor(value)
+local function ProfessionValueColor(value,isArch)
   local colors = Colors.profColors
+  local mod = isArch and 8 or 1
   for i=1,#colors do
-    if value <= colors[i].val then
+    if value <= colors[i].val*mod then
       return colors[i].color
     end
   end
-  return "FFFFFFFF"
+  return "FFFFFF"
 end
 
 local function GearTooltip(self,info)
@@ -1373,27 +1374,6 @@ local function GearTooltip(self,info)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
   end
-  --[[if info.talents then
-    line = geartooltip:AddHeader()
-    geartooltip:SetCell(line,1,WrapTextInColorCode("Talents","ffffb600"),"CENTER",7)
-    local selectedColor = "ffffaa00"
-    local defaultColor = "ff3f3f3f"
-    local talentstr = {"","",""}
-    local tierNames = {"Tier 15","Tier 30","Tier 45","Tier 60","Tier 75","Tier 90","Tier 100"}
-    for tier=1,#info.talents do
-      local tierTalents = info.talents[tier]
-      for talent=1,#tierTalents do
-        talentstr[talent] = WrapTextInColorCode(
-                      string.format("|T%s:20|t %s",tierTalents[talent].icon,tierTalents[talent].name),
-                      tierTalents[talent].selected and selectedColor or defaultColor)
-      end
-      local line = geartooltip:AddLine(tierNames[tier])--,talentstr[1],talentstr[2],talentstr[3])
-      geartooltip:SetCell(line,2,talentstr[1],"LEFT",2)
-      geartooltip:SetCell(line,4,talentstr[2],"LEFT",2)
-      geartooltip:SetCell(line,6,talentstr[3],"LEFT",2)
-    end
-    geartooltip:AddSeparator(1,.8,.8,.8,1)
-  end]]
   if info.professions and #info.professions > 0 then
     -- professsions
     line = geartooltip:AddHeader()
@@ -1402,12 +1382,13 @@ local function GearTooltip(self,info)
     local tipWidth = geartooltip:GetWidth()
     for i=1,#p do
       line = geartooltip:AddLine()
+      local isArch = p[i].name == L["Archaeology"]
       geartooltip:SetCell(line,1,string.format("|T%s:20|t%s",p[i].icon,p[i].name),"LEFT")
-      geartooltip:SetCell(line,2,string.format("|cff%s%s|r",ProfessionValueColor(p[i].curr),p[i].curr),"RIGHT",6)
+      geartooltip:SetCell(line,2,string.format("|cff%s%s|r",ProfessionValueColor(p[i].curr,isArch),p[i].curr),"RIGHT",6)
 
       local statusBar = AttachStatusBar(geartooltip.lines[line].cells[2])
       table.insert(geartooltip.statusBars,statusBar)
-      statusBar:SetMinMaxValues(0,MAX_PROFESSION_LEVEL)
+      statusBar:SetMinMaxValues(0,isArch and 800 or MAX_PROFESSION_LEVEL)
       statusBar:SetValue(p[i].curr)
       statusBar:SetWidth(tipWidth)
       statusBar:SetStatusBarColor(Exlist.ColorHexToDec(ProfessionValueColor(p[i].curr)))
