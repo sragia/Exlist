@@ -1,12 +1,20 @@
-#Exlist
+1.2.0.2
+----
+**18 July 2018 - 18:18**
 
-### 1.2.0.1
-#### 18 July 2018 - 13:15
+- Correctly format completed M+ times
+- Add Wakening Essences to World Quest Rules
+- Fix Profession bars
+
+1.2.0.1
+----
+**18 July 2018 - 13:15**
 
 - Use Legion M+ affixes for prepatch
 
-### 1.2.0 BFA Release
-#### 17 July 2018 - 19:00
+1.2.0 BFA Release
+----
+**17 July 2018 - 19:00**
 
 - Update for changed APIs
 - Using new Mythic Plus API for key/affix tracking
@@ -20,8 +28,9 @@
 - Removed Artifact Module
 
 
-### 1.1.3
-####23 May 2018 - 18:38
+1.1.3
+----
+**23 May 2018 - 18:38**
 
 
 
