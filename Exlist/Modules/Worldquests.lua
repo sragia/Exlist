@@ -42,8 +42,8 @@ local zones = {
   882, -- Mac'reee
   830, -- Kro'kuun
   885, -- Antoran Wastes
-  
-  
+
+
 }
 
 local rewardRules = {}
@@ -219,11 +219,11 @@ function Exlist.ScanQuests()
           endTime = endTime,
           rewards = rewards,
           zoneId = info.mapID, -- Use mapId provided from API... however Tiragarde Sound still return
-                               -- Drustvar WQs.. soo why ???? 
-          ruleid = ruleid, 
+                               -- Drustvar WQs.. soo why ????
+          ruleid = ruleid,
         }
       end
-      if timeLeft == 0 then 
+      if timeLeft == 0 then
         -- TODO: Recheck this at launch
         -- in beta some wq return timeleft as 0
         -- and show on the map as expiring soon
@@ -240,7 +240,7 @@ function Exlist.ScanQuests()
     timer:CancelTimer(rescanTimer)
   end
   rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl+30)
-  
+
   -- Send Data
   if #rt > 0 then
     Exlist.SendFakeEvent("WORLD_QUEST_SPOTTED",rt)
@@ -256,20 +256,20 @@ end
 local function RemoveTrackedQuest(questId)
   if trackedQuests[questId] and not trackedQuests[questId].readOnly then
     trackedQuests[questId] = nil
-  end 
+  end
   local wq = Exlist.ConfigDB.settings.worldQuests
   wq[questId] = nil
   local gt = Exlist.GetCharacterTableKey("global","global",key)
   gt[questId] = nil
-  Exlist.UpdateChar(key,gt,"global","global")  
+  Exlist.UpdateChar(key,gt,"global","global")
 end
 
 local function Updater(event,questInfo)
   if event == "PLAYER_ENTERING_WORLD"
     and UnitLevel("player") >= Exlist.CONSTANTS.MAX_CHARACTER_LEVEL
-  then 
+  then
     rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,1)
-    return 
+    return
   elseif event == "WORLD_QUEST_SPOTTED" then
     local gt = Exlist.GetCharacterTableKey("global","global",key)
     if questInfo and #questInfo > 0 then
@@ -301,12 +301,12 @@ local function GlobalLineGenerator(tooltip,data)
     local wq = Exlist.ConfigDB.settings.worldQuests
     local first = true
     for questId,info in spairs(data,function(t,a,b) return t[a].endTime < t[b].endTime end) do
-      if info.endTime < timeNow or (wq[questId] and not wq[questId].enabled) then 
+      if info.endTime < timeNow or (wq[questId] and not wq[questId].enabled) then
         RemoveExpiredQuest(questId)
       else
         if first then Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],colors.sideTooltipTitle)},14) first = false end
         local lineNum = Exlist.AddLine(tooltip,{info.name,
-        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode(L["Completed"],colors.completed) or WrapTextInColorCode(L["Available"],colors.available),  
+        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode(L["Completed"],colors.completed) or WrapTextInColorCode(L["Available"],colors.available),
         Exlist.TimeLeftColor(info.endTime - timeNow,{3600, 14400})})
         Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
           if not WorldMapFrame:IsShown() then
@@ -315,8 +315,8 @@ local function GlobalLineGenerator(tooltip,data)
           WorldMapFrame:SetMapID(info.zoneId)
           BonusObjectiveTracker_TrackWorldQuest(questId)
         end)
-        if not info.rewards or #info.rewards < 1 then 
-          info.rewards = GetQuestRewards(questId) 
+        if not info.rewards or #info.rewards < 1 then
+          info.rewards = GetQuestRewards(questId)
         end
 
         local sideTooltip = {title = WrapTextInColorCode("Rewards", colors.questTitle), body = {}}
@@ -334,7 +334,7 @@ local function GlobalLineGenerator(tooltip,data)
         Exlist.AddScript(tooltip,lineNum,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
         Exlist.AddScript(tooltip,lineNum,nil,"OnLeave",Exlist.DisposeSideTooltip())
       end
-    end 
+    end
   end
 end
 
@@ -361,7 +361,7 @@ local function SetupWQConfig(refresh)
           name = L["Force Refresh"],
           func = function()
             Exlist.ScanQuests()
-            
+
           end,
         },
         itemInput = {
@@ -373,7 +373,7 @@ local function SetupWQConfig(refresh)
             local questId = tonumber(v)
             local name = Exlist.GetCachedQuestTitle(questId)
             if name then
-              wq[questId] = {name = name, 
+              wq[questId] = {name = name,
               enabled = true,
               rewards = GetQuestRewards(v)
               }
@@ -393,7 +393,7 @@ local function SetupWQConfig(refresh)
     o[questID.."enabled"] = {
         order = n,
         name = function()
-          local name = info.name 
+          local name = info.name
           if name:find("Unknown") then
             name = Exlist.GetCachedQuestTitle(questID)
             info.name = name
@@ -406,7 +406,7 @@ local function SetupWQConfig(refresh)
             return info.enabled
         end,
         set = function(self, v)
-            info.enabled = v 
+            info.enabled = v
         end,
     }
     n = n + 1
@@ -486,13 +486,13 @@ local function SetupWQConfig(refresh)
     width = 1,
     name = "Reward Type",
     values = rewardRules.types,
-    get = function() 
+    get = function()
       if tmpConfigRule.ruleType == "" then
         tmpConfigRule.ruleType = rewardRules.defaultType
       end
       return tmpConfigRule.ruleType
     end,
-    set = function(_,v) 
+    set = function(_,v)
       tmpConfigRule.ruleType = v
       tmpConfigRule.rewardName = rewardRules.DEFAULT[v].defaultValue
       SetupWQConfig(true)
@@ -504,7 +504,7 @@ local function SetupWQConfig(refresh)
     order = n,
     width = 1,
     name = L["Reward Name"],
-    disabled = function() 
+    disabled = function()
       if not rewardRules.DEFAULT[tmpConfigRule.ruleType] then
         tmpConfigRule.ruleType = rewardRules.defaultType
       end
@@ -516,13 +516,13 @@ local function SetupWQConfig(refresh)
       end
       return rewardRules.DEFAULT[tmpConfigRule.ruleType].values
     end,
-    get = function() 
+    get = function()
       if tmpConfigRule.rewardName == "" then
           tmpConfigRule.rewardName = rewardRules.DEFAULT[tmpConfigRule.ruleType].defaultValue
       end
-      return tmpConfigRule.rewardName 
+      return tmpConfigRule.rewardName
     end,
-    set = function(_,v) 
+    set = function(_,v)
       tmpConfigRule.rewardName = v
       SetupWQConfig(true)
      end,
@@ -535,7 +535,7 @@ local function SetupWQConfig(refresh)
     name = L["Amount"],
     values = rewardRules.compareValues,
     get = function() return tmpConfigRule.compareValue end,
-    set = function(_,v) 
+    set = function(_,v)
       tmpConfigRule.compareValue = v
       SetupWQConfig(true)
      end,
@@ -546,10 +546,10 @@ local function SetupWQConfig(refresh)
     order = n,
     width = 0.6,
     name = "",
-    get = function() 
-      return tostring(tmpConfigRule.amount) 
+    get = function()
+      return tostring(tmpConfigRule.amount)
     end,
-    set = function(_,v) 
+    set = function(_,v)
       tmpConfigRule.amount = tonumber(v) or 0
       SetupWQConfig(true)
      end,
@@ -560,8 +560,8 @@ local function SetupWQConfig(refresh)
     order = n,
     width = 0.4,
     name = L["Save"],
-    func = function() 
-    local name = rewardRules.DEFAULT[tmpConfigRule.ruleType].customFieldValue == tmpConfigRule.rewardName and tmpConfigRule.customReward or tmpConfigRule.rewardName 
+    func = function()
+    local name = rewardRules.DEFAULT[tmpConfigRule.ruleType].customFieldValue == tmpConfigRule.rewardName and tmpConfigRule.customReward or tmpConfigRule.rewardName
       SetQuestRule(name,tmpConfigRule.ruleType,tmpConfigRule.amount,tmpConfigRule.compareValue)
       Exlist.ScanQuests()
       SetupWQConfig(true)
@@ -578,14 +578,14 @@ local function SetupWQConfig(refresh)
     name = L["Custom Reward"],
     get = function()
     return tmpConfigRule.customReward or "" end,
-    set = function(_,v) 
+    set = function(_,v)
       tmpConfigRule.customReward = v
       SetupWQConfig(true)
      end,
     }
   end
 
-  -- setup all rules 
+  -- setup all rules
   local wqRules = Exlist.ConfigDB.settings.wqRules
   for rewardType,t in pairs(wqRules) do
     for rewardName,info in pairs(t) do
@@ -659,7 +659,7 @@ local function init()
 
    -- Azerite
    -- "maybe" ilvl rewards
-   -- 
+   --
   rewardRules = {
     types = {
       currency = L["Currency"],
@@ -680,13 +680,14 @@ local function init()
           [1220] = GetCurrencyInfo(1220), -- Order Resources
           [1508] = GetCurrencyInfo(1508), -- Veiled Argunite
           [1226] = GetCurrencyInfo(1226), -- Nethershard
+          [1533] = GetCurrencyInfo(1533), -- Wakening Essences
           -- BFA
           [1560] = GetCurrencyInfo(1560), -- War Resources
           [1553] = GetCurrencyInfo(1553), -- Azerite
           --
           [0] = L["Custom Currency"],
         },
-        defaultValue = 1553,
+        defaultValue = 1220, -- TODO: Launch
         disableItems = false,
         useCustom = true,
         customFieldValue = 0,
@@ -731,7 +732,7 @@ local data = {
   updater = Updater,
   event = {"WORLD_QUEST_SPOTTED","PLAYER_ENTERING_WORLD"},
   weeklyReset = false,
-  description = L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"], 
+  description = L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"],
   override = true,
   init = init,
 }
