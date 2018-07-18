@@ -1,9 +1,14 @@
 #Exlist
 
+### 1.2.0.1
+#### 18 July 2018 - 13:15
+
+- Use Legion M+ affixes for prepatch
+
 ### 1.2.0 BFA Release
 #### 17 July 2018 - 19:00
 
-- Update for changed APIs 
+- Update for changed APIs
 - Using new Mythic Plus API for key/affix tracking
 - Using new Map API for world quest tracking
 - Added Azerite module for AP tracking and available traits
