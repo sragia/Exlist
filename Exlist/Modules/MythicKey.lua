@@ -21,11 +21,12 @@ local L = Exlist.L
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local lastUpdate = 0
 local affixThreshold = {
-  2, 
+  2,
   4,
   7,
-  10, 
+  10,
 }
+local prepatch = false
 
 local function Updater(event)
   if GetTime() - lastUpdate < 5 then return end
@@ -34,19 +35,31 @@ local function Updater(event)
   -- Get Affixes
   C_MythicPlus.RequestCurrentAffixes()
   local affixes = C_MythicPlus.GetCurrentAffixes()
-  if not affixes then return end -- not ready
+  if not affixes then return -- not ready
+  elseif prepatch then -- TODO:LAUNCH
+    -- prepatch, thanks blizz for returning wrong affixes :)
+    -- ugly af but idc
+    local main = affixes[1]
+    local tmp = affixes[2]
+    affixes[1] = tmp
+    tmp = affixes[3]
+    affixes[2] = tmp
+    affixes[3] = main
+    affixes[4] = nil
+  end
   for i,affixId in ipairs(affixes or {}) do
     local name, desc, icon = CM.GetAffixInfo(affixId)
     gt[i] = {name = name, icon = icon, desc = desc}
   end
+  if prepatch and gt[4] then gt[4] = nil end -- TODO:LAUNCH
   Exlist.UpdateChar(key,gt,"global","global")
   -- Get Key
   local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() -- for map
   if not challengeMapID then return end
-  local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel() -- for level 
+  local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel() -- for level
   local mapName = CM.GetMapUIInfo(challengeMapID)
   -- For Prepatch
-  local keyId = UnitLevel("player") < 120 and 138019 or 158923 
+  local keyId = UnitLevel("player") < 120 and 138019 or 158923
 
   local availableAffixes = {}
   for i,affixLevel in ipairs(affixThreshold) do
@@ -57,7 +70,7 @@ local function Updater(event)
     dungeon = mapName,
     mapId = challengeMapID,
     level = keyLevel,
-    itemLink = string.format("\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r", 
+    itemLink = string.format("\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r",
                           keyId,
                           challengeMapID,
                           keyLevel,
@@ -151,6 +164,13 @@ local function init()
       name = L["Mythic+ Weekly Affixes"],
       enabled = true,
      }
+
+  if GetExpansionLevel() == 6 then -- TODO:LAUNCH
+    affixThreshold = {4,7,10}
+    prepatch = true
+  else
+    affixThreshold = {2,4,7,10}
+  end
 end
 
 
