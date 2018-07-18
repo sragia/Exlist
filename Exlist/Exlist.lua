@@ -585,6 +585,13 @@ local function FormatTimeMilliseconds(time)
 end
 Exlist.FormatTimeMilliseconds = FormatTimeMilliseconds
 
+local function FormatTime(time)
+  if not time then return "" end
+  local minutes = math.floor((time)/60)
+  local seconds = time%60
+  return string.format( "%02d:%02d",minutes,seconds )
+end
+Exlist.FormatTime = FormatTime
 local function GetTableNum(t)
   if type(t) ~= "table" then
     return 0

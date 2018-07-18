@@ -76,11 +76,11 @@ local function MythicPlusTimeString(time,mapId)
   local colors = colors.mythicplus.times
   for i=1, #times do
     if secTime > times[i] then
-      if i == 1 then return WrapTextInColorCode("("..L["Depleted"]..") " .. Exlist.FormatTimeMilliseconds(time),colors[i])
-      else return WrapTextInColorCode("(+".. (i-1) .. ") " .. Exlist.FormatTimeMilliseconds(time),colors[i]) end
+      if i == 1 then return WrapTextInColorCode("("..L["Depleted"]..") " .. Exlist.FormatTime(secTime),colors[i])
+      else return WrapTextInColorCode("(+".. (i-1) .. ") " .. Exlist.FormatTime(secTime),colors[i]) end
     end
   end
-  return WrapTextInColorCode("(+3) " .. Exlist.FormatTimeMilliseconds(time),colors[#colors])
+  return WrapTextInColorCode("(+3) " .. Exlist.FormatTime(time),colors[#colors])
 end
 
 local function Linegenerator(tooltip,data,character)
