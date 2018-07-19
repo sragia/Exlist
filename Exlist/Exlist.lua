@@ -1852,10 +1852,10 @@ local function Modernize()
 
   -- Normalize character Order
   local chars = settings.allowedCharacters
-  local order = 100
+  local order = 1
   for char,t in spairs(chars,function(t,a,b) return t[a].order < t[b].order end) do
     chars[char].order = order
-    order = order + 100
+    order = order + 1
   end
 end
 
