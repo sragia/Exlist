@@ -81,6 +81,7 @@ local GetScreenWidth, GetScreenHeight, GetCurrentRegion, CalendarGetDate, GetQue
 local hooksecurefunc, SendChatMessage = hooksecurefunc, SendChatMessage
 -- lua api
 local tonumber = _G.tonumber
+local next = next
 local floor = _G.math.floor
 local format = _G.format
 local string = string
@@ -2137,10 +2138,10 @@ function frame:OnEvent(event, ...)
   if not IsEventEligible(event) then return end
   if event == "PLAYER_LOGOUT" then
     -- save things
-    if db then
+    if db and next(db) ~= nil then
       Exlist_DB = db
     end
-    if config_db then
+    if config_db and next(config_db) ~= nil then
       Exlist_Config = config_db
     end
     return
