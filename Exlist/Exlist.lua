@@ -586,10 +586,34 @@ local function FormatTimeMilliseconds(time)
 end
 Exlist.FormatTimeMilliseconds = FormatTimeMilliseconds
 
+local function GetTimeLeftColor(time,inverse)
+  if not time then return "ffffffff" end
+  -- long
+  -- long,medium,short
+  local times = {18000,3600}
+  local colorKeys = {"long","medium","short"}
+  for i=1,#times do
+    if time > times[i] then
+      return inverse and Colors.time[colorKeys[4-i]] or Colors.time[colorKeys[i]]
+    end
+  end
+  return inverse and Colors.time[colorKeys[1]] or Colors.time[colorKeys[3]]
+end
+Exlist.GetTimeLeftColor = GetTimeLeftColor
+
 local function FormatTime(time)
   if not time then return "" end
+  local days = math.floor (time/(60*60*24))
+  time = time - days * (60*60*24)
+  local hours = math.floor(time/(60*60))
+  time = time - hours * (60*60)
   local minutes = math.floor((time)/60)
   local seconds = time%60
+  if days > 0 then
+    return string.format("%dd %02d:%02d:%02d",days,hours,minutes,seconds)
+  elseif hours > 0 then
+    return string.format("%02d:%02d:%02d",hours,minutes,seconds)
+  end
   return string.format( "%02d:%02d",minutes,seconds )
 end
 Exlist.FormatTime = FormatTime

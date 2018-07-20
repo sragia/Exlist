@@ -77,6 +77,13 @@ local function spairs(t, order)
   end
 end
 
+local statusMarks = {
+  [true] = [[Interface/RAIDFRAME/ReadyCheck-Ready]],
+  [false] = [[Interface/RAIDFRAME/ReadyCheck-NotReady]]
+}
+local function AddCheckmark(text,status)
+  return string.format("|T%s:0|t %s",statusMarks[status],text)
+end
 
 function Exlist.RegisterWorldQuests(quests,readOnly)
   -- quests = info
@@ -144,9 +151,9 @@ local function CheckRewardRules(rewards)
       local rule = rules[reward.type][reward.name]
       -- rule for this
       if reward.type == "money" then
-        return compare(reward.amount.gold,rule.amount,rule.compare), rule.id
+        return compare(reward.amount.gold,rule.amount,rule.compare), rule.id, i
       else
-        return compare(reward.amount,rule.amount,rule.compare), rule.id
+        return compare(reward.amount,rule.amount,rule.compare), rule.id, i
       end
     end
   end
@@ -193,6 +200,7 @@ local function SetQuestRule(rewardId,rewardType,amount,compare)
   rules[rewardType] = rules[rewardType] or {}
   rules[rewardType][name] = {amount = amount, compare = compare, id = id}
 end
+
 function Exlist.ScanQuests()
   -- add refresh quests
   if not Exlist.ConfigDB then return end
@@ -208,10 +216,13 @@ function Exlist.ScanQuests()
     for _,info in pairs(wqs or {}) do
       local timeLeft = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)
       local rewards = GetQuestRewards(info.questId)
-      local checkRules,ruleid = CheckRewardRules(rewards)
+      local checkRules,ruleid,targetReward = CheckRewardRules(rewards)
       if (trackedQuests[info.questId] and trackedQuests[info.questId].enabled) or checkRules then
         local name = C_TaskQuest.GetQuestInfoByQuestID(info.questId)
         local endTime = time() + (timeLeft * 60)
+        if targetReward then
+          rewards[targetReward].target = true
+        end
         Exlist.Debug("Spotted",name,"world quest - ",key)
         rt[#rt+1] = {
           name = name,
@@ -278,11 +289,7 @@ local function Updater(event,questInfo)
         if (wq[info.questId] or info.ruleid) and not gt[info.questId] then
           gt[info.questId] = info
         elseif wq[info.questId] or info.ruleid then
-          for key,value in ipairs(info) do
-            if gt[info.questId][key] == nil then
-              gt[info.questId][key] = value -- add info that is missed in previous scans
-            end
-          end
+          gt[info.questId] = Exlist.AddMissingTableEntries(gt[info.questId],info)
         end
       end
 
@@ -305,22 +312,19 @@ local function GlobalLineGenerator(tooltip,data)
         RemoveExpiredQuest(questId)
       else
         if first then Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],colors.sideTooltipTitle)},14) first = false end
-        local lineNum = Exlist.AddLine(tooltip,{info.name,
-        IsQuestFlaggedCompleted(info.questId) and WrapTextInColorCode(L["Completed"],colors.completed) or WrapTextInColorCode(L["Available"],colors.available),
-        Exlist.TimeLeftColor(info.endTime - timeNow,{3600, 14400})})
-        Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
-          if not WorldMapFrame:IsShown() then
-            ToggleWorldMap()
-          end
-          WorldMapFrame:SetMapID(info.zoneId)
-          BonusObjectiveTracker_TrackWorldQuest(questId)
-        end)
         if not info.rewards or #info.rewards < 1 then
           info.rewards = GetQuestRewards(questId)
         end
-
+        local targetReward = ""
         local sideTooltip = {title = WrapTextInColorCode("Rewards", colors.questTitle), body = {}}
         for i,reward in ipairs(info.rewards) do
+          if reward.target then
+            if reward.amount > 1 then
+              targetReward = string.format( "%ix|T%s:12|t",reward.amount,reward.texture)
+            else
+              targetReward = string.format( "|T%s:12|t",reward.texture)
+            end
+          end
           if reward.name == "Gold" then
           table.insert(sideTooltip.body,{reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"})
           else
@@ -331,6 +335,16 @@ local function GlobalLineGenerator(tooltip,data)
             end
           end
         end
+        local lineNum = Exlist.AddLine(tooltip,{AddCheckmark(info.name,IsQuestFlaggedCompleted(info.questId)),
+        Exlist.TimeLeftColor(info.endTime-timeNow,{3600, 14400}),
+        WrapTextInColorCode(string.format("%s  - %s",targetReward,C_Map.GetMapInfo(info.zoneId).name or ""),colors.faded)})
+        Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
+          if not WorldMapFrame:IsShown() then
+            ToggleWorldMap()
+          end
+          WorldMapFrame:SetMapID(info.zoneId)
+          BonusObjectiveTracker_TrackWorldQuest(questId)
+        end)
         Exlist.AddScript(tooltip,lineNum,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
         Exlist.AddScript(tooltip,lineNum,nil,"OnLeave",Exlist.DisposeSideTooltip())
       end
