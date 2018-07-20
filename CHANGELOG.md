@@ -1,3 +1,12 @@
+1.2.0.3
+----
+**20 July 2018 - 18:51**
+
+- Fix an issue where data is deleted if player gets disconnected mid loading screen
+- Add new characters at the end of list
+- Improvements to World Quest display (Show zone and targeted reward)
+- Add check mark (completion for current character) to world bosses in extra info
+
 1.2.0.2
 ----
 **18 July 2018 - 18:18**
