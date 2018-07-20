@@ -101,6 +101,15 @@ local function spairs(t, order)
 		end
 	end
 end
+
+local statusMarks = {
+  [true] = [[Interface/RAIDFRAME/ReadyCheck-Ready]],
+  [false] = [[Interface/RAIDFRAME/ReadyCheck-NotReady]]
+}
+local function AddCheckmark(text,status)
+  return string.format("|T%s:0|t %s",statusMarks[status],text)
+end
+
 local filterBuffs = {
 	[239648] = true, -- Fel Treasures
 	[239645] = true, -- Forces of Order
@@ -361,7 +370,7 @@ local function GlobalLineGenerator(tooltip,data)
 					added = true
 					Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Bosses"],colors.sideTooltipTitle)},14)
 				end
-				local lineNum = Exlist.AddLine(tooltip,{info.name,Exlist.TimeLeftColor(info.endTime - timeNow)})
+				local lineNum = Exlist.AddLine(tooltip,{AddCheckmark(info.name,IsQuestFlaggedCompleted(questId)),Exlist.TimeLeftColor(info.endTime - timeNow)})
 				Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
 					if not WorldMapFrame:IsShown() then
 						ToggleWorldMap()
