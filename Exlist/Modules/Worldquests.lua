@@ -319,10 +319,14 @@ local function GlobalLineGenerator(tooltip,data)
         local sideTooltip = {title = WrapTextInColorCode("Rewards", colors.questTitle), body = {}}
         for i,reward in ipairs(info.rewards) do
           if reward.target then
-            if reward.amount > 1 then
-              targetReward = string.format( "%ix|T%s:12|t",reward.amount,reward.texture)
+            if reward.name == "Gold" then
+              targetReward = reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"
             else
-              targetReward = string.format( "|T%s:12|t",reward.texture)
+              if reward.amount > 1 then
+                targetReward = string.format( "%ix|T%s:12|t",reward.amount,reward.texture)
+              else
+                targetReward = string.format( "|T%s:12|t",reward.texture)
+              end
             end
           end
           if reward.name == "Gold" then
