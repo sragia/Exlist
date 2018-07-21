@@ -88,13 +88,13 @@ end
 function Exlist.RegisterWorldQuests(quests,readOnly)
   -- quests = info
   -- readOnly = can't be removed in session
-    if type(quests) == 'number' then
-       trackedQuests[quests] = {enabled = true, readOnly = readOnly}
-    elseif type(quests) == 'table' then
-        for i,questId in ipairs(quests) do
-            trackedQuests[questId] = {enabled = true, readOnly = readOnly}
-        end
-    end
+  if type(quests) == 'number' then
+      trackedQuests[quests] = {enabled = true, readOnly = readOnly}
+  elseif type(quests) == 'table' then
+      for i,questId in ipairs(quests) do
+          trackedQuests[questId] = {enabled = true, readOnly = readOnly}
+      end
+  end
 end
 
 --TODO: Retire on launch
@@ -290,12 +290,14 @@ local function Updater(event,questInfo)
     rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,1)
     return
   elseif event == "WORLD_QUEST_SPOTTED" then
+    local faction = UnitFactionGroup('player')
     local gt = Exlist.GetCharacterTableKey("global","global",key)
+    gt[faction] = gt[faction] or {}
     if questInfo and #questInfo > 0 then
       local wq = Exlist.ConfigDB.settings.worldQuests
       for i,info in ipairs(questInfo) do
         if (wq[info.questId] or info.ruleid) then
-          gt[info.questId] = info
+          gt[faction][info.questId] = info
         end
       end
 
@@ -312,8 +314,9 @@ local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
   if data and Exlist.ConfigDB.settings.extraInfoToggles.worldquests.enabled then
     local wq = Exlist.ConfigDB.settings.worldQuests
+    local faction = UnitFactionGroup('player')
     local first = true
-    for questId,info in spairs(data,function(t,a,b) return t[a].endTime < t[b].endTime end) do
+    for questId,info in spairs(data[faction] or {},function(t,a,b) return t[a].endTime < t[b].endTime end) do
       if info.endTime < timeNow or (wq[questId] and not wq[questId].enabled) then
         RemoveExpiredQuest(questId)
       else
