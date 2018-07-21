@@ -316,8 +316,9 @@ local function GlobalLineGenerator(tooltip,data)
         if not info.rewards or #info.rewards < 1 then
           info.rewards = GetQuestRewards(questId)
         end
+        local timeLeft = Exlist.TimeLeftColor(info.endTime-timeNow,{3600, 14400})
         local targetReward = ""
-        local sideTooltip = {title = WrapTextInColorCode(info.name, colors.questTitle), body = {WrapTextInColorCode(L["Rewards"],colors.questTitle)}}
+        local sideTooltip = {title = WrapTextInColorCode(info.name, colors.questTitle), body = {L["Time Left: "] .. timeLeft,WrapTextInColorCode(L["Rewards"],colors.questTitle)}}
         for i,reward in ipairs(info.rewards) do
           if reward.target then
             if reward.name == "Gold" then
@@ -341,7 +342,7 @@ local function GlobalLineGenerator(tooltip,data)
           end
         end
         local lineNum = Exlist.AddLine(tooltip,{AddCheckmark(info.name,IsQuestFlaggedCompleted(info.questId)),
-        Exlist.TimeLeftColor(info.endTime-timeNow,{3600, 14400}),
+        timeLeft,
         WrapTextInColorCode(string.format("%s  - %s",targetReward,C_Map.GetMapInfo(info.zoneId).name or ""),colors.faded)})
         Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
           if not WorldMapFrame:IsShown() then
