@@ -206,12 +206,11 @@ function Exlist.ScanQuests()
   if not Exlist.ConfigDB then return end
   local settings = Exlist.ConfigDB.settings
   local rt = {}
-  local scanzones = zones
   local tl = 500
   for questId,info in pairs(settings.worldQuests) do
     trackedQuests[questId] = {enabled = info.enabled , readOnly = false}
   end
-  for index,zoneId in ipairs(scanzones) do
+  for index,zoneId in ipairs(zones) do
     local wqs = C_TaskQuest.GetQuestsForPlayerByMapID(zoneId)
     for _,info in pairs(wqs or {}) do
       local timeLeft = C_TaskQuest.GetQuestTimeLeftMinutes(info.questId)
@@ -219,6 +218,7 @@ function Exlist.ScanQuests()
       local checkRules,ruleid,targetReward = CheckRewardRules(rewards)
       if (trackedQuests[info.questId] and trackedQuests[info.questId].enabled) or checkRules then
         local name = C_TaskQuest.GetQuestInfoByQuestID(info.questId)
+        local objectives = C_QuestLog.GetQuestObjectives(info.questId)
         local endTime = time() + (timeLeft * 60)
         if targetReward then
           rewards[targetReward].target = true
@@ -232,6 +232,7 @@ function Exlist.ScanQuests()
           zoneId = info.mapID, -- Use mapId provided from API... however Tiragarde Sound still return
                                -- Drustvar WQs.. soo why ????
           ruleid = ruleid,
+          objectives = objectives,
         }
       end
       if timeLeft == 0 then
@@ -316,7 +317,7 @@ local function GlobalLineGenerator(tooltip,data)
           info.rewards = GetQuestRewards(questId)
         end
         local targetReward = ""
-        local sideTooltip = {title = WrapTextInColorCode("Rewards", colors.questTitle), body = {}}
+        local sideTooltip = {title = WrapTextInColorCode(info.name, colors.questTitle), body = {WrapTextInColorCode(L["Rewards"],colors.questTitle)}}
         for i,reward in ipairs(info.rewards) do
           if reward.target then
             if reward.name == "Gold" then
@@ -349,6 +350,17 @@ local function GlobalLineGenerator(tooltip,data)
           WorldMapFrame:SetMapID(info.zoneId)
           BonusObjectiveTracker_TrackWorldQuest(questId)
         end)
+        -- Add Objectives to Side Tooltip
+        if info.objectives then
+          table.insert( sideTooltip.body, WrapTextInColorCode(L["Objectives"],colors.questTitle))
+          for i,objective in ipairs(info.objectives) do
+            if objective.type == "progressbar" then
+              table.insert( sideTooltip.body, string.format("%d/100%% %s",(objective.numFulfilled/objective.numRequired)*100,objective.text))
+            else
+              table.insert( sideTooltip.body, objective.text)
+            end
+          end
+        end
         Exlist.AddScript(tooltip,lineNum,nil,"OnEnter",Exlist.CreateSideTooltip(),sideTooltip)
         Exlist.AddScript(tooltip,lineNum,nil,"OnLeave",Exlist.DisposeSideTooltip())
       end
