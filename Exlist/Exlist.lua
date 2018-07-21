@@ -142,6 +142,7 @@ local settings = { -- default settings
     money = {},
     currency = {},
     item = {},
+    honor = {},
   },
   quests = {},
   extraInfoToggles = {},
@@ -402,7 +403,11 @@ local function AddMissingTableEntries(data,DEFAULT)
       if rv[k] == nil then
          rv[k] = v
       elseif type(v) == "table" then
+        if type(rv[k]) == "table" then
          rv[k] = AddMissingTableEntries(rv[k],v)
+        else
+          rv[k] = AddMissingTableEntries({},v)
+        end
       end
    end
    return rv

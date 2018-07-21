@@ -130,8 +130,13 @@ local function GetQuestRewards(questId)
           ["coppers"] = math.floor(coppers%100)
         }, type = "money"})
     end
+    local honor = GetQuestLogRewardHonor(questId)
+    if honor > 0 then
+      table.insert(rewards,{name = "Honor",amount = honor,texture = 1455894,type = "honor"})
+    end
     return rewards
 end
+Exlist.GetQuestRewards = GetQuestRewards
 
 local function compare(current,target,comp)
   if not current or not target then return false end
@@ -146,18 +151,20 @@ end
 local function CheckRewardRules(rewards)
   if not rewards then return end
   local rules = Exlist.ConfigDB.settings.wqRules
+  local verdict = false
+  local ruleId,targetReward
   for i,reward in ipairs(rewards) do
     if rules[reward.type] and rules[reward.type][reward.name] then
       local rule = rules[reward.type][reward.name]
       -- rule for this
       if reward.type == "money" then
-        return compare(reward.amount.gold,rule.amount,rule.compare), rule.id, i
+        verdict,ruleId,targetReward = compare(reward.amount.gold,rule.amount,rule.compare), rule.id, i
       else
-        return compare(reward.amount,rule.amount,rule.compare), rule.id, i
+        verdict,ruleId,targetReward =  compare(reward.amount,rule.amount,rule.compare), rule.id, i
       end
     end
   end
-  return false
+  return verdict,ruleId,targetReward
 end
 
 local function CleanTable(id)
@@ -696,6 +703,7 @@ local function init()
       currency = L["Currency"],
       item = L["Item"],
       money = L["Gold"],
+      honor = L["Honor"],
     },
     compareValues = {
       ["<"] = "<",
@@ -740,6 +748,14 @@ local function init()
           gold = L["Gold"],
         },
         defaultValue = "gold",
+        disableItems = true,
+        useCustom = false,
+      },
+      honor = {
+        values = {
+          honor = L["Honor"],
+        },
+        defaultValue = "honor",
         disableItems = true,
         useCustom = false,
       },
