@@ -294,10 +294,8 @@ local function Updater(event,questInfo)
     if questInfo and #questInfo > 0 then
       local wq = Exlist.ConfigDB.settings.worldQuests
       for i,info in ipairs(questInfo) do
-        if (wq[info.questId] or info.ruleid) and not gt[info.questId] then
+        if (wq[info.questId] or info.ruleid) then
           gt[info.questId] = info
-        elseif wq[info.questId] or info.ruleid then
-          gt[info.questId] = Exlist.AddMissingTableEntries(gt[info.questId],info)
         end
       end
 
