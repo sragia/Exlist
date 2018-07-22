@@ -170,9 +170,11 @@ end
 local function CleanTable(id)
   if not id then return end
   local gt = Exlist.GetCharacterTableKey("global","global",key)
-  for questId, info in pairs(gt) do
-    if info.ruleid and info.ruleid == id then
-      gt[questId] = nil
+  for faction, wqs in pairs(gt) do
+    for questId, info in pairs(wqs) do
+      if info.ruleid and info.ruleid == id then
+        gt[faction][questId] = nil
+      end
     end
   end
   Exlist.UpdateChar(key,gt,"global","global")
@@ -268,7 +270,9 @@ end
 
 local function RemoveExpiredQuest(questId)
   local gt = Exlist.GetCharacterTableKey("global","global",key)
-  gt[questId] = nil
+  for _,wqs in pairs(gt) do
+    wqs[questId] = nil
+  end
   Exlist.UpdateChar(key,gt,"global","global")
 end
 
@@ -279,7 +283,9 @@ local function RemoveTrackedQuest(questId)
   local wq = Exlist.ConfigDB.settings.worldQuests
   wq[questId] = nil
   local gt = Exlist.GetCharacterTableKey("global","global",key)
-  gt[questId] = nil
+  for _,wqs in pairs(gt) do
+    wqs[questId] = nil
+  end
   Exlist.UpdateChar(key,gt,"global","global")
 end
 
@@ -695,10 +701,14 @@ end
 Exlist.ModuleToBeAdded(SetupWQConfig)
 
 local function init()
+  local gt = Exlist.GetCharacterTableKey("global","global",key)
+  for key in pairs(gt) do
+    if key ~= "Alliance" and key ~= "Horde" then
+      gt[key] = nil
+    end
+  end
+  Exlist.UpdateChar(key,gt,"global","global")
 
-   -- Azerite
-   -- "maybe" ilvl rewards
-   --
   rewardRules = {
     types = {
       currency = L["Currency"],
