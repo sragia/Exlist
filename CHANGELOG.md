@@ -1,3 +1,11 @@
+1.2.1
+----
+**23 July 2018 - 18:24**
+
+- Add Objective information to World Quests
+- Add Honor World Quest Rule
+- Make World Quests faction specific
+
 1.2.0.3
 ----
 **20 July 2018 - 18:51**
