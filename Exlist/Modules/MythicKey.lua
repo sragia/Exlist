@@ -26,7 +26,6 @@ local affixThreshold = {
   7,
   10,
 }
-local prepatch = false
 
 local function Updater(event)
   if GetTime() - lastUpdate < 5 then return end
@@ -36,16 +35,6 @@ local function Updater(event)
   C_MythicPlus.RequestCurrentAffixes()
   local affixes = C_MythicPlus.GetCurrentAffixes()
   if not affixes then return -- not ready
-  elseif prepatch then -- TODO:LAUNCH
-    -- prepatch, thanks blizz for returning wrong affixes :)
-    -- ugly af but idc
-    local main = affixes[1]
-    local tmp = affixes[2]
-    affixes[1] = tmp
-    tmp = affixes[3]
-    affixes[2] = tmp
-    affixes[3] = main
-    affixes[4] = nil
   end
   for i,affixId in ipairs(affixes or {}) do
     local name, desc, icon = CM.GetAffixInfo(affixId)
@@ -167,7 +156,6 @@ local function init()
 
   if GetExpansionLevel() == 6 then -- TODO:LAUNCH
     affixThreshold = {4,7,10}
-    prepatch = true
   else
     affixThreshold = {2,4,7,10}
   end

@@ -97,14 +97,6 @@ function Exlist.RegisterWorldQuests(quests,readOnly)
   end
 end
 
---TODO: Retire on launch
-local apSpell = GetSpellInfo(228111)
-local function IsAPItem(itemId)
-  local itemSpell = GetItemSpell(itemId)
-  return itemSpell and itemSpell == apSpell
-end
-
-
 local function GetQuestRewards(questId)
     local rewards = {}
     C_TaskQuest.RequestPreloadRewardData(questId)
