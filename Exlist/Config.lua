@@ -7,8 +7,8 @@ local AceConfDia = LibStub("AceConfigDialog-3.0")
 
 local addonVersion = GetAddOnMetadata(name, "version")
 --@debug@
-if addonVersion == "@project-version@" then		  
-    addonVersion = "Development"		 
+if addonVersion == "@project-version@" then
+    addonVersion = "Development"
 end
 --@end-debug@
 local addingOpt = {}
@@ -17,7 +17,7 @@ local function spairs(t, order)
     -- collect the keys
     local keys = {}
     for k in pairs(t) do keys[#keys + 1] = k end
-  
+
     -- if order function given, sort by it by passing the table and keys a, b,
     -- otherwise just sort the keys
     if order then
@@ -25,7 +25,7 @@ local function spairs(t, order)
     else
       table.sort(keys)
     end
-  
+
     -- return the iterator function
     local i = 0
     return function()
@@ -186,7 +186,7 @@ Exlist.SetupConfig = function(refresh)
                             Exlist.ConfigDB.settings.showIcon = v
                             Exlist.RefreshAppearance()
                         end,
-                    },  
+                    },
                     shortenInfo = {
                         order = 7,
                         name = L["Slim Version"],
@@ -199,8 +199,8 @@ Exlist.SetupConfig = function(refresh)
                         set = function(info, v)
                             Exlist.ConfigDB.settings.shortenInfo = v
                         end,
-                    }, 
-                               
+                    },
+
                 }
             },
             fonts ={
@@ -226,7 +226,7 @@ Exlist.SetupConfig = function(refresh)
                         type = "description",
                         name = " ",
                         order = 5,
-                        width = "double" 
+                        width = "double"
                     },
                     smallFontSize = {
                         order = 6,
@@ -304,7 +304,7 @@ Exlist.SetupConfig = function(refresh)
                             Exlist.ConfigDB.settings.horizontalMode = v == "H"
                         end,
                         get = function(self)
-    
+
                             return Exlist.ConfigDB.settings.horizontalMode and "H" or "V"
                         end
                     },
@@ -392,11 +392,11 @@ Exlist.SetupConfig = function(refresh)
                     name = L["Select data you want to see in Extra tooltip"],
                     width = "full",
                 }
-            },   
+            },
             },
         }
     }
-    
+
     local moduleOptions = {
         type = "group",
         name = L["Modules"],
@@ -407,10 +407,10 @@ Exlist.SetupConfig = function(refresh)
                 width = "full",
                 name = L["Enable/Disable modules that you want to use"]
             },
-    
+
         }
     }
-    
+
     local charOptions = {
         type = "group",
         name = L["Characters"],
@@ -482,9 +482,9 @@ Exlist.SetupConfig = function(refresh)
                 fontSize = "large",
                 name = WrapTextInColorCode(L["Order"],"ffffd200")
             },
-    
+
         }
-    
+
     }
     local settings = Exlist.ConfigDB.settings
     local modules = settings.allowedModules
@@ -500,7 +500,7 @@ Exlist.SetupConfig = function(refresh)
             get = function()
                 return modules[i].enabled
             end,
-            set = function(info, value) 
+            set = function(info, value)
                 modules[i].enabled = value
             end
         }
@@ -509,31 +509,31 @@ Exlist.SetupConfig = function(refresh)
             type = "description",
             order = n,
             width = 2.5,
-            name = Exlist.ModuleDesc[i] or ""
+            name = Exlist.ModuleData.modules[i].description or ""
         }
     end
 
     -- Characters
     local characters = settings.allowedCharacters
     n = 1
-    for char,v in spairs(characters,function(t,a,b) 
+    for char,v in spairs(characters,function(t,a,b)
         if not t[a].enabled then return false
         elseif not t[b].enabled then return true
-        else 
+        else
             if settings.orderByIlvl then
-                return t[a].ilvl>t[b].ilvl 
+                return t[a].ilvl>t[b].ilvl
             else
-                return t[a].order<t[b].order 
+                return t[a].order<t[b].order
             end
-        end     
+        end
       end) do
-        if not addedChars then 
+        if not addedChars then
           table.insert(charOrder,char)
         end
         local charname = v.name
         local realm = char:match("^.*-(.*)")
         n = n+1
-        -- ENABLE 
+        -- ENABLE
         charOptions.args[char.."enable"] = {
             type = "toggle",
             order = n,
@@ -577,7 +577,7 @@ Exlist.SetupConfig = function(refresh)
             fontSize = "medium",
             width = 0.5,
         }
-        
+
         -- ORDER
         -- Order Up
         n = n + 1
@@ -671,7 +671,7 @@ Exlist.SetupConfig = function(refresh)
                             Exlist.SetupConfig(true)
                             AceConfReg:NotifyChange(name.."Characters")
                         end
-                    end, 
+                    end,
                     OnAccept = function(self)
                       StaticPopup_Hide("DeleteDataPopup_"..charname..realm)
                       Exlist.DeleteCharacterFromDB(charname,realm)
@@ -718,7 +718,7 @@ Exlist.SetupConfig = function(refresh)
         end
     end
 end
-function Exlist.InitConfig() 
+function Exlist.InitConfig()
   local options = {
     type = "group",
     name = name,
@@ -749,7 +749,7 @@ function Exlist.InitConfig()
           type = "execute",
           order = 1,
           name = L["Show Config"],
-          func = function() 
+          func = function()
             Exlist.SetupConfig()
             C_Timer.After(0.1, function() InterfaceOptionsFrame_Show() InterfaceOptionsFrame_Show() end)
 	        --	InterfaceOptionsFrame_OpenToCategory(name)

@@ -7,28 +7,13 @@ local LDBI = LibStub("LibDBIcon-1.0")
 -- SavedVariables localized
 local db = {}
 local config_db = {}
-Exlist_Config = Exlist_Config or {}
 local debugMode = false
 local debugString = "|cffc73000[Exlist Debug]|r"
 local Exlist = Exlist
 local L = Exlist.L
 Exlist.debugMode = debugMode
 Exlist.debugString = debugString
-local registeredUpdaters = {
- --[event] = func or {func,func}
-}
-local registeredLineGenerators = {
-  -- [name] = {func = func, prio = prio}
-}
-local globalLineGenerators ={
-  -- [name] = {func = func, prio = prio}
-}
-local registeredModules = {
-  --'name','name1','name2' etc
-}
-local modernizeFunctions = {
-  -- func,func,func
-}
+-- TOOLTIP --
 local tooltipData = {
  --[[
     [character] = {
@@ -49,15 +34,7 @@ local tooltipColCoords = {
     [character] = starting column
   ]]
 }
-Exlist.ModuleDesc = {}
-local moduleInitializers = {}
--- Resets
-local keysToResetWeekly = {}
-local keysToResetDaily = {}
-local keyResetHandlers = {
-  -- [key] = function
-}
--- localized API
+-- API --
 local _G = _G
 local CreateFrame, CreateFont = CreateFrame, CreateFont
 local GetRealmName = GetRealmName
@@ -686,13 +663,13 @@ local function AddModulesToSettings()
   if not settings.allowedModules then settings.allowedModules = {} end
   local t = settings.allowedModules
   local newT = {}
-  for i=1,#registeredModules do
-    if t[registeredModules[i].key] == nil then
-      -- first time seeing it
-      newT[registeredModules[i].key] = {enabled = true, name = registeredModules[i].name}
+  for key,data in pairs(Exlist.ModuleData.modules) do
+    if t[key] == nil then
+      -- first time
+      newT[key] = {enabled = data.defaultEnable, name = data.name}
     else
-      newT[registeredModules[i].key] = t[registeredModules[i].key]
-      newT[registeredModules[i].key].name = registeredModules[i].name
+      newT[key] = t[key]
+      newT[key].name = data.name
     end
   end
   settings.allowedModules = newT
@@ -1098,7 +1075,6 @@ function Exlist.DisposeSideTooltip()
       self.statusBar:Hide()
       self.statusBar = nil
     elseif self.sideTooltip.statusBars then
-    --  print('disposing statusBars')
       for i=1,#self.sideTooltip.statusBars do
         local statusBar = self.sideTooltip.statusBars[i]
         if statusBar then
@@ -1111,14 +1087,12 @@ function Exlist.DisposeSideTooltip()
   end
 end
 
-local registeredEvents = {
-  --[event] = true
-}
+local registeredEvents = {}
 local function RegisterEvents()
-  for i in pairs(registeredUpdaters) do
-    if not registeredEvents[i] then
+  for event in pairs(Exlist.ModuleData.updaters) do
+    if not registeredEvents[event] then
       xpcall(frame.RegisterEvent,function() return true end,frame,i)
-      registeredEvents[i] = true
+      registeredEvents[event] = true
     end
   end
 end
@@ -1127,6 +1101,7 @@ function Exlist.RegisterModule(data)
   --[[
   data = table
     {
+    enabled = bool (enabled/disabled by default)
     name = string (name of module)
     key = string (module key that will be used in db)
     linegenerator = func  (function that adds text to tooltip   function(tooltip,Exlist) ...)
@@ -1142,49 +1117,65 @@ function Exlist.RegisterModule(data)
     }
   ]]
   if not data then return end
-
+  local mDB = Exlist.ModuleData
   -- add updater
   if data.updater and data.event then
     if type(data.event) == "table" then
       -- multiple events
       for i=1,#data.event do
-        registeredUpdaters[data.event[i]] = registeredUpdaters[data.event[i]] or {}
-        table.insert(registeredUpdaters[data.event[i]],{func = data.updater, name = data.name,override = data.override, key = data.key})
+        mDB.updaters[data.event[i]] = mDB.updaters[data.event[i]] or {}
+        table.insert(mDB.updaters[data.event[i]], {
+          func = data.updater,
+          name = data.name,
+          override = data.override,
+          key = data.key,
+        })
       end
     elseif type(data.event) == "string" then
       -- single event
-      registeredUpdaters[data.event] = registeredUpdaters[data.event] or {}
-      table.insert(registeredUpdaters[data.event],{func = data.updater, name = data.name,override = data.override, key = data.key})
+      mDB.updaters[data.event] = mDB.updaters[data.event] or {}
+      table.insert(mDB.updaters[data.event], {
+        func = data.updater,
+        name = data.name,
+        override = data.override,
+        key = data.key,
+      })
     end
   end
   RegisterEvents()
 
-  -- add modernizers
-  if data.modernize then
-    table.insert(modernizeFunctions,{func = data.modernize,key = data.key})
-  end
   -- add line generator
-  table.insert(registeredLineGenerators,{name = data.name, func = data.linegenerator, prio = data.priority, key = data.key})
-  -- add global line generator
+  table.insert(mDB.lineGenerators,{
+    name = data.name,
+    func = data.linegenerator,
+    prio = data.priority,
+    key = data.key,
+    type = "main",
+  })
   if data.globallgenerator then
-    table.insert(globalLineGenerators,{name=data.name,func = data.globallgenerator,prio=data.priority,key=data.key})
+    table.insert(mDB.lineGenerators,{
+      name=data.name,
+      func = data.globallgenerator,
+      prio=data.priority,
+      key=data.key,
+      type = "global",
+    })
   end
-  -- Add module name to list
-  table.insert(registeredModules,{name = data.name,key = data.key})
-  Exlist.ModuleDesc[data.key] = data.description or ""
-  if data.weeklyReset then
-    table.insert(keysToResetWeekly,data.key)
-  end
-  if data.dailyReset then
-    table.insert(keysToResetDaily,data.key)
-  end
-  if data.specialResetHandle and type(data.specialResetHandle) == 'function' then
-    keyResetHandlers[data.key] = data.specialResetHandle
-  end
-  if data.init and type(data.init) == 'function' then
-    table.insert(moduleInitializers,data.init)
-  end
-
+  -- Add module data
+  mDB.modules[data.key] = {
+    name = data.name,
+    defaultEnable = data.enabled == nil or data.enabled,
+    description = data.description or "",
+    modernize = data.modernize,
+    init = data.init,
+    events = data.event,
+  }
+  -- Reset Stuff
+  mDB.resetHandle[data.key] = {
+    weekly = data.weeklyReset,
+    daily = data.dailyReset,
+    handler = data.specialResetHandle,
+  }
 end
 
 function Exlist.GetRealmNames()
@@ -1241,13 +1232,14 @@ function Exlist.DeleteCharacterFromDB(name,realm)
 end
 
 local function ModernizeCharacters()
-  if #modernizeFunctions < 1 then return end
-  for realm in pairs(db) do
-    if realm ~= "global" then
-      for character in pairs(db[realm]) do
-        for i=1,#modernizeFunctions do
-          if db[realm][character][modernizeFunctions[i].key] then
-            db[realm][character][modernizeFunctions[i].key] = modernizeFunctions[i].func(db[realm][character][modernizeFunctions[i].key])
+  for key,data in pairs(Exlist.ModuleData.modules) do
+    if data.modernize then
+      for realm in pairs(db) do
+        if realm ~= "global" then
+          for character in pairs(db[realm]) do
+            if db[realm][character][key] then
+              db[realm][character][key] = data.modernize(db[realm][character][key])
+            end
           end
         end
       end
@@ -1623,8 +1615,9 @@ local function OnEnter(self)
   if QTip:IsAcquired("Exlist_Tooltip") then return end
   self:SetAlpha(1)
   tooltipData = {}
+  local mDB = Exlist.ModuleData
   -- sort line generators
-  table.sort(registeredLineGenerators,function(a,b) return a.prio < b.prio end)
+  table.sort(mDB.lineGenerators,function(a,b) return a.prio < b.prio end)
 
   local charOrder = GetCharacterOrder()
   local tmp = {}
@@ -1705,9 +1698,9 @@ local function OnEnter(self)
       tooltipColCoords[name..realm] = col
 
       -- Add Info
-      for i = 1, #registeredLineGenerators do
-        if settings.allowedModules[registeredLineGenerators[i].key].enabled then
-          registeredLineGenerators[i].func(tooltip,charData[registeredLineGenerators[i].key],character)
+      for _,data in ipairs(mDB.lineGenerators) do
+        if settings.allowedModules[data.key].enabled and data.type == "main" then
+          data.func(tooltip,charData[data.key],character)
         end
       end
   end
@@ -1716,64 +1709,67 @@ local function OnEnter(self)
   -- global data
   if settings.showExtraInfoTooltip then
     local gData = db.global and db.global.global or nil
-    if gData and #globalLineGenerators > 0 then
+    if gData then
       local gTip = QTip:Acquire("Exlist_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT","LEFT")
-      table.sort(globalLineGenerators,function(a,b) return a.prio < b.prio end)
       gTip:SetScale(settings.tooltipScale or 1)
       gTip:SetFont(smallFont)
       tooltip.globalTooltip = gTip
-      for i=1, #globalLineGenerators do
-        if settings.allowedModules[globalLineGenerators[i].key].enabled then
-          globalLineGenerators[i].func(gTip,gData[globalLineGenerators[i].key])
+      local added = false
+      for _,data in ipairs(mDB.lineGenerators) do
+        if settings.allowedModules[data.key].enabled and data.type == "global" then
+          data.func(gTip,gData[data.key])
+          added = true
         end
       end
 
-      local position,vpos = GetPosition(self)
-      if position == "left" then
-        if settings.horizontalMode then
-          if vpos == "bottom" then
-            gTip:SetPoint("BOTTOMLEFT",tooltip,"TOPLEFT",0,-1)
-          else
-            gTip:SetPoint("TOPLEFT",tooltip,"BOTTOMLEFT",0,1)
-          end
-        else
-          gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
-        end
-      else
-        if settings.horizontalMode then
-          if vpos == "bottom" then
-            gTip:SetPoint("BOTTOMRIGHT",tooltip,"TOPRIGHT",0,-1)
-          else
-            gTip:SetPoint("TOPRIGHT",tooltip,"BOTTOMRIGHT",0,1)
-          end
-        else
-          gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
-        end
-      end
-      gTip:Show()
-      local parentFrameLevel = tooltip:GetFrameLevel(tooltip)
-      gTip:SetFrameLevel(parentFrameLevel)
-      gTip.parent = self
-      gTip.time = 0
-      gTip.elapsed = 0
-      gTip:SetScript("OnUpdate",function(self, elapsed)
-        self.time = self.time + elapsed
-        if self.time > 0.1 then
-          if self.parent:IsMouseOver() or tooltip:IsMouseOver() or self:IsMouseOver() then
-            self.elapsed = 0
-          else
-            self.elapsed = self.elapsed + self.time
-            if self.elapsed > settings.delay then
-                QTip:Release(self)
+      if added then
+        local position,vpos = GetPosition(self)
+        if position == "left" then
+          if settings.horizontalMode then
+            if vpos == "bottom" then
+              gTip:SetPoint("BOTTOMLEFT",tooltip,"TOPLEFT",0,-1)
+            else
+              gTip:SetPoint("TOPLEFT",tooltip,"BOTTOMLEFT",0,1)
             end
+          else
+            gTip:SetPoint("BOTTOMLEFT",tooltip,"BOTTOMRIGHT")
           end
-          self.time = 0
+        else
+          if settings.horizontalMode then
+            if vpos == "bottom" then
+              gTip:SetPoint("BOTTOMRIGHT",tooltip,"TOPRIGHT",0,-1)
+            else
+              gTip:SetPoint("TOPRIGHT",tooltip,"BOTTOMRIGHT",0,1)
+            end
+          else
+            gTip:SetPoint("BOTTOMRIGHT",tooltip,"BOTTOMLEFT",1,0)
+          end
         end
-      end)
-      gTip:SetBackdrop(DEFAULT_BACKDROP)
-      local c = settings.backdrop
-      gTip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
-      gTip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+        gTip:Show()
+        local parentFrameLevel = tooltip:GetFrameLevel(tooltip)
+        gTip:SetFrameLevel(parentFrameLevel)
+        gTip.parent = self
+        gTip.time = 0
+        gTip.elapsed = 0
+        gTip:SetScript("OnUpdate",function(self, elapsed)
+          self.time = self.time + elapsed
+          if self.time > 0.1 then
+            if self.parent:IsMouseOver() or tooltip:IsMouseOver() or self:IsMouseOver() then
+              self.elapsed = 0
+            else
+              self.elapsed = self.elapsed + self.time
+              if self.elapsed > settings.delay then
+                  QTip:Release(self)
+              end
+            end
+            self.time = 0
+          end
+        end)
+        gTip:SetBackdrop(DEFAULT_BACKDROP)
+        local c = settings.backdrop
+        gTip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
+        gTip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+      end
     end
   end
 
@@ -1868,7 +1864,7 @@ local function Modernize()
   local deleteList = {}
   for name,value in pairs(settings.allowedModules) do
     if type(value) ~= 'table' then
-      for i,t in ipairs(registeredModules) do
+      for key,t in pairs(Exlist.ModuleData.modules) do
         if t.name == name then
           settings.allowedModules[t.key] = {enabled = value, name = name}
           break
@@ -1906,8 +1902,10 @@ local function init()
     LDBI:Register("Exlist",LDB_Exlist,settings.minimapTable)
   end
 
-  for i,func in ipairs(moduleInitializers) do
-    func()
+  for key,data in pairs(Exlist.ModuleData.modules) do
+    if data.init then
+      data.init()
+    end
   end
 
   Modernize()
@@ -1973,7 +1971,6 @@ end
 
 local function GetNextDailyResetTime()
   local resettime = GetQuestResetTime()
-  --print('resetTimedaily',resettime)
   if not resettime or resettime <= 0 or -- ticket 43: can fail during startup
   resettime > 24 * 3600 + 30 then -- can also be wrong near reset in an instance
     return nil
@@ -2068,28 +2065,25 @@ local function ResetCoins()
   end
 end
 
-local function WipeKeysForReset(type)
+local function GetResetKeys(type)
   local keys = {}
-  if type == "weekly" then
-    Exlist.Debug("Resetting Weeklies")
-    keys = keysToResetWeekly
-    settings.unsortedFolder = {
-      ["daily"] = {},
-      ["weekly"] = {}
-    }
-    ResetCoins()
-  elseif type == "daily" then
-    Exlist.Debug("Resetting Dailies")
-    keys = keysToResetDaily
-    settings.unsortedFolder.daily = {}
+  for key,data in pairs(Exlist.ModuleData.resetHandle) do
+
   end
-  for i = 1, #keys do
-    if keyResetHandlers[keys[i]] then
-      Exlist.Debug("Reset",keys[i],"with handler function")
-      keyResetHandlers[keys[i]](type)
-    else
-      Exlist.Debug("Reset",keys[i],"by wiping key")
-      WipeKey(keys[i])
+end
+
+local function WipeKeysForReset(type)
+  Exlist.Debug("Reset:",type)
+  settings.unsortedFolder[type] = {}
+  for key,data in pairs(Exlist.ModuleData.resetHandle) do
+    if data[type] then
+      if data.handler then
+        Exlist.Debug("Reset",key,"with handler function")
+        data.handler(type)
+      else
+        Exlist.Debug("Reset",key,"by wiping")
+        WipeKey(key)
+      end
     end
   end
 end
@@ -2203,14 +2197,14 @@ function frame:OnEvent(event, ...)
   if InCombatLockdown() then return end -- Don't update in combat
 
   Exlist.Debug('Event ',event)
-  if registeredUpdaters[event] then
-    for i=1,#registeredUpdaters[event] do
-      if not settings.allowedModules[registeredUpdaters[event][i].key].enabled and not registeredUpdaters[event][i].override then return end
-      local started = debugprofilestop()
-      registeredUpdaters[event][i].func(event,...)
-      Exlist.Debug(registeredUpdaters[event][i].name .. ' finished: ' .. DebugTimeColors(debugprofilestop() - started))
-      GetLastUpdateTime()
-
+  if Exlist.ModuleData.updaters[event] then
+    for i,data in ipairs(Exlist.ModuleData.updaters[event]) do
+      if settings.allowedModules[data.key] or data.override then
+        local started = debugprofilestop()
+        data.func(event,...)
+        Exlist.Debug(data.name .. ' finished: ' .. DebugTimeColors(debugprofilestop() - started))
+        GetLastUpdateTime()
+      end
     end
   end
   if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "PLAYER_TALENT_UPDATE" then
