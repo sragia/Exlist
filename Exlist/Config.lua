@@ -14,37 +14,36 @@ end
 local addingOpt = {}
 
 local function spairs(t, order)
-    -- collect the keys
-    local keys = {}
-    for k in pairs(t) do keys[#keys + 1] = k end
+  -- collect the keys
+  local keys = {}
+  for k in pairs(t) do keys[#keys + 1] = k end
 
-    -- if order function given, sort by it by passing the table and keys a, b,
-    -- otherwise just sort the keys
-    if order then
-      table.sort(keys, function(a, b) return order(t, a, b) end)
-    else
-      table.sort(keys)
-    end
-
-    -- return the iterator function
-    local i = 0
-    return function()
-      i = i + 1
-      if keys[i] then
-        return keys[i], t[keys[i]]
-      end
-    end
+  -- if order function given, sort by it by passing the table and keys a, b,
+  -- otherwise just sort the keys
+  if order then
+    table.sort(keys, function(a, b) return order(t, a, b) end)
+  else
+    table.sort(keys)
   end
 
+  -- return the iterator function
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], t[keys[i]]
+    end
+  end
+end
+
 local function RegisterAdditionalOptions(modName, optionTbl, displayName)
-	AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
-	AceConfDia:AddToBlizOptions(name..modName, displayName, name)
+  AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
+  AceConfDia:AddToBlizOptions(name..modName, displayName, name)
 end
 local function RefreshAdditionalOptions(modName, optionTbl, displayName)
     AceConfReg:RegisterOptionsTable(name..modName, optionTbl, true)
 end
 local charOrder = {}
-local addedChars = false
 local function UpdateCharOrder()
   local chars = Exlist.ConfigDB.settings.allowedCharacters
   local order = 0
@@ -59,7 +58,62 @@ local function GetCharPosition(char)
       return i
     end
   end
+  return 0
 end
+
+local function GetLastEnabledChar()
+  local chars = Exlist.ConfigDB.settings.allowedCharacters
+  for i,char in ipairs(charOrder) do
+    if not chars[char].enabled then
+      return i - 1
+    end
+  end
+  return #charOrder
+end
+
+local function ChangeCharacterStatus(char,status)
+  local chars = Exlist.ConfigDB.settings.allowedCharacters
+  local charPosition = GetCharPosition(char)
+  if status == false then
+    if charPosition ~= #charOrder then
+      for i=charPosition,#charOrder-1 do
+        charOrder[i] = charOrder[i+1]
+      end
+      charOrder[#charOrder] = char
+    end
+  else
+    local lastEnabled = GetLastEnabledChar()
+    if charPosition > lastEnabled + 1 then
+      local tmp
+      for i=charPosition,lastEnabled+2,-1 do
+        charOrder[i] = charOrder[i-1]
+      end
+      charOrder[lastEnabled+1] = char
+    end
+  end
+  chars[char].enabled = status
+  UpdateCharOrder()
+end
+
+local function SetupOrder()
+  local settings = Exlist.ConfigDB.settings
+  local chars = settings.allowedCharacters
+  for char,v in spairs(chars,function(t,a,b)
+    if not t[a].enabled then return false
+    elseif not t[b].enabled then return true
+    else
+        if settings.orderByIlvl then
+            return t[a].ilvl>t[b].ilvl
+        else
+            return t[a].order<t[b].order
+        end
+    end
+  end) do
+    table.insert(charOrder,char)
+  end
+
+end
+
 Exlist.SetupConfig = function(refresh)
     local options = {
         type = "group",
@@ -512,24 +566,17 @@ Exlist.SetupConfig = function(refresh)
             name = Exlist.ModuleData.modules[i].description or ""
         }
     end
-
     -- Characters
     local characters = settings.allowedCharacters
     n = 1
     for char,v in spairs(characters,function(t,a,b)
-        if not t[a].enabled then return false
-        elseif not t[b].enabled then return true
-        else
-            if settings.orderByIlvl then
-                return t[a].ilvl>t[b].ilvl
-            else
-                return t[a].order<t[b].order
-            end
-        end
-      end) do
-        if not addedChars then
-          table.insert(charOrder,char)
-        end
+      if settings.orderByIlvl then
+        return t[a].ilvl>t[b].ilvl
+      else
+        return GetCharPosition(a) < GetCharPosition(b)
+          --return t[a].order<t[b].order
+      end
+    end) do
         local charname = v.name
         local realm = char:match("^.*-(.*)")
         n = n+1
@@ -543,7 +590,7 @@ Exlist.SetupConfig = function(refresh)
                 return characters[char].enabled
             end,
             set = function(info,value)
-                characters[char].enabled = value
+                ChangeCharacterStatus(char,value)
                 Exlist.ConfigDB.settings.reorder = true
                 Exlist.SetupConfig(true)
             end
@@ -587,7 +634,7 @@ Exlist.SetupConfig = function(refresh)
           name = "",
           width = 0.1,
           disabled = function()
-            return GetCharPosition(char) == 1 or Exlist.ConfigDB.settings.orderByIlvl
+            return GetCharPosition(char) == 1 or Exlist.ConfigDB.settings.orderByIlvl or not characters[char].enabled
           end,
           func = function()
             for i,c in ipairs(charOrder) do
@@ -613,7 +660,7 @@ Exlist.SetupConfig = function(refresh)
           name = "",
           width = 0.1,
           disabled = function()
-            return GetCharPosition(char) == #charOrder or Exlist.ConfigDB.settings.orderByIlvl
+            return GetCharPosition(char) >= GetLastEnabledChar() or Exlist.ConfigDB.settings.orderByIlvl or not characters[char].enabled
           end,
           func = function()
             for i,c in ipairs(charOrder) do
@@ -752,11 +799,12 @@ function Exlist.InitConfig()
           func = function()
             Exlist.SetupConfig()
             C_Timer.After(0.1, function() InterfaceOptionsFrame_Show() InterfaceOptionsFrame_Show() end)
-	        --	InterfaceOptionsFrame_OpenToCategory(name)
+          --	InterfaceOptionsFrame_OpenToCategory(name)
           end
         }
     }
   }
+  SetupOrder()
   AceConfReg:RegisterOptionsTable(name, options)
   AceConfDia:AddToBlizOptions(name)
 end
