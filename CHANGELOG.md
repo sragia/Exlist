@@ -2,6 +2,7 @@
 ----
 **28 July 2018 - 22:29**
 
+- Increase World Quest rescan frequency
 - Fix Issue where you could change order for disabled characters
 - Some code cleanup
 
