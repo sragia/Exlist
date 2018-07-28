@@ -15,6 +15,7 @@ local trackedQuests = {
 }
 local updateFrq = 30 -- every x minutes max
 local rescanTimer
+local mapOpens = 0
 local colors = Exlist.Colors
 
 local zones = {
@@ -252,7 +253,7 @@ function Exlist.ScanQuests()
   if rescanTimer then
     timer:CancelTimer(rescanTimer)
   end
-  rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,60*tl+30)
+  rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,(60*tl+30)/2)
 
   -- Send Data
   if #rt > 0 then
@@ -285,8 +286,13 @@ local function Updater(event,questInfo)
   if event == "PLAYER_ENTERING_WORLD"
     and UnitLevel("player") >= Exlist.CONSTANTS.MAX_CHARACTER_LEVEL
   then
-    rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,1)
+    rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,3)
     return
+  elseif event == "WORLD_MAP_OPEN" then
+    if mapOpens%10 == 0 then
+      Exlist.ScanQuests() -- Scan every 10th map open
+    end
+    mapOpens = mapOpens + 1
   elseif event == "WORLD_QUEST_SPOTTED" then
     local faction = UnitFactionGroup('player')
     local gt = Exlist.GetCharacterTableKey("global","global",key)
@@ -780,7 +786,7 @@ local data = {
   globallgenerator = GlobalLineGenerator,
   priority = prio,
   updater = Updater,
-  event = {"WORLD_QUEST_SPOTTED","PLAYER_ENTERING_WORLD"},
+  event = {"WORLD_QUEST_SPOTTED","PLAYER_ENTERING_WORLD","WORLD_MAP_OPEN"},
   weeklyReset = false,
   description = L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"],
   override = true,
