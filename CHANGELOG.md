@@ -1,3 +1,10 @@
+1.2.1.2
+----
+**28 July 2018 - 22:29**
+
+- Fix Issue where you could change order for disabled characters
+- Some code cleanup
+
 1.2.1.1
 ----
 **26 July 2018 - 12:14**
