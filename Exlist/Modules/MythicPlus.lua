@@ -58,14 +58,16 @@ local function Updater(event)
       table.insert(mapsDone,{mapId = mapIDs[i], name = mapName,level = level, time = bestTime})
     end
   end
-  table.sort(mapsDone,function(a,b) return a.level > b.level end)
-  local t= {
-    ["bestLvl"] = bestLvl,
-    ["bestLvlMap"] = bestLvlMap,
-    ["mapId"] = bestMapId,
-    ["mapsDone"] = mapsDone
-  }
-  Exlist.UpdateChar(key,t)
+  if bestLvl > 0 then
+    table.sort(mapsDone,function(a,b) return a.level > b.level end)
+    local t= {
+      ["bestLvl"] = bestLvl,
+      ["bestLvlMap"] = bestLvlMap,
+      ["mapId"] = bestMapId,
+      ["mapsDone"] = mapsDone
+    }
+    Exlist.UpdateChar(key,t)
+  end
 end
 
 local function MythicPlusTimeString(time,mapId)
