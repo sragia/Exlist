@@ -1,3 +1,11 @@
+1.2.2
+----
+**30 July 2018 - 22:19**
+
+- Fixed typo that prevented most modules to update correctly
+- Added Reputations module (Add reputations that you want to track in settings)
+- Small fix for "deleting" M+ runs if new update couldn't find them
+
 1.2.1.2
 ----
 **28 July 2018 - 22:29**
