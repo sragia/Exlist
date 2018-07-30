@@ -965,7 +965,7 @@ local lineNums = {} -- only for Horizontal
 local columnNums = {} -- only for Horizontal
 local lastLineNum = 1 -- only for Horizontal
 local lastColNum = -2 -- only for Horizontal
-local function releasedTooltip()
+local function releasedTooltip() -- HIDING TOOLTIP
   lineNums = {} -- only for Horizontal
   columnNums = {} -- only for Horizontal
   lastLineNum = 1 -- only for Horizontal
@@ -982,6 +982,7 @@ function Exlist.AddData(info)
         titleName = "string" row title
         colOff = number (optional) offset from first column defaults:0
         dontResize = boolean (optional) if cell should span across
+        pulseAnim = bool (optional) if cell should use pulse
         OnEnter = function (optional) script
         OnEnterData = {} (optional) scriptData
         OnLeave = function (optional) script
@@ -1523,11 +1524,30 @@ local function Exlist_StopMoving(self)
   }
 end
 
+-- Animations --
+local pulseLowAlpha = 0.4
+local pulseDuration = 1.2
+local pulseDelta = -(1 - pulseLowAlpha)
+local function AnimPulse(self)
+  self.startTime = self.startTime or GetTime()
+  local nowTime = GetTime()
+  local progress = mod((nowTime - self.startTime),pulseDuration)/pulseDuration
+  local angle = (progress * 2 * math.pi) - (math.pi / 2)
+  local finalAlpha =  1 + (((math.sin(angle) + 1)/2) * pulseDelta)
+  self.fontString:SetAlpha(finalAlpha)
+end
 
-
+local function ClearFunctions(tooltip)
+  if tooltip.animations then
+    for _,frame in ipairs(tooltip.animations) do
+      frame:SetScript("OnUpdate",nil)
+    end
+  end
+end
 
 local function PopulateTooltip(tooltip)
   -- Setup Tooltip (Add appropriate amounts of rows)
+  tooltip.animations = {}
   local modulesAdded = {} -- for horizontal
   local moduleLine = {} -- for horizontal
   local charHeaderRows = {} -- for vertical
@@ -1616,6 +1636,13 @@ local function PopulateTooltip(tooltip)
             local column = col + width*data.colOff
             if i == 2 and spreadMid then width = 2 end
             tooltip:SetCell(row,col + offsetCol,data.data,justification,width)
+            -- ANIM TEST --
+            if data.pulseAnim then
+              local cell = tooltip.lines[row].cells[col + offsetCol]
+              cell:SetScript("OnUpdate",AnimPulse)
+              table.insert(tooltip.animations,cell)
+              -- ANIM TEST --
+            end
             if data.OnEnter then
               tooltip:SetCellScript(row,col + offsetCol,"OnEnter",data.OnEnter,data.OnEnterData)
             end
@@ -1823,6 +1850,7 @@ local function OnEnter(self)
         if self.elapsed > settings.delay then
             self.parent:SetAlpha(settings.iconAlpha or 1)
             releasedTooltip()
+            ClearFunctions(self)
             QTip:Release(self)
         end
       end
