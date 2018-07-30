@@ -300,6 +300,7 @@ local Colors = { --default colors
     {val = 90, color = "ffd50c"},
     {val = 100, color = "ffae00"}
   },
+  -- REPUTATION --
   repColors = {
     [1] = "ffe00000", -- Hated
     [2] = "ffff3700", -- Hostile
@@ -311,6 +312,7 @@ local Colors = { --default colors
     [8] = "ffd220ff", -- Exiled
     [100] = "ffff20ca", -- Paragon
   },
+  paragonReward = "fff4f142",
 }
 Exlist.Colors = Colors
 
@@ -1123,7 +1125,7 @@ local registeredEvents = {}
 local function RegisterEvents()
   for event in pairs(Exlist.ModuleData.updaters) do
     if not registeredEvents[event] then
-      xpcall(frame.RegisterEvent,function() return true end,frame,i)
+      xpcall(frame.RegisterEvent,function() return true end,frame,event)
       registeredEvents[event] = true
     end
   end
@@ -2226,7 +2228,7 @@ function frame:OnEvent(event, ...)
     end
     return
   end
-  if InCombatLockdown() then return end -- Don't update in combat
+  --if InCombatLockdown() then return end -- Don't update in combat
 
   Exlist.Debug('Event ',event)
   if Exlist.ModuleData.updaters[event] then
