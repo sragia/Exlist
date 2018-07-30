@@ -75,14 +75,17 @@ end
 
 local function Updater(event)
   local t = {}
+  if event == "UPDATE_FACTION" then C_Timer.After(0.5,function() Exlist.SendFakeEvent("UPDATE_FACTION_DELAY") end) end
   for _,faction in ipairs(settings.reputation.cache) do
     local name, description, standingID, barMin, barMax, barValue = GetFactionInfoByID(faction.factionID)
     local curr = barValue-barMin -- current
     local max = barMax-barMin -- max
+    local paragonReward
     if standingID >= 8 and C_Reputation.IsFactionParagon(faction.factionID) then
       -- Paragon stuff
       standingID = 100
       local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(faction.factionID)
+      paragonReward = hasRewardPending
       curr = mod(currentValue,threshold)
       max = threshold
       if hasRewardPending then
@@ -94,7 +97,8 @@ local function Updater(event)
       description = description,
       standing = standingID,
       curr = curr,
-      max = max
+      max = max,
+      paragonReward = paragonReward,
     }
   end
   Exlist.UpdateChar(key,t)
@@ -372,7 +376,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"PLAYER_ENTERING_WORLD","UPDATE_FACTION"},
+  event = {"PLAYER_ENTERING_WORLD","UPDATE_FACTION","UPDATE_FACTION_DELAY"},
   weeklyReset = false,
   dailyReset = false,
   description = L[""],
