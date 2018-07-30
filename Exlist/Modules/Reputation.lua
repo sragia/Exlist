@@ -41,6 +41,14 @@ local function spairs(t, order)
   end
 end
 
+local statusMarks = {
+  [true] = [[Interface/Addons/Exlist/Media/Icons/ok-icon]],
+  [false] = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]]
+}
+local function AddCheckmark(text,status)
+  return string.format("|T%s:0|t %s",statusMarks[status],text)
+end
+
 local function AddReputationToCache(name,factionID)
   if not name or not factionID then return end
   local found = false
@@ -114,6 +122,7 @@ local function Linegenerator(tooltip,data,character)
     -- data = "",
     -- colOff = 0,
     -- dontResize = false,
+    -- pulseAnim = false,
     -- OnEnter = function() end,
     -- OnEnterData = {},
     -- OnLeave = function() end,
@@ -122,19 +131,24 @@ local function Linegenerator(tooltip,data,character)
     -- OnClickData = {},
   }
   local ret = false
+  local paragonAvailable = false
   local charKey = character.name .. "-" .. character.realm
   if settings.reputation.charOption[charKey] and settings.reputation.charOption[charKey] ~= 0 then
     ret = true
     local factionInfo = data[settings.reputation.charOption[charKey]]
-    info.data = string.format("%s %s (%s/%s)",
-    Exlist.ShortenText(factionInfo.name,"",true),
-    WrapTextInColorCode(
-      Exlist.ShortenText(standingNames[factionInfo.standing],"",true),
-      colors.repColors[factionInfo.standing]
-    ),
-    Exlist.ShortenNumber(factionInfo.curr),
-    Exlist.ShortenNumber(factionInfo.max)
-  )
+    local text = string.format("%s %s",
+      Exlist.ShortenText(factionInfo.name,"",true),
+      WrapTextInColorCode(
+      string.format("%s/%s",
+      Exlist.ShortenNumber(factionInfo.curr),
+      Exlist.ShortenNumber(factionInfo.max)),
+        colors.repColors[factionInfo.standing]
+      )
+    )
+    if factionInfo.paragonReward then
+      text = AddCheckmark(text,true)
+    end
+    info.data = text
   else
     info.data = L["None"]
   end
@@ -144,19 +158,25 @@ local function Linegenerator(tooltip,data,character)
       ret = true
       local r = data[factionID]
       if r then
-        table.insert(sideTooltip.body,{r.name,string.format(
+        local text1 = r.name
+        local text2 = string.format(
           "%s (%s/%s)",
           WrapTextInColorCode(standingNames[r.standing],colors.repColors[r.standing]),
           Exlist.ShortenNumber(r.curr),
           Exlist.ShortenNumber(r.max)
-        )})
+        )
+        if r.paragonReward then
+          paragonAvailable = true
+          text2 = AddCheckmark(text2,true)
+        end
+        table.insert(sideTooltip.body,{text1,text2})
       end
     end
   end
   info.OnEnter = Exlist.CreateSideTooltip()
   info.OnEnterData = sideTooltip
   info.OnLeave = Exlist.DisposeSideTooltip()
-
+  info.pulseAnim = paragonAvailable
   if ret then
     Exlist.AddData(info)
   end

@@ -20,6 +20,7 @@ local function Linegenerator(tooltip,data,character)
     -- data = "",
     -- colOff = 0,
     -- dontResize = false,
+    -- pulseAnim = false,
     -- OnEnter = function() end,
     -- OnEnterData = {},
     -- OnLeave = function() end,
