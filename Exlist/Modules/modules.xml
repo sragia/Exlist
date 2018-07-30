@@ -16,6 +16,7 @@
 <Script file="Raids.lua"/>
 <Script file="WorldBosses.lua"/>
 <Script file="Note.lua"/>
+<Script file="Reputation.lua"/>
 
 
 </Ui>

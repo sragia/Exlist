@@ -55,9 +55,21 @@ end
 --[[
 local function ResetHandler(resetType)
   -- code that will be run at reset for this module
-  -- instead of just wiping all data that is keyed 
+  -- instead of just wiping all data that is keyed
   -- by this module key
 end
+]]
+
+--[[
+local function AddOptions()
+  local options = {
+    type = "group",
+    name = L["Reputations"],
+    args = {}
+  }
+  Exlist.AddModuleOptions(key,options,L["Reputation"])
+end
+Exlist.ModuleToBeAdded(AddOptions)
 ]]
 
 local data = {
@@ -72,7 +84,7 @@ local data = {
   description = L[""],
   -- globallgenerator = GlobalLineGenerator,
   -- modernize = Modernize,
-  -- init = init,  
+  -- init = init,
   -- override = true,
   -- specialResetHandle = ResetHandler
 

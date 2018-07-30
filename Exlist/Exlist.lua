@@ -142,6 +142,11 @@ local settings = { -- default settings
 
     }
   },
+  reputation = {
+    cache = {},
+    charOption = {},
+    enabled = {},
+  }
 }
 local iconPaths = {
   --[specId] = [[path]]
@@ -294,7 +299,18 @@ local Colors = { --default colors
     {val = 80, color = "ffd921"},
     {val = 90, color = "ffd50c"},
     {val = 100, color = "ffae00"}
-  }
+  },
+  repColors = {
+    [1] = "ffe00000", -- Hated
+    [2] = "ffff3700", -- Hostile
+    [3] = "ffff8300", -- Unfriendly
+    [4] = "ffffc300", -- Neutral
+    [5] = "fff7ff20", -- Friendly
+    [6] = "ff5fff20", -- Honored
+    [7] = "ff2096ff", -- Revered
+    [8] = "ffd220ff", -- Exiled
+    [100] = "ffff20ca", -- Paragon
+  },
 }
 Exlist.Colors = Colors
 
@@ -313,6 +329,7 @@ Exlist.Strings = {
     70 - emissary
     80 - missions
     90 - quests
+    95 - reputation
     100 - raids
     110 - dungeons
     120 - worldbosses
@@ -599,6 +616,21 @@ local function FormatTime(time)
   return string.format( "%02d:%02d",minutes,seconds )
 end
 Exlist.FormatTime = FormatTime
+
+-- Originally by Asakawa but has been modified --
+local sTextCache = {}
+local function ShortenText(s,separator,full)
+  wipe(sTextCache)
+  sTextCache = {strsplit(" ",s)}
+  separator = separator or "."
+  local offset = full and 0 or 1
+  for i = 1, #sTextCache-offset do
+    sTextCache[i] = string.sub(sTextCache[i], 1, 1)
+  end
+  return table.concat(sTextCache, separator)
+end
+Exlist.ShortenText = ShortenText
+
 local function GetTableNum(t)
   if type(t) ~= "table" then
     return 0
