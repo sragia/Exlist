@@ -79,8 +79,8 @@ local function spairs(t, order)
 end
 
 local statusMarks = {
-  [true] = [[Interface/RAIDFRAME/ReadyCheck-Ready]],
-  [false] = [[Interface/RAIDFRAME/ReadyCheck-NotReady]]
+  [true] = [[Interface/Addons/Exlist/Media/Icons/ok-icon]],
+  [false] = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]]
 }
 local function AddCheckmark(text,status)
   return string.format("|T%s:0|t %s",statusMarks[status],text)
