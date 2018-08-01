@@ -39,6 +39,7 @@ local mapTimes = {
 
 local function Updater(event)
   C_MythicPlus.RequestMapInfo() -- request update
+  C_MythicPlus.RequestRewards()
   local mapIDs = CM.GetMapTable()
   local bestLvl = 0
   local bestLvlMap = ""
@@ -58,16 +59,25 @@ local function Updater(event)
       table.insert(mapsDone,{mapId = mapIDs[i], name = mapName,level = level, time = bestTime})
     end
   end
-  if bestLvl > 0 then
-    table.sort(mapsDone,function(a,b) return a.level > b.level end)
-    local t= {
-      ["bestLvl"] = bestLvl,
-      ["bestLvlMap"] = bestLvlMap,
-      ["mapId"] = bestMapId,
-      ["mapsDone"] = mapsDone
+  table.sort(mapsDone,function(a,b) return a.level > b.level end)
+  local t = {
+    ["bestLvl"] = bestLvl,
+    ["bestLvlMap"] = bestLvlMap,
+    ["mapId"] = bestMapId,
+    ["mapsDone"] = mapsDone,
+    ["chest"] = {
+      level = 0,
+      available = false
     }
-    Exlist.UpdateChar(key,t)
+  }
+  if C_MythicPlus.IsWeeklyRewardAvailable() then
+    local _,level = C_MythicPlus.GetLastWeeklyBestInformation()
+    t.chest = {
+      available = true,
+      level = level
+    }
   end
+  Exlist.UpdateChar(key,t)
 end
 
 local function MythicPlusTimeString(time,mapId)
@@ -86,16 +96,24 @@ local function MythicPlusTimeString(time,mapId)
 end
 
 local function Linegenerator(tooltip,data,character)
-  if not data or data.bestLvl < 2 then return end
+  if not data or (data.bestLvl and data.bestLvl < 2 and data.chest and not data.chest.available) then return end
   local settings = Exlist.ConfigDB.settings
-  local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[data.mapId] or data.bestLvlMap
+  local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[data.mapId] or data.bestLvlMap or ""
   local info = {
     character = character,
     moduleName = key,
     priority = prio,
     titleName = L["Best Mythic+"],
-    data = "+" .. data.bestLvl .. " " .. dungeonName,
   }
+  if data.chest.available then
+    info.data = WrapTextInColorCode(
+      string.format("+%i %s",data.chest.level,L["Chest Available"]),
+      colors.available
+    )
+    info.pulseAnim = true
+  else
+    info.data = "+" .. data.bestLvl .. " " .. dungeonName
+  end
 
   if data.mapsDone and #data.mapsDone > 0 then
     local sideTooltip = {title = WrapTextInColorCode(L["Mythic+"],colors.sideTooltipTitle), body = {}}
@@ -113,8 +131,8 @@ end
 local function Modernize(data)
   -- data is table of module table from character
   -- always return table or don't use at all
-  if not data.mapId then
-    CM.RequestMapInfo() -- request update
+  if not data.mapId and data.bestLvlMap then
+    C_MythicPlus.RequestMapInfo() -- request update
     local mapIDs = CM.GetMapTable()
     for i,id in ipairs(mapIDs) do
       if data.bestLvlMap == (CM.GetMapUIInfo(id)) then
@@ -124,7 +142,34 @@ local function Modernize(data)
       end
     end
   end
+  if not data.chest then
+    data.chest = {
+      level = 0,
+      available = false,
+    }
+  end
   return data
+end
+
+local function ResetHandle(resetType)
+  if not resetType or resetType ~= "weekly" then return end
+  local realms = Exlist.GetRealmNames()
+  for _,realm in ipairs(realms) do
+    local characters = Exlist.GetRealmCharacters(realm)
+    for _,character in ipairs(characters) do
+      Exlist.Debug("Reset",resetType,"quests for:",character,"-",realm)
+      local data = Exlist.GetCharacterTableKey(realm,character,key)
+      if data.bestLvl >= 2 then
+        data = {
+          chest = {
+            available = true,
+            level = data.bestLvl
+          }
+        }
+      end
+      Exlist.UpdateChar(key,data,character,realm)
+    end
+  end
 end
 
 local data = {
@@ -136,6 +181,7 @@ local data = {
   event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD"},
   description = L["Tracks highest completed mythic+ in a week and all highest level runs per dungeon"],
   weeklyReset = true,
+  specialResetHandle = ResetHandle,
   modernize = Modernize
 }
 

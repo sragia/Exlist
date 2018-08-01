@@ -2236,7 +2236,7 @@ function frame:OnEvent(event, ...)
     init()
     SetTooltipBut()
     Exlist.Debug('Init ran for: ' .. DebugTimeColors(debugprofilestop() - started))
-	C_Timer.After(3,function() ResetHandling() end)
+	  C_Timer.After(3,function() ResetHandling() end)
     return
   end
   -- Delays
