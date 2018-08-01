@@ -38,8 +38,11 @@ local mapTimes = {
 }
 
 local function Updater(event)
-  C_MythicPlus.RequestMapInfo() -- request update
-  C_MythicPlus.RequestRewards()
+  if event ~= "CHALLENGE_MODE_MAPS_UPDATE" then
+    C_MythicPlus.RequestMapInfo()
+    C_MythicPlus.RequestRewards()
+    return
+  end
   local mapIDs = CM.GetMapTable()
   local bestLvl = 0
   local bestLvlMap = ""
@@ -178,7 +181,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD"},
+  event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD","LOOT_CLOSED"},
   description = L["Tracks highest completed mythic+ in a week and all highest level runs per dungeon"],
   weeklyReset = true,
   specialResetHandle = ResetHandle,

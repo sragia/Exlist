@@ -19,7 +19,6 @@ local colors = Exlist.Colors
 local L = Exlist.L
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
-local lastUpdate = 0
 local affixThreshold = {
   2,
   4,
@@ -28,8 +27,6 @@ local affixThreshold = {
 }
 
 local function Updater(event)
-  if GetTime() - lastUpdate < 5 then return end
-  lastUpdate = GetTime()
   local gt = Exlist.GetCharacterTableKey("global","global",key)
   -- Get Affixes
   C_MythicPlus.RequestCurrentAffixes()
