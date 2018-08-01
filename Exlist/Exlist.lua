@@ -1541,6 +1541,7 @@ local function ClearFunctions(tooltip)
   if tooltip.animations then
     for _,frame in ipairs(tooltip.animations) do
       frame:SetScript("OnUpdate",nil)
+      frame:SetAlpha(1)
     end
   end
 end
