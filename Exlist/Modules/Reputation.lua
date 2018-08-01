@@ -86,28 +86,30 @@ local function Updater(event)
   if event == "UPDATE_FACTION" then C_Timer.After(0.5,function() Exlist.SendFakeEvent("UPDATE_FACTION_DELAY") end) end
   for _,faction in ipairs(settings.reputation.cache) do
     local name, description, standingID, barMin, barMax, barValue = GetFactionInfoByID(faction.factionID)
-    local curr = barValue-barMin -- current
-    local max = barMax-barMin -- max
-    local paragonReward
-    if standingID >= 8 and C_Reputation.IsFactionParagon(faction.factionID) then
-      -- Paragon stuff
-      standingID = 100
-      local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(faction.factionID)
-      paragonReward = hasRewardPending
-      curr = mod(currentValue,threshold)
-      max = threshold
-      if hasRewardPending then
-        curr = curr + threshold
+    if name then
+      local curr = barValue-barMin -- current
+      local max = barMax-barMin -- max
+      local paragonReward
+      if standingID >= 8 and C_Reputation.IsFactionParagon(faction.factionID) then
+        -- Paragon stuff
+        standingID = 100
+        local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(faction.factionID)
+        paragonReward = hasRewardPending
+        curr = mod(currentValue,threshold)
+        max = threshold
+        if hasRewardPending then
+          curr = curr + threshold
+        end
       end
+      t[faction.factionID] = {
+        name = name,
+        description = description,
+        standing = standingID,
+        curr = curr,
+        max = max,
+        paragonReward = paragonReward,
+      }
     end
-    t[faction.factionID] = {
-      name = name,
-      description = description,
-      standing = standingID,
-      curr = curr,
-      max = max,
-      paragonReward = paragonReward,
-    }
   end
   Exlist.UpdateChar(key,t)
 end
