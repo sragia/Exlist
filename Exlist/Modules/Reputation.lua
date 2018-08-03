@@ -121,16 +121,16 @@ local function Linegenerator(tooltip,data,character)
     priority = prio,
     moduleName = key,
     titleName = L["Reputation"],
-    -- data = "",
-    -- colOff = 0,
-    -- dontResize = false,
-    -- pulseAnim = false,
-    -- OnEnter = function() end,
-    -- OnEnterData = {},
-    -- OnLeave = function() end,
-    -- OnLeaveData = {},
-    -- OnClick = function() end,
-    -- OnClickData = {},
+  -- data = "",
+  -- colOff = 0,
+  -- dontResize = false,
+  -- pulseAnim = false,
+  -- OnEnter = function() end,
+  -- OnEnterData = {},
+  -- OnLeave = function() end,
+  -- OnLeaveData = {},
+  -- OnClick = function() end,
+  -- OnClickData = {},
   }
   local ret = false
   local paragonAvailable = false
@@ -141,9 +141,9 @@ local function Linegenerator(tooltip,data,character)
     local text = string.format("%s %s",
       Exlist.ShortenText(factionInfo.name,"",true),
       WrapTextInColorCode(
-      string.format("%s/%s",
-      Exlist.ShortenNumber(factionInfo.curr),
-      Exlist.ShortenNumber(factionInfo.max)),
+        string.format("%s/%s",
+          Exlist.ShortenNumber(factionInfo.curr),
+          Exlist.ShortenNumber(factionInfo.max)),
         colors.repColors[factionInfo.standing]
       )
     )
@@ -192,25 +192,25 @@ end
 
 --[[
 local function Modernize(data)
-  -- data is table of module table from character
-  -- always return table or don't use at all
-  return data
+-- data is table of module table from character
+-- always return table or don't use at all
+return data
 end
 ]]
 
 
 local function init()
   -- code that will run before any other function
-    settings = Exlist.ConfigDB.settings
-    UpdateReputationCache()
+  settings = Exlist.ConfigDB.settings
+  UpdateReputationCache()
 end
 
 
 --[[
 local function ResetHandler(resetType)
-  -- code that will be run at reset for this module
-  -- instead of just wiping all data that is keyed
-  -- by this module key
+-- code that will be run at reset for this module
+-- instead of just wiping all data that is keyed
+-- by this module key
 end
 ]]
 local selectedFaction = 0
@@ -405,8 +405,8 @@ local data = {
   -- globallgenerator = GlobalLineGenerator,
   -- modernize = Modernize,
   init = init,
-  -- override = true,
-  -- specialResetHandle = ResetHandler
+-- override = true,
+-- specialResetHandle = ResetHandler
 
 }
 

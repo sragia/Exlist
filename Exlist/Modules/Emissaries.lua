@@ -52,16 +52,16 @@ end
 local function Updater(event)
   local playerLevel = UnitLevel("player")
   if playerLevel < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
-  if event == "PLAYER_ENTERING_WORLD" then 
+  if event == "PLAYER_ENTERING_WORLD" then
     C_Timer.After(5,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
     return
-  elseif event == "QUEST_TURNED_IN" or event ==  "QUEST_REMOVED" then 
+  elseif event == "QUEST_TURNED_IN" or event ==  "QUEST_REMOVED" then
     C_Timer.After(2,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
     return
   end
   local timeNow = time()
   local emissaries = {
-  }
+    }
   local gt = Exlist.GetCharacterTableKey("global","global",key)
   local trackedBounties = 0 -- if we already know all bounties
   for questId,info in pairs(gt) do
@@ -131,7 +131,7 @@ local function Linegenerator(tooltip,data,character)
     local timeLeftColor
     for i = 1, #data do
       if data[i] and data[i].endTime > timeNow then
-      table.insert(sideTooltip.body, {data[i].name.."("..TimeLeftColor(data[i].endTime - timeNow, {36000, 72000})..")", (data[i].current or 0) .. "/" .. (data[i].total or 0)})
+        table.insert(sideTooltip.body, {data[i].name.."("..TimeLeftColor(data[i].endTime - timeNow, {36000, 72000})..")", (data[i].current or 0) .. "/" .. (data[i].total or 0)})
       end
     end
     info.OnEnter = Exlist.CreateSideTooltip()
@@ -153,24 +153,24 @@ local function GlobalLineGenerator(tooltip,data)
 end
 
 local function init()
-  Exlist.ConfigDB.settings.extraInfoToggles.emissary = Exlist.ConfigDB.settings.extraInfoToggles.emissary 
-  or {
+  Exlist.ConfigDB.settings.extraInfoToggles.emissary = Exlist.ConfigDB.settings.extraInfoToggles.emissary
+    or {
       name = L["Emissaries"],
       enabled = true,
-     }
+    }
 end
 
 local data = {
-name = L['Emissary'],
-key = key,
-linegenerator = Linegenerator,
-globallgenerator = GlobalLineGenerator,
-priority = prio,
-updater = Updater,
-event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED"},
-description = L["Tracks available emissaries and their status for your character"],
-weeklyReset = false,
-init = init,
+  name = L['Emissary'],
+  key = key,
+  linegenerator = Linegenerator,
+  globallgenerator = GlobalLineGenerator,
+  priority = prio,
+  updater = Updater,
+  event = {"QUEST_TURNED_IN","PLAYER_ENTERING_WORLD","QUEST_REMOVED","PLAYER_ENTERING_WORLD_DELAYED"},
+  description = L["Tracks available emissaries and their status for your character"],
+  weeklyReset = false,
+  init = init,
 }
 
 Exlist.RegisterModule(data)

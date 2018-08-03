@@ -15,25 +15,25 @@ Exlist.debugMode = debugMode
 Exlist.debugString = debugString
 -- TOOLTIP --
 local tooltipData = {
- --[[
-    [character] = {
-      [modules] = {
-		[module] =  {
-          data = {{},{},{}}
-		  priority = number
-		  name = string
-          num = number
-		  }
-	  }
-	  num = number
-	}
+  --[[
+  [character] = {
+  [modules] = {
+  [module] =  {
+  data = {{},{},{}}
+  priority = number
+  name = string
+  num = number
+  }
+  }
+  num = number
+  }
   ]]
-}
+  }
 local tooltipColCoords = {
   --[[
-    [character] = starting column
+  [character] = starting column
   ]]
-}
+  }
 -- API --
 local _G = _G
 local CreateFrame, CreateFont = CreateFrame, CreateFont
@@ -88,10 +88,9 @@ local DEFAULT_BACKDROP = { bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
     left = 0,
     right = 0,
     top = 0,
-bottom = 0 }}
+    bottom = 0 }}
 local settings = { -- default settings
   minLevel = 80,
-
   fonts = {
     big = { size = 15},
     medium = { size = 13},
@@ -321,22 +320,22 @@ Exlist.Strings = {
 }
 
 --[[ Module prio list
-    0 - mail
-    10 - currency
-    20 - raiderio
-    30 - azerite
-    40 - mythicKey
-    50 - mythicPlus
-    60 - coins
-    70 - emissary
-    80 - missions
-    90 - quests
-    95 - reputation
-    100 - raids
-    110 - dungeons
-    120 - worldbosses
-    130 - worldquests
-    10000 - note
+0 - mail
+10 - currency
+20 - raiderio
+30 - azerite
+40 - mythicKey
+50 - mythicPlus
+60 - coins
+70 - emissary
+80 - missions
+90 - quests
+95 - reputation
+100 - raids
+110 - dungeons
+120 - worldbosses
+130 - worldquests
+10000 - note
 ]]
 local butTool
 
@@ -355,7 +354,7 @@ mediumFont:SetTextColor(1,1,1)
 
 local customFonts = {
   --[fontSize] = fontObject
-}
+  }
 local monthNames = {L['January'], L['February'], L['March'], L['April'], L['May'], L['June'], L['July'], L['August'], L['September'], L['October'], L['November'], L['December']}
 
 -- register events
@@ -393,57 +392,57 @@ local function spairs(t, order)
 end
 
 local function AddMissingTableEntries(data,DEFAULT)
-   if not data or not DEFAULT then return data end
-   local rv = data
-   for k,v in pairs(DEFAULT) do
-      if rv[k] == nil then
-         rv[k] = v
-      elseif type(v) == "table" then
-        if type(rv[k]) == "table" then
-         rv[k] = AddMissingTableEntries(rv[k],v)
-        else
-          rv[k] = AddMissingTableEntries({},v)
-        end
+  if not data or not DEFAULT then return data end
+  local rv = data
+  for k,v in pairs(DEFAULT) do
+    if rv[k] == nil then
+      rv[k] = v
+    elseif type(v) == "table" then
+      if type(rv[k]) == "table" then
+        rv[k] = AddMissingTableEntries(rv[k],v)
+      else
+        rv[k] = AddMissingTableEntries({},v)
       end
-   end
-   return rv
+    end
+  end
+  return rv
 end
 Exlist.AddMissingTableEntries = AddMissingTableEntries
 
 local function ShortenNumber(number)
-    if type(number) ~= "number" then
-        number = tonumber(number)
+  if type(number) ~= "number" then
+    number = tonumber(number)
+  end
+  if not number then
+    return
+  end
+  local affixes = {
+    "",
+    "k",
+    "m",
+    "b",
+    "t",
+  }
+  local affix = 1
+  local dec = 0
+  local num1 = math.abs(number)
+  while num1 >= 1000 and affix < #affixes do
+    num1 = num1 / 1000
+    affix = affix + 1
+  end
+  if affix > 1 then
+    dec = 2
+    local num2 = num1
+    while num2 >= 10 and dec > 0 do
+      num2 = num2 / 10
+      dec = dec - 1
     end
-    if not number then
-        return
-    end
-    local affixes = {
-        "",
-        "k",
-        "m",
-        "b",
-        "t",
-    }
-    local affix = 1
-    local dec = 0
-    local num1 = math.abs(number)
-    while num1 >= 1000 and affix < #affixes do
-        num1 = num1 / 1000
-        affix = affix + 1
-    end
-    if affix > 1 then
-        dec = 2
-        local num2 = num1
-        while num2 >= 10 and dec > 0 do
-            num2 = num2 / 10
-            dec = dec - 1
-        end
-    end
-    if number < 0 then
-        num1 = -num1
-    end
+  end
+  if number < 0 then
+    num1 = -num1
+  end
 
-    return string.format("%."..dec.."f"..affixes[affix], num1)
+  return string.format("%."..dec.."f"..affixes[affix], num1)
 end
 Exlist.ShortenNumber = ShortenNumber
 local function copyTableInternal(source, seen)
@@ -508,22 +507,22 @@ function MyScanningTooltip.ClearTooltip(self)
   local TooltipName = self:GetName()
   self:ClearLines()
   for i = 1, 10 do
-     _G[TooltipName..'Texture'..i]:SetTexture(nil)
-     _G[TooltipName..'Texture'..i]:ClearAllPoints()
-     _G[TooltipName..'Texture'..i]:SetPoint('TOPLEFT', self)
+    _G[TooltipName..'Texture'..i]:SetTexture(nil)
+    _G[TooltipName..'Texture'..i]:ClearAllPoints()
+    _G[TooltipName..'Texture'..i]:SetPoint('TOPLEFT', self)
   end
 end
 
 Exlist.QuestTitleFromID = setmetatable({}, { __index = function(t, id)
-         MyScanningTooltip:ClearTooltip()
-         MyScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-         MyScanningTooltip:SetHyperlink("quest:"..id)
-         local title = ExlistScanningTooltipTextLeft1:GetText()
-         MyScanningTooltip:Hide()
-         if title and title ~= RETRIEVING_DATA then
-            t[id] = title
-            return title
-         end
+  MyScanningTooltip:ClearTooltip()
+  MyScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+  MyScanningTooltip:SetHyperlink("quest:"..id)
+  local title = ExlistScanningTooltipTextLeft1:GetText()
+  MyScanningTooltip:Hide()
+  if title and title ~= RETRIEVING_DATA then
+    t[id] = title
+    return title
+  end
 end })
 
 local function GetItemEnchant(itemLink)
@@ -715,17 +714,17 @@ local function UpdateChar(key,data,charname,charrealm)
   charname = charname or UnitName('player')
   if not key then
     -- table is {key = value}
-  	db[charrealm] = db[charrealm] or {}
- 	  db[charrealm][charname] = db[charrealm][charname] or {}
-   	local charToUpdate = db[charrealm][charname]
-   	for i, v in pairs(data) do
+    db[charrealm] = db[charrealm] or {}
+    db[charrealm][charname] = db[charrealm][charname] or {}
+    local charToUpdate = db[charrealm][charname]
+    for i, v in pairs(data) do
       charToUpdate[i] = v
-  	end
+    end
   else
-  	db[charrealm] = db[charrealm] or {}
- 	db[charrealm][charname] = db[charrealm][charname] or {}
-  	local charToUpdate = db[charrealm][charname]
-  	charToUpdate[key] = data
+    db[charrealm] = db[charrealm] or {}
+    db[charrealm][charname] = db[charrealm][charname] or {}
+    local charToUpdate = db[charrealm][charname]
+    charToUpdate[key] = data
   end
 end
 Exlist.UpdateChar = UpdateChar
@@ -777,17 +776,17 @@ local function WipeKey(key)
     for name in pairs(db[realm]) do
       for keys in pairs(db[realm][name]) do
         if keys == key then
-            Exlist.Debug(' - wiping ',key, ' From:',name,'-',realm)
+          Exlist.Debug(' - wiping ',key, ' From:',name,'-',realm)
           db[realm][name][key] = nil
         end
       end
     end
   end
-    Exlist.Debug(' Wiping Key (',key,') completed.')
+  Exlist.Debug(' Wiping Key (',key,') completed.')
 end
 
 local slotNames = {L["Head"],L["Neck"],L["Shoulders"],L["Shirt"],L["Chest"],L["Waist"],L["Legs"],L["Feet"],L["Wrists"],
-L["Hands"],L["Ring"],L["Ring"],L["Trinket"],L["Trinket"],L["Back"],L["Main Hand"],L["Off Hand"],L["Ranged"]}
+  L["Hands"],L["Ring"],L["Ring"],L["Trinket"],L["Trinket"],L["Back"],L["Main Hand"],L["Off Hand"],L["Ranged"]}
 
 local function UpdateCharacterGear()
   local t = {}
@@ -804,16 +803,16 @@ local function UpdateCharacterGear()
         gem = GetItemGems(iLink)
       end
       table.insert(t,{slot = slotNames[order[i]], name = itemName,itemTexture = itemTexture, itemLink = itemLink,
-                      ilvl = ilvl, enchant = enchant, gem = gem})
+        ilvl = ilvl, enchant = enchant, gem = gem})
     end
   end
   if HasArtifactEquipped() then
     for i=1,3 do
       local name,icon,slotTypeName,link = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
       if name then
-      	local ilvl = GetDetailedItemLevelInfo(link)
+        local ilvl = GetDetailedItemLevelInfo(link)
         table.insert(t,{slot = slotTypeName .. " "..L["Relic"], name = name,itemTexture = icon, itemLink = link,
-                      ilvl = ilvl})
+          ilvl = ilvl})
       end
     end
   end
@@ -921,7 +920,7 @@ local function AttachStatusBar(frame)
   statusBar:SetMinMaxValues(0, 100)
   statusBar:SetValue(0)
   statusBar:SetHeight(5)
---  print('createdNewStatusBar')
+  --  print('createdNewStatusBar')
   return statusBar
 end
 
@@ -974,22 +973,22 @@ end
 
 function Exlist.AddData(info)
   --[[
-      info = {
-        data = "string" text to be displayed
-        character = "name-realm" which column to display
-        moduleName = "key" Module key
-        priority = number Priority in tooltip
-        titleName = "string" row title
-        colOff = number (optional) offset from first column defaults:0
-        dontResize = boolean (optional) if cell should span across
-        pulseAnim = bool (optional) if cell should use pulse
-        OnEnter = function (optional) script
-        OnEnterData = {} (optional) scriptData
-        OnLeave = function (optional) script
-        OnLeaveData = {} (optional) scriptData
-        OnClick = function (optional) script
-        OnClickData = {} (optional) scriptData
-      }
+  info = {
+  data = "string" text to be displayed
+  character = "name-realm" which column to display
+  moduleName = "key" Module key
+  priority = number Priority in tooltip
+  titleName = "string" row title
+  colOff = number (optional) offset from first column defaults:0
+  dontResize = boolean (optional) if cell should span across
+  pulseAnim = bool (optional) if cell should use pulse
+  OnEnter = function (optional) script
+  OnEnterData = {} (optional) scriptData
+  OnLeave = function (optional) script
+  OnLeaveData = {} (optional) scriptData
+  OnClick = function (optional) script
+  OnClickData = {} (optional) scriptData
+  }
   ]]
   if not info then return end
   info.colOff = info.colOff or 0
@@ -1062,7 +1061,7 @@ function Exlist.CreateSideTooltip(statusbar)
       end
     end
     local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame or
-              self:GetParent():GetParent():GetParent())
+      self:GetParent():GetParent():GetParent())
     if position == "left" then
       sideTooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1)
     else
@@ -1105,7 +1104,7 @@ function Exlist.DisposeSideTooltip()
   -- returns function that can be used for script
   return function(self)
     QTip:Release(self.sideTooltip)
-  --  texplore(self)
+    --  texplore(self)
     if self.statusBar then
       self.statusBar:Hide()
       self.statusBar = nil
@@ -1135,21 +1134,21 @@ end
 function Exlist.RegisterModule(data)
   --[[
   data = table
-    {
-    enabled = bool (enabled/disabled by default)
-    name = string (name of module)
-    key = string (module key that will be used in db)
-    linegenerator = func  (function that adds text to tooltip   function(tooltip,Exlist) ...)
-    priority = numberr (data priority in tooltip lower>higher)
-    updater = func (function that updates data in db)
-    event = {} or string (table or string that contains events that triggers updater func)
-    weeklyReset = bool (should this be reset on weekly reset)
-    dailyReset = bool (should data for this reset every day)
-    specialResetHandle = function (replaces just wiping table for this key)
-    description = string
-    override = bool (overrides user selection disable/enable module)
-    init = function (function that will run at init)
-    }
+  {
+  enabled = bool (enabled/disabled by default)
+  name = string (name of module)
+  key = string (module key that will be used in db)
+  linegenerator = func  (function that adds text to tooltip   function(tooltip,Exlist) ...)
+  priority = numberr (data priority in tooltip lower>higher)
+  updater = func (function that updates data in db)
+  event = {} or string (table or string that contains events that triggers updater func)
+  weeklyReset = bool (should this be reset on weekly reset)
+  dailyReset = bool (should data for this reset every day)
+  specialResetHandle = function (replaces just wiping table for this key)
+  description = string
+  override = bool (overrides user selection disable/enable module)
+  init = function (function that will run at init)
+  }
   ]]
   if not data then return end
   local mDB = Exlist.ModuleData
@@ -1250,10 +1249,10 @@ function Exlist.GetCharacterTableKey(realm,name,key)
 end
 
 function Exlist.CharacterExists(realm,name)
-    if db[realm] and db[realm][name] then
-      return true
-    end
-    return false
+  if db[realm] and db[realm][name] then
+    return true
+  end
+  return false
 end
 
 function Exlist.DeleteCharacterFromDB(name,realm)
@@ -1395,7 +1394,7 @@ local function GearTooltip(self,info)
   -- character name header
   local header = "|T" .. specIcon ..":25:25|t "..
     "|c" .. RAID_CLASS_COLORS[info.class].colorStr .. info.name .. "|r " ..
-  (info.level or 0) .. ' level'
+    (info.level or 0) .. ' level'
   local line = geartooltip:AddHeader()
   geartooltip:SetCell(line,1,header,"LEFT",3)
   geartooltip:SetCell(line,7,string.format("%i "..L["ilvl"],(info.iLvl or 0)),"RIGHT")
@@ -1474,7 +1473,7 @@ local function GearTooltip(self,info)
       left = 0,
       right = 0,
       top = 0,
-  bottom = 0 }}
+      bottom = 0 }}
   geartooltip:SetBackdrop(backdrop)
   local c = settings.backdrop
   geartooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
@@ -1705,66 +1704,66 @@ local function OnEnter(self)
 
   -- character info main tooltip
   for i=1,#charOrder do
-      local name = charOrder[i].name
-      local realm = charOrder[i].realm
-      local character = {
-        name = name,
-        realm = realm
-      }
-      local charData = Exlist.GetCharacterTable(realm,name)
-      charData.name = name
-      -- header
-      local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
-      local headerText,subHeaderText = "",""
-      if settings.shortenInfo then
+    local name = charOrder[i].name
+    local realm = charOrder[i].realm
+    local character = {
+      name = name,
+      realm = realm
+    }
+    local charData = Exlist.GetCharacterTable(realm,name)
+    charData.name = name
+    -- header
+    local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
+    local headerText,subHeaderText = "",""
+    if settings.shortenInfo then
 
-        headerText = "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
-        subHeaderText = string.format("|c%s%s",Colors.sideTooltipTitle,realm)
+      headerText = "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
+      subHeaderText = string.format("|c%s%s",Colors.sideTooltipTitle,realm)
 
-      else
-        headerText = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
-        subHeaderText = string.format("|c%s%s - "..L["Level"] .." %i",Colors.sideTooltipTitle,realm,charData.level)
+    else
+      headerText = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
+      subHeaderText = string.format("|c%s%s - "..L["Level"] .." %i",Colors.sideTooltipTitle,realm,charData.level)
+    end
+    -- Header Info
+    Exlist.AddData({
+      data = headerText,
+      character = character,
+      priority = -1000,
+      moduleName = "_Header",
+      titleName = "Header",
+      OnEnter = GearTooltip,
+      OnEnterData = charData,
+      OnLeave = Exlist.DisposeSideTooltip()
+
+    })
+    Exlist.AddData({
+      data = string.format("%i ilvl", charData.iLvl or 0),
+      character = character,
+      priority = -1000,
+      moduleName = "_Header",
+      titleName = "Header",
+    })
+    Exlist.AddData({
+      data = subHeaderText,
+      character = character,
+      priority = -999,
+      moduleName = "_HeaderSmall",
+      titleName = "Header",
+      OnEnter = GearTooltip,
+      OnEnterData = charData,
+      OnLeave = Exlist.DisposeSideTooltip()
+    })
+
+
+    local col = settings.horizontalMode and ((i-1)*4)+2 or 2
+    tooltipColCoords[name..realm] = col
+
+    -- Add Info
+    for _,data in ipairs(mDB.lineGenerators) do
+      if settings.allowedModules[data.key].enabled and data.type == "main" then
+        data.func(tooltip,charData[data.key],character)
       end
-      -- Header Info
-      Exlist.AddData({
-        data = headerText,
-        character = character,
-        priority = -1000,
-        moduleName = "_Header",
-        titleName = "Header",
-        OnEnter = GearTooltip,
-        OnEnterData = charData,
-        OnLeave = Exlist.DisposeSideTooltip()
-
-      })
-      Exlist.AddData({
-        data = string.format("%i ilvl", charData.iLvl or 0),
-        character = character,
-        priority = -1000,
-        moduleName = "_Header",
-        titleName = "Header",
-      })
-      Exlist.AddData({
-        data = subHeaderText,
-        character = character,
-        priority = -999,
-        moduleName = "_HeaderSmall",
-        titleName = "Header",
-        OnEnter = GearTooltip,
-        OnEnterData = charData,
-        OnLeave = Exlist.DisposeSideTooltip()
-      })
-
-
-      local col = settings.horizontalMode and ((i-1)*4)+2 or 2
-      tooltipColCoords[name..realm] = col
-
-      -- Add Info
-      for _,data in ipairs(mDB.lineGenerators) do
-        if settings.allowedModules[data.key].enabled and data.type == "main" then
-          data.func(tooltip,charData[data.key],character)
-        end
-      end
+    end
   end
   -- Add Data to tooltip
   PopulateTooltip(tooltip)
@@ -1821,7 +1820,7 @@ local function OnEnter(self)
             else
               self.elapsed = self.elapsed + self.time
               if self.elapsed > settings.delay then
-                  QTip:Release(self)
+                QTip:Release(self)
               end
             end
             self.time = 0
@@ -1849,10 +1848,10 @@ local function OnEnter(self)
       else
         self.elapsed = self.elapsed + self.time
         if self.elapsed > settings.delay then
-            self.parent:SetAlpha(settings.iconAlpha or 1)
-            releasedTooltip()
-            ClearFunctions(self)
-            QTip:Release(self)
+          self.parent:SetAlpha(settings.iconAlpha or 1)
+          releasedTooltip()
+          ClearFunctions(self)
+          QTip:Release(self)
         end
       end
       self.time = 0
@@ -1870,8 +1869,8 @@ butTool:SetScript("OnEnter", OnEnter)
 
 -- config --
 local function OpenConfig(self, button)
-    InterfaceOptionsFrame_OpenToCategory(addonName)
-		InterfaceOptionsFrame_OpenToCategory(addonName)
+  InterfaceOptionsFrame_OpenToCategory(addonName)
+  InterfaceOptionsFrame_OpenToCategory(addonName)
 end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
@@ -2035,7 +2034,7 @@ end
 local function GetNextDailyResetTime()
   local resettime = GetQuestResetTime()
   if not resettime or resettime <= 0 or -- ticket 43: can fail during startup
-  resettime > 24 * 3600 + 30 then -- can also be wrong near reset in an instance
+    resettime > 24 * 3600 + 30 then -- can also be wrong near reset in an instance
     return nil
   end
   if false then
@@ -2043,7 +2042,7 @@ local function GetNextDailyResetTime()
     local serverResetTime = (serverHour * 3600 + serverMinute * 60 + resettime) % 86400 -- GetGameTime of the reported reset
     local diff = serverResetTime - 10800 -- how far from 3AM server
     if math.abs(diff) > 3.5 * 3600 -- more than 3.5 hours - ignore TZ differences of US continental servers
-    and GetRegion() == "US" then
+      and GetRegion() == "US" then
       local diffhours = math.floor((diff + 1800) / 3600)
       resettime = resettime - diffhours * 3600
       if resettime < - 900 then -- reset already passed, next reset
@@ -2060,7 +2059,7 @@ end
 local function GetNextWeeklyResetTime()
   if not config_db.resetDays then
     local region = GetRegion()
-	--print('Getnextweekly region: ', region)
+    --print('Getnextweekly region: ', region)
     if not region then return nil end
     config_db.resetDays = {}
     config_db.resetDays.DLHoffset = 0
@@ -2196,13 +2195,13 @@ end
 
 local function IsEventEligible(event)
   if runEvents[event] then
-      if GetTime() - runEvents[event] > 0.5 then
-        runEvents[event] = nil
-        return true
-      else
-        Exlist.Debug("Denied running event(",event,")")
-        return false
-      end
+    if GetTime() - runEvents[event] > 0.5 then
+      runEvents[event] = nil
+      return true
+    else
+      Exlist.Debug("Denied running event(",event,")")
+      return false
+    end
   else
     runEvents[event] = GetTime()
     return true
@@ -2237,7 +2236,7 @@ function frame:OnEvent(event, ...)
     init()
     SetTooltipBut()
     Exlist.Debug('Init ran for: ' .. DebugTimeColors(debugprofilestop() - started))
-	  C_Timer.After(3,function() ResetHandling() end)
+    C_Timer.After(3,function() ResetHandling() end)
     return
   end
   -- Delays
@@ -2287,14 +2286,14 @@ end
 frame:SetScript("OnEvent", frame.OnEvent)
 
 function Exlist.SendFakeEvent(event,...)
-   frame.OnEvent(nil,event,...)
- end
+  frame.OnEvent(nil,event,...)
+end
 
- local function func(...)
-    Exlist.SendFakeEvent("WORLD_MAP_OPEN")
- end
+local function func(...)
+  Exlist.SendFakeEvent("WORLD_MAP_OPEN")
+end
 
- hooksecurefunc(WorldMapFrame,"Show",func)
+hooksecurefunc(WorldMapFrame,"Show",func)
 
 function Exlist.PrintUpdates()
   local realms, numRealms = GetRealms()

@@ -89,8 +89,8 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local function Modernize(data)
-  -- data is table of module table from character
-  -- always return table or don't use at all
+-- data is table of module table from character
+-- always return table or don't use at all
 end
 
 local data = {
@@ -102,7 +102,7 @@ local data = {
   event = {"PLAYER_ENTERING_WORLD","PLAYER_ENTERING_WORLD_DELAYED"},
   description = L["Uses Raider.IO addon (Needs to be installed) to display your m+ score"],
   weeklyReset = false,
-  -- modernize = Modernize
+-- modernize = Modernize
 }
 
 Exlist.RegisterModule(data)

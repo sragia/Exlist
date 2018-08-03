@@ -43,7 +43,7 @@ local questTypeOrder = {"daily","weekly"}
 
 local trackedQuests = {
   -- [questId] = {enabled = bool,type = string, checkFunction = function,default = bool,showSeparate = bool}
-}
+  }
 
 local bquestIds = {
   {questId = 44175,name = "World Quest Bonus Event", spellId = 225788}, -- WQ
@@ -91,7 +91,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
   end
   local holidayNames = {}
   for _,qId in ipairs(bquestIds) do
-  -- maybe have already completed
+    -- maybe have already completed
     if IsQuestFlaggedCompleted(qId.questId) then
       bonusQuestId = qId.questId
       if qId.questId == questId then
@@ -125,9 +125,9 @@ function checkFunctions.WeeklyBonusQuest(questId)
           -- found it !!
           local tmpQuestId = 0
           if twIconIds[holiday.texture] then
-          	tmpQuestId = twIconIds[holiday.texture]
+            tmpQuestId = twIconIds[holiday.texture]
           else
-          	tmpQuestId = holidayNames[holiday.name]
+            tmpQuestId = holidayNames[holiday.name]
           end
           bonusQuestId = tmpQuestId
           settings.unsortedFolder.weekly.bonusQuestId = tmpQuestId
@@ -305,8 +305,8 @@ local function GlobalLineGenerator(tooltip,data)
 end
 
 local function Modernize(data)
-  -- data is table of module table from character
-  -- always return table or don't use at all
+-- data is table of module table from character
+-- always return table or don't use at all
 end
 
 local function ResetHandle(resetType)
@@ -337,10 +337,10 @@ local function SetupQuestConfig(refresh)
     name = "Quests",
     args ={
       desc = {
-          type = "description",
-          order = 1,
-          width = "full",
-          name = L["Controls quests that are being tracked by addon\n"]
+        type = "description",
+        order = 1,
+        width = "full",
+        name = L["Controls quests that are being tracked by addon\n"]
       },
       note = {
         type = "description",
@@ -356,7 +356,7 @@ local function SetupQuestConfig(refresh)
         type = "toggle",
         width = "full",
         get = function()
-            return settings.showQuestsInExtra
+          return settings.showQuestsInExtra
         end,
         set = function(self, v)
           settings.showQuestsInExtra = v
@@ -421,16 +421,16 @@ local function SetupQuestConfig(refresh)
   end) do
     local o = options.args
     o[questId.."enabled"] = {
-        order = n,
-        name = WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),colors.questTitle),
-        type = "toggle",
-        width = 1.5,
-        get = function()
-            return info.enabled
-        end,
-        set = function(self, v)
-            info.enabled = v
-        end,
+      order = n,
+      name = WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),colors.questTitle),
+      type = "toggle",
+      width = 1.5,
+      get = function()
+        return info.enabled
+      end,
+      set = function(self, v)
+        info.enabled = v
+      end,
     }
     n = n + 1
     o[questId.."type"] = {
@@ -441,7 +441,7 @@ local function SetupQuestConfig(refresh)
       width = 0.5,
       disabled = function() return info.default end,
       get = function()
-          return info.type
+        return info.type
       end,
       set = function(self, v)
         ChangeType(questId,info.type,v)
@@ -512,17 +512,17 @@ local function init()
   -- setup quests
   local dbQuests = Exlist.ConfigDB.settings.quests
   dbQuests = Exlist.AddMissingTableEntries(dbQuests,DEFAULT_QUESTS)
- 
+
   -- add all to tracked
   for questId,t in pairs(dbQuests) do
     trackedQuests[questId] = t
   end
 
-  Exlist.ConfigDB.settings.extraInfoToggles.quests = Exlist.ConfigDB.settings.extraInfoToggles.quests 
-  or {
+  Exlist.ConfigDB.settings.extraInfoToggles.quests = Exlist.ConfigDB.settings.extraInfoToggles.quests
+    or {
       name = L["Weekly/Daily Quests"],
       enabled = true,
-     }
+    }
 end
 
 local data = {
@@ -538,7 +538,7 @@ local data = {
   description = L["Allows user to track different daily or weekly quests"],
   specialResetHandle = ResetHandle,
   init = init,
-  -- modernize = Modernize
+-- modernize = Modernize
 }
 
 Exlist.RegisterModule(data)

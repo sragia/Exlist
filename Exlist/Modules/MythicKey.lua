@@ -123,8 +123,8 @@ local function GlobalLineGenerator(tooltip,data)
         GameTooltip:SetWidth(300)
         GameTooltip:SetText(data[i].desc,nil,nil,nil,nil,true)
         GameTooltip:Show()
-       end)
-       Exlist.AddScript(tooltip,line,nil,"OnLeave",GameTooltip_Hide)
+      end)
+      Exlist.AddScript(tooltip,line,nil,"OnLeave",GameTooltip_Hide)
     end
   end
 end
@@ -148,9 +148,9 @@ end
 
 local function init()
   Exlist.ConfigDB.settings.extraInfoToggles.affixes = Exlist.ConfigDB.settings.extraInfoToggles.affixes or {
-      name = L["Mythic+ Weekly Affixes"],
-      enabled = true,
-     }
+    name = L["Mythic+ Weekly Affixes"],
+    enabled = true,
+  }
 
   if GetExpansionLevel() == 6 then -- TODO:LAUNCH
     affixThreshold = {4,7,10}

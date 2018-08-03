@@ -2,13 +2,13 @@ local key = "currency"
 local L = Exlist.L
 local prio = 10
 local currencyAmount = {
-}
+  }
 local GetMoney, GetCurrencyInfo, GetItemCount = GetMoney, GetCurrencyInfo, GetItemCount
 local GetItemInfo = GetItemInfo
 local math, table, pairs = math, table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
 local GetCurrencyListSize, GetCurrencyListInfo = GetCurrencyListSize, GetCurrencyListInfo
-local print, string, ipairs = print, string, ipairs 
+local print, string, ipairs = print, string, ipairs
 local Exlist = Exlist
 local colors = Exlist.Colors
 
@@ -90,69 +90,69 @@ local function AddRefreshOptions()
     type = "group",
     name = "Currency",
     args ={
-        desc = {
-            type = "description",
-            order = 1,
-            width = "full",
-            name = L["Enable/Disable Currencies you want to see"]
-        },
-        hideCurrency = {
-          type = "toggle",
-          order = 1.04,
-          width = 2.15,
-          name = L["Hide empty currencies"],
-          desc = L["Hides currency if it's not present on character"],
-          get = function() return Exlist.ConfigDB.settings.hideEmptyCurrency end,
-          set = function(self,v) Exlist.ConfigDB.settings.hideEmptyCurrency = v  AddRefreshOptions() end
-        },
-        itemInput = {
-          type = "input",
-          order = 1.06,
-          name = L[" Add Item (|cffffffffInput itemID or item name|r)"],
-          get = function() return "" end,
-          set = function(self,v)
-            local iInfo = Exlist.GetCachedItemInfo(v)
-            if iInfo and iInfo.name then
-              cur[iInfo.name] = {
-                enabled = true,
-                icon = iInfo.texture,
-                name = iInfo.name,
-                type = "item"
-              }
-              AddRefreshOptions()
-            else
-              print(Exlist.debugString,L["Couldn't add item:"],v)
-            end
-          end,
-          width = 1,
-        },
-        label1 = {
-          type = "description",
-          order = 1.1,
-          fontSize = "medium",
-          width = "normal",
-          name = WrapTextInColorCode(L["Name"],colors.config.tableColumn)
-        },
-        label2 = {
-          type = "description",
-          order = 1.2,
-          fontSize = "medium",
-          width = "half",
-          name = WrapTextInColorCode(L["Enable"],colors.config.tableColumn)
-        },
-        label3 = {
-          type = "description",
-          order = 1.3,
-          fontSize = "medium",
-          width = "normal",
-          name = WrapTextInColorCode(L["Show Separate"],colors.config.tableColumn)
-        },
-        spacer1 = {
-          type = "description",
-          order = 1.4,
-          width = "half",
-          name = ""
-        },
+      desc = {
+        type = "description",
+        order = 1,
+        width = "full",
+        name = L["Enable/Disable Currencies you want to see"]
+      },
+      hideCurrency = {
+        type = "toggle",
+        order = 1.04,
+        width = 2.15,
+        name = L["Hide empty currencies"],
+        desc = L["Hides currency if it's not present on character"],
+        get = function() return Exlist.ConfigDB.settings.hideEmptyCurrency end,
+        set = function(self,v) Exlist.ConfigDB.settings.hideEmptyCurrency = v  AddRefreshOptions() end
+      },
+      itemInput = {
+        type = "input",
+        order = 1.06,
+        name = L[" Add Item (|cffffffffInput itemID or item name|r)"],
+        get = function() return "" end,
+        set = function(self,v)
+          local iInfo = Exlist.GetCachedItemInfo(v)
+          if iInfo and iInfo.name then
+            cur[iInfo.name] = {
+              enabled = true,
+              icon = iInfo.texture,
+              name = iInfo.name,
+              type = "item"
+            }
+            AddRefreshOptions()
+          else
+            print(Exlist.debugString,L["Couldn't add item:"],v)
+          end
+        end,
+        width = 1,
+      },
+      label1 = {
+        type = "description",
+        order = 1.1,
+        fontSize = "medium",
+        width = "normal",
+        name = WrapTextInColorCode(L["Name"],colors.config.tableColumn)
+      },
+      label2 = {
+        type = "description",
+        order = 1.2,
+        fontSize = "medium",
+        width = "half",
+        name = WrapTextInColorCode(L["Enable"],colors.config.tableColumn)
+      },
+      label3 = {
+        type = "description",
+        order = 1.3,
+        fontSize = "medium",
+        width = "normal",
+        name = WrapTextInColorCode(L["Show Separate"],colors.config.tableColumn)
+      },
+      spacer1 = {
+        type = "description",
+        order = 1.4,
+        width = "half",
+        name = ""
+      },
     }
   }
   -- update currencies
@@ -161,11 +161,11 @@ local function AddRefreshOptions()
   for name,t in spairs(cur) do
     n = n + 1
     options.args[name..'desc'] = {
-        type = "description",
-        order = n,
-        fontSize = "medium",
-        name = string.format("|T%s:15|t %s",t.icon,name),
-        width = "normal"
+      type = "description",
+      order = n,
+      fontSize = "medium",
+      name = string.format("|T%s:15|t %s",t.icon,name),
+      width = "normal"
     }
     options.args[name..'enable'] = {
       type = "toggle",
@@ -219,7 +219,7 @@ local function Linegenerator(tooltip,data,character)
     local settings = Exlist.ConfigDB.settings
     for i=1,#currency do
       if not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0 )) and
-      settings.currencies[currency[i].name].enabled then
+        settings.currencies[currency[i].name].enabled then
         if settings.currencies[currency[i].name].showSeparate then
           table.insert(extraInfos,{
             character = character,

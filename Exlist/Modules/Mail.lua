@@ -37,8 +37,8 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local function Modernize(data)
-  -- data is table of module table from character
-  -- always return table or don't use at all
+-- data is table of module table from character
+-- always return table or don't use at all
 end
 
 local data = {
@@ -50,7 +50,7 @@ local data = {
   event = {"PLAYER_ENTERING_WORLD","UPDATE_PENDING_MAIL"},
   weeklyReset = false,
   description = L["Tracks incoming mail"],
-  -- modernize = Modernize
+-- modernize = Modernize
 }
-  
+
 Exlist.RegisterModule(data)

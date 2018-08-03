@@ -10,26 +10,26 @@ local colors = Exlist.Colors
 local function Updater(event)
   if UnitLevel('player') < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
   local coinsQuests = UnitLevel'player' <= 110 and
-  {
-    [43895] = 1, 
-    [43897] = 1, 
-    [43896] = 1, 
-    [43892] = 1, 
-    [43893] = 1, 
-    [43894] = 1, 
-    [43510] = 1, -- Order Hall
-    [47851] = 1, 
-    [47864] = 1,
-    [47865] = 1, 
-  } or 
-  { -- BFA
-    [52834] = true, -- Gold
-    [52835] = true, -- Honor
-    [52837] = true, -- Resources
-    [52838] = true, -- 2xGold
-    [52839] = true, -- 2xHonor
-    [52840] = true, -- 2xResources
-}
+    {
+      [43895] = 1,
+      [43897] = 1,
+      [43896] = 1,
+      [43892] = 1,
+      [43893] = 1,
+      [43894] = 1,
+      [43510] = 1, -- Order Hall
+      [47851] = 1,
+      [47864] = 1,
+      [47865] = 1,
+    } or
+    { -- BFA
+      [52834] = true, -- Gold
+      [52835] = true, -- Honor
+      [52837] = true, -- Resources
+      [52838] = true, -- 2xGold
+      [52839] = true, -- 2xHonor
+      [52840] = true, -- 2xResources
+    }
   local coinsCurrency = UnitLevel('player') <= 110 and 1273 or 1580
   local maxCoins = UnitLevel('player') <= 110 and 3 or 2
   local count = 0

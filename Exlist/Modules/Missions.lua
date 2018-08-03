@@ -16,12 +16,12 @@ local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 
 local function Updater(event)
   if event == "Exlist_DELAY" then return end
-  local followerType = UnitLevel("player") <= 110 and LE_FOLLOWER_TYPE_GARRISON_7_0 or 
+  local followerType = UnitLevel("player") <= 110 and LE_FOLLOWER_TYPE_GARRISON_7_0 or
     LE_FOLLOWER_TYPE_GARRISON_8_0
   local mission = CG.GetInProgressMissions(followerType)
   local availMissions = CG.GetAvailableMissions(followerType)
   local t =  {
-  }
+    }
   local currTime = time()
   if mission then
     -- in progress/finished

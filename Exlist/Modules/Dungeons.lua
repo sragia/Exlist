@@ -23,7 +23,7 @@ local legionDungeons = {
   1044, -- Vault of the Wardens
   1535, -- Seat of the Triumvirate
 }
-  -- BFA
+-- BFA
 local bfaDungeons = {
   1669, -- Atal'Dazar
   1710, -- Shrine of the Storm

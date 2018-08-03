@@ -23,19 +23,19 @@ local function Linegenerator(tooltip,data,character)
     priority = prio,
     moduleName = key,
     titleName = L["Note"],
-    -- data = "",
-    -- colOff = 0,
-    -- dontResize = false,
-    -- OnEnter = function() end,
-    -- OnEnterData = {},
-    -- OnLeave = function() end,
-    -- OnLeaveData = {},
-    -- OnClick = function() end,
-    -- OnClickData = {},
+  -- data = "",
+  -- colOff = 0,
+  -- dontResize = false,
+  -- OnEnter = function() end,
+  -- OnEnterData = {},
+  -- OnLeave = function() end,
+  -- OnLeaveData = {},
+  -- OnClick = function() end,
+  -- OnClickData = {},
   }
   local name = data.name
   local realm = data.realm
-  if data and data.note then 
+  if data and data.note then
     -- show note
     StaticPopupDialogs["DeleteNotePopup_"..name..realm] = {
       text = L["Delete Note?"],
@@ -81,7 +81,7 @@ local function Linegenerator(tooltip,data,character)
       preferredIndex = 4,
       showAlert = false,
       enterClicksFirstButton = 1
-    } 
+    }
     info.data = WrapTextInColorCode(L["Add Note"], colors.note)
     info.OnClick = function() StaticPopup_Show("AddNotePopup_"..name..realm) end
   end
@@ -96,23 +96,23 @@ end
 
 --[[
 local function Modernize(data)
-  -- data is table of module table from character
-  -- always return table or don't use at all
-  return data
+-- data is table of module table from character
+-- always return table or don't use at all
+return data
 end
 ]]
 
 --[[
 local function init()
-  -- code that will run before any other function
+-- code that will run before any other function
 end
 ]]
 
 --[[
 local function ResetHandler(resetType)
-  -- code that will be run at reset for this module
-  -- instead of just wiping all data that is keyed 
-  -- by this module key
+-- code that will be run at reset for this module
+-- instead of just wiping all data that is keyed
+-- by this module key
 end
 ]]
 
@@ -126,11 +126,11 @@ local data = {
   weeklyReset = false,
   dailyReset = false,
   description = L["Add Note to your characters"],
-  -- globallgenerator = GlobalLineGenerator,
-  -- modernize = Modernize,
-  -- init = init,  
-  -- override = true,
-  -- specialResetHandle = ResetHandler
+-- globallgenerator = GlobalLineGenerator,
+-- modernize = Modernize,
+-- init = init,
+-- override = true,
+-- specialResetHandle = ResetHandler
 
 }
 
