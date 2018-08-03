@@ -56,18 +56,19 @@ local function Updater(event)
     dungeon = mapName,
     mapId = challengeMapID,
     level = keyLevel,
-    itemLink = string.format("\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r",
-                          keyId,
-                          challengeMapID,
-                          keyLevel,
-                          availableAffixes[1] or "",
-                          availableAffixes[2] or "",
-                          availableAffixes[3] or "",
-                          availableAffixes[4] or "",
-                          L["Keystone"],
-                          mapName,
-                          keyLevel
-                          )
+    itemLink = string.format(
+      "\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r",
+      keyId,
+      challengeMapID,
+      keyLevel,
+      availableAffixes[1] or "",
+      availableAffixes[2] or "",
+      availableAffixes[3] or "",
+      availableAffixes[4] or "",
+      L["Keystone"],
+      mapName,
+      keyLevel
+    )
   }
   Exlist.UpdateChar(key,t)
 end

@@ -1,3 +1,12 @@
+1.2.3
+----
+**3 August 2018 - 23:37**
+
+- Animations for important information
+- Show unopened mythic+ weekly chest
+- Added couple more events for reputation module
+- Fixes for mythic+ not updating properly
+
 1.2.2
 ----
 **30 July 2018 - 22:19**
