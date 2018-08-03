@@ -799,7 +799,7 @@ function Exlist.InitConfig()
           func = function()
             Exlist.SetupConfig()
             C_Timer.After(0.1, function() InterfaceOptionsFrame_Show() InterfaceOptionsFrame_Show() end)
-          --	InterfaceOptionsFrame_OpenToCategory(name)
+          --  InterfaceOptionsFrame_OpenToCategory(name)
           end
         }
     }

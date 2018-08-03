@@ -2262,7 +2262,7 @@ function frame:OnEvent(event, ...)
   Exlist.Debug('Event ',event)
   if Exlist.ModuleData.updaters[event] then
     for i,data in ipairs(Exlist.ModuleData.updaters[event]) do
-      if settings.allowedModules[data.key] or data.override then
+      if settings.allowedModules[data.key].enabled or data.override then
         local started = debugprofilestop()
         data.func(event,...)
         Exlist.Debug(data.name .. ' finished: ' .. DebugTimeColors(debugprofilestop() - started))
