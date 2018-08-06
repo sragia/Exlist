@@ -1894,7 +1894,7 @@ function Exlist.RefreshAppearance()
   hugeFont:SetFont(font, settings.fonts.big.size)
   smallFont:SetFont(font, settings.fonts.small.size)
   mediumFont:SetFont(font, settings.fonts.medium.size)
-  for fontSize,f in ipairs(customFonts) do
+  for fontSize,f in pairs(customFonts) do
     f:SetFont(font,fontSize)
   end
   butTool:SetScale(settings.iconScale)
