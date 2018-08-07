@@ -1259,6 +1259,13 @@ function Exlist.DeleteCharacterFromDB(name,realm)
   if db[realm] then
     db[realm][name] = nil
     settings.allowedCharacters[name.."-"..realm] = nil
+    for i,char in ipairs(settings.characterOrder) do
+      if char.name == name and char.realm == realm then
+        settings.characterOrder[i] = nil
+        settings.reorder = true
+        break
+      end
+    end
     print(debugString,L["Successfully deleted"],name.."-"..realm,".")
   else
     print(debugString,string.format(L["Deleting %s-%s failed."],name,realm))
