@@ -64,7 +64,7 @@ end
 local function GetLastEnabledChar()
   local chars = Exlist.ConfigDB.settings.allowedCharacters
   for i,char in ipairs(charOrder) do
-    if not chars[char].enabled then
+    if chars[char] and not chars[char].enabled then
       return i - 1
     end
   end
