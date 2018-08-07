@@ -1,3 +1,9 @@
+1.2.3.2
+----
+**7 August 2018 - 16:41**
+
+- Fix errors when deleting character
+
 1.2.3.1
 ----
 **7 August 2018 - 15:13**
