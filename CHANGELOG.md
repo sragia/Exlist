@@ -1,3 +1,11 @@
+1.2.3.1
+----
+**7 August 2018 - 15:13**
+
+- Disabled modules shouldn't run anymore
+- Fix extra info fonts not changing
+- Another fix for mythic+ runs updating
+
 1.2.3
 ----
 **3 August 2018 - 23:37**
