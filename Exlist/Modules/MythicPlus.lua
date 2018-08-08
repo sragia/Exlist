@@ -123,7 +123,7 @@ local function Linegenerator(tooltip,data,character)
   elseif data.bestLvl and data.bestLvl >= 2 then
     info.data = "+" .. (data.bestLvl or "") .. " " .. dungeonName
   else
-    info.data = ""
+    return
   end
 
   if data.mapsDone and #data.mapsDone > 0 then
