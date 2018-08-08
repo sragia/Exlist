@@ -114,14 +114,16 @@ local function Linegenerator(tooltip,data,character)
     priority = prio,
     titleName = L["Best Mythic+"],
   }
-  if data.chest.available then
+  if data.chest and data.chest.available then
     info.data = WrapTextInColorCode(
       string.format("+%i %s",data.chest.level,L["Chest Available"]),
       colors.available
     )
     info.pulseAnim = true
+  elseif data.bestLvl and data.bestLvl >= 2 then
+    info.data = "+" .. (data.bestLvl or "") .. " " .. dungeonName
   else
-    info.data = "+" .. data.bestLvl .. " " .. dungeonName
+    info.data = ""
   end
 
   if data.mapsDone and #data.mapsDone > 0 then
@@ -168,8 +170,9 @@ local function ResetHandle(resetType)
     for _,character in ipairs(characters) do
       Exlist.Debug("Reset",resetType,"quests for:",character,"-",realm)
       local data = Exlist.GetCharacterTableKey(realm,character,key)
-      if data.bestLvl >= 2 then
+      if data.bestLvl and data.bestLvl >= 2 then
         data = {
+          bestLvl = 0,
           chest = {
             available = true,
             level = data.bestLvl
