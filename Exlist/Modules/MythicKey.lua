@@ -37,7 +37,6 @@ local function Updater(event)
     local name, desc, icon = CM.GetAffixInfo(affixId)
     gt[i] = {name = name, icon = icon, desc = desc}
   end
-  if prepatch and gt[4] then gt[4] = nil end -- TODO:LAUNCH
   Exlist.UpdateChar(key,gt,"global","global")
   -- Get Key
   local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() -- for map
@@ -152,8 +151,8 @@ local function init()
     enabled = true,
   }
 
-  if GetExpansionLevel() == 6 then -- TODO:LAUNCH
-    affixThreshold = {4,7,10}
+  if GetExpansionLevel() == 6 then
+    affixThreshold = {4,7,10} -- Legion
   else
     affixThreshold = {2,4,7,10}
   end

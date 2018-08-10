@@ -149,8 +149,6 @@ end
 
 local DEFAULT_QUESTS = {
   -- Same as trackedQuests
-  [48799] = {enabled = true, type = "weekly", default = true, showSeparate = false}, -- Fuel of a Doomed World
-  [49293] = {enabled = true, type = "weekly", default = true, showSeparate = false}, -- Invasion Onslaught
   [44175] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"}, -- BQ_WQ
   [44171] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_Dungeons
   [44173] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_BGs
@@ -508,10 +506,20 @@ local function SetupQuestConfig(refresh)
 end
 Exlist.ModuleToBeAdded(SetupQuestConfig)
 
+local deprecietedQuests = {
+  48799, -- Fuel of a Doomed World
+  49293, -- Invasion Onslaught
+}
+
 local function init()
   -- setup quests
   local dbQuests = Exlist.ConfigDB.settings.quests
   dbQuests = Exlist.AddMissingTableEntries(dbQuests,DEFAULT_QUESTS)
+  for _, questId in ipairs(deprecietedQuests) do
+    if dbQuests[questId] and dbQuests[questId].default then
+      dbQuests[questId] = nil
+    end
+  end
 
   -- add all to tracked
   for questId,t in pairs(dbQuests) do

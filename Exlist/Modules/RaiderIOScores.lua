@@ -6,9 +6,9 @@ local colors = Exlist.Colors
 local CM = C_ChallengeMode
 local table,print, string= table,print, string
 local WrapTextInColorCode = WrapTextInColorCode
-local RaiderIO = RaiderIO
 local UnitLevel = UnitLevel
 local DUNGEON_NAME = {
+--TODO: Use BFA maps when RaiderIO gets updated
   (CM.GetMapUIInfo(206)), -- NL
   (CM.GetMapUIInfo(200)), -- HoV
   (CM.GetMapUIInfo(198)), -- DHT
