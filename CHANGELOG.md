@@ -1,3 +1,10 @@
+1.2.4 BFA Launch Pre-Release
+----
+**10 August 2018 - 23:38**
+
+- Fixes some M+ nil errors
+- Clean up (Delete) of stuff that is only relevant for Legion
+
 1.2.3.2
 ----
 **7 August 2018 - 16:41**
