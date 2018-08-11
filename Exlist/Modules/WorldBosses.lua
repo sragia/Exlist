@@ -111,7 +111,7 @@ local function Updater(e,info)
     Exlist.UpdateChar(key,t)
     Exlist.UpdateChar(key,gt,'global','global')
     return
-  elseif not( UnitLevel('player') == Exlist.CONSTANTS.MAX_CHARACTER_LEVEL ) or
+  elseif not( IsPlayerAtEffectiveMaxLevel() ) or
     GetTime() - lastUpdate < 5 or
     IsInRaid() or
     select(2,IsInInstance()) ~= "none"

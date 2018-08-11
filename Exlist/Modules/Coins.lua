@@ -8,7 +8,7 @@ local Exlist = Exlist
 local colors = Exlist.Colors
 
 local function Updater(event)
-  if UnitLevel('player') < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
+  if not IsPlayerAtEffectiveMaxLevel() then return end
   local coinsQuests = UnitLevel'player' <= 110 and
     {
       [43895] = 1,

@@ -41,7 +41,7 @@ local function Updater(event,...)
   if not RaiderIO then
     Exlist.Debug("RaiderIO not installed -",key)
     return
-  elseif UnitLevel("player") < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then
+  elseif not IsPlayerAtEffectiveMaxLevel() then
     return
   end
 

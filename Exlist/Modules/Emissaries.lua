@@ -50,8 +50,8 @@ local function spairs(t, order)
 end
 
 local function Updater(event)
+  if not IsPlayerAtEffectiveMaxLevel() then return end
   local playerLevel = UnitLevel("player")
-  if playerLevel < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then return end
   if event == "PLAYER_ENTERING_WORLD" then
     C_Timer.After(5,function() Exlist.SendFakeEvent("PLAYER_ENTERING_WORLD_DELAYED") end)
     return
