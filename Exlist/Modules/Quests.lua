@@ -68,6 +68,7 @@ local twIconIds = {
   [1304688] = 44167, -- Cata (alt)
 }
 local bonusQuestId
+local refreshedCalendar = false
 function checkFunctions.WeeklyBonusQuest(questId)
   -- Unfortunately can't find this weeks by simple API calls
   local settings = Exlist.ConfigDB.settings
@@ -142,8 +143,11 @@ function checkFunctions.WeeklyBonusQuest(questId)
   end
   -- nope
   -- to refresh calendar info
-  ToggleCalendar()
-  ToggleCalendar()
+  if not refreshedCalendar then
+    refreshedCalendar = true
+    ToggleCalendar()
+    ToggleCalendar()
+  end
   return nil,false,false
 end
 
