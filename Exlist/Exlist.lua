@@ -237,6 +237,7 @@ local Colors = { --default colors
   sideTooltipTitle = "ffffd200",
   available = "ff00ff00",
   completed = "ffff0000",
+  incomplete = "fff49b42",
   notavailable = "fff49e42",
   enchantName = "ff98f907",
   debug = "ffc73000",
