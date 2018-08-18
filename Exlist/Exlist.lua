@@ -1405,7 +1405,7 @@ local function GearTooltip(self,info)
     (info.level or 0) .. ' level'
   local line = geartooltip:AddHeader()
   geartooltip:SetCell(line,1,header,"LEFT",3)
-  geartooltip:SetCell(line,7,string.format("%i "..L["ilvl"],(info.iLvl or 0)),"RIGHT")
+  geartooltip:SetCell(line,7,string.format("%i "..L["ilvl"],(info.iLvl or 0)),"CENTER")
   geartooltip:AddSeparator(1,.8,.8,.8,1)
   line = geartooltip:AddHeader()
   geartooltip:SetCell(line,1,WrapTextInColorCode(L["Gear"],Colors.sideTooltipTitle),"CENTER",7)
@@ -1448,7 +1448,8 @@ local function GearTooltip(self,info)
       line = geartooltip:AddLine()
       local isArch = p[i].name == L["Archaeology"]
       geartooltip:SetCell(line,1,string.format("|T%s:20|t%s",p[i].icon,p[i].name),"LEFT")
-      geartooltip:SetCell(line,2,string.format("|cff%s%s|r",ProfessionValueColor(p[i].curr,isArch),p[i].curr),"RIGHT",6)
+      geartooltip:SetCell(line,2,"","LEFT",5) -- spacer for status bar
+      geartooltip:SetCell(line,7,string.format("|cff%s%s|r",ProfessionValueColor(p[i].curr,isArch),p[i].curr),"CENTER")
 
       local statusBar = AttachStatusBar(geartooltip.lines[line].cells[2])
       table.insert(geartooltip.statusBars,statusBar)
@@ -1456,7 +1457,8 @@ local function GearTooltip(self,info)
       statusBar:SetValue(p[i].curr)
       statusBar:SetWidth(tipWidth)
       statusBar:SetStatusBarColor(Exlist.ColorHexToDec(ProfessionValueColor(p[i].curr)))
-      statusBar:SetPoint("LEFT",geartooltip.lines[line].cells[2],"LEFT",5,0)
+      statusBar:SetPoint("LEFT",geartooltip.lines[line].cells[2],5,0)
+      statusBar:SetPoint("RIGHT",geartooltip.lines[line].cells[2],5,0)
     end
     geartooltip:AddSeparator(1,.8,.8,.8,1)
   end
