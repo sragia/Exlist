@@ -27,6 +27,7 @@ local affixThreshold = {
 }
 
 local function Updater(event)
+  if not C_MythicPlus.IsMythicPlusActive() then return end
   local gt = Exlist.GetCharacterTableKey("global","global",key)
   -- Get Affixes
   C_MythicPlus.RequestCurrentAffixes()
@@ -72,7 +73,7 @@ local function Updater(event)
   Exlist.UpdateChar(key,t)
 end
 local function Linegenerator(tooltip,data,character)
-  if not data then return end
+  if not C_MythicPlus.IsMythicPlusActive() or not data then return end
   local settings = Exlist.ConfigDB.settings
   local mapId = tonumber(data.mapId)
   local dungeonName = settings.shortenInfo and Exlist.ShortenedMPlus[mapId] or data.dungeon
@@ -102,7 +103,7 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local function GlobalLineGenerator(tooltip,data)
-  if not data then return end
+  if not C_MythicPlus.IsMythicPlusActive() or not data then return end
   if not Exlist.ConfigDB.settings.extraInfoToggles.affixes.enabled then return end
   local added = false
   for i=1,#data do

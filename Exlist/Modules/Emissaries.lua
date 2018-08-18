@@ -66,7 +66,7 @@ local function Updater(event)
   local trackedBounties = 0 -- if we already know all bounties
   for questId,info in pairs(gt) do
     -- cleanup
-    if info.endTime < timeNow or info.level ~= playerLevel then
+    if info.endTime < timeNow or info.level < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then
       gt[questId] = nil
     else
       trackedBounties = trackedBounties + 1
@@ -90,7 +90,7 @@ local function Updater(event)
   else
     for i = 1, GetNumQuestLogEntries() do
       local title, level, _, _, _, _, _, questID, _, _, _, _, _, isBounty = GetQuestLogTitle(i)
-      if isBounty and level == playerLevel then
+      if isBounty and level >= Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then
         local text, _, completed, current, total = GetQuestObjectiveInfo(questID, 1, false)
         local timeleft = C_TaskQuest.GetQuestTimeLeftMinutes(questID)
         local endTime = timeNow + timeleft * 60
