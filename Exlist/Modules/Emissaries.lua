@@ -66,7 +66,7 @@ local function Updater(event)
   local trackedBounties = 0 -- if we already know all bounties
   for questId,info in pairs(gt) do
     -- cleanup
-    if info.endTime < timeNow or info.level < Exlist.CONSTANTS.MAX_CHARACTER_LEVEL then
+    if info.endTime < timeNow then
       gt[questId] = nil
     else
       trackedBounties = trackedBounties + 1
