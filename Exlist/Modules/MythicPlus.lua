@@ -38,6 +38,7 @@ local mapTimes = {
 }
 
 local function Updater(event)
+  if not C_MythicPlus.IsMythicPlusActive() then return end
   if not IsAddOnLoaded("Blizzard_ChallengesUI") then
     LoadAddOn("Blizzard_ChallengesUI")
     C_Timer.After(1,function() Exlist.SendFakeEvent("MYTHIC_PLUS_REFRESH_INFO") end)
