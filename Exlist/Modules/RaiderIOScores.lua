@@ -8,21 +8,6 @@ local table,print, string= table,print, string
 local WrapTextInColorCode = WrapTextInColorCode
 local UnitLevel = UnitLevel
 local DUNGEON_NAME = {
---TODO: Use BFA maps when RaiderIO gets updated
-  (CM.GetMapUIInfo(206)), -- NL
-  (CM.GetMapUIInfo(200)), -- HoV
-  (CM.GetMapUIInfo(198)), -- DHT
-  (CM.GetMapUIInfo(207)), -- VOTW
-  (CM.GetMapUIInfo(199)), -- BRH
-  (CM.GetMapUIInfo(208)), -- MOS
-  (CM.GetMapUIInfo(209)), -- ARC
-  (CM.GetMapUIInfo(197)), -- EOA
-  (CM.GetMapUIInfo(210)), -- COS
-  (CM.GetMapUIInfo(233)), -- CATH
-  (CM.GetMapUIInfo(239)), -- SEAT
-  (CM.GetMapUIInfo(227)), -- LOWER
-  (CM.GetMapUIInfo(234)), -- UPPER
-
   -- BFA
   (CM.GetMapUIInfo(244)), -- Atal'dazar
   (CM.GetMapUIInfo(245)), -- Freehold
