@@ -294,11 +294,11 @@ local Colors = { --default colors
     {val = 30, color = "dbd3ab"},
     {val = 40, color = "e2d388"},
     {val = 50, color = "efd96b"},
-    {val = 60, color = "ffe254"},
-    {val = 70, color = "ffde3d"},
-    {val = 80, color = "ffd921"},
-    {val = 90, color = "ffd50c"},
-    {val = 100, color = "ffae00"}
+    {val = 70, color = "ffe254"},
+    {val = 90, color = "ffde3d"},
+    {val = 110, color = "ffd921"},
+    {val = 130, color = "ffd50c"},
+    {val = 150, color = "ffae00"}
   },
   -- REPUTATION --
   repColors = {

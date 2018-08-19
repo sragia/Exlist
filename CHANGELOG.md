@@ -1,3 +1,14 @@
+1.2.5
+----
+**19 August 2018 - 18:41**
+
+- Fix dungeons showing up as max of 9
+- Show dungeon progress
+- Fix profession bar overlap
+- Show M+ stuff only when it's available
+- Fix Emissaries for extra info tooltip
+
+
 1.2.4 BFA Launch Pre-Release
 ----
 **10 August 2018 - 23:38**
