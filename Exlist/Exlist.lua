@@ -145,7 +145,8 @@ local settings = { -- default settings
     cache = {},
     charOption = {},
     enabled = {},
-  }
+  },
+  azeriteWeekly = true,
 }
 local iconPaths = {
   --[specId] = [[path]]

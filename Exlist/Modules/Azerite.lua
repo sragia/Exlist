@@ -56,8 +56,24 @@ local function GetAzeriteInfo()
   return t
 end
 
+local function GetIslandsProgress()
+  local questId = C_IslandsQueue.GetIslandsWeeklyQuestID()
+  if IsQuestFlaggedCompleted(questId) then
+    return true, 0, 0 -- Completed
+  end
+  local _, _, _, numFulfilled, numRequired = GetQuestObjectiveInfo(questId, 1, false)
+  return false, numFulfilled, numRequired
+end
+
 local function Updater(event)
-  Exlist.UpdateChar(key,GetAzeriteInfo())
+  local completed, curr, max = GetIslandsProgress()
+  local t = GetAzeriteInfo()
+  t.weekly = {
+    completed = completed,
+    curr = curr,
+    max = max,
+  }
+  Exlist.UpdateChar(key,t)
 end
 
 local slotNames = {
@@ -94,6 +110,26 @@ local function Linegenerator(tooltip,data,character)
     info.data = info.data .. WrapTextInColorCode(format(" %i %s",total,shorten and L["avail"] or L["available"]), colors.available)
   end
   Exlist.AddData(info)
+  -- Weekly Info
+  if data.weekly and Exlist.ConfigDB.settings.azeriteWeekly then
+    local weekly = {
+      character = character,
+      priority = prio + 1,
+      moduleName = key.."Weekly",
+      titleName = L["Weekly Islands"],
+    }
+    if data.weekly.completed then
+      weekly.data = WrapTextInColorCode(L["Completed"], colors.completed)
+    elseif data.weekly.curr >= data.weekly.max then
+      weekly.data = WrapTextInColorCode(L["Turn In!"], colors.avialable)
+      weekly.pulseAnim = true
+    else
+      weekly.data = string.format("%s/%s",
+        Exlist.ShortenNumber(data.weekly.curr),
+        Exlist.ShortenNumber(data.weekly.max))
+    end
+    Exlist.AddData(weekly)
+  end
 end
 
 --[[
@@ -123,13 +159,34 @@ local function ResetHandler(resetType)
 end
 ]]
 
+local function AddOptions()
+  local settings = Exlist.ConfigDB.settings
+  local options = {
+    type = "group",
+    name = L["Azerite"],
+    args = {
+      azeriteWeekly = {
+        type = "toggle",
+        order = 1,
+        width = "full",
+        name = L["Show Islands Weekly"],
+        desc = L["Show characters progress with weekly Islands Expedition quest"],
+        get = function() return settings.azeriteWeekly end,
+        set = function(self,value) settings.azeriteWeekly = value end
+      }
+    }
+  }
+  Exlist.AddModuleOptions(key,options,L["Azerite"])
+end
+Exlist.ModuleToBeAdded(AddOptions)
+
 local data = {
   name = L['Azerite'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"PLAYER_ENTERING_WORLD","AZERITE_ITEM_EXPERIENCE_CHANGED","AZERITE_ITEM_POWER_LEVEL_CHANGED"},
+  event = {"PLAYER_ENTERING_WORLD","AZERITE_ITEM_EXPERIENCE_CHANGED","AZERITE_ITEM_POWER_LEVEL_CHANGED","QUEST_LOG_UPDATE"},
   weeklyReset = false,
   dailyReset = false,
   description = L["Tracks Heart of Azeroth's current level and progress. Also show available traits."],
@@ -138,7 +195,6 @@ local data = {
 -- init = init,
 -- override = true,
 -- specialResetHandle = ResetHandler
-
 }
 
 Exlist.RegisterModule(data)
