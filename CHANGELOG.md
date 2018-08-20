@@ -1,3 +1,9 @@
+1.2.6
+----
+**20 August 2018 - 22:36**
+
+- Added tracking for weekly Islands Expedition quest
+
 1.2.5
 ----
 **19 August 2018 - 18:41**
@@ -7,7 +13,6 @@
 - Fix profession bar overlap
 - Show M+ stuff only when it's available
 - Fix Emissaries for extra info tooltip
-
 
 1.2.4 BFA Launch Pre-Release
 ----
