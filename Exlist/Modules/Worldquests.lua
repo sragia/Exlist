@@ -235,12 +235,7 @@ function Exlist.ScanQuests()
         }
       end
       if timeLeft == 0 then
-        -- TODO: Recheck this at launch
-        -- in beta some wq return timeleft as 0
-        -- and show on the map as expiring soon
-        -- but doesnt show time left and doesnt expire
-        -- SO BETA THINGS ONLY????
-        timeLeft = 10000
+        timeLeft = 5
       end
       tl = tl > timeLeft and timeLeft or tl
     end
@@ -277,6 +272,24 @@ local function RemoveTrackedQuest(questId)
     wqs[questId] = nil
   end
   Exlist.UpdateChar(key,gt,"global","global")
+end
+
+local function GetFormatedRewardString(r,noColor)
+  local s = ""
+  if r.name == "Gold" then
+    if noColor then
+      s = r.amount.gold .. "g " .. r.amount.silver .. "s " .. r.amount.coppers .. "c"
+    else
+      s = r.amount.gold .. "|cFFd8b21ag|r " .. r.amount.silver .. "|cFFadadads|r " .. r.amount.coppers .. "|cFF995813c|r"
+    end
+  else
+    if r.amount > 1 then
+      s = string.format( "%ix|T%s:12|t",r.amount,r.texture)
+    else
+      s = string.format( "|T%s:12|t",r.texture)
+    end
+  end
+  return s
 end
 
 local function Updater(event,questInfo)
@@ -321,35 +334,29 @@ local function GlobalLineGenerator(tooltip,data)
       if info.endTime < timeNow or (wq[questId] and not wq[questId].enabled) then
         RemoveExpiredQuest(questId)
       else
-        if first then Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],colors.sideTooltipTitle)},14) first = false end
+        if first then
+          Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Quests"],colors.sideTooltipTitle)},14)
+          first = false
+        end
+        -- Refresh rewards
         if not info.rewards or #info.rewards < 1 then
           info.rewards = GetQuestRewards(questId)
         end
+
         local timeLeft = Exlist.TimeLeftColor(info.endTime-timeNow,{3600, 14400})
         local targetReward = ""
         local sideTooltip = {title = WrapTextInColorCode(info.name, colors.questTitle), body = {L["Time Left: "] .. timeLeft,WrapTextInColorCode(L["Rewards"],colors.questTitle)}}
+
         for i,reward in ipairs(info.rewards) do
           if reward.target then
-            if reward.name == "Gold" then
-              targetReward = reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"
-            else
-              if reward.amount > 1 then
-                targetReward = string.format( "%ix|T%s:12|t",reward.amount,reward.texture)
-              else
-                targetReward = string.format( "|T%s:12|t",reward.texture)
-              end
-            end
+            targetReward = GetFormatedRewardString(reward,true)
           end
-          if reward.name == "Gold" then
-            table.insert(sideTooltip.body,{reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"})
-          else
-            if reward.amount > 1 then
-              table.insert(sideTooltip.body,string.format( "%ix|T%s:12|t%s",reward.amount,reward.texture,reward.name))
-            else
-              table.insert(sideTooltip.body,string.format( "|T%s:12|t%s",reward.texture,reward.name))
-            end
-          end
+          table.insert(sideTooltip.body,GetFormatedRewardString(reward))
         end
+        if targetReward == "" then
+          targetReward = GetFormatedRewardString(info.rewards[1],true)
+        end
+
         local lineNum = Exlist.AddLine(tooltip,{AddCheckmark(info.name,IsQuestFlaggedCompleted(info.questId)),
           timeLeft,
           WrapTextInColorCode(string.format("%s  - %s",targetReward,C_Map.GetMapInfo(info.zoneId).name or ""),colors.faded)})
@@ -360,6 +367,7 @@ local function GlobalLineGenerator(tooltip,data)
           WorldMapFrame:SetMapID(info.zoneId)
           BonusObjectiveTracker_TrackWorldQuest(questId)
         end)
+
         -- Add Objectives to Side Tooltip
         if info.objectives then
           table.insert( sideTooltip.body, WrapTextInColorCode(L["Objectives"],colors.questTitle))
@@ -456,18 +464,7 @@ local function SetupWQConfig(refresh)
     o[questID.."rewards"] = {
       order = n,
       name = function()
-        local reward = info.rewards[1]
-        local s = ""
-        if reward.name == "gold" then
-          s = reward.amount.gold .. "|cFFd8b21ag|r " .. reward.amount.silver .. "|cFFadadads|r " .. reward.amount.coppers .. "|cFF995813c|r"
-        else
-          if reward.amount > 1 then
-            s = string.format( "%ix|T%s:12|t%s",reward.amount,reward.texture,reward.name)
-          else
-            s = string.format( "|T%s:12|t%s",reward.texture,reward.name)
-          end
-        end
-        return s
+        return GetFormatedRewardString(info.rewards[1])
       end,
       type = "description",
       width = 1.8,
