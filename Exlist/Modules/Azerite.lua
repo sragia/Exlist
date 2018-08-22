@@ -151,13 +151,29 @@ local function init()
 end
 ]]
 
---[[
+
 local function ResetHandler(resetType)
 -- code that will be run at reset for this module
 -- instead of just wiping all data that is keyed
 -- by this module key
+  local realms = Exlist.GetRealmNames()
+  for _,realm in ipairs(realms) do
+    local characters = Exlist.GetRealmCharacters(realm)
+    for _,character in ipairs(characters) do
+      local data = Exlist.GetCharacterTableKey(realm,character,key)
+      if data.weekly then
+        data.weekly =  {
+          completed = false,
+          curr = 0,
+          max = 40000, -- hardcode for now
+        }
+      end
+      Exlist.UpdateChar(key,data,character,realm)
+    end
+  end
+
 end
-]]
+
 
 local function AddOptions()
   local settings = Exlist.ConfigDB.settings
@@ -187,14 +203,14 @@ local data = {
   priority = prio,
   updater = Updater,
   event = {"PLAYER_ENTERING_WORLD","AZERITE_ITEM_EXPERIENCE_CHANGED","AZERITE_ITEM_POWER_LEVEL_CHANGED","QUEST_LOG_UPDATE"},
-  weeklyReset = false,
+  weeklyReset = true,
   dailyReset = false,
   description = L["Tracks Heart of Azeroth's current level and progress. Also show available traits."],
 -- globallgenerator = GlobalLineGenerator,
 -- modernize = Modernize,
 -- init = init,
 -- override = true,
--- specialResetHandle = ResetHandler
+  specialResetHandle = ResetHandler
 }
 
 Exlist.RegisterModule(data)
