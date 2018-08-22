@@ -1,3 +1,12 @@
+1.2.8
+----
+**23 August 2018 - 01:09**
+
+- Weekly Islands reset on weekly reset
+- Multiple nil checks
+- All functionality isn't broken because of 1 error
+- Check if player can do weekly islands quest before updating it
+
 1.2.7
 ----
 **22 August 2018 - 03:22**
