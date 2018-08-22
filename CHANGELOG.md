@@ -1,3 +1,10 @@
+1.2.7
+----
+**22 August 2018 - 03:22**
+
+- Fix nil error for completed weekly islands
+- Fix nil error for adding world quest for tracking
+
 1.2.6
 ----
 **20 August 2018 - 22:36**
