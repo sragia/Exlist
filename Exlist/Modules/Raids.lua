@@ -405,7 +405,7 @@ local function init()
       [983] = {name = "Halls of Blood", totalEncounters = 3, order = 2,firstBoss = 4},
       [1367] = {name = "Halls of Blood", totalEncounters = 3, order = 2,dontCount = true,saveId = 983},
       [984] = {name = "Bastion of Shadows", totalEncounters = 3, order = 3,map = {7,8,11}},
-      [1369] = {name = "Bastion of Shadows", totalEncounters = 3, order = 3,dontCount = true,saveId = 984},
+      [1368] = {name = "Bastion of Shadows", totalEncounters = 3, order = 3,dontCount = true,saveId = 984},
       [985] = {name = "Destructor's Rise", totalEncounters = 3, order = 4,map = {9,10,12}},
       [1369] = {name = "Destructor's Rise", totalEncounters = 3, order = 4,dontCount = true,saveId = 985},
       [986] = {name = "The Black Gate", totalEncounters = 1, order = 5,firstBoss = 13},
