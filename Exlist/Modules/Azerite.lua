@@ -121,7 +121,7 @@ local function Linegenerator(tooltip,data,character)
     if data.weekly.completed then
       weekly.data = WrapTextInColorCode(L["Completed"], colors.completed)
     elseif data.weekly.curr >= data.weekly.max then
-      weekly.data = WrapTextInColorCode(L["Turn In!"], colors.avialable)
+      weekly.data = WrapTextInColorCode(L["Turn In!"], colors.available)
       weekly.pulseAnim = true
     else
       weekly.data = string.format("%s/%s",
