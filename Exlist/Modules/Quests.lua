@@ -107,7 +107,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
       if name then
         bonusQuestId = qId.questId
         if qId.questId == questId then
-          local questName = Exlist.GetCachedQuestTitle(quest)
+          local questName = Exlist.GetCachedQuestTitle(questId)
           return questName,true,false
         end
         return nil,false,false
@@ -122,7 +122,17 @@ function checkFunctions.WeeklyBonusQuest(questId)
     local holiday = C_Calendar.GetHolidayInfo(0,date.day,i)
     if holiday then
       if holidayNames[holiday.name] then
-        if holiday.endTime.monthDay > date.day or date.month < holiday.endTime.month then
+        local t = holiday.endTime
+        local tEndTime = {
+          day = t.monthDay,
+          hour = t.hour,
+          min = t.minute,
+          month = t.month,
+          year = t.year
+        }
+        local deltaTime = time(tEndTime) - time()
+        if deltaTime > 0 and deltaTime <= 7*24*60*60
+        then
           -- found it !!
           local tmpQuestId = 0
           if twIconIds[holiday.texture] then
