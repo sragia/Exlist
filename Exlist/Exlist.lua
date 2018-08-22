@@ -1772,7 +1772,7 @@ local function OnEnter(self)
     -- Add Info
     for _,data in ipairs(mDB.lineGenerators) do
       if settings.allowedModules[data.key].enabled and data.type == "main" then
-        data.func(tooltip,charData[data.key],character)
+        xpcall(data.func,geterrorhandler(),tooltip,charData[data.key],character)
       end
     end
   end
@@ -1789,7 +1789,7 @@ local function OnEnter(self)
       local added = false
       for _,data in ipairs(mDB.lineGenerators) do
         if settings.allowedModules[data.key].enabled and data.type == "global" then
-          data.func(gTip,gData[data.key])
+          xpcall(data.func,geterrorhandler(),gTip,gData[data.key])
           added = true
         end
       end
@@ -2274,7 +2274,7 @@ function frame:OnEvent(event, ...)
     for i,data in ipairs(Exlist.ModuleData.updaters[event]) do
       if settings.allowedModules[data.key] and settings.allowedModules[data.key].enabled or data.override then
         local started = debugprofilestop()
-        data.func(event,...)
+        xpcall(data.func, geterrorhandler(), event, ...)
         Exlist.Debug(data.name .. ' finished: ' .. DebugTimeColors(debugprofilestop() - started))
         GetLastUpdateTime()
       end
