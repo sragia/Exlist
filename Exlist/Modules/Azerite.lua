@@ -62,17 +62,20 @@ local function GetIslandsProgress()
     return true, 0, 0 -- Completed
   end
   local _, _, _, numFulfilled, numRequired = GetQuestObjectiveInfo(questId, 1, false)
-  return false, numFulfilled, numRequired
+  return false, numFulfilled or 0, numRequired or 40000 -- fallback values if user hasnt done quest
 end
 
 local function Updater(event)
-  local completed, curr, max = GetIslandsProgress()
   local t = GetAzeriteInfo()
-  t.weekly = {
-    completed = completed,
-    curr = curr,
-    max = max,
-  }
+  if not t then return end
+  if UnitLevel("player") == 120 then
+    local completed, curr, max = GetIslandsProgress()
+    t.weekly = {
+      completed = completed,
+      curr = curr,
+      max = max,
+    }
+  end
   Exlist.UpdateChar(key,t)
 end
 
@@ -138,12 +141,18 @@ local function GlobalLineGenerator(tooltip,data)
 end
 ]]
 
---[[
+
 local function Modernize(data)
--- data is table of module table from character
--- always return table or don't use at all
+  -- data is table of module table from character
+  -- always return table or don't use at all
+  if Exlist.GetTableNum(data) == 0 then
+    return
+  end
+  if data.weekly and not data.weekly.curr then
+    data.weekly = nil
+  end
+  return data
 end
-]]
 
 --[[
 local function init()
@@ -207,7 +216,7 @@ local data = {
   dailyReset = false,
   description = L["Tracks Heart of Azeroth's current level and progress. Also show available traits."],
 -- globallgenerator = GlobalLineGenerator,
--- modernize = Modernize,
+  modernize = Modernize,
 -- init = init,
 -- override = true,
   specialResetHandle = ResetHandler
