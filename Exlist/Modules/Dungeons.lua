@@ -17,6 +17,7 @@ local bfaDungeons = {
   1708, -- The MOTHERLODE!!
   1712, -- The Underrot
   1714, -- Tol Dagor
+  1704, -- Freehold
   1706, -- Waycrest Manor
   1701, -- Siege of Boralus
   1785, -- Kings' Rest
