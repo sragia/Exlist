@@ -1,3 +1,9 @@
+1.2.8.1
+----
+**24 August 2018 - 18:32**
+
+- Fix Freehold not showing up for mythic dungeons
+
 1.2.8
 ----
 **23 August 2018 - 01:09**
