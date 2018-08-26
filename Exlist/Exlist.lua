@@ -851,6 +851,9 @@ local function UpdateCharacterSpecifics(event)
   table.spec = spec
   table.specId = specId
   table.realm = realm
+  if settings.allowedCharacters[name..'-'..realm] then
+    settings.allowedCharacters[name..'-'..realm].ilvl = iLvl
+  end
   UpdateChar(nil,table,name,realm)
 end
 
