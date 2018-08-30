@@ -161,12 +161,17 @@ local function Linegenerator(tooltip,data,character)
       local r = data[factionID]
       if r then
         local text1 = r.name
-        local text2 = string.format(
-          "%s (%s/%s)",
-          WrapTextInColorCode(standingNames[r.standing],colors.repColors[r.standing]),
-          Exlist.ShortenNumber(r.curr),
-          Exlist.ShortenNumber(r.max)
-        )
+        local text2 = ""
+        if r.standing == 8 then
+          text2 = WrapTextInColorCode(standingNames[r.standing],colors.repColors[r.standing])
+        else
+          text2 = string.format(
+            "%s (%s/%s)",
+            WrapTextInColorCode(standingNames[r.standing],colors.repColors[r.standing]),
+            Exlist.ShortenNumber(r.curr),
+            Exlist.ShortenNumber(r.max)
+          )
+        end
         if r.paragonReward then
           paragonAvailable = true
           text2 = AddCheckmark(text2,true)
