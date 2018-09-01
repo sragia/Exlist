@@ -211,7 +211,14 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"PLAYER_ENTERING_WORLD","AZERITE_ITEM_EXPERIENCE_CHANGED","AZERITE_ITEM_POWER_LEVEL_CHANGED","QUEST_LOG_UPDATE"},
+  event = {
+    "PLAYER_ENTERING_WORLD",
+    "AZERITE_ITEM_EXPERIENCE_CHANGED",
+    "AZERITE_ITEM_POWER_LEVEL_CHANGED",
+    "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED",
+    "PLAYER_EQUIPMENT_CHANGED",
+    "QUEST_LOG_UPDATE"
+  },
   weeklyReset = true,
   dailyReset = false,
   description = L["Tracks Heart of Azeroth's current level and progress. Also show available traits."],
