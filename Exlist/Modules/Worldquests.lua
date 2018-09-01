@@ -520,7 +520,7 @@ local function SetupWQConfig(refresh)
   options.args["WQRulesType"] = {
     type = "select",
     order = n,
-    width = 1,
+    width = 0.7,
     name = "Reward Type",
     values = rewardRules.types,
     get = function()
@@ -568,7 +568,7 @@ local function SetupWQConfig(refresh)
   options.args["WQRulesCompare"] = {
     type = "select",
     order = n,
-    width = 0.3,
+    width = 0.5,
     name = L["Amount"],
     values = rewardRules.compareValues,
     get = function() return tmpConfigRule.compareValue end,
@@ -590,6 +590,13 @@ local function SetupWQConfig(refresh)
       tmpConfigRule.amount = tonumber(v) or 0
       SetupWQConfig(true)
     end,
+  }
+  n = n + 1
+  options.args["WQRulesSpacer"] = {
+    type = "description",
+    order = n,
+    width = 0.1,
+    name = ""
   }
   n = n + 1
   options.args["WQRulesSaveBtn"] = {
@@ -622,6 +629,22 @@ local function SetupWQConfig(refresh)
     }
   end
 
+  n = n + 1
+  options.args["WQRulesLabel1"] = {
+    type = "description",
+    order = n,
+    width = 0.8,
+    name = WrapTextInColorCode(L["Reward Name"], colors.config.tableColumn),
+    fontSize = "medium",
+  }
+  n = n + 1
+  options.args["WQRulesLabel2"] = {
+    type = "description",
+    order = n,
+    width = 2.4,
+    name = WrapTextInColorCode(L["Reward Amount"], colors.config.tableColumn),
+    fontSize = "medium",
+  }
   -- setup all rules
   local wqRules = Exlist.ConfigDB.settings.wqRules
   for rewardType,t in pairs(wqRules) do
@@ -646,7 +669,7 @@ local function SetupWQConfig(refresh)
       options.args["WQRulesListItemAmount"..rewardName] = {
         type = "description",
         order = n,
-        width = 1.5,
+        width = 2,
         fontSize = "small",
         name = Exlist.ShortenNumber(info.amount or 0,1),
       }
