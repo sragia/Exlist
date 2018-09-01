@@ -48,7 +48,7 @@ local worldBossIDs = {
   [52181] =  {eid = 2139}, -- T'zane
   [52169] =  {eid = 2141}, -- Ji'arak
   [52157] =  {eid = 2197}, -- Hailstone Construct
-  [0] =  {eid = 2199}, -- Azurethos, The Winged Typhoon TODO
+  [52163] =  {eid = 2199}, -- Azurethos, The Winged Typhoon
   [52166] =  {eid = 2198}, -- Warbringer Yenajz
 }
 local lastUpdate = 0
