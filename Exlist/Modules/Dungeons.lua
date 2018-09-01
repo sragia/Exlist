@@ -23,9 +23,6 @@ local bfaDungeons = {
   1785, -- Kings' Rest
 }
 local function Updater(event,...)
-  if event == "ENCOUNTER_END" and select(5,...) ~= 1 then
-    return
-  end
   local t = {
     ['done'] = 0,
     ['max'] = NUMBER_OF_DUNGEONS_BFA,

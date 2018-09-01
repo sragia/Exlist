@@ -116,9 +116,6 @@ end
 
 
 local function Updater(event,...)
-  if event == "ENCOUNTER_END" and select(5,...) ~= 1 then
-    return
-  end
   local t = {}
   local raids = Exlist.ConfigDB.settings.raids or {}
   for i = 1, GetNumSavedInstances() do
