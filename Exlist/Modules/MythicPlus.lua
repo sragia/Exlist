@@ -1,13 +1,13 @@
 local key = "mythicPlus"
 local prio = 50
-local CM = C_ChallengeMode
+local C_ChallengeMode = C_ChallengeMode
 local C_MythicPlus = C_MythicPlus
 local Exlist = Exlist
 local colors = Exlist.Colors
 local L = Exlist.L
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table, ipairs = table, ipairs
-
+local initialized = 0
 local mapTimes = {
   --[mapId] = {+1Time,+2Time,+3Time} in seconds
   --BFA
@@ -36,50 +36,52 @@ local mapTimes = {
   [234] = {2100,1680,1260}, -- Kara: Upper
   [239] = {2100,1680,1260}, -- Seat
 }
+local mapIds = {}
 
 local function Updater(event)
-  if not C_MythicPlus.IsMythicPlusActive() then return end
-  if not IsAddOnLoaded("Blizzard_ChallengesUI") then
-    LoadAddOn("Blizzard_ChallengesUI")
-    C_Timer.After(1,function() Exlist.SendFakeEvent("MYTHIC_PLUS_REFRESH_INFO") end)
-    return
-  end
-  if event ~= "CHALLENGE_MODE_MAPS_UPDATE" then
-    C_MythicPlus.RequestMapInfo()
+  if not C_MythicPlus.IsMythicPlusActive() then return end -- if mythic+ season isn't active
+  -- make sure code is run after data is received
+  if initialized == 0 then
     C_MythicPlus.RequestRewards()
-    C_MythicPlus.RequestCurrentAffixes()
+    C_MythicPlus.RequestMapInfo()
+    initialized = 1
     return
+  elseif initialized <= 1 then
+    return
+  elseif event == "CHALLENGE_MODE_MAPS_UPDATE" then
+    initialized = 2
+    mapIds = C_ChallengeMode.GetMapTable()
   end
-  local mapIDs = CM.GetMapTable()
-  local bestLvl = 0
-  local bestLvlMap = ""
-  local bestMapId = 0
-  local mapsDone = {}
-  local savedAffixes
-  for i = 1, #mapIDs do
-    local bestTime, level = C_MythicPlus.GetWeeklyBestForMap(mapIDs[i])
-    if level and level > bestLvl then
-      -- currently best map
-      bestLvl = level
-      bestMapId = mapIDs[i]
-      bestLvlMap = CM.GetMapUIInfo(mapIDs[i])
-      table.insert(mapsDone,{mapId = mapIDs[i], name = bestLvlMap,level = level, time = bestTime})
-    elseif level and level > 0 then
-      local mapName = CM.GetMapUIInfo(mapIDs[i])
-      table.insert(mapsDone,{mapId = mapIDs[i], name = mapName,level = level, time = bestTime})
+  local bestLevel, bestMap, bestMapId, dungeons = 0, "", 0, {}
+
+  for i = 1, #mapIds do
+    local mapTime, mapLevel = C_MythicPlus.GetWeeklyBestForMap(mapIds[i])
+    -- add to completed dungeons
+    local mapName = C_ChallengeMode.GetMapUIInfo(mapIds[i])
+    if mapLevel then
+      table.insert(dungeons,{ mapId = mapIds[i], name = mapName, level = mapLevel, time = mapTime })
+    end
+    -- check if best map this week
+    if mapLevel and mapLevel > bestLevel then
+      bestLevel = mapLevel
+      bestMapId = mapIds[i]
+      bestMap = mapName
     end
   end
-  table.sort(mapsDone,function(a,b) return a.level > b.level end)
+  -- sort maps by level descending
+  table.sort(dungeons,function(a,b) return a.level > b.level end)
+
   local t = {
-    ["bestLvl"] = bestLvl,
-    ["bestLvlMap"] = bestLvlMap,
-    ["mapId"] = bestMapId,
-    ["mapsDone"] = mapsDone,
-    ["chest"] = {
+    bestLvl = bestLevel,
+    bestLvlMap = bestMap,
+    mapId = bestMapId,
+    mapsDone = dungeons,
+    chest = {
       level = 0,
       available = false
-    }
+    },
   }
+  -- check for available weekly chest
   if C_MythicPlus.IsWeeklyRewardAvailable() then
     local _,level = C_MythicPlus.GetLastWeeklyBestInformation()
     t.chest = {
@@ -87,6 +89,7 @@ local function Updater(event)
       level = level
     }
   end
+
   Exlist.UpdateChar(key,t)
 end
 
@@ -145,9 +148,9 @@ local function Modernize(data)
   -- always return table or don't use at all
   if not data.mapId and data.bestLvlMap then
     C_MythicPlus.RequestMapInfo() -- request update
-    local mapIDs = CM.GetMapTable()
+    local mapIDs = C_ChallengeMode.GetMapTable()
     for i,id in ipairs(mapIDs) do
-      if data.bestLvlMap == (CM.GetMapUIInfo(id)) then
+      if data.bestLvlMap == (C_ChallengeMode.GetMapUIInfo(id)) then
         Exlist.Debug("Added mapId",id)
         data.mapId = id
         break
