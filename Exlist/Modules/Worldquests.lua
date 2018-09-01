@@ -729,7 +729,7 @@ local function init()
           --
           [0] = L["Custom Currency"],
         },
-        defaultValue = 1220, -- TODO: Launch
+        defaultValue = 1553,
         disableItems = false,
         useCustom = true,
         customFieldValue = 0,
