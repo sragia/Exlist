@@ -225,11 +225,11 @@ local function Linegenerator(tooltip,data,character)
             character = character,
             moduleName = key .. currency[i].name,
             priority = prio+i/1000,
-            titleName = "|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""),
+            titleName = "|T".. (currency[i].texture or "") ..":0|t " .. (currency[i].name or ""),
             data = currency[i].amount,
           })
         end
-        table.insert(sideTooltip.body,{"|T".. (currency[i].texture or "") ..":0|t" .. (currency[i].name or ""), currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount})
+        table.insert(sideTooltip.body,{"|T".. (currency[i].texture or "") ..":0|t " .. (currency[i].name or ""), currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount})
       end
     end
     table.insert(sideTooltip.body,"|cfff2b202"..L["To add additional items/currency check out config!"].."|r")
