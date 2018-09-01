@@ -1,6 +1,6 @@
 local key = "mythicKey"
 local prio = 40
-local CM = C_ChallengeMode
+local C_ChallengeMode = C_ChallengeMode
 local C_MythicPlus = C_MythicPlus
 local NUM_BAG_SLOTS = NUM_BAG_SLOTS
 local UnitName, GetRealmName = UnitName, GetRealmName
@@ -27,51 +27,57 @@ local affixThreshold = {
 }
 
 local function Updater(event)
-  if not C_MythicPlus.IsMythicPlusActive() then return end
-  local gt = Exlist.GetCharacterTableKey("global","global",key)
-  -- Get Affixes
-  C_MythicPlus.RequestCurrentAffixes()
-  local affixes = C_MythicPlus.GetCurrentAffixes()
-  if not affixes then return -- not ready
-  end
-  for i,affixId in ipairs(affixes or {}) do
-    local name, desc, icon = CM.GetAffixInfo(affixId)
-    gt[i] = {name = name, icon = icon, desc = desc}
-  end
-  Exlist.UpdateChar(key,gt,"global","global")
-  -- Get Key
-  local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID() -- for map
-  if not challengeMapID then return end
-  local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel() -- for level
-  local mapName = CM.GetMapUIInfo(challengeMapID)
-  -- For Prepatch
-  local keyId = UnitLevel("player") < 120 and 138019 or 158923
+  if not C_MythicPlus.IsMythicPlusActive() then return end -- if mythic+ season isn't active
 
-  local availableAffixes = {}
-  for i,affixLevel in ipairs(affixThreshold) do
-    if keyLevel < affixLevel then break end
-    availableAffixes[#availableAffixes+1] = affixes[i]
+  -- Current Affixes
+  local gt = Exlist.GetCharacterTableKey("global","global",key)
+  if #gt <= 3 and event ~= "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
+    C_MythicPlus.RequestCurrentAffixes() -- Request Affix Data
+    return -- wait for data update event
+  elseif event == "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
+    local blizzAffix = C_MythicPlus.GetCurrentAffixes()
+    for i, affixId in ipairs(blizzAffix or {}) do
+      local name, desc, icon = C_ChallengeMode.GetAffixInfo(affixId)
+      gt[i] = {name = name, icon = icon, desc = desc, id = affixId}
+    end
+    Exlist.UpdateChar(key,gt,"global","global")
   end
+  local affixes = gt
+
+  -- Keystone
+  local challengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
+  if not challengeMapID then return end -- Don't have keystone
+  local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel()
+  local mapName = C_ChallengeMode.GetMapUIInfo(challengeMapID)
+  -- Available Affixes for Keystone level
+  local availableAffixes = {"","","",""}
+  for i, affixLevel in ipairs(affixThreshold) do
+    if keyLevel < affixLevel then break end
+    availableAffixes[#availableAffixes+1] = affixes[i].id
+  end
+
   local t = {
     dungeon = mapName,
     mapId = challengeMapID,
     level = keyLevel,
     itemLink = string.format(
       "\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r",
-      keyId,
+      158923,
       challengeMapID,
       keyLevel,
-      availableAffixes[1] or "",
-      availableAffixes[2] or "",
-      availableAffixes[3] or "",
-      availableAffixes[4] or "",
+      availableAffixes[1],
+      availableAffixes[2],
+      availableAffixes[3],
+      availableAffixes[4],
       L["Keystone"],
       mapName,
       keyLevel
     )
   }
+
   Exlist.UpdateChar(key,t)
 end
+
 local function Linegenerator(tooltip,data,character)
   if not C_MythicPlus.IsMythicPlusActive() or not data then return end
   local settings = Exlist.ConfigDB.settings
@@ -134,9 +140,9 @@ local function Modernize(data)
   -- always return table or don't use at all
   if not data.mapId then
     C_MythicPlus.RequestMapInfo() -- request update
-    local mapIDs = CM.GetMapTable()
+    local mapIDs = C_ChallengeMode.GetMapTable()
     for i,id in ipairs(mapIDs) do
-      if data.dungeon == (CM.GetMapInfo(id)) then
+      if data.dungeon == (C_ChallengeMode.GetMapInfo(id)) then
         Exlist.Debug("Added mapId",id)
         data.mapId = id
         break
@@ -167,7 +173,7 @@ local data = {
   globallgenerator = GlobalLineGenerator,
   priority = prio,
   updater = Updater,
-  event = "BAG_UPDATE",
+  event = "BAG_UPDATE","MYTHIC_PLUS_CURRENT_AFFIX_UPDATE",
   description = L["Tracks characters mythic+ key in their bags and weekly mythic+ affixes"],
   weeklyReset = true,
   modernize = Modernize,
