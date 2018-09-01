@@ -22,7 +22,10 @@ local bfaDungeons = {
   1701, -- Siege of Boralus
   1785, -- Kings' Rest
 }
-local function Updater(event)
+local function Updater(event,...)
+  if event == "ENCOUNTER_END" and select(5,...) ~= 1 then
+    return
+  end
   local t = {
     ['done'] = 0,
     ['max'] = NUMBER_OF_DUNGEONS_BFA,
@@ -89,7 +92,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD"},
+  event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD","ENCOUNTER_END"},
   description = L["Tracks weekly completed mythic dungeons"],
   weeklyReset = true,
   modernize = Modernize,

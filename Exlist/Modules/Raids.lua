@@ -115,7 +115,10 @@ local function spairs(t, order)
 end
 
 
-local function Updater(event)
+local function Updater(event,...)
+  if event == "ENCOUNTER_END" and select(5,...) ~= 1 then
+    return
+  end
   local t = {}
   local raids = Exlist.ConfigDB.settings.raids or {}
   for i = 1, GetNumSavedInstances() do
@@ -466,7 +469,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD"},
+  event = {"UPDATE_INSTANCE_INFO","PLAYER_ENTERING_WORLD","ENCOUNTER_END"},
   description = L["Tracks lockouts for current expansion raids"],
   weeklyReset = true,
   init = init
