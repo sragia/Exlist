@@ -1068,9 +1068,9 @@ function Exlist.CreateSideTooltip(statusbar)
     local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame or
       self:GetParent():GetParent():GetParent())
     if position == "left" then
-      sideTooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1)
+      sideTooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1,0)
     else
-      sideTooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT",1)
+      sideTooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT",1,0)
     end
     sideTooltip:Show()
     sideTooltip:SetClampedToScreen(true)
@@ -1470,9 +1470,9 @@ local function GearTooltip(self,info)
   geartooltip:SetCell(line, 2,info.updated,"LEFT",3)
   local position,vPos = GetPosition(self:GetParent():GetParent():GetParent().parentFrame)
   if position == "left" then
-    geartooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1)
+    geartooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT",-1,0)
   else
-    geartooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT",1)
+    geartooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT",1,0)
   end
   geartooltip:Show()
   geartooltip:SetClampedToScreen(true)
