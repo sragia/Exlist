@@ -1460,7 +1460,7 @@ local function GearTooltip(self,info)
       statusBar:SetMinMaxValues(0,isArch and 800 or MAX_PROFESSION_LEVEL)
       statusBar:SetValue(p[i].curr)
       statusBar:SetWidth(tipWidth)
-      statusBar:SetStatusBarColor(Exlist.ColorHexToDec(ProfessionValueColor(p[i].curr)))
+      statusBar:SetStatusBarColor(Exlist.ColorHexToDec(ProfessionValueColor(p[i].curr,isArch)))
       statusBar:SetPoint("LEFT",geartooltip.lines[line].cells[2],5,0)
       statusBar:SetPoint("RIGHT",geartooltip.lines[line].cells[2],5,0)
     end
