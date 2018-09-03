@@ -1,3 +1,11 @@
+1.2.9
+----
+
+- Update character Ilvl in settings
+- Update instance lockouts on kills
+- Improve some module updating frequency
+- Some minor alignment fixes
+
 1.2.8.1
 ----
 **24 August 2018 - 18:32**
