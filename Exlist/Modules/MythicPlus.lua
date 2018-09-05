@@ -46,11 +46,11 @@ local function Updater(event)
     C_MythicPlus.RequestMapInfo()
     initialized = 1
     return
-  elseif initialized <= 1 then
-    return
   elseif event == "CHALLENGE_MODE_MAPS_UPDATE" then
     initialized = 2
     mapIds = C_ChallengeMode.GetMapTable()
+  elseif initialized <= 1 then
+    return
   end
   local bestLevel, bestMap, bestMapId, dungeons = 0, "", 0, {}
 
