@@ -799,11 +799,8 @@ local function UpdateCharacterGear()
       local itemName, itemLink, itemRarity, _, _, _, _, _, _, itemTexture, _ = GetItemInfo(iLink)
       local ilvl = GetDetailedItemLevelInfo(iLink)
       local relics = {}
-      local enchant,gem
-      if not (order[i] == 16 or order[i] == 17 or order[i] == 18) then
-        enchant = GetItemEnchant(iLink)
-        gem = GetItemGems(iLink)
-      end
+      local enchant = GetItemEnchant(iLink)
+      local gem = GetItemGems(iLink)
       table.insert(t,{slot = slotNames[order[i]], name = itemName,itemTexture = itemTexture, itemLink = itemLink,
         ilvl = ilvl, enchant = enchant, gem = gem})
     end
