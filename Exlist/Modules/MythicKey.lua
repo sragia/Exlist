@@ -31,15 +31,22 @@ local function Updater(event)
 
   -- Current Affixes
   local gt = Exlist.GetCharacterTableKey("global","global",key)
-  if #gt < 3 and event ~= "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
+  if #gt <= 3 and event ~= "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
     C_MythicPlus.RequestCurrentAffixes() -- Request Affix Data
     return -- wait for data update event
   elseif event == "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
     local blizzAffix = C_MythicPlus.GetCurrentAffixes()
     for i, affixId in ipairs(blizzAffix or {}) do
       local name, desc, icon = C_ChallengeMode.GetAffixInfo(affixId)
-      gt[i] = {name = name, icon = icon, desc = desc, id = affixId}
+      -- TODO: GET BACK HERE WHEN BLIZZ FIX THEIR SHIT
+      if i < 3 then
+        gt[i+1] = {name = name, icon = icon, desc = desc, id = affixId}
+      else
+        gt[1] = {name = name, icon = icon, desc = desc, id = affixId}
+      end
     end
+    local name, desc, icon = C_ChallengeMode.GetAffixInfo(16)
+    gt[4] = {name = name, icon = icon, desc = desc, id = 16}
     Exlist.UpdateChar(key,gt,"global","global")
   end
   local affixes = gt
