@@ -31,7 +31,7 @@ local function Updater(event)
 
   -- Current Affixes
   local gt = Exlist.GetCharacterTableKey("global","global",key)
-  if #gt <= 3 and event ~= "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
+  if #gt < 3 and event ~= "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
     C_MythicPlus.RequestCurrentAffixes() -- Request Affix Data
     return -- wait for data update event
   elseif event == "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
@@ -173,7 +173,7 @@ local data = {
   globallgenerator = GlobalLineGenerator,
   priority = prio,
   updater = Updater,
-  event = "BAG_UPDATE","MYTHIC_PLUS_CURRENT_AFFIX_UPDATE",
+  event = {"BAG_UPDATE","MYTHIC_PLUS_CURRENT_AFFIX_UPDATE"},
   description = L["Tracks characters mythic+ key in their bags and weekly mythic+ affixes"],
   weeklyReset = true,
   modernize = Modernize,
