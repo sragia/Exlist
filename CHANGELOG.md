@@ -1,3 +1,10 @@
+1.2.10
+----
+**5 September 2018 - 13:32**
+
+- Fix Best M+ this week not updating
+- Fix M+ Key not updating
+
 1.2.9
 ----
 **3 September 2018 - 15:20**
