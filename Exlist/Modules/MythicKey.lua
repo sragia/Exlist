@@ -57,10 +57,10 @@ local function Updater(event)
   local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel()
   local mapName = C_ChallengeMode.GetMapUIInfo(challengeMapID)
   -- Available Affixes for Keystone level
-  local availableAffixes = {"","","",""}
+  local availableAffixes = {0,0,0,0}
   for i, affixLevel in ipairs(affixThreshold) do
     if keyLevel < affixLevel then break end
-    availableAffixes[#availableAffixes+1] = affixes[i].id
+    availableAffixes[i] = affixes[i].id
   end
 
   local t = {

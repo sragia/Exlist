@@ -7,7 +7,6 @@ local colors = Exlist.Colors
 local L = Exlist.L
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table, ipairs = table, ipairs
-local initialized = 0
 local mapTimes = {
   --[mapId] = {+1Time,+2Time,+3Time} in seconds
   --BFA
@@ -41,17 +40,12 @@ local mapIds = {}
 local function Updater(event)
   if not C_MythicPlus.IsMythicPlusActive() then return end -- if mythic+ season isn't active
   -- make sure code is run after data is received
-  if initialized == 0 then
+  if event ~= "CHALLENGE_MODE_MAPS_UPDATE" then
     C_MythicPlus.RequestRewards()
     C_MythicPlus.RequestMapInfo()
-    initialized = 1
-    return
-  elseif event == "CHALLENGE_MODE_MAPS_UPDATE" then
-    initialized = 2
-    mapIds = C_ChallengeMode.GetMapTable()
-  elseif initialized <= 1 then
     return
   end
+  mapIds = C_ChallengeMode.GetMapTable()
   local bestLevel, bestMap, bestMapId, dungeons = 0, "", 0, {}
 
   for i = 1, #mapIds do
