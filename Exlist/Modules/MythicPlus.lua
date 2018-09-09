@@ -10,16 +10,16 @@ local table, ipairs = table, ipairs
 local mapTimes = {
   --[mapId] = {+1Time,+2Time,+3Time} in seconds
   --BFA
-  [244] = {2340,1872,1405}, -- Atal'dazar
-  [245] = {1800,1440,1080}, -- Freehold
+  [244] = {1800,1440,1080}, -- Atal'dazar
+  [245] = {2160,1728,1296}, -- Freehold
   [246] = {1980,1584,1188}, -- Tol Dagor
-  [247] = {2340,1872,1405}, -- The MOTHERLODE!!
-  [248] = {2340,1872,1405}, -- Waycrest Manor
-  [249] = {1800,1440,1080}, -- Kings' Rest
-  [250] = {1980,1584,1188}, -- Temple of Sethraliss
+  [247] = {2340,1872,1404}, -- The MOTHERLODE!!
+  [248] = {2340,1872,1404}, -- Waycrest Manor
+  [249] = {2340,1872,1404}, -- Kings' Rest
+  [250] = {2160,1728,1296}, -- Temple of Sethraliss
   [251] = {1800,1440,1080}, -- The Underrot
-  [252] = {2340,1872,1405}, -- Shrine of the Storm
-  [353] = {2340,1872,1405}, -- Siege of Boralus
+  [252] = {2340,1872,1404}, -- Shrine of the Storm
+  [353] = {2160,1728,1296}, -- Siege of Boralus
 
   [197] = {2100,1680,1260}, -- Eye of Azshara
   [198] = {1800,1440,1080}, -- Darkheart Thicket
