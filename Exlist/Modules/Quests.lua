@@ -46,26 +46,26 @@ local trackedQuests = {
   }
 
 local bquestIds = {
-  {questId = 44175,name = "World Quest Bonus Event", spellId = 225788}, -- WQ
-  {questId = 44171,name = "Legion Dungeon Event", spellId = 225787}, -- Dungeons
-  {questId = 44173,name = "Battleground Bonus Event", spellId = 186403}, -- BGs
-  {questId = 44172,name = "Arena Skirmish Bonus Event", spellId = 186401}, -- Arenas
-  {questId = 44174,name = "Pet Battle Bonus Event", spellId = 186406}, -- Pet Battles
+  {questId = 53030,name = "World Quest Bonus Event", spellId = 225788}, -- WQ
+  {questId = 53037,name = "Battle for Azeroth Dungeon Event", spellId = 225787}, -- Dungeons
+  {questId = 53036,name = "Battleground Bonus Event", spellId = 186403}, -- BGs
+  {questId = 53039,name = "Arena Skirmish Bonus Event", spellId = 186401}, -- Arenas
+  {questId = 53038,name = "Pet Battle Bonus Event", spellId = 186406}, -- Pet Battles
   -- timewalking
-  {questId = 44164,name = "Timewalking Dungeon Event"}, -- BC
-  {questId = 44166,name = "Timewalking Dungeon Event"}, -- Wotlk
-  {questId = 45799,name = "Timewalking Dungeon Event"}, -- MoP
-  {questId = 44167,name = "Timewalking Dungeon Event"} -- Cata
+  {questId = 44164,name = "Timewalking Dungeon Event"}, -- BC TODO: wowhead doesnt have BFA version of this quest atm
+  {questId = 53033,name = "Timewalking Dungeon Event"}, -- Wotlk
+  {questId = 53035,name = "Timewalking Dungeon Event"}, -- MoP
+  {questId = 53034,name = "Timewalking Dungeon Event"} -- Cata
 }
 local twIconIds = {
   [1129673] = 44164, -- BC
   [1129674] = 44164, -- BC (alt)
-  [1129686] = 44166, -- Wotlk
-  [1129685] = 44166, -- Wotlk (alt)
-  [1530589] = 45799, -- MoP
-  [1530590] = 45799, -- MoP (alt)
-  [1304687] = 44167, -- Cata
-  [1304688] = 44167, -- Cata (alt)
+  [1129686] = 53033, -- Wotlk
+  [1129685] = 53033, -- Wotlk (alt)
+  [1530589] = 53035, -- MoP
+  [1530590] = 53035, -- MoP (alt)
+  [1304687] = 53034, -- Cata
+  [1304688] = 53034, -- Cata (alt)
 }
 local bonusQuestId
 local refreshedCalendar = false
@@ -163,15 +163,15 @@ end
 
 local DEFAULT_QUESTS = {
   -- Same as trackedQuests
-  [44175] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"}, -- BQ_WQ
-  [44171] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_Dungeons
-  [44173] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_BGs
-  [44172] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_Arenas
-  [44174] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_PetBatles
-  [44164] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_BC
-  [44166] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_Wotlk
-  [45799] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_MoP
-  [44167] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest"},-- BQ_TW_Cata
+  [53030] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["World Quest Bonus"]}, -- BQ_WQ
+  [53037] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["Dungeon Bonus"]},-- BQ_Dungeons
+  [53036] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["Battleground Bonus"]},-- BQ_BGs
+  [53039] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["Arena Bonus"]},-- BQ_Arenas
+  [53038] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["Pet Battle Bonus"]},-- BQ_PetBatles
+  [44164] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["BC Timewalking Bonus"]},-- BQ_TW_BC
+  [53033] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["Wotlk Timewalking Bonus"]},-- BQ_TW_Wotlk
+  [53035] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["MoP Timewalking Bonus"]},-- BQ_TW_MoP
+  [53034] = {enabled = true, type = "weekly", default = true, showSeparate = false, checkFunction = "WeeklyBonusQuest", altName = L["Cataclysm Timewalking Bonus"]},-- BQ_TW_Cata
 }
 
 local function AddQuest(questId,t)
@@ -432,9 +432,13 @@ local function SetupQuestConfig(refresh)
     return t[a].default and not t[b].default
   end) do
     local o = options.args
+    local qname = Exlist.GetCachedQuestTitle(questId)
+    if qname and qname:find("Unknown %(") and info.altName then
+      qname = info.altName
+    end
     o[questId.."enabled"] = {
       order = n,
-      name = WrapTextInColorCode(Exlist.GetCachedQuestTitle(questId),colors.questTitle),
+      name = WrapTextInColorCode(qname,colors.questTitle),
       type = "toggle",
       width = 1.5,
       get = function()
@@ -523,6 +527,14 @@ Exlist.ModuleToBeAdded(SetupQuestConfig)
 local deprecietedQuests = {
   48799, -- Fuel of a Doomed World
   49293, -- Invasion Onslaught
+  44175, -- WQ Legion
+  44171, -- Dungeons Legion
+  44173, -- BGs Legion
+  44172, -- Arenas Legion
+  44174, -- Pet Legion
+  44166, -- Wotlk Legion
+  45799, -- MoP Legion
+  44167, -- Cata Legion
 }
 
 local function init()
@@ -532,6 +544,9 @@ local function init()
   for _, questId in ipairs(deprecietedQuests) do
     if dbQuests[questId] and dbQuests[questId].default then
       dbQuests[questId] = nil
+    end
+    if Exlist.ConfigDB.settings.unsortedFolder.weekly.bonusQuestId and Exlist.ConfigDB.settings.unsortedFolder.weekly.bonusQuestId == questId then
+      Exlist.ConfigDB.settings.unsortedFolder.weekly.bonusQuestId = nil
     end
   end
 
