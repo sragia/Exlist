@@ -1,3 +1,12 @@
+1.2.11
+----
+**15 September 2018 - 14:40**
+
+- Track Enchants and Gems on Weapons
+- Fix M+ Key not showing affixes
+- Update M+ completetion times for BFA dungeons
+- Update QuestIDs for BFA Weekly Bonus Quests
+
 1.2.10
 ----
 **5 September 2018 - 13:32**
