@@ -40,6 +40,12 @@ local mapIds = {}
 local function Updater(event)
   if not C_MythicPlus.IsMythicPlusActive() then return end -- if mythic+ season isn't active
   -- make sure code is run after data is received
+  if not IsAddOnLoaded("Blizzard_ChallengesUI") then
+    LoadAddOn("Blizzard_ChallengesUI")
+    C_MythicPlus.RequestRewards()
+    C_MythicPlus.RequestMapInfo()
+    return
+  end
   if event ~= "CHALLENGE_MODE_MAPS_UPDATE" then
     C_MythicPlus.RequestRewards()
     C_MythicPlus.RequestMapInfo()
