@@ -38,15 +38,8 @@ local function Updater(event)
     local blizzAffix = C_MythicPlus.GetCurrentAffixes()
     for i, affixId in ipairs(blizzAffix or {}) do
       local name, desc, icon = C_ChallengeMode.GetAffixInfo(affixId)
-      -- TODO: GET BACK HERE WHEN BLIZZ FIX THEIR SHIT
-      if i < 3 then
-        gt[i+1] = {name = name, icon = icon, desc = desc, id = affixId}
-      else
-        gt[1] = {name = name, icon = icon, desc = desc, id = affixId}
-      end
+      gt[i] = {name = name, icon = icon, desc = desc, id = affixId}
     end
-    local name, desc, icon = C_ChallengeMode.GetAffixInfo(16)
-    gt[4] = {name = name, icon = icon, desc = desc, id = 16}
     Exlist.UpdateChar(key,gt,"global","global")
   end
   local affixes = gt
@@ -170,6 +163,24 @@ local function init()
   else
     affixThreshold = {2,4,7,10}
   end
+  local gt = Exlist.GetCharacterTableKey("global","global",key)
+  local foundAffixes = {}
+  for i=1, #gt do
+    local found = false
+    for j=1, #foundAffixes do
+      if gt[i].id == foundAffixes[j] then
+        found = true;
+        break
+      end
+    end
+    if found then
+      Exlist.UpdateChar(key,{},'global','global')
+      break
+    else
+      foundAffixes[#foundAffixes+1] = gt[i].id
+    end
+  end
+
 end
 
 
