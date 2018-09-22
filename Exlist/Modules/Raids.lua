@@ -451,7 +451,7 @@ local function init()
     [GetLFGDungeonInfo(1887) or "Uldir"] = {
       [1731] = {name = "Halls of Containment", totalEncounters = 3, order = 1},
       [1732] = {name = "Crimson Descent",totalEncounters = 3, order = 2},
-      [1733] = {name = "Heart of Corruption", totalEncounters = 3, order = 2},
+      [1733] = {name = "Heart of Corruption", totalEncounters = 2, order = 3},
     },
 
   }
