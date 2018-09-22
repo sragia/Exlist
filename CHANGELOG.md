@@ -1,3 +1,9 @@
+1.2.12
+----
+**22 September 2018 - 15:39**
+
+- Blizz fixed their shit, no need for some checks.
+
 1.2.11
 ----
 **15 September 2018 - 14:40**
