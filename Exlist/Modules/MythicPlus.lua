@@ -7,6 +7,7 @@ local colors = Exlist.Colors
 local L = Exlist.L
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local table, ipairs = table, ipairs
+local initialized = false
 local mapTimes = {
   --[mapId] = {+1Time,+2Time,+3Time} in seconds
   --BFA
@@ -40,6 +41,10 @@ local mapIds = {}
 local function Updater(event)
   if not C_MythicPlus.IsMythicPlusActive() then return end -- if mythic+ season isn't active
   -- make sure code is run after data is received
+  if event == "MYTHIC_PLUS_INIT_DELAY" then
+    initialized = true
+  end
+  if not initialized then return end
   if not IsAddOnLoaded("Blizzard_ChallengesUI") then
     LoadAddOn("Blizzard_ChallengesUI")
     C_MythicPlus.RequestRewards()
@@ -188,15 +193,20 @@ local function ResetHandle(resetType)
   end
 end
 
+local function init()
+  C_Timer.After(5,function() Exlist.SendFakeEvent("MYTHIC_PLUS_INIT_DELAY") end)
+end
+
 local data = {
   name = L['Mythic+'],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD","LOOT_CLOSED","MYTHIC_PLUS_REFRESH_INFO"},
+  event = {"MYTHIC_PLUS_INIT_DELAY","CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD","LOOT_CLOSED","MYTHIC_PLUS_REFRESH_INFO"},
   description = L["Tracks highest completed mythic+ in a week and all highest level runs per dungeon"],
   weeklyReset = true,
+  init = init,
   specialResetHandle = ResetHandle,
   modernize = Modernize
 }
