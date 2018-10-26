@@ -7,20 +7,20 @@ externals:
   url: https://repos.wowace.com/wow/callbackhandler/trunk/CallbackHandler-1.0
  Exlist/Libs/LibQTip-1.0:
      url: svn://svn.wowace.com/wow/libqtip-1-0/mainline/trunk
-     tag: latest 
+     tag: latest
  Exlist/Libs/AceTimer-3.0:
   url: https://repos.wowace.com/wow/ace3/trunk/AceTimer-3.0
  Exlist/Libs/AceGUI-3.0:
   url: https://repos.wowace.com/wow/ace3/trunk/AceGUI-3.0
- Exlist/Libs/AceConfigDialog-3.0: 
+ Exlist/Libs/AceConfigDialog-3.0:
   url: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0/AceConfigDialog-3.0
- Exlist/Libs/AceConfigRegistry-3.0: 
+ Exlist/Libs/AceConfigRegistry-3.0:
   url: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0/AceConfigRegistry-3.0
  Exlist/Libs/AceGUI-3.0-SharedMediaWidgets:
   url: https://repos.wowace.com/wow/ace-gui-3-0-shared-media-widgets/trunk/AceGUI-3.0-SharedMediaWidgets
  Exlist/Libs/LibSharedMedia-3.0:
   url: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
- Exlist/Libs/LibDBIcon-1.0: 
+ Exlist/Libs/LibDBIcon-1.0:
   url: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
  Exlist/Libs/LibDataBroker-1.1:
   url: git://github.com/tekkub/libdatabroker-1-1.git
