@@ -4,4 +4,4 @@ end
 local L = Exlist.L
 -- Thanks alot CrisReus (on Github) for initial translation
 
---@localization(locale="zhCN", format="lua_additive_table", namespace="Exlist", handle-subnamespaces="none")@
+--@localization(locale="zhCN", format="lua_additive_table")@

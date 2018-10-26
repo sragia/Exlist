@@ -3,4 +3,4 @@ if not (GetLocale() == "esMX") then
 end
 local L = Exlist.L
 
---@localization(locale="esMX", format="lua_additive_table", namespace="Exlist", handle-subnamespaces="none")@
+--@localization(locale="esMX", format="lua_additive_table")@
