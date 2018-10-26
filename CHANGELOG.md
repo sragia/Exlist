@@ -1,3 +1,10 @@
+1.2.14
+----
+**26 October 2018 - 22:28**
+
+- Setup for translations (Curse)
+- Added Simplified Chinese translation (Thanks CrisReus)
+
 1.2.13
 ----
 **6 October 2018 - 14:56**
