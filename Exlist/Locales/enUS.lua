@@ -1,6 +1,6 @@
 local L = Exlist.L
 
-
+--@localization(locale="enUS", format="lua_additive_table", namespace="Exlist", handle-subnamespaces="none")@
 
 -- use key if there's no translation
 setmetatable(Exlist.L, {__index = function(self, key)
