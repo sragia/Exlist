@@ -4,6 +4,8 @@
 ## Author: Exality
 ## SavedVariables: Exlist_DB, Exlist_Config
 ## Version: @project-version@
+## X-Curse-Project-ID: 284907
+## X-WoWI-ID: 24636
 
 #Libs
 Libs\LibStub\LibStub.lua
