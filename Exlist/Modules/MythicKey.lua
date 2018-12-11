@@ -36,9 +36,9 @@ local function Updater(event)
     return -- wait for data update event
   elseif event == "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
     local blizzAffix = C_MythicPlus.GetCurrentAffixes()
-    for i, affixId in ipairs(blizzAffix or {}) do
-      local name, desc, icon = C_ChallengeMode.GetAffixInfo(affixId)
-      gt[i] = {name = name, icon = icon, desc = desc, id = affixId}
+    for i, affixInfo in ipairs(blizzAffix or {}) do
+      local name, desc, icon = C_ChallengeMode.GetAffixInfo(affixInfo.id)
+      gt[i] = {name = name, icon = icon, desc = desc, id = affixInfo.id}
     end
     Exlist.UpdateChar(key,gt,"global","global")
   end
