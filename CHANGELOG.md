@@ -1,3 +1,9 @@
+1.2.16
+----
+**14 December 2018 - 20:05**
+
+- Bump Interface version
+
 1.2.15
 ----
 **12 December 2018 - 00:22**
