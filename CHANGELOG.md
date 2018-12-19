@@ -1,3 +1,9 @@
+1.2.17
+----
+**19 December 2018 - 20:35**
+
+- Improve best m+ updating a bit
+
 1.2.16
 ----
 **14 December 2018 - 20:05**
