@@ -59,9 +59,10 @@ local function Updater(event)
     LoadAddOn("Blizzard_ChallengesUI")
     C_MythicPlus.RequestRewards()
     C_MythicPlus.RequestMapInfo()
+    C_Timer.After(1,function() Exlist.SendFakeEvent('FUCK_YOU_BLIZZARD') end)
     return
   end
-  if event ~= "CHALLENGE_MODE_MAPS_UPDATE" then
+  if event ~= "CHALLENGE_MODE_MAPS_UPDATE" and event ~= "FUCK_YOU_BLIZZARD" then
     C_MythicPlus.RequestRewards()
     C_MythicPlus.RequestMapInfo()
     return
@@ -70,11 +71,9 @@ local function Updater(event)
     C_MythicPlus.RequestRewards()
     C_MythicPlus.RequestMapInfo()
     initialized = 2
-    return
   end
   mapIds = C_ChallengeMode.GetMapTable()
   local bestLevel, bestMap, bestMapId, dungeons = 0, "", 0, {}
-
   for i = 1, #mapIds do
     local mapTime, mapLevel,_,_,members = C_MythicPlus.GetWeeklyBestForMap(mapIds[i])
     -- add to completed dungeons
@@ -94,6 +93,12 @@ local function Updater(event)
   end
   -- sort maps by level descending
   table.sort(dungeons,function(a,b) return a.level > b.level end)
+
+  if bestLevel == 0 then
+    -- Blizz why
+    bestLevel = C_MythicPlus.GetWeeklyChestRewardLevel()
+  end
+
 
   local t = {
     bestLvl = bestLevel,
@@ -223,7 +228,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"MYTHIC_PLUS_INIT_DELAY","CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD","LOOT_CLOSED","MYTHIC_PLUS_REFRESH_INFO"},
+  event = {"MYTHIC_PLUS_INIT_DELAY","CHALLENGE_MODE_MAPS_UPDATE","CHALLENGE_MODE_LEADERS_UPDATE","PLAYER_ENTERING_WORLD","LOOT_CLOSED","MYTHIC_PLUS_REFRESH_INFO","FUCK_YOU_BLIZZARD"},
   description = L["Tracks highest completed mythic+ in a week and all highest level runs per dungeon"],
   weeklyReset = true,
   init = init,
