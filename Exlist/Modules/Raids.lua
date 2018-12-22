@@ -283,7 +283,7 @@ end
 local function init()
   defaultSettings = {
     -- BFA
-    [GetLFGDungeonInfo(1951) or "Crucible of Storms"] = {enabled = true, expansion = 8, order = 8},
+    [GetLFGDungeonInfo(1951) or "Crucible of Storms"] = {enabled = true, expansion = 8, order = 7},
     [GetLFGDungeonInfo(1942) or "Battle of Dazar'alor"] = {enabled = true, expansion = 8, order = 8},
     [GetLFGDungeonInfo(1887) or "Uldir"] = {enabled = true,expansion = 8, order = 9},
     -- LEGION
