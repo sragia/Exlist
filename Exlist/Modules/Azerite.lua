@@ -127,9 +127,10 @@ local function Linegenerator(tooltip,data,character)
       weekly.data = WrapTextInColorCode(L["Turn In!"], colors.available)
       weekly.pulseAnim = true
     else
-      weekly.data = string.format("%s/%s",
+      weekly.data = string.format("%s/%s - %.1f%%",
         Exlist.ShortenNumber(data.weekly.curr),
-        Exlist.ShortenNumber(data.weekly.max))
+        Exlist.ShortenNumber(data.weekly.max),
+        (data.weekly.curr/data.weekly.max) * 100)
     end
     Exlist.AddData(weekly)
   end
