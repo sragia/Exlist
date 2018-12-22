@@ -44,12 +44,15 @@ local worldBossIDs = {
   ]] -- TODO: Decide if we want to track old WorldBosses
   -- BFA
   [52847] = {eid = 2213}, -- Doom's Howl
+  [52848] = {eid = 2212}, -- The Lion's Roar
   [52196]  = {eid = 2210}, -- Dunegorger Kraulok
   [52181] =  {eid = 2139}, -- T'zane
   [52169] =  {eid = 2141}, -- Ji'arak
   [52157] =  {eid = 2197}, -- Hailstone Construct
   [52163] =  {eid = 2199}, -- Azurethos, The Winged Typhoon
   [52166] =  {eid = 2198}, -- Warbringer Yenajz
+  [54896] = {eid = 2329}, -- Ivus the Forest Lord
+  [54895] = {eid = 2345} -- Ivus the Decayed
 }
 local lastUpdate = 0
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
