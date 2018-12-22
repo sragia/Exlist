@@ -43,19 +43,23 @@ local worldBossIDs = {
   [49169] = {eid = 2010, name=EJ_GetEncounterInfo(2010)}, -- Matron Foluna
   ]] -- TODO: Decide if we want to track old WorldBosses
   -- BFA
-  [52847] = {eid = 2213}, -- Doom's Howl
-  [52848] = {eid = 2212}, -- The Lion's Roar
+  [52847] = {eid = 2213,warfront = 'Arathi'}, -- Doom's Howl
+  [52848] = {eid = 2212,warfront = 'Arathi'}, -- The Lion's Roar
   [52196]  = {eid = 2210}, -- Dunegorger Kraulok
   [52181] =  {eid = 2139}, -- T'zane
   [52169] =  {eid = 2141}, -- Ji'arak
   [52157] =  {eid = 2197}, -- Hailstone Construct
   [52163] =  {eid = 2199}, -- Azurethos, The Winged Typhoon
   [52166] =  {eid = 2198}, -- Warbringer Yenajz
-  [54896] = {eid = 2329}, -- Ivus the Forest Lord
-  [54895] = {eid = 2345} -- Ivus the Decayed
+  [54896] = {eid = 2329, warfront = 'Darkshore'}, -- Ivus the Forest Lord
+  [54895] = {eid = 2345, warfront = 'Darkshore'} -- Ivus the Decayed
 }
 local lastUpdate = 0
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
+local warfronts = {
+  Arathi = { 11, 116 },
+  Darkshore = { 117, 118 }
+}
 
 local function spairs(t, order)
   -- collect the keys
@@ -88,6 +92,15 @@ local function AddCheckmark(text,status)
   return string.format("|T%s:0|t %s",statusMarks[status],text)
 end
 
+local function GetWarfrontEnd(warfront)
+  for _, id in ipairs(warfronts[warfront]) do
+    local state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(id)
+    if state == 2 then
+      return timeNext
+    end
+  end
+end
+
 local function Updater(e,info)
   if e == "WORLD_QUEST_SPOTTED" and #info > 0 then
     -- got info from WQ module
@@ -98,14 +111,15 @@ local function Updater(e,info)
     for _,wq in ipairs(info) do
       local defaultInfo = worldBossIDs[wq.questId]
       if defaultInfo then
+        local endTime = defaultInfo.warfront and GetWarfrontEnd(defaultInfo.warfront) or wq.endTime
         t[wq.questId] = {
           name = defaultInfo.name or select(2,EJ_GetCreatureInfo(1,defaultInfo.eid)),
           defeated = IsQuestFlaggedCompleted(wq.questId),
-          endTime = wq.endTime,
+          endTime = endTime,
         }
         db[wq.questId] = {
           name = defaultInfo.name or select(2,EJ_GetCreatureInfo(1,defaultInfo.eid)),
-          endTime = wq.endTime,
+          endTime = endTime,
           zoneId = wq.zoneId,
           questId = wq.questId
         }
