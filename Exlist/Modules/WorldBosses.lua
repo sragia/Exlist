@@ -101,6 +101,29 @@ local function GetWarfrontEnd(warfront)
   end
 end
 
+local function GetWarfrontStatus()
+  local t = {}
+  for wf, ids in pairs(warfronts) do
+      for _, id in ipairs(ids) do
+        local state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(id)
+        local appearanceData = C_ContributionCollector.GetContributionAppearance(id, state)
+        local name = C_ContributionCollector.GetName(id)
+        if state ~= 4 then
+          t[wf] = {
+            name = name,
+            state = state,
+            stateName = appearanceData.stateName,
+            contributed = pctComplete,
+            timeNext = timeNext,
+            timeStart = timeStart
+          }
+        end
+      end
+  end
+
+  return t
+end
+
 local function Updater(e,info)
   if e == "WORLD_QUEST_SPOTTED" and #info > 0 then
     -- got info from WQ module
@@ -167,6 +190,10 @@ local function Updater(e,info)
       end
     end
   end
+
+  -- Warfronts
+  gt.warfronts = GetWarfrontStatus()
+
   Exlist.UpdateChar(key,t)
   Exlist.UpdateChar(key,gt,'global','global')
 end
@@ -222,6 +249,19 @@ local function GlobalLineGenerator(tooltip,data)
       end
     end
   end
+  if data.warfronts and Exlist.ConfigDB.settings.extraInfoToggles.warfronts.enabled then
+    Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Warfronts"],colors.sideTooltipTitle)},14)
+    for wf, info in pairs(data.warfronts) do
+      local name = info.name
+      local timeLeft = info.timeNext and info.timeNext - time()
+      local pct = info.contributed
+      Exlist.AddLine(tooltip,{
+        name,
+        info.stateName,
+        pct < 1 and string.format("%.1f%%", pct*100) or Exlist.TimeLeftColor(timeLeft)
+      })
+    end
+  end
 end
 
 local function init()
@@ -232,6 +272,10 @@ local function init()
   Exlist.RegisterWorldQuests(t,true)
   Exlist.ConfigDB.settings.extraInfoToggles.worldbosses = Exlist.ConfigDB.settings.extraInfoToggles.worldbosses or {
     name = L["World Bosses"],
+    enabled = true,
+  }
+  Exlist.ConfigDB.settings.extraInfoToggles.warfronts = Exlist.ConfigDB.settings.extraInfoToggles.warfronts or {
+    name = L["Warfronts"],
     enabled = true,
   }
   -- BFA Prepatch Retire
