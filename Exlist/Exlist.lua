@@ -1779,6 +1779,36 @@ local function OnEnter(self)
   end
   -- Add Data to tooltip
   PopulateTooltip(tooltip)
+  -- Tooltip visuals
+  tooltip:SmartAnchorTo(self)
+  --tooltip:SetAutoHideDelay(settings.delay, self)
+  tooltip.parent = self
+  tooltip.time = 0
+  tooltip.elapsed = 0
+  tooltip:SetScript("OnUpdate",function(self, elapsed)
+    self.time = self.time + elapsed
+    if self.time > 0.1 then
+      if self.globalTooltip and self.globalTooltip:IsMouseOver() or self:IsMouseOver() or self.parent:IsMouseOver() then
+        self.elapsed = 0
+      else
+        self.elapsed = self.elapsed + self.time
+        if self.elapsed > settings.delay then
+          self.parent:SetAlpha(settings.iconAlpha or 1)
+          releasedTooltip()
+          ClearFunctions(self)
+          QTip:Release(self)
+        end
+      end
+      self.time = 0
+    end
+  end)
+  tooltip:Show()
+  tooltip:SetBackdrop(DEFAULT_BACKDROP)
+  local c = settings.backdrop
+  tooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
+  tooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+  tooltip:UpdateScrolling(settings.tooltipHeight)
+  
   -- global data
   if settings.showExtraInfoTooltip then
     local gData = db.global and db.global.global or nil
@@ -1842,39 +1872,15 @@ local function OnEnter(self)
         local c = settings.backdrop
         gTip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
         gTip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+
+        -- Prevent from going off screen
+        local toolHeight = tooltip:GetHeight()
+        local calcHeight = GetScreenHeight() - toolHeight
+        gTip:UpdateScrolling(calcHeight)
+
       end
     end
   end
-
-  -- Tooltip visuals
-  tooltip:SmartAnchorTo(self)
-  --tooltip:SetAutoHideDelay(settings.delay, self)
-  tooltip.parent = self
-  tooltip.time = 0
-  tooltip.elapsed = 0
-  tooltip:SetScript("OnUpdate",function(self, elapsed)
-    self.time = self.time + elapsed
-    if self.time > 0.1 then
-      if self.globalTooltip and self.globalTooltip:IsMouseOver() or self:IsMouseOver() or self.parent:IsMouseOver() then
-        self.elapsed = 0
-      else
-        self.elapsed = self.elapsed + self.time
-        if self.elapsed > settings.delay then
-          self.parent:SetAlpha(settings.iconAlpha or 1)
-          releasedTooltip()
-          ClearFunctions(self)
-          QTip:Release(self)
-        end
-      end
-      self.time = 0
-    end
-  end)
-  tooltip:Show()
-  tooltip:SetBackdrop(DEFAULT_BACKDROP)
-  local c = settings.backdrop
-  tooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
-  tooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
-  tooltip:UpdateScrolling(settings.tooltipHeight)
 end
 
 butTool:SetScript("OnEnter", OnEnter)
