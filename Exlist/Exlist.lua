@@ -491,6 +491,7 @@ local function TimeLeftColor(timeLeft, times, col)
   -- times (opt) = {red,orange} upper limit
   -- i.e {100,1000} = 0-100 Green 100-1000 Orange 1000-inf Green
   -- colors (opt) - colors to use
+  if not timeLeft then return end
   times = times or {3600, 18000} --default
   local colors = col or {Colors.time.long, Colors.time.medium, Colors.time.short} -- default
   for i = 1, #times do
