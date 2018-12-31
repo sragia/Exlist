@@ -57,8 +57,14 @@ local worldBossIDs = {
 local lastUpdate = 0
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local warfronts = {
-  Arathi = { 11, 116 },
-  Darkshore = { 117, 118 }
+  Arathi = { 
+    Horde = 11, 
+    Alliance = 116 
+  },
+  Darkshore = {
+    Alliance = 117,
+    Horde = 118 
+  }
 }
 
 local function spairs(t, order)
@@ -92,32 +98,56 @@ local function AddCheckmark(text,status)
   return string.format("|T%s:0|t %s",statusMarks[status],text)
 end
 
+local factions = {'Horde', 'Alliance'}
+local function OpossiteFacton(faction)
+  return factions[1] ~= faction and factions[1] or factions[2]
+end
+
 local function GetWarfrontEnd(warfront)
-  for _, id in ipairs(warfronts[warfront]) do
-    local state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(id)
-    if state == 2 then
-      return timeNext
+  local faction = UnitFactionGroup('player')
+  local state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(warfronts[warfront][faction]) 
+  if state == 2 then
+    return { value = timeNext, type = 'time' }
+  elseif state == 1 and pctComplete < 1 then
+    return { value = pctComplete, type = 'pct' }
+  else
+    state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(warfronts[warfront][OpossiteFacton(faction)]) 
+    if state == 1 then
+      return { value = pctComplete, type = 'pct' }
     end
+  end
+end
+
+local function FormatEndTime(timeInfo)
+  local timeNow = time()
+  if type(timeInfo) == 'table' then
+    if timeInfo.type == 'pct' then
+      return string.format("%.1f%%",timeInfo.value*100)
+    else
+      return Exlist.TimeLeftColor(timeInfo.value-timeNow)
+    end
+  else
+    return Exlist.TimeLeftColor(timeInfo-timeNow)
   end
 end
 
 local function GetWarfrontStatus()
   local t = {}
   for wf, ids in pairs(warfronts) do
-      for _, id in ipairs(ids) do
+    t[wf] = {}
+      for faction, id in pairs(ids) do
         local state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(id)
         local appearanceData = C_ContributionCollector.GetContributionAppearance(id, state)
         local name = C_ContributionCollector.GetName(id)
-        if state ~= 4 then
-          t[wf] = {
-            name = name,
-            state = state,
-            stateName = appearanceData.stateName,
-            contributed = pctComplete,
-            timeNext = timeNext,
-            timeStart = timeStart
-          }
-        end
+        t[wf][faction] = {
+          name = name,
+          faction = faction,
+          state = state,
+          stateName = appearanceData.stateName,
+          contributed = pctComplete,
+          timeNext = timeNext,
+          timeStart = timeStart
+        }
       end
   end
 
@@ -208,7 +238,13 @@ local function Linegenerator(tooltip,data,character)
   for spellId,info in pairs(data) do
     availableWB = availableWB + 1
     killed = info.defeated and killed + 1 or killed
-    table.insert(strings,{string.format("%s (%s)",info.name,info.endTime and info.endTime > timeNow and Exlist.TimeLeftColor(info.endTime-timeNow) or WrapTextInColorCode(L["Not Available"],colors.notavailable)),
+    table.insert(strings,{
+      string.format("%s (%s)", 
+        info.name, 
+        info.endTime and (type(info.endTime) == 'table' or info.endTime > timeNow) and FormatEndTime(info.endTime) 
+        or WrapTextInColorCode(L["Not Available"],colors.notavailable
+        )
+      ),
       info.defeated and WrapTextInColorCode(L["Defeated"],colors.completed) or WrapTextInColorCode(L["Available"],colors.available)})
   end
   if availableWB > 0 then
@@ -227,18 +263,38 @@ local function Linegenerator(tooltip,data,character)
   end
 end
 
+local function GetWFCurrentStatus(wf)
+  local faction = UnitFactionGroup('player')
+  local tmp = wf[faction]
+  for f, data in pairs(wf) do
+    if faction ~= f then
+      -- states: 1 - contributing, 2 - siege, 3 - ??, 4 - patrol
+      if data.state == 1 then
+        tmp = data
+      end
+    end 
+  end
+  local stateName = tmp.stateName
+  if tmp.state == 1 then
+    stateName = L[tmp.faction] .. ' ' .. stateName
+  end
+  return tmp.name, stateName, tmp.timeNext and tmp.timeNext - time(), tmp.contributed
+end
+
 local function GlobalLineGenerator(tooltip,data)
   local timeNow = time()
   if not data then return end
   if data.worldbosses and Exlist.ConfigDB.settings.extraInfoToggles.worldbosses.enabled then
     local added = false
     for questId,info in pairs(data.worldbosses) do
-      if info.endTime > timeNow then
+      if type(info.endTime) == 'table' or info.endTime > timeNow then
         if not added then
           added = true
           Exlist.AddLine(tooltip,{WrapTextInColorCode(L["World Bosses"],colors.sideTooltipTitle)},14)
         end
-        local lineNum = Exlist.AddLine(tooltip,{AddCheckmark(info.name,IsQuestFlaggedCompleted(questId)),Exlist.TimeLeftColor(info.endTime - timeNow)})
+        local lineNum = Exlist.AddLine(tooltip,{
+          AddCheckmark(info.name,IsQuestFlaggedCompleted(questId)),
+          FormatEndTime(info.endTime)})
         Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)
           if not WorldMapFrame:IsShown() then
             ToggleWorldMap()
@@ -251,13 +307,13 @@ local function GlobalLineGenerator(tooltip,data)
   end
   if data.warfronts and Exlist.ConfigDB.settings.extraInfoToggles.warfronts.enabled then
     Exlist.AddLine(tooltip,{WrapTextInColorCode(L["Warfronts"],colors.sideTooltipTitle)},14)
-    for wf, info in pairs(data.warfronts) do
-      local name = info.name
-      local timeLeft = info.timeNext and info.timeNext - time()
-      local pct = info.contributed
+    local faction = UnitFactionGroup('player')
+    local addedWF = {}
+    for wf, wfData in pairs(data.warfronts) do
+      local name,stateName,timeLeft,pct = GetWFCurrentStatus(wfData)
       Exlist.AddLine(tooltip,{
         name,
-        info.stateName,
+        stateName,
         pct < 1 and string.format("%.1f%%", pct*100) or Exlist.TimeLeftColor(timeLeft)
       })
     end
