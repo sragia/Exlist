@@ -48,9 +48,13 @@ local function IsItPlayersRun(members)
   return false
 end
 
+local gotEvent = false
 local function Updater(event)
   if not C_MythicPlus.IsMythicPlusActive() then return end -- if mythic+ season isn't active
   -- make sure code is run after data is received
+  if not gotEvent and event ~="CHALLENGE_MODE_MAPS_UPDATE" then
+    C_Timer.After(1,function() Exlist.SendFakeEvent('FUCK_YOU_BLIZZARD') end)
+  end
   if event == "MYTHIC_PLUS_INIT_DELAY" then
     initialized = 1
   end
@@ -59,14 +63,14 @@ local function Updater(event)
     LoadAddOn("Blizzard_ChallengesUI")
     C_MythicPlus.RequestRewards()
     C_MythicPlus.RequestMapInfo()
-    C_Timer.After(1,function() Exlist.SendFakeEvent('FUCK_YOU_BLIZZARD') end)
     return
   end
-  if event ~= "CHALLENGE_MODE_MAPS_UPDATE" and event ~= "FUCK_YOU_BLIZZARD" then
+  if event ~= "CHALLENGE_MODE_MAPS_UPDATE" then
     C_MythicPlus.RequestRewards()
     C_MythicPlus.RequestMapInfo()
     return
   end
+  gotEvent = true
   if initialized < 2 then
     C_MythicPlus.RequestRewards()
     C_MythicPlus.RequestMapInfo()
