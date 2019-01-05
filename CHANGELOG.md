@@ -1,3 +1,11 @@
+1.3.1
+----
+**5 January 2019 - 20:31**
+
+- Allow scrolling for extra info tooltip
+- Add percentage for neck level
+- Improve warfront tracking
+
 1.3.0
 ----
 **22 December 2018 - 16:37**
