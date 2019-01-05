@@ -57,13 +57,13 @@ local worldBossIDs = {
 local lastUpdate = 0
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local warfronts = {
-  Arathi = { 
-    Horde = 11, 
-    Alliance = 116 
+  Arathi = {
+    Horde = 11,
+    Alliance = 116
   },
   Darkshore = {
     Alliance = 117,
-    Horde = 118 
+    Horde = 118
   }
 }
 
@@ -105,13 +105,13 @@ end
 
 local function GetWarfrontEnd(warfront)
   local faction = UnitFactionGroup('player')
-  local state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(warfronts[warfront][faction]) 
+  local state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(warfronts[warfront][faction])
   if state == 2 then
     return { value = timeNext, type = 'time' }
   elseif state == 1 and pctComplete < 1 then
     return { value = pctComplete, type = 'pct' }
   else
-    state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(warfronts[warfront][OpossiteFacton(faction)]) 
+    state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(warfronts[warfront][OpossiteFacton(faction)])
     if state == 1 then
       return { value = pctComplete, type = 'pct' }
     end
@@ -239,9 +239,9 @@ local function Linegenerator(tooltip,data,character)
     availableWB = availableWB + 1
     killed = info.defeated and killed + 1 or killed
     table.insert(strings,{
-      string.format("%s (%s)", 
-        info.name, 
-        info.endTime and (type(info.endTime) == 'table' or info.endTime > timeNow) and FormatEndTime(info.endTime) 
+      string.format("%s (%s)",
+        info.name,
+        info.endTime and (type(info.endTime) == 'table' or info.endTime > timeNow) and FormatEndTime(info.endTime)
         or WrapTextInColorCode(L["Not Available"],colors.notavailable
         )
       ),
@@ -269,13 +269,13 @@ local function GetWFCurrentStatus(wf)
   for f, data in pairs(wf) do
     if faction ~= f then
       -- states: 1 - contributing, 2 - siege, 3 - ??, 4 - patrol
-      if data.state == 1 then
+      if data.state == 1 or data.state == 2 then
         tmp = data
       end
-    end 
+    end
   end
   local stateName = tmp.stateName
-  if tmp.state == 1 then
+  if tmp.state == 1 or tmp.state == 2 then
     stateName = L[tmp.faction] .. ' ' .. stateName
   end
   return tmp.name, stateName, tmp.timeNext and tmp.timeNext - time(), tmp.contributed
