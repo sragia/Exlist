@@ -283,9 +283,10 @@ end
 local function init()
   defaultSettings = {
     -- BFA
+    [GetLFGDungeonInfo(2014) or "The Eternal Palace"] = {enabled = true, expansion = 8, order = 6},
     [GetLFGDungeonInfo(1951) or "Crucible of Storms"] = {enabled = true, expansion = 8, order = 7},
     [GetLFGDungeonInfo(1942) or "Battle of Dazar'alor"] = {enabled = true, expansion = 8, order = 8},
-    [GetLFGDungeonInfo(1887) or "Uldir"] = {enabled = true,expansion = 8, order = 9},
+    [GetLFGDungeonInfo(1887) or "Uldir"] = {enabled = true, expansion = 8, order = 9},
     -- LEGION
     [GetLFGDungeonInfo(1640) or "Antorus, the Burning Throne"] = {enabled = false, expansion = 7,order = 1},
     [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {enabled = false, expansion = 7,order = 2},
@@ -470,6 +471,11 @@ local function init()
     -- Crucible of Storms
     [GetLFGDungeonInfo(1951) or "Crucible of Storms"] = {
       [1951] = {name = "Crucible of Storms", totalEncounters = 2, order = 1},
+    },
+    [GetLFGDungeonInfo(2014) or "The Eternal Palace"] = {
+      [2009] = { name = "The Grand Reception", totalEncounters = 3, order = 1},
+      [2010] = { name = "Depths of the Devoted", totalEncounters = 3, order = 2  },
+      [2011] = { name = "The Circle of Stars", totalEncounters = 2, order = 3 },
     }
 
   }
