@@ -1552,7 +1552,7 @@ local function ClearFunctions(tooltip)
   if tooltip.animations then
     for _,frame in ipairs(tooltip.animations) do
       frame:SetScript("OnUpdate",nil)
-      frame:SetAlpha(1)
+      frame.fontString:SetAlpha(1)
     end
   end
 end
@@ -1808,7 +1808,7 @@ local function OnEnter(self)
   tooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
   tooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
   tooltip:UpdateScrolling(settings.tooltipHeight)
-  
+
   -- global data
   if settings.showExtraInfoTooltip then
     local gData = db.global and db.global.global or nil

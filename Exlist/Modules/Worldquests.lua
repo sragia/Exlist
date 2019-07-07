@@ -20,6 +20,8 @@ local colors = Exlist.Colors
 
 local zones = {
   -- BFA
+  1355, -- Nazjatar
+  1462, -- Mechagon
   -- EK
   14, -- Arathi Highlands
   -- Kalimdor

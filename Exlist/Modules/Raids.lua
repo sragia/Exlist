@@ -469,7 +469,7 @@ local function init()
     },
     -- Crucible of Storms
     [GetLFGDungeonInfo(1951) or "Crucible of Storms"] = {
-      [1954] = {name = "Siege of Dazar'alor", totalEncounters = 2, order = 1},
+      [1951] = {name = "Crucible of Storms", totalEncounters = 2, order = 1},
     }
 
   }

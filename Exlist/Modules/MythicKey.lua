@@ -50,32 +50,34 @@ local function Updater(event)
   local keyLevel = C_MythicPlus.GetOwnedKeystoneLevel()
   local mapName = C_ChallengeMode.GetMapUIInfo(challengeMapID)
   -- Available Affixes for Keystone level
-  local availableAffixes = {0,0,0,0}
-  for i, affixLevel in ipairs(affixThreshold) do
-    if keyLevel < affixLevel then break end
-    availableAffixes[i] = affixes[i].id
+  if affixes then
+    local availableAffixes = {0,0,0,0}
+    for i, affixLevel in ipairs(affixThreshold) do
+      if keyLevel < affixLevel then break end
+      availableAffixes[i] = affixes[i].id
+    end
+
+    local t = {
+      dungeon = mapName,
+      mapId = challengeMapID,
+      level = keyLevel,
+      itemLink = string.format(
+        "\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r",
+        158923,
+        challengeMapID,
+        keyLevel,
+        availableAffixes[1],
+        availableAffixes[2],
+        availableAffixes[3],
+        availableAffixes[4],
+        L["Keystone"],
+        mapName,
+        keyLevel
+      )
+    }
+
+    Exlist.UpdateChar(key,t)
   end
-
-  local t = {
-    dungeon = mapName,
-    mapId = challengeMapID,
-    level = keyLevel,
-    itemLink = string.format(
-      "\124cffa335ee\124Hkeystone:%s:%s:%s:%s:%s:%s:%s\124h[%s: %s (%s)]\124h\124r",
-      158923,
-      challengeMapID,
-      keyLevel,
-      availableAffixes[1],
-      availableAffixes[2],
-      availableAffixes[3],
-      availableAffixes[4],
-      L["Keystone"],
-      mapName,
-      keyLevel
-    )
-  }
-
-  Exlist.UpdateChar(key,t)
 end
 
 local function Linegenerator(tooltip,data,character)
