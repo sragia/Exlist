@@ -67,7 +67,10 @@ end
 
 local function init()
   for _,id in ipairs(bfaDungeons) do
-    dungeonNames[(GetLFGDungeonInfo(id))] = {locked = false, done = 0, max = 0}
+    local name = GetLFGDungeonInfo(id)
+    if name then
+      dungeonNames[(GetLFGDungeonInfo(id))] = {locked = false, done = 0, max = 0}
+    end
   end
 end
 
