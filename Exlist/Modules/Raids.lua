@@ -283,6 +283,7 @@ end
 local function init()
   defaultSettings = {
     -- BFA
+    [GetLFGDungeonInfo(2033) or "Ny'alotha, the Waking City"] = {enabled = true, expansion = 8, order = 5},
     [GetLFGDungeonInfo(2014) or "The Eternal Palace"] = {enabled = true, expansion = 8, order = 6},
     [GetLFGDungeonInfo(1951) or "Crucible of Storms"] = {enabled = true, expansion = 8, order = 7},
     [GetLFGDungeonInfo(1942) or "Battle of Dazar'alor"] = {enabled = true, expansion = 8, order = 8},
@@ -476,6 +477,13 @@ local function init()
       [2009] = { name = "The Grand Reception", totalEncounters = 3, order = 1},
       [2010] = { name = "Depths of the Devoted", totalEncounters = 3, order = 2  },
       [2011] = { name = "The Circle of Stars", totalEncounters = 2, order = 3 },
+    },
+
+    [GetLFGDungeonInfo(2033) or "Ny'alotha, the Waking City"] = {
+      [2036] = {name = "Ny'alotha: Vision of Destiny", totalEncounters = 3, order = 1},
+      [2037] = {name = "Ny'alotha: Halls of Devotion", totalEncounters = 4, order = 2},
+      [2038] = {name = "Ny'alotha: Halls of Devotion", totalEncounters = 3, order = 3},
+      [2039] = {name = "Ny'alotha: The Waking Dream", totalEncounters = 2, order = 4},
     }
 
   }

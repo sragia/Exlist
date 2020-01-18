@@ -1727,12 +1727,12 @@ local function OnEnter(self)
     -- header
     local specIcon = charData.specId and iconPaths[charData.specId] or iconPaths[0]
     local headerText,subHeaderText = "",""
-    if settings.shortenInfo then
+    if settings.shortenInfo and charData.class then
 
       headerText = "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
       subHeaderText = string.format("|c%s%s",Colors.sideTooltipTitle,realm)
 
-    else
+    elseif (charData.class) then
       headerText = "|T" .. specIcon ..":25:25|t ".. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
       subHeaderText = string.format("|c%s%s - "..L["Level"] .." %i",Colors.sideTooltipTitle,realm,charData.level)
     end
@@ -1916,7 +1916,7 @@ function Exlist.RefreshAppearance()
     f:SetFont(font,fontSize)
   end
   butTool:SetScale(settings.iconScale)
-
+  print(settings.showMinimapIcon)
   if settings.showMinimapIcon then
     LDBI:Show("Exlist")
   else

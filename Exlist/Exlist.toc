@@ -1,4 +1,4 @@
-## Interface: 80205
+## Interface: 80300
 ## Title: Exlist
 ## Notes: Shows various information about your characters
 ## Author: Exality

@@ -138,6 +138,7 @@ local function Linegenerator(tooltip,data,character)
   if settings.reputation.charOption[charKey] and settings.reputation.charOption[charKey] ~= 0 then
     ret = true
     local factionInfo = data[settings.reputation.charOption[charKey]]
+    if (not factionInfo) then return end
     local text = string.format("%s %s",
       Exlist.ShortenText(factionInfo.name,"",true),
       WrapTextInColorCode(
