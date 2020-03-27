@@ -1916,7 +1916,6 @@ function Exlist.RefreshAppearance()
     f:SetFont(font,fontSize)
   end
   butTool:SetScale(settings.iconScale)
-  print(settings.showMinimapIcon)
   if settings.showMinimapIcon then
     LDBI:Show("Exlist")
   else
