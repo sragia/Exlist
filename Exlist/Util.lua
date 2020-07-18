@@ -208,3 +208,39 @@ function Exlist.DisposeSideTooltip()
         self.sideTooltip = nil
     end
 end
+
+function Exlist.MouseOverTooltips()
+    for _, tooltip in ipairs(Exlist.activeTooltips or {}) do
+        if (tooltip:IsMouseOver()) then return true end
+    end
+    return false
+end
+
+function Exlist.ReleaseActiveTooltips()
+    for _, tooltip in ipairs(Exlist.activeTooltips or {}) do
+        QTip:Release(tooltip)
+    end
+    Exlist.activeTooltips = {}
+end
+
+function Exlist.SeperateThousands(value)
+    if (not value) then return 0 end
+    local k
+    local formatted = value
+    while true do
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+        if (k == 0) then break end
+    end
+    return formatted
+end
+
+function Exlist.FormatGold(coppers)
+    local money = {
+        gold = math.floor(coppers / 10000),
+        silver = math.floor((coppers / 100) % 100),
+        coppers = math.floor(coppers % 100)
+    }
+    return Exlist.SeperateThousands(money.gold) .. "|cFFd8b21ag|r " ..
+               money.silver .. "|cFFadadads|r " .. money.coppers ..
+               "|cFF995813c|r"
+end

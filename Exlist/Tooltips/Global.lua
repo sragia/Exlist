@@ -17,24 +17,7 @@ end
 local function configureTooltip(self, tooltip, parentTooltip)
     local parentFrameLevel = parentTooltip:GetFrameLevel(parentTooltip)
     tooltip:SetFrameLevel(parentFrameLevel)
-    tooltip.parent = self
-    tooltip.time = 0
-    tooltip.elapsed = 0
-    tooltip:SetScript("OnUpdate", function(self, elapsed)
-        self.time = self.time + elapsed
-        if self.time > 0.1 then
-            if self.parent:IsMouseOver() or parentTooltip:IsMouseOver() or
-                self:IsMouseOver() then
-                self.elapsed = 0
-            else
-                self.elapsed = self.elapsed + self.time
-                if self.elapsed > settings.delay then
-                    QTip:Release(self)
-                end
-            end
-            self.time = 0
-        end
-    end)
+
     tooltip:SetBackdrop(Exlist.DEFAULT_BACKDROP)
     local c = settings.backdrop
     tooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
@@ -72,6 +55,7 @@ local function positionTooltip(self, tooltip, parentTooltip)
 end
 
 local function showTooltip(self, tooltip)
+    if (not tooltip) then return end
     if settings.showExtraInfoTooltip then
         local gData = db.global and db.global.global or nil
         if gData then

@@ -35,7 +35,6 @@ local CreateFrame, CreateFont = CreateFrame, CreateFont
 local GetRealmName = GetRealmName
 local UnitName = UnitName
 local GetCVar = GetCVar
-local GetMoney = GetMoney
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local UnitClass, UnitLevel = UnitClass, UnitLevel
 local GetAverageItemLevel, GetSpecialization, GetSpecializationInfo =
@@ -102,6 +101,7 @@ local settings = { -- default settings
     horizontalMode = true,
     hideEmptyCurrency = false,
     showExtraInfoTooltip = true,
+    showTotalsTooltip = true,
     shortenInfo = false,
     showCurrentRealm = false,
     showQuestsInExtra = false,
@@ -799,7 +799,7 @@ function Exlist.AddLine(tooltip, info, fontSize)
     end
     tooltip:SetFont(fontObj)
 
-    local maxColumns = 5
+    local maxColumns = #tooltip.columns
     local n = tooltip:AddLine()
     if type(info) == 'string' then
         tooltip:SetCell(n, 1, info, "LEFT", maxColumns - 1)
@@ -945,6 +945,15 @@ function Exlist.RegisterModule(data)
             prio = data.priority,
             key = data.key,
             type = "global"
+        })
+    end
+    if data.customGenerator then
+        table.insert(mDB.lineGenerators, {
+            name = data.name,
+            func = data.customGenerator,
+            prio = data.priority,
+            key = data.key,
+            type = data.type
         })
     end
     -- Add module data
@@ -1094,7 +1103,25 @@ local function OnEnter(self)
         t.init()
         local tooltip = t.showFunc(self, mainTooltip)
         if (t.isMain) then mainTooltip = tooltip end
+        table.insert(Exlist.activeTooltips, tooltip)
     end
+    self.time = 0
+    self.elapsed = 0
+    self:SetScript("OnUpdate", function(self, elapsed)
+        self.time = self.time + elapsed
+        if self.time > 0.1 then
+            if Exlist.MouseOverTooltips() or self:IsMouseOver() then
+                self.elapsed = 0
+            else
+                self.elapsed = self.elapsed + self.time
+                if self.elapsed > settings.delay then
+                    Exlist.ReleaseActiveTooltips()
+                    self:SetScript("OnUpdate", nil)
+                end
+            end
+            self.time = 0
+        end
+    end)
 end
 
 butTool:SetScript("OnEnter", OnEnter)
@@ -1467,7 +1494,7 @@ function frame:OnEvent(event, ...)
     end
     -- if InCombatLockdown() then return end -- Don't update in combat
 
-    Exlist.Debug('Event ', event)
+    Exlist.Debug('Event ', event, ...)
     if Exlist.ModuleData.updaters[event] then
         for i, data in ipairs(Exlist.ModuleData.updaters[event]) do
             if settings.allowedModules[data.key] and

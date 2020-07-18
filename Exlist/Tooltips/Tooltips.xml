@@ -3,4 +3,5 @@
 
     <Script file="Main.lua" />
     <Script file="Global.lua" />
+    <Script file="Totals.lua" />
 </Ui>
