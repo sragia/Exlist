@@ -1,5 +1,5 @@
 Exlist = {
-  CONSTANTS = {},
+  constants = {},
   ModuleData = {
     updaters = {}, -- [event] = {name,key,override,func)}
     lineGenerators = {}, -- [i] = {name,func,prio,key,type}

@@ -24,5 +24,8 @@ Init.lua
 locales.xml
 
 Exlist.lua
+Consts.lua
+Util.lua
 Config.lua
 Modules\modules.xml
+Tooltips\Tooltips.xml

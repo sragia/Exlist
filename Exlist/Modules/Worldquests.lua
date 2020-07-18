@@ -298,7 +298,7 @@ end
 
 local function Updater(event,questInfo)
   if event == "PLAYER_ENTERING_WORLD"
-    and UnitLevel("player") >= Exlist.CONSTANTS.MAX_CHARACTER_LEVEL
+    and UnitLevel("player") >= Exlist.constants.MAX_CHARACTER_LEVEL
   then
     rescanTimer = timer:ScheduleTimer(Exlist.ScanQuests,3)
     return
