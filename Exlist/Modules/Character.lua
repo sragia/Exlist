@@ -33,9 +33,9 @@ local function Updater(event, ...)
             t.totalPlayed = totalTimePlayed
             t.totalPlayedLevel = timePlayedThisLevel
         end
+        toggleChatEvent(true)
     end
 
-    toggleChatEvent(true)
     Exlist.UpdateChar(key, t)
 end
 
