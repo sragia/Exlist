@@ -190,7 +190,7 @@ local function SetQuestRule(rewardId,rewardType,amount,compare)
     if rewardType == "item" then
       name = Exlist.GetCachedItemInfo(rewardId).name
     elseif rewardType == "currency" then
-      name = GetCurrencyInfo(rewardId)
+      name = C_CurrencyInfo.GetCurrencyInfo(rewardId)
     end
   else
     name = rewardRules.DEFAULT[rewardType].values[rewardId] or rewardId
@@ -746,13 +746,13 @@ local function init()
       currency = {
         values = {
           -- Legion
-          [1220] = GetCurrencyInfo(1220), -- Order Resources
-          [1508] = GetCurrencyInfo(1508), -- Veiled Argunite
-          [1226] = GetCurrencyInfo(1226), -- Nethershard
-          [1533] = GetCurrencyInfo(1533), -- Wakening Essences
+          [1220] = C_CurrencyInfo.GetCurrencyInfo(1220), -- Order Resources
+          [1508] = C_CurrencyInfo.GetCurrencyInfo(1508), -- Veiled Argunite
+          [1226] = C_CurrencyInfo.GetCurrencyInfo(1226), -- Nethershard
+          [1533] = C_CurrencyInfo.GetCurrencyInfo(1533), -- Wakening Essences
           -- BFA
-          [1560] = GetCurrencyInfo(1560), -- War Resources
-          [1553] = GetCurrencyInfo(1553), -- Azerite
+          [1560] = C_CurrencyInfo.GetCurrencyInfo(1560), -- War Resources
+          [1553] = C_CurrencyInfo.GetCurrencyInfo(1553), -- Azerite
           --
           [0] = L["Custom Currency"],
         },

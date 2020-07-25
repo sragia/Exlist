@@ -2,8 +2,7 @@ local key = "currency"
 local L = Exlist.L
 local prio = 10
 local currencyAmount = {}
-local GetMoney, GetCurrencyInfo, GetItemCount = GetMoney, GetCurrencyInfo,
-                                                GetItemCount
+local GetMoney, GetItemCount = GetMoney, GetItemCount
 local GetItemInfo = GetItemInfo
 local math, table, pairs = math, table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
@@ -62,8 +61,9 @@ local function Updater(event)
         t = Exlist.AddMissingTableEntries(t, config_defaults)
     end
 
-    for i = 1, GetCurrencyListSize() do
-        local name, isHeader, _, _, _, count, icon = GetCurrencyListInfo(i)
+    for i = 1, C_CurrencyInfo.GetCurrencyListSize() do
+        local name, isHeader, _, _, _, count, icon =
+            C_CurrencyInfo.GetCurrencyListInfo(i)
         if cur[name] then
             currencyAmount[name] = count
         elseif not isHeader then

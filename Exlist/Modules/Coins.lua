@@ -1,9 +1,8 @@
 local key = "coins"
 local L = Exlist.L
 local prio = 60
-local UnitLevel, IsQuestFlaggedCompleted, GetCurrencyInfo = UnitLevel,
-                                                            IsQuestFlaggedCompleted,
-                                                            GetCurrencyInfo
+local UnitLevel, IsQuestFlaggedCompleted = UnitLevel, IsQuestFlaggedCompleted
+
 local pairs, table = pairs, table
 local WrapTextInColorCode = WrapTextInColorCode
 local Exlist = Exlist
@@ -41,7 +40,8 @@ local function Updater(event)
             count = count + 1
         end
     end
-    local _, amount, _, _, _, totalMax, _, _ = GetCurrencyInfo(coinsCurrency)
+    local _, amount, _, _, _, totalMax, _, _ =
+        C_CurrencyInfo.GetCurrencyInfo(coinsCurrency)
     local table = {
         ["curr"] = amount,
         ["max"] = totalMax,
@@ -52,7 +52,7 @@ local function Updater(event)
 end
 
 local function Linegenerator(tooltip, data, character)
-    if not data or data.max <= 0 then return end
+    if not data or not data.max or data.max <= 0 then return end
     local settings = Exlist.ConfigDB.settings
     local availableCoins = data.available > 0 and
                                WrapTextInColorCode(
