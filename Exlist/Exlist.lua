@@ -267,24 +267,6 @@ local function spairs(t, order)
     end
 end
 
-local function AddMissingTableEntries(data, DEFAULT)
-    if not data or not DEFAULT then return data end
-    local rv = data
-    for k, v in pairs(DEFAULT) do
-        if rv[k] == nil then
-            rv[k] = v
-        elseif type(v) == "table" then
-            if type(rv[k]) == "table" then
-                rv[k] = AddMissingTableEntries(rv[k], v)
-            else
-                rv[k] = AddMissingTableEntries({}, v)
-            end
-        end
-    end
-    return rv
-end
-Exlist.AddMissingTableEntries = AddMissingTableEntries
-
 local function ShortenNumber(number)
     if type(number) ~= "number" then number = tonumber(number) end
     if not number then return end
@@ -1206,7 +1188,7 @@ local function init()
     Exlist_DB = Exlist_DB or db
     Exlist_Config = Exlist_Config or config_db
     -- setupt settings
-    Exlist_Config.settings = AddMissingTableEntries(
+    Exlist_Config.settings = Exlist.AddMissingTableEntries(
                                  Exlist_Config.settings or {}, settings)
 
     db = Exlist.copyTable(Exlist_DB)
@@ -1217,6 +1199,7 @@ local function init()
     settings = config_db.settings
     Exlist.ConfigDB = config_db
     settings.reorder = true
+    Exlist.accountSync.init()
     if not LDBI:IsRegistered("Exlist") then
         LDBI:Register("Exlist", LDB_Exlist, settings.minimapTable)
     end

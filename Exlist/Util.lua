@@ -20,6 +20,24 @@ function Exlist.spairs(t, order)
     end
 end
 
+local function AddMissingTableEntries(data, DEFAULT)
+    if not data or not DEFAULT then return data end
+    local rv = data
+    for k, v in pairs(DEFAULT) do
+        if rv[k] == nil then
+            rv[k] = v
+        elseif type(v) == "table" then
+            if type(rv[k]) == "table" then
+                rv[k] = AddMissingTableEntries(rv[k], v)
+            else
+                rv[k] = AddMissingTableEntries({}, v)
+            end
+        end
+    end
+    return rv
+end
+Exlist.AddMissingTableEntries = AddMissingTableEntries
+
 function Exlist.ClearFunctions(tooltip)
     if tooltip.animations then
         for _, frame in ipairs(tooltip.animations) do
@@ -79,7 +97,8 @@ function Exlist.ProfessionValueColor(value, isArch)
 end
 
 function Exlist.AttachStatusBar(frame)
-    local statusBar = CreateFrame("StatusBar", nil, frame)
+    local statusBar = CreateFrame("StatusBar", nil, frame,
+                                  BackdropTemplateMixin and "BackdropTemplate")
     statusBar:SetStatusBarTexture(
         "Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
     statusBar:GetStatusBarTexture():SetHorizTile(false)
@@ -243,4 +262,21 @@ function Exlist.FormatGold(coppers)
     return Exlist.SeperateThousands(money.gold) .. "|cFFd8b21ag|r " ..
                money.silver .. "|cFFadadads|r " .. money.coppers ..
                "|cFF995813c|r"
+end
+
+local randCharSet =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+function Exlist.GenerateRandomString(length)
+    length = length or 10
+    local output = ""
+    for i = 1, length do
+        local rand = math.random(#randCharSet)
+        output = output .. string.sub(randCharSet, rand, rand)
+    end
+    return output
+end
+
+function Exlist.Switch(condition, cases)
+    return (cases[condition] or cases.default)()
 end

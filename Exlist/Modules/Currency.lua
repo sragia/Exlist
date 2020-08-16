@@ -62,18 +62,17 @@ local function Updater(event)
     end
 
     for i = 1, C_CurrencyInfo.GetCurrencyListSize() do
-        local name, isHeader, _, _, _, count, icon =
-            C_CurrencyInfo.GetCurrencyListInfo(i)
-        if cur[name] then
-            currencyAmount[name] = count
-        elseif not isHeader then
-            cur[name] = {
-                icon = icon,
-                name = name,
+        local currency = C_CurrencyInfo.GetCurrencyListInfo(i)
+        if cur[currency.name] then
+            currencyAmount[currency.name] = currency.quantity
+        elseif not currency.isHeader then
+            cur[currency.name] = {
+                icon = currency.iconFileID,
+                name = currency.name,
                 type = "currency",
                 enabled = false
             }
-            currencyAmount[name] = count
+            currencyAmount[currency.name] = currency.quantity
         end
     end
 
@@ -176,7 +175,7 @@ local function AddRefreshOptions()
     -- update currencies
     Updater()
     local n = 1
-    for name, t in spairs(cur) do
+    for name, t in pairs(cur) do
         n = n + 1
         options.args[name .. 'desc'] = {
             type = "description",
