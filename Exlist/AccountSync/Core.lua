@@ -194,6 +194,18 @@ local function printProgress(type, message)
     print(string.format("|cff%s%s", color, message))
 end
 
+local function displayDataSentProgress(_, done, total)
+    local color = "ff0000"
+    local perc = (done / total) * 100
+    if (perc > 80) then
+        color = "00ff00"
+    elseif (perc > 40) then
+        color = "fcbe03"
+    end
+    return print(string.format("Exlist Sync: |cff%s %.1f%% ( %s / %s )", color,
+                               perc, done, total))
+end
+
 local function sendMessage(data, distribution, target, prio, callbackFn)
     if not Exlist.ConfigDB.accountSync.enabled then return end
     data.rqTime = GetTime()
@@ -237,12 +249,13 @@ end
 
 -- Does account have any online characters
 local accountStatus = {}
-
+local loginDataSent = {}
 local function pingAccountCharacters(accountID)
     local characters = Exlist.ConfigDB.accountSync.pairedCharacters
     local online = false
     local i = 1
     for char, info in pairs(characters) do
+        local char = char
         if (info.accountID == accountID) then
             local found = false
             C_Timer.After(i * 0.1, function()
@@ -250,6 +263,10 @@ local function pingAccountCharacters(accountID)
                     found = true
                     characters[char].status = CHAR_STATUS.ONLINE
                     online = true
+                    if not loginDataSent[char] then
+                        accountSync.syncCompleteData(char)
+                        loginDataSent[char] = true
+                    end
                 end)
             end)
             C_Timer.After(5, function()
@@ -360,10 +377,7 @@ function accountSync.syncCompleteData(characterName, response)
     local myData = getFilteredDB()
     local type = response and MSG_TYPE.syncAllResp or MSG_TYPE.syncAll
     sendMessage({type = type, changes = myData}, "WHISPER", characterName,
-                "BULK", function(_, done, total)
-        printProgress(PROGRESS_TYPE.info,
-                      string.format('Sending - %s/%s', done, total))
-    end)
+                "BULK", displayDataSentProgress)
 end
 
 function accountSync.pingEveryone()
