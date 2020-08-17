@@ -309,3 +309,42 @@ local function tableMerge(t1, t2)
     return t1
 end
 Exlist.tableMerge = tableMerge
+
+local function diffTable(t1, t2, result)
+    for k, v in pairs(t2) do
+        local t1Type = type(t1[k])
+        local t2Type = type(t2[k])
+        if (t1Type ~= t2Type) then
+            result[k] = t2[k]
+        elseif (t1Type == 'table') then
+            result[k] = diffTable(t1[k], t2[k], {})
+        elseif (t1[k] ~= t2[k]) then
+            result[k] = t2[k]
+        end
+    end
+
+    return result
+end
+
+local function removeEmptyTable(t)
+    if (type(t) ~= 'table') then return t end
+    local i = 0
+    for k, v in pairs(t) do
+        if (type(v) == 'table') then
+            t[k] = removeEmptyTable(v)
+            if (t[k]) then i = i + 1 end
+        else
+            i = i + 1
+        end
+    end
+    if (i > 0) then
+        return t
+    else
+        return nil
+    end
+end
+
+function Exlist.diffTable(t1, t2)
+    local diff = diffTable(t1, t2, {})
+    return removeEmptyTable(diff)
+end

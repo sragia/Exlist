@@ -10,6 +10,7 @@ local MSG_TYPE = {
     pairRequestFailed = "PAIR_REQUEST_FAILED",
     syncAll = "SYNC_ALL",
     syncAllResp = "SYNC_ALL_RESP",
+    sync = "SYNC",
     logout = "LOGOUT"
 }
 
@@ -19,6 +20,8 @@ local PROGRESS_TYPE = {
     error = "ERROR",
     info = "INFO"
 }
+
+local dbState
 
 local CHAR_STATUS = {ONLINE = "Online", OFFLINE = "Offline"}
 
@@ -79,18 +82,30 @@ local function getFilteredDB()
 end
 
 local function validateChanges(data)
-    -- Each character in table should have character key table
-    for _, realmData in pairs(data) do
-        if realmData then
-            for _, char in pairs(realmData) do
-                if not char.character then
-                    printProgress(PROGRESS_TYPE.error, "Invalid Table")
-                    return
-                end
-            end
-        end
-    end
+    -- TODO: find something to validate against
+    -- for _, realmData in pairs(data) do
+    --     if realmData then
+    --         for _, char in pairs(realmData) do
+    --             if not char.character then
+    --                 printProgress(PROGRESS_TYPE.error, "Invalid Table")
+    --                 return
+    --             end
+    --         end
+    --     end
+    -- end
     return true
+end
+
+local function setInitialDBState()
+    local db = getFilteredDB()
+    dbState = db
+end
+
+local function getDbChanges()
+    local filteredDb = getFilteredDB()
+    local changeDb = Exlist.diffTable(dbState, filteredDb)
+    dbState = filteredDb
+    return changeDb
 end
 
 local function addMissingPairCharacters(changes, accountID)
@@ -291,6 +306,7 @@ local function messageReceive(prefix, message, distribution, sender)
     if not Exlist.ConfigDB.accountSync.enabled then return end
     local userKey = Exlist.ConfigDB.accountSync.userKey
     local data = stringToData(message)
+    if not data then return end
     local msgType = data.type
     print("Msg Received ", msgType, sender)
     Exlist.Switch(msgType, {
@@ -350,6 +366,13 @@ local function messageReceive(prefix, message, distribution, sender)
                 end
             end
         end,
+        [MSG_TYPE.sync] = function()
+            if (validateRequest(data)) then
+                if (data.changes) then
+                    mergeInChanges(data.changes, data.accountID)
+                end
+            end
+        end,
         [MSG_TYPE.syncAllResp] = function()
             if (validateRequest(data)) then
                 if (data.changes) then
@@ -396,17 +419,27 @@ function accountSync.pingEveryone()
     end
 end
 
-local PING_INTERVAL = 60 * 60 * 5 -- Every 5 minutes
+local PING_INTERVAL = 60 * 60 * 3 -- Every 3 minutes
 
 accountSync.coreInit = function()
+    setInitialDBState()
     accountSync.pingEveryone()
     C_Timer.NewTicker(PING_INTERVAL, function()
         local characters = getOnlineCharacters()
         local i = 1
         for _, char in ipairs(characters) do
+            local char = char
             local online = false
             C_Timer.After(i * 0.1, function()
-                pingCharacter(char, function() online = true end)
+                pingCharacter(char, function()
+                    local changes = getDbChanges()
+                    if (changes) then
+                        sendMessage({type = MSG_TYPE.sync, changes = changes},
+                                    "WHISPER", char, "BULK",
+                                    displayDataSentProgress)
+                    end
+                    online = true
+                end)
             end)
 
             C_Timer.After(5, function()
