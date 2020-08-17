@@ -8,7 +8,8 @@ local MSG_TYPE = {
     pingSuccess = "PING_SUCCESS",
     pairRequest = "PAIR_REQUEST",
     pairRequestSuccess = "PAIR_REQUEST_SUCCESS",
-    pairRequestFailed = "PAIR_REQUEST_FAILED"
+    pairRequestFailed = "PAIR_REQUEST_FAILED",
+    logout = "LOGOUT"
 }
 
 local PROGRESS_TYPE = {
@@ -18,6 +19,8 @@ local PROGRESS_TYPE = {
     info = "INFO"
 }
 
+local CHAR_STATUS = {ONLINE = "Online", OFFLINE = "Offline"}
+
 local callbacks = {}
 
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
@@ -26,14 +29,33 @@ local AceComm = LibStub:GetLibrary("AceComm-3.0")
 local configForDeflate = {level = 9}
 local configForLS = {errorOnUnserializableType = false}
 
+local function getPairedCharacters()
+    return Exlist.ConfigDB.accountSync.pairedCharacters
+end
+
+local function getOnlineCharacters()
+    local characters = getPairedCharacters()
+
+    local onlineChar = {}
+    for char, info in pairs(characters) do
+        if (info.status == CHAR_STATUS.ONLINE) then
+            table.insert(onlineChar, char)
+        end
+    end
+    return onlineChar
+end
+
 local function mergePairedCharacters(accountChars, accountID)
     local paired = Exlist.ConfigDB.accountSync.pairedCharacters
     for _, char in ipairs(accountChars) do
-        if (not paired[char]) then
-            paired[char] = {status = "Offline", accountID = accountID}
-        end
+        paired[char] = {status = CHAR_STATUS.OFFLINE, accountID = accountID}
     end
     Exlist.accountSync.AddOptions(true)
+end
+
+local function getFormattedRealm(realm)
+    realm = realm or GetRealmName()
+    return realm:gsub("[%p%c%s]", "")
 end
 
 local function gatherAccountCharacterNames()
@@ -42,9 +64,8 @@ local function gatherAccountCharacterNames()
     for _, realm in ipairs(realms) do
         local characters = Exlist.GetRealmCharacters(realm)
         for _, char in ipairs(characters) do
-            table.insert(accountCharacters, string.format("%s-%s", char,
-                                                          realm:gsub("[%p%c%s]",
-                                                                     "")))
+            table.insert(accountCharacters,
+                         string.format("%s-%s", char, getFormattedRealm(realm)))
         end
     end
 
@@ -68,6 +89,12 @@ local function stringToData(payload)
     return data
 end
 
+local function getAccountId()
+    local accInfo = C_BattleNet.GetGameAccountInfoByGUID(UnitGUID('player'))
+
+    return accInfo.gameAccountID
+end
+
 local function printProgress(type, message)
     local color = "ffffff";
     if (type == PROGRESS_TYPE.success) then
@@ -84,13 +111,20 @@ end
 local function sendMessage(data, distribution, target, prio, callbackFn)
     if not Exlist.ConfigDB.accountSync.enabled then return end
     data.rqTime = GetTime()
+    data.userKey = Exlist.ConfigDB.accountSync.userKey
+    data.accountID = getAccountId()
+
     AceComm:SendCommMessage(PREFIX, dataToString(data), distribution, target,
                             prio, callbackFn)
+
     return data.rqTime
 end
 
 local function pingCharacter(characterName, callbackFn)
-    local rqTime = sendMessage({type = MSG_TYPE.ping}, "WHISPER", characterName);
+    local rqTime = sendMessage({
+        type = MSG_TYPE.ping,
+        key = Exlist.ConfigDB.accountSync.userKey
+    }, "WHISPER", characterName);
     if (callbackFn) then callbacks[rqTime] = callbackFn end
 end
 
@@ -115,16 +149,39 @@ local function showPairRequestPopup(characterName, callbackFn)
     StaticPopup_Show("Exlist_PairingPopup")
 end
 
+local function setSenderStatus(sender, status, accountID)
+    local characters = Exlist.ConfigDB.accountSync.pairedCharacters
+    local _, realm = strsplit("-", sender)
+    if (not realm) then sender = sender .. "-" .. getFormattedRealm() end
+    if (characters[sender]) then
+        characters[sender].status = status
+        characters[sender].accountID = accountID or characters[sender].accountID
+    elseif sender and status and accountID then
+        characters[sender] = {status = status, accountID = accountID}
+    end
+end
+
+local function validateRequest(data)
+    return data.userKey == Exlist.ConfigDB.accountSync.userKey
+end
+
+--[[
+    ---------------------- MSG RECEIVE -------------------------------
+]]
 local function messageReceive(prefix, message, distribution, sender)
     if not Exlist.ConfigDB.accountSync.enabled then return end
+    local userKey = Exlist.ConfigDB.accountSync.userKey
     local data = stringToData(message)
     local msgType = data.type
-    ViragDevTool_AddData(data)
-
+    print("Msg Received ", msgType, sender)
     Exlist.Switch(msgType, {
         [MSG_TYPE.ping] = function()
-            sendMessage({type = MSG_TYPE.pingSuccess, resTime = data.rqTime},
-                        distribution, sender)
+            if (validateRequest(data)) then
+                sendMessage(
+                    {type = MSG_TYPE.pingSuccess, resTime = data.rqTime},
+                    distribution, sender)
+                setSenderStatus(sender, CHAR_STATUS.ONLINE, data.accountID)
+            end
         end,
         [MSG_TYPE.pingSuccess] = function()
             local cb = callbacks[data.resTime]
@@ -136,29 +193,35 @@ local function messageReceive(prefix, message, distribution, sender)
         [MSG_TYPE.pairRequest] = function()
             showPairRequestPopup(sender, function(success)
                 if success then
-                    Exlist.ConfigDB.accountSync.userKey = data.key
-                    local accountInfo = C_BattleNet.GetGameAccountInfoByGUID(
-                                            UnitGUID('player'))
+                    Exlist.ConfigDB.accountSync.userKey = data.userKey
                     sendMessage({
                         type = MSG_TYPE.pairRequestSuccess,
                         accountCharacters = gatherAccountCharacterNames(),
-                        accountID = accountInfo and accountInfo.gameAccountID
+                        accountID = getAccountId()
                     }, distribution, sender)
                     mergePairedCharacters(data.accountCharacters, data.accountID)
+                    accountSync.pingAccountCharacters(data.accountID)
                 else
-                    sendMessage({type = MSG_TYPE.pairRequestFailed},
-                                distribution, sender)
+                    sendMessage({
+                        type = MSG_TYPE.pairRequestFailed,
+                        userKey = userKey
+                    }, distribution, sender)
                 end
             end)
         end,
         [MSG_TYPE.pairRequestSuccess] = function()
-            printProgress(PROGRESS_TYPE.success,
-                          L["Pair request has been successful"])
-            mergePairedCharacters(data.accountCharacters, data.accountID)
+            if validateRequest(data) then
+                printProgress(PROGRESS_TYPE.success,
+                              L["Pair request has been successful"])
+                mergePairedCharacters(data.accountCharacters, data.accountID)
+                accountSync.pingAccountCharacters(data.accountID)
+            end
         end,
         [MSG_TYPE.pairRequestFailed] = function()
-            printProgress(PROGRESS_TYPE.error,
-                          L["Pair request has been cancelled"])
+            if (validateRequest(data)) then
+                printProgress(PROGRESS_TYPE.error,
+                              L["Pair request has been cancelled"])
+            end
         end,
         default = function()
             -- Do Nothing for now
@@ -167,30 +230,82 @@ local function messageReceive(prefix, message, distribution, sender)
 end
 AceComm:RegisterComm(PREFIX, messageReceive)
 
-function accountSync.pairAccount(characterName, key)
-    local found = false
-    pingCharacter(characterName, function(data)
-        found = true
-        printProgress(PROGRESS_TYPE.success,
-                      "SUCCESS - " .. characterName .. " online")
-        local accountInfo = C_BattleNet.GetGameAccountInfoByGUID(
-                                UnitGUID('player'))
-        sendMessage({
-            type = MSG_TYPE.pairRequest,
-            key = key,
-            accountCharacters = gatherAccountCharacterNames(),
-            accountID = accountInfo and accountInfo.gameAccountID
-        }, "WHISPER", characterName)
-    end);
-    C_Timer.After(5, function()
-        if (not found) then
-            printProgress(PROGRESS_TYPE.error,
-                          "Couldn't find - " .. characterName)
-        end
-    end)
+function accountSync.pairAccount(characterName, userKey)
+    sendMessage({
+        type = MSG_TYPE.pairRequest,
+        userKey = userKey,
+        accountCharacters = gatherAccountCharacterNames(),
+        accountID = getAccountId()
+    }, "WHISPER", characterName)
 end
 
 function accountSync.syncData(characterName)
     local userKey = Exlist.ConfigDB.accountSync.userKey
     print('---', userKey)
+end
+
+-- Does account have any online characters
+local accountStatus = {}
+
+local function pingAccountCharacters(accountID)
+    local characters = Exlist.ConfigDB.accountSync.pairedCharacters
+    local online = false
+    local i = 1
+    for char, info in pairs(characters) do
+        if (info.accountID == accountID) then
+            local found = false
+            C_Timer.After(i * 0.1, function()
+                pingCharacter(char, function()
+                    found = true
+                    characters[char].status = CHAR_STATUS.ONLINE
+                    online = true
+                end)
+            end)
+            C_Timer.After(5, function()
+                if (not found) then
+                    characters[char].status = CHAR_STATUS.OFFLINE
+                end
+            end)
+            i = i + 1
+        end
+    end
+    C_Timer.After(10, function() accountStatus[accountID] = online end)
+end
+
+function accountSync.pingEveryone()
+    local characters = getPairedCharacters()
+    local pingedAccounts = {}
+    local i = 1
+    for _, info in pairs(characters) do
+        if (not pingedAccounts[info.accountID]) then
+            C_Timer.After(0.5 * i,
+                          function()
+                pingAccountCharacters(info.accountID)
+            end)
+            pingedAccounts[info.accountID] = true
+            i = i + 1
+        end
+    end
+end
+
+local PING_INTERVAL = 60 * 60 * 5 -- Every 5 minutes
+
+accountSync.coreInit = function()
+    C_Timer.NewTicker(PING_INTERVAL, function()
+        local characters = getOnlineCharacters()
+        local i = 1
+        for _, char in ipairs(characters) do
+            local online = false
+            C_Timer.After(i * 0.1, function()
+                pingCharacter(char, function() online = true end)
+            end)
+
+            C_Timer.After(5, function()
+                if not online then
+                    setSenderStatus(char, CHAR_STATUS.OFFLINE)
+                end
+            end)
+            i = i + 1
+        end
+    end)
 end

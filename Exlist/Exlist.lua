@@ -243,7 +243,6 @@ frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 frame:RegisterEvent("CHAT_MSG_SYSTEM")
--- frame:RegisterEvent("Exlist_DELAY")
 
 -- utility
 local function spairs(t, order)
@@ -1224,6 +1223,9 @@ local function init()
         AddModulesToSettings()
         Exlist.InitConfig()
     end
+
+    Exlist.accountSync.pingEveryone()
+
     C_Timer.After(0.5, function() Exlist.RefreshAppearance() end)
 end
 

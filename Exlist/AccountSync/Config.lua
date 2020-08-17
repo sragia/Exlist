@@ -6,7 +6,9 @@ Exlist.accountSync = {
         configDB.accountSync = Exlist.AddMissingTableEntries(
                                    configDB.accountSync or {},
                                    {enabled = false, pairedCharacters = {}})
-    end
+        Exlist.accountSync.coreInit()
+    end,
+    coreInit = function() end
 }
 
 local function getPairedCharOptions(startOrder)
@@ -26,14 +28,14 @@ local function getPairedCharOptions(startOrder)
                 {
                     order = order + 0.2,
                     type = "description",
-                    name = string.format(L["Account %s"], info.accountID),
+                    name = string.format(L["Account %s"], info.accountID or ""),
                     width = 0.5
                 }
             options[character .. "status"] =
                 {
                     order = order + 0.3,
                     type = "description",
-                    name = info.status,
+                    name = info.status or "",
                     width = 0.4
                 }
             options[character .. "syncbtn"] =
@@ -131,7 +133,7 @@ local function AddOptions(refresh)
                 disabled = function()
                     return
                         not (tmpConfigs.charToSync and tmpConfigs.charToSync ~=
-                            "")
+                            "") or not configDB.accountSync.userKey
                 end,
                 func = function()
                     print(tmpConfigs.charToSync)
