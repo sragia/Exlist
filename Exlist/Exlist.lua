@@ -540,6 +540,7 @@ local function AddMissingCharactersToSettings()
         end
     end
 end
+Exlist.AddMissingCharactersToSettings = AddMissingCharactersToSettings
 
 local function AddModulesToSettings()
     if not settings.allowedModules then settings.allowedModules = {} end
@@ -1223,8 +1224,6 @@ local function init()
         AddModulesToSettings()
         Exlist.InitConfig()
     end
-
-    Exlist.accountSync.pingEveryone()
 
     C_Timer.After(0.5, function() Exlist.RefreshAppearance() end)
 end

@@ -44,7 +44,7 @@ local function getPairedCharOptions(startOrder)
                     type = "execute",
                     name = L["Sync"],
                     func = function()
-                        Exlist.accountSync.syncData(character)
+                        Exlist.accountSync.syncCompleteData(character)
                     end,
                     width = 0.5
                 }
