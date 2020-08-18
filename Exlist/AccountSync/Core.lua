@@ -32,7 +32,8 @@ end
 local function getAccountId()
     local accInfo = C_BattleNet.GetGameAccountInfoByGUID(UnitGUID('player'))
 
-    return accInfo.gameAccountID
+    return Exlist.ConfigDB.accountSync.accountName or
+               ('Account ' .. accInfo.gameAccountID)
 end
 
 local function getFormattedRealm(realm)
@@ -82,17 +83,13 @@ local function getFilteredDB()
 end
 
 local function validateChanges(data)
-    -- TODO: find something to validate against
-    -- for _, realmData in pairs(data) do
-    --     if realmData then
-    --         for _, char in pairs(realmData) do
-    --             if not char.character then
-    --                 printProgress(PROGRESS_TYPE.error, "Invalid Table")
-    --                 return
-    --             end
-    --         end
-    --     end
-    -- end
+    for _, realmData in pairs(data) do
+        if realmData then
+            for _, char in pairs(realmData) do
+                if not char then return false end
+            end
+        end
+    end
     return true
 end
 
@@ -209,7 +206,52 @@ local function printProgress(type, message)
     print(string.format("|cff%s%s", color, message))
 end
 
+local function getProgressFrame()
+    local f = Exlist.accountSync.progressFrame
+    if (not f) then
+        f = CreateFrame('Frame', nil, UIParent,
+                        BackdropTemplateMixin and "BackdropTemplate")
+        Exlist.accountSync.progressFrame = f
+        f:SetWidth(150)
+        f:SetHeight(30)
+        f:SetBackdrop(Exlist.DEFAULT_BACKDROP)
+        f:SetBackdropColor(.1, .1, .1, .8)
+        f:SetBackdropBorderColor(0, 0, 0, 1)
+        f:SetPoint("TOP", 0, -10)
+        f:SetAlpha(0)
+        f.FadeIn = Exlist.Fade(f, 0.6, 0, 1)
+        f.FadeOut = Exlist.Fade(f, 0.3, 1, 0)
+        local statusBar = Exlist.AttachStatusBar(f)
+        statusBar:SetPoint("BOTTOM", 0, 10)
+        statusBar:SetWidth(100)
+        f.statusBar = statusBar
+
+        local textTitle =
+            Exlist.AttachText(f, Exlist.Fonts.mediumFont:GetFont())
+        textTitle:SetPoint("TOP", 0, 0)
+        textTitle:SetText("Exlist - Account Sync")
+        f.textTitle = textTitle
+        local textProg = Exlist.AttachText(f, Exlist.Fonts.smallFont:GetFont())
+        textProg:SetPoint("BOTTOM", statusBar, "CENTER")
+        f.textProg = textProg
+
+        f.SetProgress = function(self, progress)
+            self.statusBar:SetValue(progress)
+            self.textProg:SetText(string.format("%.1f%%", progress))
+        end
+        f.SetProgressColor = function(self, hexColor)
+            self.statusBar:SetStatusBarColor(Exlist.ColorHexToDec(hexColor))
+        end
+    end
+    local font = Exlist.Fonts.mediumFont:GetFont()
+
+    f.textTitle:SetFont(font, 12, "OUTLINE")
+    f.textProg:SetFont(font, 10, "OUTLINE")
+    return f
+end
+
 local function displayDataSentProgress(_, done, total)
+    if (not Exlist.ConfigDB.accountSync.displaySyncProgress) then return end
     local color = "ff0000"
     local perc = (done / total) * 100
     if (perc > 80) then
@@ -217,20 +259,35 @@ local function displayDataSentProgress(_, done, total)
     elseif (perc > 40) then
         color = "fcbe03"
     end
-    return print(string.format("Exlist Sync: |cff%s %.1f%% ( %s / %s )", color,
-                               perc, done, total))
+    local f = getProgressFrame()
+
+    if (not f.shown) then
+        f.shown = true
+        f.FadeIn:Play()
+    end
+
+    if (perc == 100) then
+        C_Timer.After(1, function()
+            f.shown = false
+            f.FadeOut:Play()
+        end)
+    end
+    f:SetProgress(perc)
+    f:SetProgressColor(color)
 end
 
+local requestId = 1
 local function sendMessage(data, distribution, target, prio, callbackFn)
     if not Exlist.ConfigDB.accountSync.enabled then return end
-    data.rqTime = GetTime()
+    local rqTime = GetTime() .. '-' .. requestId
+    data.rqTime = rqTime
     data.userKey = Exlist.ConfigDB.accountSync.userKey
     data.accountID = getAccountId()
 
     AceComm:SendCommMessage(PREFIX, dataToString(data), distribution, target,
                             prio, callbackFn)
-
-    return data.rqTime
+    requestId = requestId + 1
+    return rqTime
 end
 
 local function pingCharacter(characterName, callbackFn)
@@ -273,7 +330,8 @@ local function pingAccountCharacters(accountID)
         local char = char
         if (info.accountID == accountID) then
             local found = false
-            C_Timer.After(i * 0.1, function()
+            C_Timer.After(i * 0.5, function()
+                local char = char
                 pingCharacter(char, function()
                     found = true
                     characters[char].status = CHAR_STATUS.ONLINE
@@ -321,7 +379,7 @@ local function messageReceive(prefix, message, distribution, sender)
         [MSG_TYPE.pingSuccess] = function()
             local cb = callbacks[data.resTime]
             if (cb) then
-                cb(data)
+                cb(data, sender)
                 cb = nil
             end
         end,
@@ -419,35 +477,45 @@ function accountSync.pingEveryone()
     end
 end
 
-local PING_INTERVAL = 60 * 60 * 3 -- Every 3 minutes
+local function tickerFunc()
+    local characters = getOnlineCharacters()
+    local i = 1
+    for _, char in ipairs(characters) do
+        local char = char
+        local online = false
+        C_Timer.After(i * 0.5, function()
+            pingCharacter(char, function(_, sender)
+                local changes = getDbChanges()
+                if (changes) then
+                    sendMessage({type = MSG_TYPE.sync, changes = changes},
+                                "WHISPER", sender, "BULK",
+                                displayDataSentProgress)
+                end
+                online = true
+            end)
+        end)
+
+        C_Timer.After(5, function()
+            if not online then
+                setCharStatus(char, CHAR_STATUS.OFFLINE)
+            end
+        end)
+        i = i + 1
+    end
+end
+
+local function getTickerFrequency()
+    print(Exlist.ConfigDB.accountSync.tickerFrequency)
+    return Exlist.ConfigDB.accountSync.tickerFrequency or 60 * 3
+end
+
+accountSync.refreshTicker = function()
+    if (accountSync.ticker) then accountSync.ticker:Cancel() end
+    accountSync.ticker = C_Timer.NewTicker(getTickerFrequency(), tickerFunc)
+end
 
 accountSync.coreInit = function()
     setInitialDBState()
     accountSync.pingEveryone()
-    C_Timer.NewTicker(PING_INTERVAL, function()
-        local characters = getOnlineCharacters()
-        local i = 1
-        for _, char in ipairs(characters) do
-            local char = char
-            local online = false
-            C_Timer.After(i * 0.1, function()
-                pingCharacter(char, function()
-                    local changes = getDbChanges()
-                    if (changes) then
-                        sendMessage({type = MSG_TYPE.sync, changes = changes},
-                                    "WHISPER", char, "BULK",
-                                    displayDataSentProgress)
-                    end
-                    online = true
-                end)
-            end)
-
-            C_Timer.After(5, function()
-                if not online then
-                    setCharStatus(char, CHAR_STATUS.OFFLINE)
-                end
-            end)
-            i = i + 1
-        end
-    end)
+    accountSync.refreshTicker()
 end

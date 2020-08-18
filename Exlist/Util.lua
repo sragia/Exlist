@@ -348,3 +348,31 @@ function Exlist.diffTable(t1, t2)
     local diff = diffTable(t1, t2, {})
     return removeEmptyTable(diff)
 end
+
+function Exlist.Fade(f, duration, from, to)
+    local ag = f:CreateAnimationGroup()
+    local fade = ag:CreateAnimation("Alpha")
+    fade:SetFromAlpha(from or 0)
+    fade:SetToAlpha(to or 1)
+    fade:SetDuration(duration or 1)
+    fade:SetSmoothing((from > to) and "OUT" or "IN")
+    ag:SetScript("OnFinished", function() f:SetAlpha(to) end)
+    return ag
+end
+
+function Exlist.AttachText(f, font, size, outline)
+    local textFrame = CreateFrame("Frame", nil, f)
+    local fs = textFrame:CreateFontString(nil, "OVERLAY")
+    textFrame.text = fs
+    textFrame:SetWidth(0)
+    textFrame.SetText = function(self, text) self.text:SetText(text) end
+    textFrame.SetFont = function(self, font, size, outline)
+        self.text:SetFont(font, size, outline)
+    end
+    fs:SetFont(font, size, outline or "OUTLINE")
+    fs:SetText("HELLO")
+    fs:Point("CENTER")
+    textFrame:SetSize(1, 1)
+
+    return textFrame
+end

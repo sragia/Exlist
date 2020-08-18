@@ -4,8 +4,13 @@ Exlist.accountSync = {
     init = function()
         configDB = Exlist.ConfigDB
         configDB.accountSync = Exlist.AddMissingTableEntries(
-                                   configDB.accountSync or {},
-                                   {enabled = false, pairedCharacters = {}})
+                                   configDB.accountSync or {}, {
+                enabled = false,
+                pairedCharacters = {},
+                accountName = 'Account ' .. Exlist.GenerateRandomString(4),
+                displaySyncProgress = true,
+                tickerFrequency = 180
+            })
         Exlist.accountSync.coreInit()
     end,
     coreInit = function() end
@@ -28,7 +33,7 @@ local function getPairedCharOptions(startOrder)
                 {
                     order = order + 0.2,
                     type = "description",
-                    name = string.format(L["Account %s"], info.accountID or ""),
+                    name = info.accountID or "",
                     width = 0.5
                 }
             options[character .. "status"] =
@@ -87,6 +92,18 @@ local function AddOptions(refresh)
                     configDB.accountSync.enabled = value
                 end
             },
+            displayProgress = {
+                type = "toggle",
+                name = L["Display Sync Progress"],
+                order = 2.5,
+                width = "full",
+                get = function()
+                    return configDB.accountSync.displaySyncProgress
+                end,
+                set = function(_, value)
+                    configDB.accountSync.displaySyncProgress = value
+                end
+            },
             userKey = {
                 type = "input",
                 order = 3.1,
@@ -115,9 +132,49 @@ local function AddOptions(refresh)
                 name = "",
                 width = "normal"
             },
-            characterName = {
+            accountName = {
                 type = "input",
                 order = 4.1,
+                name = L["Account Name"],
+                get = function()
+                    return configDB.accountSync.accountName
+                end,
+                set = function(_, v)
+                    configDB.accountSync.accountName = v
+                end,
+                width = "normal"
+            },
+            spacer2 = {
+                type = "description",
+                order = 4.9,
+                name = "",
+                width = "double"
+            },
+            tickerFreq = {
+                type = "input",
+                order = 5.1,
+                name = L["Update Frequency (in seconds)"],
+                get = function()
+                    return tostring(configDB.accountSync.tickerFrequency)
+                end,
+                set = function(_, v)
+                    local num = tonumber(v)
+                    if (num) then
+                        configDB.accountSync.tickerFrequency = num
+                        Exlist.accountSync.refreshTicker()
+                    end
+                end,
+                width = "normal"
+            },
+            spacer3 = {
+                type = "description",
+                order = 5.9,
+                name = "",
+                width = "double"
+            },
+            characterName = {
+                type = "input",
+                order = 10.1,
                 name = L["Character To Sync With"],
                 get = function() return tmpConfigs.charToSync end,
                 set = function(_, value)
@@ -128,7 +185,7 @@ local function AddOptions(refresh)
             },
             characterNameExecute = {
                 type = "execute",
-                order = 4.2,
+                order = 10.2,
                 name = L["Sync"],
                 disabled = function()
                     return
@@ -144,7 +201,7 @@ local function AddOptions(refresh)
             },
             pairedCharGroup = {
                 type = "group",
-                order = 10,
+                order = 1000,
                 name = L["Paired Characters"],
                 args = getPairedCharOptions(1)
             }

@@ -1199,7 +1199,6 @@ local function init()
     settings = config_db.settings
     Exlist.ConfigDB = config_db
     settings.reorder = true
-    Exlist.accountSync.init()
     if not LDBI:IsRegistered("Exlist") then
         LDBI:Register("Exlist", LDB_Exlist, settings.minimapTable)
     end
@@ -1454,7 +1453,10 @@ function frame:OnEvent(event, ...)
         SetTooltipBut()
         Exlist.Debug('Init ran for: ' ..
                          DebugTimeColors(debugprofilestop() - started))
-        C_Timer.After(3, function() ResetHandling() end)
+        C_Timer.After(3, function()
+            ResetHandling()
+            Exlist.accountSync.init()
+        end)
         return
     end
     -- Delays
