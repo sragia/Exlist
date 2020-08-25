@@ -815,6 +815,8 @@ function Exlist.AddData(info)
   OnLeaveData = {} (optional) scriptData
   OnClick = function (optional) script
   OnClickData = {} (optional) scriptData
+  cellColor = "string" (optional) cell background in hex
+  lineColor = "string" (optional) line background in hex
   }
   ]]
     if not info then return end

@@ -18,6 +18,7 @@
 <Script file="WorldBosses.lua"/>
 <Script file="Note.lua"/>
 <Script file="Reputation.lua"/>
+<Script file="WeeklyRewards.lua" />
 
 
 </Ui>

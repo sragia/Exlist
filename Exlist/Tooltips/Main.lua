@@ -243,6 +243,7 @@ local function PopulateTooltip(tooltip)
 
     -- Add Char Info
     local rowHeadNum = 2
+    local coloredLines = {}
     for i = 1, #charOrder do
         local character = charOrder[i].name .. charOrder[i].realm
         if Exlist.tooltipData[character] then
@@ -315,6 +316,7 @@ local function PopulateTooltip(tooltip)
                         if i == 2 and spreadMid then
                             width = 2
                         end
+
                         tooltip:SetCell(row, col + offsetCol, data.data,
                                         justification, width)
                         -- ANIM TEST --
@@ -324,6 +326,16 @@ local function PopulateTooltip(tooltip)
                             cell:SetScript("OnUpdate", Exlist.AnimPulse)
                             table.insert(tooltip.animations, cell)
                             -- ANIM TEST --
+                        end
+                        if data.lineColor then
+                            tooltip:SetLineColor(row, Exlist.ColorHexToDec(
+                                                     data.lineColor))
+                            coloredLines[row] = true
+                        end
+                        if data.cellColor then
+                            tooltip:SetCellColor(row, col + offsetCol,
+                                                 Exlist.ColorHexToDec(
+                                                     data.cellColor))
                         end
                         if data.OnEnter then
                             tooltip:SetCellScript(row, col + offsetCol,
@@ -351,7 +363,9 @@ local function PopulateTooltip(tooltip)
     -- Color every second line for horizontal orientation
     if settings.horizontalMode then
         for i = 4, tooltip:GetLineCount() do
-            if i % 2 == 0 then tooltip:SetLineColor(i, 1, 1, 1, 0.2) end
+            if i % 2 == 0 and not coloredLines[i] then
+                tooltip:SetLineColor(i, 1, 1, 1, 0.2)
+            end
         end
     end
 end
