@@ -1,7 +1,7 @@
 local key = "coins"
 local L = Exlist.L
 local prio = 60
-local UnitLevel, IsQuestFlaggedCompleted = UnitLevel, IsQuestFlaggedCompleted
+local UnitLevel = UnitLevel
 
 local pairs, table = pairs, table
 local WrapTextInColorCode = WrapTextInColorCode
@@ -34,7 +34,7 @@ local function Updater(event)
     local count = 0
     local quests = {}
     for id, _ in pairs(coinsQuests) do
-        if IsQuestFlaggedCompleted(id) then
+        if C_QuestLog.IsQuestFlaggedCompleted(id) then
             local title = Exlist.GetCachedQuestTitle(id)
             table.insert(quests, title)
             count = count + 1

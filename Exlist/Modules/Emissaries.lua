@@ -2,7 +2,6 @@ local key = "emissary"
 local prio = 70
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local time = time
-local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local C_TaskQuest, C_Timer = C_TaskQuest, C_Timer
 local UnitLevel = UnitLevel
 local GetNumQuestLogEntries, GetQuestObjectiveInfo = GetNumQuestLogEntries,
@@ -82,7 +81,7 @@ local function Updater(event)
     if trackedBounties == 3 then
         -- no need to look through all quests
         for questId, info in pairs(gt) do
-            if not IsQuestFlaggedCompleted(questId) then
+            if not C_QuestLog.IsQuestFlaggedCompleted(questId) then
                 local _, _, _, current, total =
                     GetQuestObjectiveInfo(questId, 1, false)
                 local t = {

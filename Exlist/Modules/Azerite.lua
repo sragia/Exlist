@@ -61,7 +61,7 @@ end
 
 local function GetIslandsProgress()
     local questId = C_IslandsQueue.GetIslandsWeeklyQuestID()
-    if IsQuestFlaggedCompleted(questId) then
+    if C_QuestLog.IsQuestFlaggedCompleted(questId) then
         return true, 0, 0 -- Completed
     end
     local _, _, _, numFulfilled, numRequired =

@@ -5,7 +5,6 @@ local colors = Exlist.Colors
 local L = Exlist.L
 local EJ_GetEncounterInfo = EJ_GetEncounterInfo
 local UnitLevel, GetRealmName, UnitName = UnitLevel, GetRealmName, UnitName
-local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local WrapTextInColorCode = WrapTextInColorCode
 local string, table = string, table
 local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo, C_ContributionCollector,
@@ -172,7 +171,7 @@ local function Updater(e, info)
                 t[wq.questId] = {
                     name = defaultInfo.name or
                         select(2, EJ_GetCreatureInfo(1, defaultInfo.eid)),
-                    defeated = IsQuestFlaggedCompleted(wq.questId),
+                    defeated = C_QuestLog.IsQuestFlaggedCompleted(wq.questId),
                     endTime = endTime
                 }
                 db[wq.questId] = {
@@ -194,7 +193,7 @@ local function Updater(e, info)
                                               (UnitName("player")), key)
         local changed = false
         for questId, info in pairs(t) do
-            if not info.defeated and IsQuestFlaggedCompleted(questId) then
+            if not info.defeated and C_QuestLog.IsQuestFlaggedCompleted(questId) then
                 t[questId].defeated = true
                 changed = true
             end
@@ -221,7 +220,7 @@ local function Updater(e, info)
             if defaultInfo then
                 t[questId] = {
                     name = info.name or "",
-                    defeated = IsQuestFlaggedCompleted(questId),
+                    defeated = C_QuestLog.IsQuestFlaggedCompleted(questId),
                     endTime = info.endTime
                 }
             end
@@ -311,7 +310,7 @@ local function GlobalLineGenerator(tooltip, data)
                     }, 14)
                 end
                 local lineNum = Exlist.AddLine(tooltip, {
-                    AddCheckmark(info.name, IsQuestFlaggedCompleted(questId)),
+                    AddCheckmark(info.name, C_QuestLog.IsQuestFlaggedCompleted(questId)),
                     FormatEndTime(info.endTime)
                 })
                 Exlist.AddScript(tooltip, lineNum, nil, "OnMouseDown",

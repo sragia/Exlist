@@ -3,7 +3,7 @@ local prio = 130
 local Exlist = Exlist
 local L = Exlist.L
 local table,pairs,ipairs,type,math,time,GetTime,string,tonumber,print = table,pairs,ipairs,type,math,time,GetTime,string,tonumber,print
-local C_TaskQuest, IsQuestFlaggedCompleted = C_TaskQuest, IsQuestFlaggedCompleted
+local C_TaskQuest = C_TaskQuest
 local GetQuestLogRewardInfo,GetNumQuestLogRewardCurrencies,GetQuestLogRewardCurrencyInfo,GetQuestLogRewardMoney = GetQuestLogRewardInfo,GetNumQuestLogRewardCurrencies,GetQuestLogRewardCurrencyInfo,GetQuestLogRewardMoney
 local GetCurrentMapAreaID, SetMapByID, ToggleWorldMap = GetCurrentMapAreaID, SetMapByID, ToggleWorldMap
 local GetCurrencyInfo, GetSpellInfo, GetItemSpell = GetCurrencyInfo, GetSpellInfo, GetItemSpell
@@ -361,7 +361,7 @@ local function GlobalLineGenerator(tooltip,data)
           targetReward = GetFormatedRewardString(info.rewards[1],true)
         end
 
-        local lineNum = Exlist.AddLine(tooltip,{AddCheckmark(info.name,IsQuestFlaggedCompleted(info.questId)),
+        local lineNum = Exlist.AddLine(tooltip,{AddCheckmark(info.name,C_QuestLog.IsQuestFlaggedCompleted(info.questId)),
           timeLeft,
           WrapTextInColorCode(string.format("%s  - %s",targetReward,C_Map.GetMapInfo(info.zoneId).name or ""),colors.faded)})
         Exlist.AddScript(tooltip,lineNum,nil,"OnMouseDown",function(self)

@@ -3,7 +3,6 @@ local prio = 90
 local pairs, ipairs, table, print, type, string, tonumber = pairs, ipairs, table, print, type, string, tonumber
 local time,date = time,date
 local WrapTextInColorCode = WrapTextInColorCode
-local IsQuestFlaggedCompleted = IsQuestFlaggedCompleted
 local C_Calendar = C_Calendar
 local UnitName, GetRealmName = UnitName, GetRealmName
 local Exlist = Exlist
@@ -75,7 +74,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
   if bonusQuestId and bonusQuestId == questId then
     -- already have found what quest is this week
     local name = Exlist.GetCachedQuestTitle(questId)
-    local completed = IsQuestFlaggedCompleted(questId)
+    local completed = C_QuestLog.IsQuestFlaggedCompleted(questId)
     settings.unsortedFolder.weekly.bonusQuestId = questId
     return name,true,completed
   elseif bonusQuestId then
@@ -85,7 +84,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
     -- already found it in previous sessions
     bonusQuestId = questId
     local name = Exlist.GetCachedQuestTitle(questId)
-    local completed = IsQuestFlaggedCompleted(questId)
+    local completed = C_QuestLog.IsQuestFlaggedCompleted(questId)
     return name,true,completed
   elseif settings.unsortedFolder.weekly.bonusQuestId then
     return nil,false,false
@@ -93,7 +92,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
   local holidayNames = {}
   for _,qId in ipairs(bquestIds) do
     -- maybe have already completed
-    if IsQuestFlaggedCompleted(qId.questId) then
+    if C_QuestLog.IsQuestFlaggedCompleted(qId.questId) then
       bonusQuestId = qId.questId
       if qId.questId == questId then
         local name = Exlist.GetCachedQuestTitle(questId)
@@ -144,7 +143,7 @@ function checkFunctions.WeeklyBonusQuest(questId)
           settings.unsortedFolder.weekly.bonusQuestId = tmpQuestId
           if questId == bonusQuestId then
             local name = Exlist.GetCachedQuestTitle(questId)
-            local completed = IsQuestFlaggedCompleted(questId)
+            local completed = C_QuestLog.IsQuestFlaggedCompleted(questId)
             return name,true,completed
           end
         end
@@ -225,7 +224,7 @@ local function Updater(event)
       end
     else
       local name = Exlist.QuestInfo(questId)
-      local completed = IsQuestFlaggedCompleted(questId)
+      local completed = C_QuestLog.IsQuestFlaggedCompleted(questId)
       t[v.type] = t[v.type] or {}
       t[v.type][questId] = {name = name, completed = completed}
     end

@@ -1229,97 +1229,17 @@ local function init()
     C_Timer.After(0.5, function() Exlist.RefreshAppearance() end)
 end
 
--- Reset handling Credit to SavedInstances
-local function GetRegion()
-    if not config_db.region then
-        local reg = GetCVar("portal")
-        if reg == "public-test" then -- PTR uses US region resets, despite the misleading realm name suffix
-            reg = "US"
-        end
-        if not reg or #reg ~= 2 then
-            local gcr = GetCurrentRegion()
-            reg = gcr and ({"US", "KR", "EU", "TW", "CN"})[gcr]
-        end
-        if not reg or #reg ~= 2 then
-            reg = (GetCVar("realmList") or ""):match("^(%a+)%.")
-        end
-        if not reg or #reg ~= 2 then -- other test realms?
-            reg = (GetRealmName() or ""):match("%((%a%a)%)")
-        end
-        reg = reg and reg:upper()
-        if reg and #reg == 2 then config_db.region = reg end
-    end
-    return config_db.region
-end
-
-local function GetServerOffset()
-    local serverDay = C_Calendar.GetDate().weekday - 1
-    -- local serverDay = CalendarGetDate() - 1 -- 1-based starts on Sun
-    local localDay = tonumber(date("%w")) -- 0-based starts on Sun
-    local serverHour, serverMinute = GetGameTime()
-    local localHour, localMinute = tonumber(date("%H")), tonumber(date("%M"))
-    if serverDay == (localDay + 1) % 7 then -- server is a day ahead
-        serverHour = serverHour + 24
-    elseif localDay == (serverDay + 1) % 7 then -- local is a day ahead
-        localHour = localHour + 24
-    end
-    local server = serverHour + serverMinute / 60
-    local localT = localHour + localMinute / 60
-    local offset = floor((server - localT) * 2 + 0.5) / 2
-    return offset
-end
-
 local function GetNextDailyResetTime()
-    local resettime = GetQuestResetTime()
-    if not resettime or resettime <= 0 or -- ticket 43: can fail during startup
-    resettime > 24 * 3600 + 30 then -- can also be wrong near reset in an instance
-        return nil
-    end
-    if false then
-        local serverHour, serverMinute = GetGameTime()
-        local serverResetTime = (serverHour * 3600 + serverMinute * 60 +
-                                    resettime) % 86400 -- GetGameTime of the reported reset
-        local diff = serverResetTime - 10800 -- how far from 3AM server
-        if math.abs(diff) > 3.5 * 3600 -- more than 3.5 hours - ignore TZ differences of US continental servers
-        and GetRegion() == "US" then
-            local diffhours = math.floor((diff + 1800) / 3600)
-            resettime = resettime - diffhours * 3600
-            if resettime < -900 then -- reset already passed, next reset
-                resettime = resettime + 86400
-            elseif resettime > 86400 + 900 then
-                resettime = resettime - 86400
-            end
-        end
-    end
-    return time() + resettime
+    local timeToNextWeeklyReset = C_DateAndTime.GetSecondsUntilWeeklyReset()
+    local timeToNextDailyReset = timeToNextWeeklyReset -
+                                     (floor(timeToNextWeeklyReset / 86400) *
+                                         86400)
+    return timeToNextDailyReset + time()
 end
 
 local function GetNextWeeklyResetTime()
-    if not config_db.resetDays then
-        local region = GetRegion()
-        -- print('Getnextweekly region: ', region)
-        if not region then return nil end
-        config_db.resetDays = {}
-        config_db.resetDays.DLHoffset = 0
-        if region == "US" then
-            config_db.resetDays["2"] = true -- tuesday
-            -- ensure oceanic servers over the dateline still reset on tues UTC (wed 1/2 AM server)
-            config_db.resetDays.DLHoffset = -3
-        elseif region == "EU" then
-            config_db.resetDays["3"] = true -- wednesday
-        elseif region == "CN" or region == "KR" or region == "TW" then -- XXX: codes unconfirmed
-            config_db.resetDays["4"] = true -- thursday
-        else
-            config_db.resetDays["2"] = true -- tuesday?
-        end
-    end
-    local offset = (GetServerOffset() + config_db.resetDays.DLHoffset) * 3600
-    local nightlyReset = GetNextDailyResetTime()
-    if not nightlyReset then return nil end
-    while not config_db.resetDays[date("%w", nightlyReset + offset)] do
-        nightlyReset = nightlyReset + 24 * 3600
-    end
-    return nightlyReset
+    local secondsToNextReset = C_DateAndTime.GetSecondsUntilWeeklyReset()
+    return secondsToNextReset + time()
 end
 Exlist.GetNextWeeklyResetTime = GetNextWeeklyResetTime
 Exlist.GetNextDailyResetTime = GetNextDailyResetTime
