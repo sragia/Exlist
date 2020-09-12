@@ -43,7 +43,9 @@ local function Updater(event)
         C_MythicPlus.RequestMapInfo();
     end
 
-    Exlist.UpdateChar(key, t)
+    if (#t.activities > 0) then
+        Exlist.UpdateChar(key, t)
+    end
 end
 
 local function Linegenerator(tooltip, data, character)
@@ -126,7 +128,7 @@ local function Modernize(data)
 end
 ]]
 
-local function init() C_WeeklyRewards.RequestRewards() end
+-- local function init() end
 
 --[[
 local function ResetHandler(resetType)
@@ -164,7 +166,7 @@ local data = {
     -- globallgenerator = GlobalLineGenerator,
     -- type = 'customTooltip'
     -- modernize = Modernize,
-    init = init
+    -- init = init
     -- override = true,
     -- specialResetHandle = ResetHandler
 

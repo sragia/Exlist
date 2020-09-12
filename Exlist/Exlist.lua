@@ -598,7 +598,8 @@ local function GetCachedQuestTitle(questId)
         return config_db.quest_cache[questId]
     else
         if type(questId) ~= "number" then return end
-        local name = Exlist.QuestInfo(questId)
+        local name = C_TaskQuest.GetQuestInfoByQuestID(questId)
+        name = name or Exlist.QuestInfo(questId)
         if name then
             -- only save if you actually got info
             config_db.quest_cache = config_db.quest_cache or {}
