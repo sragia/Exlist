@@ -21,12 +21,19 @@ local standingNames = {
 local function spairs(t, order)
   -- collect the keys
   local keys = {}
-  for k in pairs(t) do keys[#keys + 1] = k end
+  for k in pairs(t) do
+    keys[#keys + 1] = k
+  end
 
   -- if order function given, sort by it by passing the table and keys a, b,
   -- otherwise just sort the keys
   if order then
-    table.sort(keys, function(a, b) return order(t, a, b) end)
+    table.sort(
+      keys,
+      function(a, b)
+        return order(t, a, b)
+      end
+    )
   else
     table.sort(keys)
   end
@@ -45,21 +52,28 @@ local statusMarks = {
   [true] = [[Interface/Addons/Exlist/Media/Icons/ok-icon]],
   [false] = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]]
 }
-local function AddCheckmark(text,status)
-  return string.format("|T%s:0|t %s",statusMarks[status],text)
+local function AddCheckmark(text, status)
+  return string.format("|T%s:0|t %s", statusMarks[status], text)
 end
 
-local function AddReputationToCache(name,factionID)
-  if not name or not factionID then return end
+local function AddReputationToCache(name, factionID)
+  if not name or not factionID then
+    return
+  end
   local found = false
-  for _,faction in ipairs(settings.reputation.cache) do
+  for _, faction in ipairs(settings.reputation.cache) do
     if name == faction.name then
       found = true
     end
   end
   if not found then
-    table.insert(settings.reputation.cache,{name = name, factionID = factionID})
-    table.sort(settings.reputation.cache,function(a,b) return a.name < b.name end)
+    table.insert(settings.reputation.cache, {name = name, factionID = factionID})
+    table.sort(
+      settings.reputation.cache,
+      function(a, b)
+        return a.name < b.name
+      end
+    )
   end
 end
 
@@ -68,14 +82,14 @@ local function UpdateReputationCache(factionID)
   factionID = tonumber(factionID)
   if factionID and type(factionID) == "number" then
     local name = GetFactionInfoByID(factionID)
-    AddReputationToCache(name,factionID)
+    AddReputationToCache(name, factionID)
     ret = name
   end
   local numFactions = GetNumFactions()
-  for i=1,numFactions do
+  for i = 1, numFactions do
     local name, _, _, _, _, _, _, _, isHeader, _, _, _, _, factionID = GetFactionInfo(i)
     if not isHeader and factionID ~= 1168 then -- 1168 = guild rep
-      AddReputationToCache(name,factionID)
+      AddReputationToCache(name, factionID)
     end
   end
   return ret
@@ -83,19 +97,27 @@ end
 
 local function Updater(event)
   local t = {}
-  if event == "UPDATE_FACTION" then C_Timer.After(0.5,function() Exlist.SendFakeEvent("UPDATE_FACTION_DELAY") end) end
-  for _,faction in ipairs(settings.reputation.cache) do
+  if event == "UPDATE_FACTION" then
+    C_Timer.After(
+      0.5,
+      function()
+        Exlist.SendFakeEvent("UPDATE_FACTION_DELAY")
+      end
+    )
+  end
+  for _, faction in ipairs(settings.reputation.cache) do
     local name, description, standingID, barMin, barMax, barValue = GetFactionInfoByID(faction.factionID)
     if name then
-      local curr = barValue-barMin -- current
-      local max = barMax-barMin -- max
+      local curr = barValue - barMin -- current
+      local max = barMax - barMin -- max
       local paragonReward
       if standingID >= 8 and C_Reputation.IsFactionParagon(faction.factionID) then
         -- Paragon stuff
         standingID = 100
-        local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(faction.factionID)
+        local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon =
+          C_Reputation.GetFactionParagonInfo(faction.factionID)
         paragonReward = hasRewardPending
-        curr = mod(currentValue,threshold)
+        curr = mod(currentValue, threshold)
         max = threshold
         if hasRewardPending then
           curr = curr + threshold
@@ -107,30 +129,32 @@ local function Updater(event)
         standing = standingID,
         curr = curr,
         max = max,
-        paragonReward = paragonReward,
+        paragonReward = paragonReward
       }
     end
   end
-  Exlist.UpdateChar(key,t)
+  Exlist.UpdateChar(key, t)
 end
 
-local function Linegenerator(tooltip,data,character)
-  if not data then return end
+local function Linegenerator(tooltip, data, character)
+  if not data then
+    return
+  end
   local info = {
     character = character,
     priority = prio,
     moduleName = key,
-    titleName = L["Reputation"],
-  -- data = "",
-  -- colOff = 0,
-  -- dontResize = false,
-  -- pulseAnim = false,
-  -- OnEnter = function() end,
-  -- OnEnterData = {},
-  -- OnLeave = function() end,
-  -- OnLeaveData = {},
-  -- OnClick = function() end,
-  -- OnClickData = {},
+    titleName = L["Reputation"]
+    -- data = "",
+    -- colOff = 0,
+    -- dontResize = false,
+    -- pulseAnim = false,
+    -- OnEnter = function() end,
+    -- OnEnterData = {},
+    -- OnLeave = function() end,
+    -- OnLeaveData = {},
+    -- OnClick = function() end,
+    -- OnClickData = {},
   }
   local ret = false
   local paragonAvailable = false
@@ -138,25 +162,27 @@ local function Linegenerator(tooltip,data,character)
   if settings.reputation.charOption[charKey] and settings.reputation.charOption[charKey] ~= 0 then
     ret = true
     local factionInfo = data[settings.reputation.charOption[charKey]]
-    if (not factionInfo) then return end
-    local text = string.format("%s %s",
-      Exlist.ShortenText(factionInfo.name,"",true),
+    if (not factionInfo) then
+      return
+    end
+    local text =
+      string.format(
+      "%s %s",
+      Exlist.ShortenText(factionInfo.name, "", true),
       WrapTextInColorCode(
-        string.format("%s/%s",
-          Exlist.ShortenNumber(factionInfo.curr),
-          Exlist.ShortenNumber(factionInfo.max)),
+        string.format("%s/%s", Exlist.ShortenNumber(factionInfo.curr), Exlist.ShortenNumber(factionInfo.max)),
         colors.repColors[factionInfo.standing]
       )
     )
     if factionInfo.paragonReward then
-      text = AddCheckmark(text,true)
+      text = AddCheckmark(text, true)
     end
     info.data = text
   else
     info.data = L["None"]
   end
-  local sideTooltip = {title = WrapTextInColorCode(L["Reputations"],colors.sideTooltipTitle),body ={}}
-  for factionID,factionInfo in pairs(settings.reputation.enabled) do
+  local sideTooltip = {title = WrapTextInColorCode(L["Reputations"], colors.sideTooltipTitle), body = {}}
+  for factionID, factionInfo in pairs(settings.reputation.enabled) do
     if factionInfo.enabled then
       ret = true
       local r = data[factionID]
@@ -164,20 +190,21 @@ local function Linegenerator(tooltip,data,character)
         local text1 = r.name
         local text2 = ""
         if r.standing == 8 then
-          text2 = WrapTextInColorCode(standingNames[r.standing],colors.repColors[r.standing])
+          text2 = WrapTextInColorCode(standingNames[r.standing], colors.repColors[r.standing])
         else
-          text2 = string.format(
+          text2 =
+            string.format(
             "%s (%s/%s)",
-            WrapTextInColorCode(standingNames[r.standing],colors.repColors[r.standing]),
+            WrapTextInColorCode(standingNames[r.standing], colors.repColors[r.standing]),
             Exlist.ShortenNumber(r.curr),
             Exlist.ShortenNumber(r.max)
           )
         end
         if r.paragonReward then
           paragonAvailable = true
-          text2 = AddCheckmark(text2,true)
+          text2 = AddCheckmark(text2, true)
         end
-        table.insert(sideTooltip.body,{text1,text2})
+        table.insert(sideTooltip.body, {text1, text2})
       end
     end
   end
@@ -195,7 +222,6 @@ local function GlobalLineGenerator(tooltip,data)
 
 end
 ]]
-
 --[[
 local function Modernize(data)
 -- data is table of module table from character
@@ -203,14 +229,11 @@ local function Modernize(data)
 return data
 end
 ]]
-
-
 local function init()
   -- code that will run before any other function
   settings = Exlist.ConfigDB.settings
   UpdateReputationCache()
 end
-
 
 --[[
 local function ResetHandler(resetType)
@@ -238,27 +261,29 @@ local function AddOptions(refresh)
         type = "description",
         order = 0,
         name = L["Pick and choose reputations you want to see."],
-        width = "full",
+        width = "full"
       },
       addFactionID = {
         type = "input",
         order = 10,
         name = L["Add Faction ID to list"],
         width = 1.5,
-        get = function() return "" end,
-        set = function(self,id)
+        get = function()
+          return ""
+        end,
+        set = function(self, id)
           local name = UpdateReputationCache(id)
           if name then
             settings.reputation.enabled[tonumber(id)] = {name = name, enabled = true}
           end
           AddOptions(true)
-        end,
+        end
       },
       spacer1 = {
         type = "description",
         order = 11,
         width = 1.9,
-        name = "",
+        name = ""
       },
       selectFaction = {
         type = "select",
@@ -266,17 +291,21 @@ local function AddOptions(refresh)
         name = L["Or Select Faction"],
         width = 1.5,
         values = reps,
-        get = function() return selectedFaction end,
-        set = function(self,value)
-          selectedFaction = value
+        get = function()
+          return selectedFaction
         end,
+        set = function(self, value)
+          selectedFaction = value
+        end
       },
       enableFaction = {
         type = "execute",
         order = 30,
         name = L["Enable"],
         width = 0.5,
-        disabled = function() return selectedFaction == 0 end,
+        disabled = function()
+          return selectedFaction == 0
+        end,
         func = function()
           settings.reputation.enabled[repLookup[selectedFaction]] = {name = reps[selectedFaction], enabled = true}
           selectedFaction = 0
@@ -284,13 +313,13 @@ local function AddOptions(refresh)
         end,
         image = [[Interface/Addons/Exlist/Media/Icons/ok-icon]],
         imageWidth = 20,
-        imageHeight = 20,
+        imageHeight = 20
       },
       spacer2 = {
         type = "description",
         order = 31,
         width = 1.4,
-        name = "",
+        name = ""
       },
       enabledReps = {
         type = "description",
@@ -299,39 +328,37 @@ local function AddOptions(refresh)
         fontSize = "medium",
         name = L["Curently enabled reputations"]
       },
-
       characterSelection = {
         type = "description",
         order = 1000,
-        name = WrapTextInColorCode(L["\nCharacter Reputations"],colors.questTitle),
+        name = WrapTextInColorCode(L["\nCharacter Reputations"], colors.questTitle),
         fontSize = "large",
-        width = "full",
+        width = "full"
       },
       characterSelectiondesc = {
         type = "description",
         fontSize = "medium",
         order = 1010,
         name = L["Pick reputation that are shown as main one for each character"],
-        width = "full",
+        width = "full"
       }
-
     }
   }
   local enabledReps = {}
   enabledReps[0] = "None"
   -- Populate enabled factions
   local order = 50
-  for factionID,info in pairs(settings.reputation.enabled) do
+  for factionID, info in pairs(settings.reputation.enabled) do
     if info.enabled then
       enabledReps[factionID] = info.name
-      options.args[factionID.."Disable"] = {
+      options.args[factionID .. "Disable"] = {
         type = "execute",
         order = order,
         name = "",
         width = 0.2,
         func = function()
           info.enabled = false
-          for char,fID in pairs(settings.reputation.charOption) do
+          for char, fID in pairs(settings.reputation.charOption) do
             if factionID == fID then
               settings.reputation.charOption[char] = 0
             end
@@ -340,14 +367,14 @@ local function AddOptions(refresh)
         end,
         image = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]],
         imageWidth = 20,
-        imageHeight = 20,
+        imageHeight = 20
       }
-      options.args[factionID.."Name"] = {
+      options.args[factionID .. "Name"] = {
         type = "description",
         fontSize = "medium",
         order = order + 1,
         name = info.name,
-        width = 3.2,
+        width = 3.2
       }
       order = order + 2
     end
@@ -355,18 +382,21 @@ local function AddOptions(refresh)
 
   -- Char Selection
   order = 1011
-  for char,v in spairs(settings.allowedCharacters,function(t,a,b)
-    return t[a].order < t[b].order
-  end) do
+  for char, v in spairs(
+    settings.allowedCharacters,
+    function(t, a, b)
+      return t[a].order < t[b].order
+    end
+  ) do
     if v.enabled then
-      options.args[char..'name'] = {
+      options.args[char .. "name"] = {
         type = "description",
-        name = string.format("|c%s%s",v.classClr,v.name),
+        name = string.format("|c%s%s", v.classClr, v.name),
         order = order,
-        width = 0.6,
+        width = 0.6
       }
-      options.args[char..'factions'] = {
-        type = 'select',
+      options.args[char .. "factions"] = {
+        type = "select",
         name = "",
         values = enabledReps,
         order = order + 1,
@@ -374,46 +404,44 @@ local function AddOptions(refresh)
         get = function()
           return settings.reputation.charOption[char] or 0
         end,
-        set = function(self,v)
+        set = function(self, v)
           settings.reputation.charOption[char] = v
           AddOptions(true)
-        end,
+        end
       }
-      options.args[char..'spacer'] = {
+      options.args[char .. "spacer"] = {
         type = "description",
         name = "",
         order = order + 2,
-        width = 1.6,
+        width = 1.6
       }
       order = order + 3
     end
   end
 
   if not refresh then
-    Exlist.AddModuleOptions(key,options,L["Reputation"])
+    Exlist.AddModuleOptions(key, options, L["Reputation"])
   else
-    Exlist.RefreshModuleOptions(key,options,L["Reputation"])
+    Exlist.RefreshModuleOptions(key, options, L["Reputation"])
   end
 end
 Exlist.ModuleToBeAdded(AddOptions)
 
-
 local data = {
-  name = L['Reputation'],
+  name = L["Reputation"],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"PLAYER_ENTERING_WORLD","UPDATE_FACTION","UPDATE_FACTION_DELAY","QUEST_TURNED_IN","QUEST_REMOVED"},
+  event = {"PLAYER_ENTERING_WORLD", "UPDATE_FACTION", "UPDATE_FACTION_DELAY", "QUEST_TURNED_IN", "QUEST_REMOVED"},
   weeklyReset = false,
   dailyReset = false,
   description = L["Allows to select different reputation progress for your characters"],
   -- globallgenerator = GlobalLineGenerator,
   -- modernize = Modernize,
-  init = init,
--- override = true,
--- specialResetHandle = ResetHandler
-
+  init = init
+  -- override = true,
+  -- specialResetHandle = ResetHandler
 }
 
 Exlist.RegisterModule(data)

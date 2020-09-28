@@ -17,51 +17,39 @@ Exlist.iconPaths = {
     [250] = [[Interface\AddOns\Exlist\Media\Icons\DEATHKNIGHTBlood.tga]],
     [251] = [[Interface\AddOns\Exlist\Media\Icons\DEATHKNIGHTFrost.tga]],
     [252] = [[Interface\AddOns\Exlist\Media\Icons\DEATHKNIGHTUnholy.tga]],
-
     [577] = [[Interface\AddOns\Exlist\Media\Icons\DEMONHUNTERHavoc.tga]],
     [581] = [[Interface\AddOns\Exlist\Media\Icons\DEMONHUNTERVengeance.tga]],
-
     [102] = [[Interface\AddOns\Exlist\Media\Icons\DRUIDBalance.tga]],
     [103] = [[Interface\AddOns\Exlist\Media\Icons\DRUIDFeral.tga]],
     [104] = [[Interface\AddOns\Exlist\Media\Icons\DRUIDGuardian.tga]],
     [105] = [[Interface\AddOns\Exlist\Media\Icons\DRUIDRestoration.tga]],
-
     [253] = [[Interface\AddOns\Exlist\Media\Icons\HUNTERBeastmastery.tga]],
     [254] = [[Interface\AddOns\Exlist\Media\Icons\HUNTERMarksmanship.tga]],
     [255] = [[Interface\AddOns\Exlist\Media\Icons\HUNTERSurvival.tga]],
-
     [62] = [[Interface\AddOns\Exlist\Media\Icons\MAGEArcane.tga]],
     [63] = [[Interface\AddOns\Exlist\Media\Icons\MAGEFire.tga]],
     [64] = [[Interface\AddOns\Exlist\Media\Icons\MAGEFrost.tga]],
-
     [268] = [[Interface\AddOns\Exlist\Media\Icons\MONKBrewmaster.tga]],
     [270] = [[Interface\AddOns\Exlist\Media\Icons\MONKMistweaver.tga]],
     [269] = [[Interface\AddOns\Exlist\Media\Icons\MONKWindwalker.tga]],
-
     [65] = [[Interface\AddOns\Exlist\Media\Icons\PALADINHoly.tga]],
     [66] = [[Interface\AddOns\Exlist\Media\Icons\PALADINProtection.tga]],
     [70] = [[Interface\AddOns\Exlist\Media\Icons\PALADINRetribution.tga]],
-
     [256] = [[Interface\AddOns\Exlist\Media\Icons\PRIESTDiscipline.tga]],
     [257] = [[Interface\AddOns\Exlist\Media\Icons\PRIESTHoly.tga]],
     [258] = [[Interface\AddOns\Exlist\Media\Icons\PRIESTShadow.tga]],
-
     [259] = [[Interface\AddOns\Exlist\Media\Icons\ROGUEAssasination.tga]],
     [260] = [[Interface\AddOns\Exlist\Media\Icons\ROGUEOutlaw.tga]],
     [261] = [[Interface\AddOns\Exlist\Media\Icons\ROGUESubtlety.tga]],
-
     [262] = [[Interface\AddOns\Exlist\Media\Icons\SHAMANElemental.tga]],
     [263] = [[Interface\AddOns\Exlist\Media\Icons\SHAMANEnhancement.tga]],
     [264] = [[Interface\AddOns\Exlist\Media\Icons\SHAMANRestoration.tga]],
-
     [265] = [[Interface\AddOns\Exlist\Media\Icons\WARLOCKAffliction.tga]],
     [266] = [[Interface\AddOns\Exlist\Media\Icons\WARLOCKDemonology.tga]],
     [267] = [[Interface\AddOns\Exlist\Media\Icons\WARLOCKDestruction.tga]],
-
     [71] = [[Interface\AddOns\Exlist\Media\Icons\WARRIORArms.tga]],
     [72] = [[Interface\AddOns\Exlist\Media\Icons\WARRIORFury.tga]],
     [73] = [[Interface\AddOns\Exlist\Media\Icons\WARRIORProtection.tga]],
-
     [0] = [[Interface\AddOns\Exlist\Media\Icons\SpecNone.tga]]
 }
 
@@ -90,10 +78,10 @@ Exlist.ShortenedMPlus = {
     [251] = L["URot"], -- The Underrot
     [252] = L["SotS"], -- Shrine of the Storm
     [353] = L["SoB"] -- Siege of Boralus
-
 }
 
-local Colors = { -- default colors
+local Colors = {
+    -- default colors
     questTitle = "ffffd200",
     missionName = "ffffd200",
     questTypeHeading = "ff42c8f4",
@@ -136,18 +124,27 @@ local Colors = { -- default colors
     },
     ilvlColors = {
         -- BFA --
-        {ilvl = 320, str = "ff26ff3f"}, {ilvl = 340, str = "ff26ffba"},
-        {ilvl = 350, str = "ff26e2ff"}, {ilvl = 360, str = "ff26a0ff"},
-        {ilvl = 380, str = "ff2663ff"}, {ilvl = 400, str = "ff8e26ff"},
-        {ilvl = 410, str = "ffe226ff"}, {ilvl = 420, str = "ffff2696"},
-        {ilvl = 430, str = "ffff2634"}, {ilvl = 440, str = "ffff7526"},
+        {ilvl = 320, str = "ff26ff3f"},
+        {ilvl = 340, str = "ff26ffba"},
+        {ilvl = 350, str = "ff26e2ff"},
+        {ilvl = 360, str = "ff26a0ff"},
+        {ilvl = 380, str = "ff2663ff"},
+        {ilvl = 400, str = "ff8e26ff"},
+        {ilvl = 410, str = "ffe226ff"},
+        {ilvl = 420, str = "ffff2696"},
+        {ilvl = 430, str = "ffff2634"},
+        {ilvl = 440, str = "ffff7526"},
         {ilvl = 460, str = "ffffc526"}
     },
     profColors = {
-        {val = 20, color = "c6c3b4"}, {val = 30, color = "dbd3ab"},
-        {val = 40, color = "e2d388"}, {val = 50, color = "efd96b"},
-        {val = 70, color = "ffe254"}, {val = 90, color = "ffde3d"},
-        {val = 110, color = "ffd921"}, {val = 130, color = "ffd50c"},
+        {val = 20, color = "c6c3b4"},
+        {val = 30, color = "dbd3ab"},
+        {val = 40, color = "e2d388"},
+        {val = 50, color = "efd96b"},
+        {val = 70, color = "ffe254"},
+        {val = 90, color = "ffde3d"},
+        {val = 110, color = "ffd921"},
+        {val = 130, color = "ffd50c"},
         {val = 150, color = "ffae00"}
     },
     -- REPUTATION --
@@ -167,9 +164,11 @@ local Colors = { -- default colors
 Exlist.Colors = Colors
 
 Exlist.Strings = {
-    Note = string.format("|T%s:15|t %s",
-                         [[Interface/MINIMAP/TRACKING/QuestBlob]],
-                         WrapTextInColorCode(L["Note!"], Colors.questTitle))
+    Note = string.format(
+        "|T%s:15|t %s",
+        [[Interface/MINIMAP/TRACKING/QuestBlob]],
+        WrapTextInColorCode(L["Note!"], Colors.questTitle)
+    )
 }
 
 Exlist.DEFAULT_BACKDROP = {

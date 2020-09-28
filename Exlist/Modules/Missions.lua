@@ -14,13 +14,13 @@ local L = Exlist.L
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 
 local function Updater(event)
-  if event == "Exlist_DELAY" then return end
-  local followerType = UnitLevel("player") <= 110 and LE_FOLLOWER_TYPE_GARRISON_7_0 or
-    LE_FOLLOWER_TYPE_GARRISON_8_0
+  if event == "Exlist_DELAY" then
+    return
+  end
+  local followerType = UnitLevel("player") <= 110 and LE_FOLLOWER_TYPE_GARRISON_7_0 or LE_FOLLOWER_TYPE_GARRISON_8_0
   local mission = CG.GetInProgressMissions(followerType)
   local availMissions = CG.GetAvailableMissions(followerType)
-  local t =  {
-    }
+  local t = {}
   local currTime = time()
   if mission then
     -- in progress/finished
@@ -30,7 +30,7 @@ local function Updater(event)
       -- rewards
       local r = mission[i].rewards
       local reward = {}
-      for i=1,#r do
+      for i = 1, #r do
         if r[i].currencyID and r[i].currencyID == 0 then
           -- gold
           reward.icon = r[i].icon
@@ -43,7 +43,7 @@ local function Updater(event)
           reward.name = itemInfo.name
           reward.icon = itemInfo.texture
         elseif r[i].currencyID then
-          local name,_,icon = C_CurrencyInfo.GetCurrencyInfo(r[i].currencyID)
+          local name, _, icon = C_CurrencyInfo.GetCurrencyInfo(r[i].currencyID)
           reward.quantity = r[i].quantity
           reward.name = name
           reward.icon = icon
@@ -64,7 +64,7 @@ local function Updater(event)
       -- rewards
       local r = availMissions[i].rewards
       local reward = {}
-      for i=1,#r do
+      for i = 1, #r do
         if r[i].currencyID and r[i].currencyID == 0 then
           -- gold
           reward.icon = r[i].icon
@@ -77,7 +77,7 @@ local function Updater(event)
           reward.name = itemInfo.name
           reward.icon = itemInfo.texture
         elseif r[i].currencyID then
-          local name,_,icon = C_CurrencyInfo.GetCurrencyInfo(r[i].currencyID)
+          local name, _, icon = C_CurrencyInfo.GetCurrencyInfo(r[i].currencyID)
           reward.quantity = r[i].quantity
           reward.name = name
           reward.icon = icon
@@ -100,42 +100,84 @@ local function Updater(event)
     end
   end
   if #t > 0 then
-    Exlist.UpdateChar(key,t)
+    Exlist.UpdateChar(key, t)
   end
 end
 
-local function missionStrings(source,hasSuccess)
+local function missionStrings(source, hasSuccess)
   local t = {}
-  if type(source) ~= "table" then return end
+  if type(source) ~= "table" then
+    return
+  end
   local ti = time()
-  for i=1,#source do
+  for i = 1, #source do
     if hasSuccess then
       if source[i].endTime > ti then
-        table.insert(t,{WrapTextInColorCode(source[i].name,colors.missionName),string.format("%s: %s (%i%%)",L["Time Left"],Exlist.TimeLeftColor((source[i].endTime - ti) or 0,{1800,7200},{colors.time.short,colors.time.medium,colors.time.long}),source[i].successChance)})
+        table.insert(
+          t,
+          {
+            WrapTextInColorCode(source[i].name, colors.missionName),
+            string.format(
+              "%s: %s (%i%%)",
+              L["Time Left"],
+              Exlist.TimeLeftColor(
+                (source[i].endTime - ti) or 0,
+                {1800, 7200},
+                {colors.time.short, colors.time.medium, colors.time.long}
+              ),
+              source[i].successChance
+            )
+          }
+        )
       else
-        table.insert(t,{WrapTextInColorCode(source[i].name,colors.missionName),string.format("%i%%",source[i].successChance)})
+        table.insert(
+          t,
+          {WrapTextInColorCode(source[i].name, colors.missionName), string.format("%i%%", source[i].successChance)}
+        )
       end
     else
-      table.insert(t,{WrapTextInColorCode(source[i].name,colors.missionName),source[i].offerEndTime and (L["Expires in"]..": " ..Exlist.TimeLeftColor((source[i].offerEndTime - ti) or 0,{14400,28800},{colors.time.long,colors.time.medium,colors.time.short})) or ""})
+      table.insert(
+        t,
+        {
+          WrapTextInColorCode(source[i].name, colors.missionName),
+          source[i].offerEndTime and
+            (L["Expires in"] ..
+              ": " ..
+                Exlist.TimeLeftColor(
+                  (source[i].offerEndTime - ti) or 0,
+                  {14400, 28800},
+                  {colors.time.long, colors.time.medium, colors.time.short}
+                )) or
+            ""
+        }
+      )
     end
     local reward = source[i].rewards
     local rewardString = ""
     if type(reward.quantity) == "number" and reward.quantity > 1 then
-      rewardString = string.format("%ix|T%s:15:15|t %s",reward.quantity or "",reward.icon or unknownIcon,reward.name or L["Unknown"])
+      rewardString =
+        string.format(
+        "%ix|T%s:15:15|t %s",
+        reward.quantity or "",
+        reward.icon or unknownIcon,
+        reward.name or L["Unknown"]
+      )
     elseif type(reward.quantity) == "string" then
-      rewardString = string.format("|T%s:15:15|t%s",reward.icon or unknownIcon,reward.quantity or "")
+      rewardString = string.format("|T%s:15:15|t%s", reward.icon or unknownIcon, reward.quantity or "")
     else
-      rewardString = string.format("|T%s:15:15|t %s",reward.icon or unknownIcon,reward.name or L["Unknown"])
+      rewardString = string.format("|T%s:15:15|t %s", reward.icon or unknownIcon, reward.name or L["Unknown"])
     end
-    table.insert(t,{L["Reward"] .. ": " .. rewardString,""})
+    table.insert(t, {L["Reward"] .. ": " .. rewardString, ""})
   end
   return t
 end
 
-local function Linegenerator(tooltip,data,character)
+local function Linegenerator(tooltip, data, character)
   local t = time()
   local m = data
-  if not m then return end
+  if not m then
+    return
+  end
   local info = {
     character = character,
     priority = prio,
@@ -143,52 +185,70 @@ local function Linegenerator(tooltip,data,character)
     titleName = L["Missions"]
   }
 
-  local available,inprogress,done = {},{},{}
+  local available, inprogress, done = {}, {}, {}
   local ip = 0
   local completed = 0
-  for i=1,#m do
+  for i = 1, #m do
     if m[i].endTime then
       ip = ip + 1
       if t >= m[i].endTime then
         completed = completed + 1
-        table.insert(done,m[i])
+        table.insert(done, m[i])
       else
-        table.insert(inprogress,m[i])
+        table.insert(inprogress, m[i])
       end
     elseif not m[i].offerEndTime or m[i].offerEndTime > t then
-      table.insert(available,m[i])
+      table.insert(available, m[i])
     end
   end
-  if completed > 0 then completed = "|cFF00FF00" .. completed end
-  local t2 = string.format("%s/%i",completed,ip) or ""
+  if completed > 0 then
+    completed = "|cFF00FF00" .. completed
+  end
+  local t2 = string.format("%s/%i", completed, ip) or ""
   info.data = t2
-  local sideTooltip = {body={},title = WrapTextInColorCode(L["Missions"],colors.sideTooltipTitle)}
+  local sideTooltip = {body = {}, title = WrapTextInColorCode(L["Missions"], colors.sideTooltipTitle)}
   if #done > 0 then
-    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Completed"],colors.missions.completed),"",{"headerseparator"}})
-    local t = missionStrings(done,true)
-    for i=1,#t do
-      table.insert(sideTooltip.body,t[i])
+    table.insert(
+      sideTooltip.body,
+      {WrapTextInColorCode(L["Completed"], colors.missions.completed), "", {"headerseparator"}}
+    )
+    local t = missionStrings(done, true)
+    for i = 1, #t do
+      table.insert(sideTooltip.body, t[i])
     end
   end
   if #inprogress > 0 then
-    table.insert(sideTooltip.body,{WrapTextInColorCode(L["In Progress"],colors.missions.inprogress),"",{"headerseparator"}})
-    table.sort(inprogress,function(a,b) return a.endTime < b.endTime end)
-    local t = missionStrings(inprogress,true)
-    for i=1,#t do
-      table.insert(sideTooltip.body,t[i])
+    table.insert(
+      sideTooltip.body,
+      {WrapTextInColorCode(L["In Progress"], colors.missions.inprogress), "", {"headerseparator"}}
+    )
+    table.sort(
+      inprogress,
+      function(a, b)
+        return a.endTime < b.endTime
+      end
+    )
+    local t = missionStrings(inprogress, true)
+    for i = 1, #t do
+      table.insert(sideTooltip.body, t[i])
     end
   end
   if #available > 0 then
-    table.insert(sideTooltip.body,{WrapTextInColorCode(L["Available"],colors.missions.available),"",{"headerseparator"}})
-    table.sort(available,function(a,b)
-      local aValue = a.offerEndTime or 0
-      local bValue = b.offerEndTime or 0
-      return aValue < bValue
-    end
+    table.insert(
+      sideTooltip.body,
+      {WrapTextInColorCode(L["Available"], colors.missions.available), "", {"headerseparator"}}
+    )
+    table.sort(
+      available,
+      function(a, b)
+        local aValue = a.offerEndTime or 0
+        local bValue = b.offerEndTime or 0
+        return aValue < bValue
+      end
     )
     local t = missionStrings(available)
-    for i=1,#t do
-      table.insert(sideTooltip.body,t[i])
+    for i = 1, #t do
+      table.insert(sideTooltip.body, t[i])
     end
   end
   info.OnEnter = Exlist.CreateSideTooltip()
@@ -199,12 +259,12 @@ local function Linegenerator(tooltip,data,character)
 end
 
 local data = {
-  name = L['Missions'],
+  name = L["Missions"],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"GARRISON_MISSION_COMPLETE_RESPONSE","GARRISON_MISSION_STARTED","GARRISON_MISSION_NPC_OPENED"},
+  event = {"GARRISON_MISSION_COMPLETE_RESPONSE", "GARRISON_MISSION_STARTED", "GARRISON_MISSION_NPC_OPENED"},
   description = L["Garrison mission progress"],
   weeklyReset = false
 }

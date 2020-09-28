@@ -3,17 +3,21 @@ local L = Exlist.L
 Exlist.accountSync = {
     init = function()
         configDB = Exlist.ConfigDB
-        configDB.accountSync = Exlist.AddMissingTableEntries(
-                                   configDB.accountSync or {}, {
+        configDB.accountSync =
+            Exlist.AddMissingTableEntries(
+            configDB.accountSync or {},
+            {
                 enabled = false,
                 pairedCharacters = {},
-                accountName = 'Account ' .. Exlist.GenerateRandomString(4),
+                accountName = "Account " .. Exlist.GenerateRandomString(4),
                 displaySyncProgress = true,
                 tickerFrequency = 180
-            })
+            }
+        )
         Exlist.accountSync.coreInit()
     end,
-    coreInit = function() end
+    coreInit = function()
+    end
 }
 
 local function getPairedCharOptions(startOrder)
@@ -22,37 +26,33 @@ local function getPairedCharOptions(startOrder)
     if (pairedCharacters) then
         local order = startOrder
         for character, info in pairs(pairedCharacters) do
-            options[character .. "name"] =
-                {
-                    order = order + 0.1,
-                    type = "description",
-                    name = character,
-                    width = 1
-                }
-            options[character .. "account"] =
-                {
-                    order = order + 0.2,
-                    type = "description",
-                    name = info.accountID or "",
-                    width = 0.5
-                }
-            options[character .. "status"] =
-                {
-                    order = order + 0.3,
-                    type = "description",
-                    name = info.status or "",
-                    width = 0.4
-                }
-            options[character .. "syncbtn"] =
-                {
-                    order = order + 0.4,
-                    type = "execute",
-                    name = L["Sync"],
-                    func = function()
-                        Exlist.accountSync.syncCompleteData(character)
-                    end,
-                    width = 0.5
-                }
+            options[character .. "name"] = {
+                order = order + 0.1,
+                type = "description",
+                name = character,
+                width = 1
+            }
+            options[character .. "account"] = {
+                order = order + 0.2,
+                type = "description",
+                name = info.accountID or "",
+                width = 0.5
+            }
+            options[character .. "status"] = {
+                order = order + 0.3,
+                type = "description",
+                name = info.status or "",
+                width = 0.4
+            }
+            options[character .. "syncbtn"] = {
+                order = order + 0.4,
+                type = "execute",
+                name = L["Sync"],
+                func = function()
+                    Exlist.accountSync.syncCompleteData(character)
+                end,
+                width = 0.5
+            }
             order = order + 1
         end
     end
@@ -121,8 +121,7 @@ local function AddOptions(refresh)
                 order = 3.2,
                 name = L["Generate User Key"],
                 func = function()
-                    configDB.accountSync.userKey =
-                        Exlist.GenerateRandomString(6)
+                    configDB.accountSync.userKey = Exlist.GenerateRandomString(6)
                 end,
                 width = "normal"
             },
@@ -176,26 +175,25 @@ local function AddOptions(refresh)
                 type = "input",
                 order = 10.1,
                 name = L["Character To Sync With"],
-                get = function() return tmpConfigs.charToSync end,
+                get = function()
+                    return tmpConfigs.charToSync
+                end,
                 set = function(_, value)
                     tmpConfigs.charToSync = value
                 end,
                 width = "normal"
-
             },
             characterNameExecute = {
                 type = "execute",
                 order = 10.2,
                 name = L["Sync"],
                 disabled = function()
-                    return
-                        not (tmpConfigs.charToSync and tmpConfigs.charToSync ~=
-                            "") or not configDB.accountSync.userKey
+                    return not (tmpConfigs.charToSync and tmpConfigs.charToSync ~= "") or
+                        not configDB.accountSync.userKey
                 end,
                 func = function()
                     print(tmpConfigs.charToSync)
-                    Exlist.accountSync.pairAccount(tmpConfigs.charToSync,
-                                                   configDB.accountSync.userKey)
+                    Exlist.accountSync.pairAccount(tmpConfigs.charToSync, configDB.accountSync.userKey)
                 end,
                 width = "normal"
             },
@@ -208,11 +206,9 @@ local function AddOptions(refresh)
         }
     }
     if refresh then
-        Exlist.RefreshModuleOptions('accountsync', options,
-                                    L["Account Sync - Alpha"])
+        Exlist.RefreshModuleOptions("accountsync", options, L["Account Sync - Alpha"])
     else
-        Exlist.AddModuleOptions('accountsync', options,
-                                L["Account Sync - Alpha"])
+        Exlist.AddModuleOptions("accountsync", options, L["Account Sync - Alpha"])
     end
 end
 Exlist.ModuleToBeAdded(AddOptions)

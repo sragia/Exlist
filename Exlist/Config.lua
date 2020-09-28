@@ -7,19 +7,28 @@ local AceConfDia = LibStub("AceConfigDialog-3.0")
 
 local addonVersion = GetAddOnMetadata(name, "version")
 -- @debug@
-if addonVersion == "@project-version@" then addonVersion = "Development" end
+if addonVersion == "@project-version@" then
+    addonVersion = "Development"
+end
 -- @end-debug@
 local addingOpt = {}
 
 local function spairs(t, order)
     -- collect the keys
     local keys = {}
-    for k in pairs(t) do keys[#keys + 1] = k end
+    for k in pairs(t) do
+        keys[#keys + 1] = k
+    end
 
     -- if order function given, sort by it by passing the table and keys a, b,
     -- otherwise just sort the keys
     if order then
-        table.sort(keys, function(a, b) return order(t, a, b) end)
+        table.sort(
+            keys,
+            function(a, b)
+                return order(t, a, b)
+            end
+        )
     else
         table.sort(keys)
     end
@@ -28,7 +37,9 @@ local function spairs(t, order)
     local i = 0
     return function()
         i = i + 1
-        if keys[i] then return keys[i], t[keys[i]] end
+        if keys[i] then
+            return keys[i], t[keys[i]]
+        end
     end
 end
 
@@ -49,14 +60,20 @@ local function UpdateCharOrder()
     end
 end
 local function GetCharPosition(char)
-    for i, c in ipairs(charOrder) do if char == c then return i end end
+    for i, c in ipairs(charOrder) do
+        if char == c then
+            return i
+        end
+    end
     return 0
 end
 
 local function GetLastEnabledChar()
     local chars = Exlist.ConfigDB.settings.allowedCharacters
     for i, char in ipairs(charOrder) do
-        if chars[char] and not chars[char].enabled then return i - 1 end
+        if chars[char] and not chars[char].enabled then
+            return i - 1
+        end
     end
     return #charOrder
 end
@@ -88,20 +105,24 @@ end
 local function SetupOrder()
     local settings = Exlist.ConfigDB.settings
     local chars = settings.allowedCharacters
-    for char, v in spairs(chars, function(t, a, b)
-        if not t[a].enabled then
-            return false
-        elseif not t[b].enabled then
-            return true
-        else
-            if settings.orderByIlvl then
-                return t[a].ilvl > t[b].ilvl
+    for char, v in spairs(
+        chars,
+        function(t, a, b)
+            if not t[a].enabled then
+                return false
+            elseif not t[b].enabled then
+                return true
             else
-                return t[a].order < t[b].order
+                if settings.orderByIlvl then
+                    return t[a].ilvl > t[b].ilvl
+                else
+                    return t[a].order < t[b].order
+                end
             end
         end
-    end) do table.insert(charOrder, char) end
-
+    ) do
+        table.insert(charOrder, char)
+    end
 end
 
 Exlist.SetupConfig = function(refresh)
@@ -113,9 +134,7 @@ Exlist.SetupConfig = function(refresh)
                 order = 0,
                 type = "description",
                 image = function()
-                    return
-                        [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]],
-                        150, 150
+                    return [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]], 150, 150
                 end,
                 name = "",
                 width = "normal"
@@ -128,8 +147,7 @@ Exlist.SetupConfig = function(refresh)
             },
             author = {
                 order = 0.2,
-                name = "|cfff4bf42" .. L["Author"] ..
-                    ":|r Exality - Silvermoon EU\n\n",
+                name = "|cfff4bf42" .. L["Author"] .. ":|r Exality - Silvermoon EU\n\n",
                 type = "description",
                 width = "full"
             },
@@ -249,7 +267,9 @@ Exlist.SetupConfig = function(refresh)
                         order = 7,
                         name = L["Slim Version"],
                         type = "toggle",
-                        desc = L["Slimmed down version of main tooltip i.e. +15 Neltharions Lair -> +15 NL\nMostly affects tooltip in horizontal orientation"],
+                        desc = L[
+                            "Slimmed down version of main tooltip i.e. +15 Neltharions Lair -> +15 NL\nMostly affects tooltip in horizontal orientation"
+                        ],
                         width = "full",
                         get = function()
                             return Exlist.ConfigDB.settings.shortenInfo
@@ -258,7 +278,6 @@ Exlist.SetupConfig = function(refresh)
                             Exlist.ConfigDB.settings.shortenInfo = v
                         end
                     }
-
                 }
             },
             fonts = {
@@ -296,8 +315,7 @@ Exlist.SetupConfig = function(refresh)
                         bigStep = 1,
                         width = "normal",
                         get = function(info)
-                            return Exlist.ConfigDB.settings.fonts.small.size or
-                                       12
+                            return Exlist.ConfigDB.settings.fonts.small.size or 12
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.fonts.small.size = v
@@ -314,8 +332,7 @@ Exlist.SetupConfig = function(refresh)
                         bigStep = 1,
                         width = "normal",
                         get = function(info)
-                            return Exlist.ConfigDB.settings.fonts.medium.size or
-                                       12
+                            return Exlist.ConfigDB.settings.fonts.medium.size or 12
                         end,
                         set = function(info, v)
                             Exlist.ConfigDB.settings.fonts.medium.size = v
@@ -357,9 +374,7 @@ Exlist.SetupConfig = function(refresh)
                             Exlist.ConfigDB.settings.horizontalMode = v == "H"
                         end,
                         get = function(self)
-
-                            return Exlist.ConfigDB.settings.horizontalMode and
-                                       "H" or "V"
+                            return Exlist.ConfigDB.settings.horizontalMode and "H" or "V"
                         end
                     },
                     tooltipHeight = {
@@ -415,8 +430,7 @@ Exlist.SetupConfig = function(refresh)
                         width = "normal",
                         hasAlpha = true,
                         get = function(self)
-                            local c = Exlist.ConfigDB.settings.backdrop
-                                          .borderColor
+                            local c = Exlist.ConfigDB.settings.backdrop.borderColor
                             return c.r, c.g, c.b, c.a
                         end,
                         set = function(self, r, g, b, a)
@@ -452,7 +466,6 @@ Exlist.SetupConfig = function(refresh)
                 width = "full",
                 name = L["Enable/Disable modules that you want to use"]
             }
-
         }
     }
 
@@ -527,9 +540,7 @@ Exlist.SetupConfig = function(refresh)
                 fontSize = "large",
                 name = WrapTextInColorCode(L["Order"], "ffffd200")
             }
-
         }
-
     }
     local settings = Exlist.ConfigDB.settings
     local modules = settings.allowedModules
@@ -542,199 +553,195 @@ Exlist.SetupConfig = function(refresh)
             order = n,
             width = 0.7,
             name = WrapTextInColorCode(v.name, "ffffd200"),
-            get = function() return modules[i].enabled end,
-            set = function(info, value) modules[i].enabled = value end
+            get = function()
+                return modules[i].enabled
+            end,
+            set = function(info, value)
+                modules[i].enabled = value
+            end
         }
         n = n + 1
-        moduleOptions.args[i .. "desc"] =
-            {
-                type = "description",
-                order = n,
-                width = 2.5,
-                name = Exlist.ModuleData.modules[i].description or ""
-            }
+        moduleOptions.args[i .. "desc"] = {
+            type = "description",
+            order = n,
+            width = 2.5,
+            name = Exlist.ModuleData.modules[i].description or ""
+        }
     end
     -- Characters
     local characters = settings.allowedCharacters
     n = 1
-    for char, v in spairs(characters, function(t, a, b)
-        if settings.orderByIlvl then
-            return t[a].ilvl > t[b].ilvl
-        else
-            return GetCharPosition(a) < GetCharPosition(b)
-            -- return t[a].order<t[b].order
+    for char, v in spairs(
+        characters,
+        function(t, a, b)
+            if settings.orderByIlvl then
+                return t[a].ilvl > t[b].ilvl
+            else
+                -- return t[a].order<t[b].order
+                return GetCharPosition(a) < GetCharPosition(b)
+            end
         end
-    end) do
+    ) do
         local charname = v.name
         local realm = char:match("^.*-(.*)")
         n = n + 1
         -- ENABLE
-        charOptions.args[char .. "enable"] =
-            {
-                type = "toggle",
-                order = n,
-                name = "",
-                width = 0.2,
-                get = function() return characters[char].enabled end,
-                set = function(info, value)
-                    ChangeCharacterStatus(char, value)
-                    Exlist.ConfigDB.settings.reorder = true
-                    Exlist.SetupConfig(true)
-                end
-            }
+        charOptions.args[char .. "enable"] = {
+            type = "toggle",
+            order = n,
+            name = "",
+            width = 0.2,
+            get = function()
+                return characters[char].enabled
+            end,
+            set = function(info, value)
+                ChangeCharacterStatus(char, value)
+                Exlist.ConfigDB.settings.reorder = true
+                Exlist.SetupConfig(true)
+            end
+        }
 
         -- NAME
         n = n + 1
-        charOptions.args[char .. "name"] =
-            {
-                type = "description",
-                order = n,
-                name = string.format("|c%s%s", v.classClr, charname),
-                fontSize = "medium",
-                width = 0.5
-            }
+        charOptions.args[char .. "name"] = {
+            type = "description",
+            order = n,
+            name = string.format("|c%s%s", v.classClr, charname),
+            fontSize = "medium",
+            width = 0.5
+        }
         -- REALM
         n = n + 1
-        charOptions.args[char .. "realm"] =
-            {
-                type = "description",
-                order = n,
-                name = realm,
-                fontSize = "medium",
-                width = 1
-            }
+        charOptions.args[char .. "realm"] = {
+            type = "description",
+            order = n,
+            name = realm,
+            fontSize = "medium",
+            width = 1
+        }
 
         -- ILVL
         n = n + 1
-        charOptions.args[char .. "ilvl"] =
-            {
-                type = "description",
-                order = n,
-                name = string.format("%.1f", v.ilvl or 0),
-                fontSize = "medium",
-                width = 0.5
-            }
+        charOptions.args[char .. "ilvl"] = {
+            type = "description",
+            order = n,
+            name = string.format("%.1f", v.ilvl or 0),
+            fontSize = "medium",
+            width = 0.5
+        }
 
         -- ORDER
         -- Order Up
         n = n + 1
-        charOptions.args[char .. "orderUp"] =
-            {
-                type = "execute",
-                order = n,
-                name = "",
-                width = 0.1,
-                disabled = function()
-                    return GetCharPosition(char) == 1 or
-                               Exlist.ConfigDB.settings.orderByIlvl or
-                               not characters[char].enabled
-                end,
-                func = function()
-                    for i, c in ipairs(charOrder) do
-                        if c == char then
-                            charOrder[i] = charOrder[i - 1]
-                            charOrder[i - 1] = char
-                            break
-                        end
+        charOptions.args[char .. "orderUp"] = {
+            type = "execute",
+            order = n,
+            name = "",
+            width = 0.1,
+            disabled = function()
+                return GetCharPosition(char) == 1 or Exlist.ConfigDB.settings.orderByIlvl or
+                    not characters[char].enabled
+            end,
+            func = function()
+                for i, c in ipairs(charOrder) do
+                    if c == char then
+                        charOrder[i] = charOrder[i - 1]
+                        charOrder[i - 1] = char
+                        break
                     end
-                    UpdateCharOrder()
-                    Exlist.ConfigDB.settings.reorder = true
-                    Exlist.SetupConfig(true)
-                end,
-                image = [[Interface\AddOns\Exlist\Media\Icons\up-arrow]],
-                imageWidth = 16,
-                imageHeight = 16
-            }
+                end
+                UpdateCharOrder()
+                Exlist.ConfigDB.settings.reorder = true
+                Exlist.SetupConfig(true)
+            end,
+            image = [[Interface\AddOns\Exlist\Media\Icons\up-arrow]],
+            imageWidth = 16,
+            imageHeight = 16
+        }
         -- Order Down
         n = n + 1
-        charOptions.args[char .. "orderDown"] =
-            {
-                type = "execute",
-                order = n,
-                name = "",
-                width = 0.1,
-                disabled = function()
-                    return GetCharPosition(char) >= GetLastEnabledChar() or
-                               Exlist.ConfigDB.settings.orderByIlvl or
-                               not characters[char].enabled
-                end,
-                func = function()
-                    for i, c in ipairs(charOrder) do
-                        if c == char then
-                            charOrder[i] = charOrder[i + 1]
-                            charOrder[i + 1] = char
-                            break
-                        end
+        charOptions.args[char .. "orderDown"] = {
+            type = "execute",
+            order = n,
+            name = "",
+            width = 0.1,
+            disabled = function()
+                return GetCharPosition(char) >= GetLastEnabledChar() or Exlist.ConfigDB.settings.orderByIlvl or
+                    not characters[char].enabled
+            end,
+            func = function()
+                for i, c in ipairs(charOrder) do
+                    if c == char then
+                        charOrder[i] = charOrder[i + 1]
+                        charOrder[i + 1] = char
+                        break
                     end
-                    UpdateCharOrder()
-                    Exlist.ConfigDB.settings.reorder = true
-                    Exlist.SetupConfig(true)
-                end,
-                image = [[Interface\AddOns\Exlist\Media\Icons\down-arrow]],
-                imageWidth = 16,
-                imageHeight = 16
-            }
+                end
+                UpdateCharOrder()
+                Exlist.ConfigDB.settings.reorder = true
+                Exlist.SetupConfig(true)
+            end,
+            image = [[Interface\AddOns\Exlist\Media\Icons\down-arrow]],
+            imageWidth = 16,
+            imageHeight = 16
+        }
 
         -- Spacer
         n = n + 1
-        charOptions.args[char .. "spacer"] =
-            {type = "description", order = n, name = "", width = 0.5}
+        charOptions.args[char .. "spacer"] = {type = "description", order = n, name = "", width = 0.5}
 
         -- Delete Data
         n = n + 1
-        charOptions.args[char .. "delete"] =
-            {
-                type = "execute",
-                order = n,
-                name = "Delete",
-                width = 0.5,
-                func = function()
-                    StaticPopupDialogs["DeleteDataPopup_" .. charname .. realm] =
-                        {
-                            text = string.format(
-                                L["Do you really want to delete all data for %s-%s?\n\nType \"DELETE\" into the field to confirm."],
-                                charname, realm),
-                            button1 = "Ok",
-                            button3 = "Cancel",
-                            hasEditBox = 1,
-                            editBoxWidth = 200,
-                            OnShow = function(self)
-                                self.editBox:SetText("")
-                                self.button1:Disable()
-                            end,
-                            EditBoxOnTextChanged = function(self)
-                                if strupper(self:GetParent().editBox:GetText()) ==
-                                    "DELETE" then
-                                    self:GetParent().button1:Enable()
-                                end
-                            end,
-                            EditBoxOnEnterPressed = function(self)
-                                if strupper(self:GetParent().editBox:GetText()) ==
-                                    "DELETE" then
-                                    self:GetParent():Hide()
-                                    Exlist.DeleteCharacterFromDB(charname, realm)
-                                    Exlist.SetupConfig(true)
-                                    AceConfReg:NotifyChange(name .. "Characters")
-                                end
-                            end,
-                            OnAccept = function(self)
-                                StaticPopup_Hide(
-                                    "DeleteDataPopup_" .. charname .. realm)
-                                Exlist.DeleteCharacterFromDB(charname, realm)
-                                Exlist.SetupConfig(true)
-                                AceConfReg:NotifyChange(name .. "Characters")
-                            end,
-                            timeout = 0,
-                            cancels = "DeleteDataPopup_" .. charname .. realm,
-                            whileDead = true,
-                            hideOnEscape = 1,
-                            preferredIndex = 4,
-                            showAlert = 1,
-                            enterClicksFirstButton = 1
-                        }
-                    StaticPopup_Show("DeleteDataPopup_" .. charname .. realm)
-                end
-            }
+        charOptions.args[char .. "delete"] = {
+            type = "execute",
+            order = n,
+            name = "Delete",
+            width = 0.5,
+            func = function()
+                StaticPopupDialogs["DeleteDataPopup_" .. charname .. realm] = {
+                    text = string.format(
+                        L['Do you really want to delete all data for %s-%s?\n\nType "DELETE" into the field to confirm.'],
+                        charname,
+                        realm
+                    ),
+                    button1 = "Ok",
+                    button3 = "Cancel",
+                    hasEditBox = 1,
+                    editBoxWidth = 200,
+                    OnShow = function(self)
+                        self.editBox:SetText("")
+                        self.button1:Disable()
+                    end,
+                    EditBoxOnTextChanged = function(self)
+                        if strupper(self:GetParent().editBox:GetText()) == "DELETE" then
+                            self:GetParent().button1:Enable()
+                        end
+                    end,
+                    EditBoxOnEnterPressed = function(self)
+                        if strupper(self:GetParent().editBox:GetText()) == "DELETE" then
+                            self:GetParent():Hide()
+                            Exlist.DeleteCharacterFromDB(charname, realm)
+                            Exlist.SetupConfig(true)
+                            AceConfReg:NotifyChange(name .. "Characters")
+                        end
+                    end,
+                    OnAccept = function(self)
+                        StaticPopup_Hide("DeleteDataPopup_" .. charname .. realm)
+                        Exlist.DeleteCharacterFromDB(charname, realm)
+                        Exlist.SetupConfig(true)
+                        AceConfReg:NotifyChange(name .. "Characters")
+                    end,
+                    timeout = 0,
+                    cancels = "DeleteDataPopup_" .. charname .. realm,
+                    whileDead = true,
+                    hideOnEscape = 1,
+                    preferredIndex = 4,
+                    showAlert = 1,
+                    enterClicksFirstButton = 1
+                }
+                StaticPopup_Show("DeleteDataPopup_" .. charname .. realm)
+            end
+        }
     end
     addedChars = true
     -- Extra Tooltip Options
@@ -747,8 +754,12 @@ Exlist.SetupConfig = function(refresh)
             name = v.name,
             order = n,
             width = "full",
-            get = function() return v.enabled end,
-            set = function(_, value) v.enabled = value end
+            get = function()
+                return v.enabled
+            end,
+            set = function(_, value)
+                v.enabled = value
+            end
         }
     end
 
@@ -759,7 +770,9 @@ Exlist.SetupConfig = function(refresh)
         RefreshAdditionalOptions("", options)
         RegisterAdditionalOptions("Modules", moduleOptions, L["Modules"])
         RegisterAdditionalOptions("Characters", charOptions, L["Characters"])
-        for i = 1, #addingOpt do addingOpt[i]() end
+        for i = 1, #addingOpt do
+            addingOpt[i]()
+        end
     end
 end
 function Exlist.InitConfig()
@@ -771,9 +784,7 @@ function Exlist.InitConfig()
                 order = 0,
                 type = "description",
                 image = function()
-                    return
-                        [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]],
-                        150, 150
+                    return [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]], 150, 150
                 end,
                 name = "",
                 width = "normal"
@@ -786,8 +797,7 @@ function Exlist.InitConfig()
             },
             author = {
                 order = 0.2,
-                name = "|cfff4bf42" .. L["Author"] ..
-                    ":|r Exality - Silvermoon EU\n\n",
+                name = "|cfff4bf42" .. L["Author"] .. ":|r Exality - Silvermoon EU\n\n",
                 type = "description",
                 width = "full"
             },
@@ -797,10 +807,13 @@ function Exlist.InitConfig()
                 name = L["Show Config"],
                 func = function()
                     Exlist.SetupConfig()
-                    C_Timer.After(0.1, function()
-                        InterfaceOptionsFrame_Show()
-                        InterfaceOptionsFrame_Show()
-                    end)
+                    C_Timer.After(
+                        0.1,
+                        function()
+                            InterfaceOptionsFrame_Show()
+                            InterfaceOptionsFrame_Show()
+                        end
+                    )
                     --  InterfaceOptionsFrame_OpenToCategory(name)
                 end
             }
@@ -816,4 +829,6 @@ Exlist.RefreshModuleOptions = RefreshAdditionalOptions
 Exlist.NotifyOptionsChange = function(module)
     AceConfReg:NotifyChange(name .. module)
 end
-Exlist.ModuleToBeAdded = function(func) table.insert(addingOpt, func) end
+Exlist.ModuleToBeAdded = function(func)
+    table.insert(addingOpt, func)
+end

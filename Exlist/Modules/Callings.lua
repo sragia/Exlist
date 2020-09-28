@@ -1,26 +1,29 @@
 local key = "callings"
-local prio = 10
+local prio = 89
 local Exlist = Exlist
 local L = Exlist.L
 local colors = Exlist.Colors
---local strings = Exlist.Strings
+-- local strings = Exlist.Strings
 
 local clocks = {
-  { icon = [[Interface/Addons/Exlist/Media/Icons/clock_red.tga]], t = 86400 },
-  { icon = [[Interface/Addons/Exlist/Media/Icons/clock_yellow.tga]], t = 172800 },
-  { icon = [[Interface/Addons/Exlist/Media/Icons/clock_green.tga]], t = 259200 },
+  {icon = [[Interface/Addons/Exlist/Media/Icons/clock_red.tga]], t = 86400},
+  {
+    icon = [[Interface/Addons/Exlist/Media/Icons/clock_yellow.tga]],
+    t = 172800
+  },
+  {icon = [[Interface/Addons/Exlist/Media/Icons/clock_green.tga]], t = 259200}
 }
 
 local function GetClockIcon(endTime)
   local timeLeft = endTime - time()
   local c = [[Interface/Addons/Exlist/Media/Icons/clock_green.tga]]
-  for _ , clock in ipairs(clocks) do
+  for _, clock in ipairs(clocks) do
     if clock.t > timeLeft then
       c = clock.icon
       break
     end
   end
-  return string.format('|T%s:12:12|t', c)
+  return string.format("|T%s:12:12|t", c)
 end
 
 local function Updater(event, callings)
@@ -31,22 +34,23 @@ local function Updater(event, callings)
     for i, calling in ipairs(t) do
       local questTitle = Exlist.GetCachedQuestTitle(calling.questID)
       t[i].questTitle = questTitle
-      local timeleft = C_TaskQuest.GetQuestTimeLeftMinutes(
-                                     calling.questID) or 0
+      local timeleft = C_TaskQuest.GetQuestTimeLeftMinutes(calling.questID) or 0
       local endTime = time() + timeleft * 60
       t[i].endTime = endTime
     end
   end
-  Exlist.UpdateChar(key,t)
+  Exlist.UpdateChar(key, t)
 end
 
-local function Linegenerator(tooltip,data,character)
-  if not data then return end
+local function Linegenerator(tooltip, data, character)
+  if not data then
+    return
+  end
   local info = {
     character = character,
     priority = prio,
     moduleName = key,
-    titleName = L["Callings"],
+    titleName = L["Callings"]
     -- data = "",
     -- colOff = 0,
     -- dontResize = false,
@@ -61,11 +65,25 @@ local function Linegenerator(tooltip,data,character)
 
   local infoTables = {}
   local cellIndex = 1
-  table.sort(data, function(a,b) return a.endTime < b.endTime end)
+  table.sort(
+    data,
+    function(a, b)
+      return a.endTime < b.endTime
+    end
+  )
   for i, calling in ipairs(data) do
-    info.data = string.format('|T%s:45:45:::256:256:58:198:51:197|t %s', calling.icon, GetClockIcon(calling.endTime));
-    local sideTooltip = {body= {}, title = WrapTextInColorCode(calling.questTitle or "", colors.sideTooltipTitle)}
-    table.insert(sideTooltip.body, {L['Time Left:'], Exlist.TimeLeftColor(calling.endTime - time(), {36000, 72000})})
+    info.data = string.format("|T%s:45:45:::256:256:58:198:51:197|t %s", calling.icon, GetClockIcon(calling.endTime))
+    local sideTooltip = {
+      body = {},
+      title = WrapTextInColorCode(calling.questTitle or "", colors.sideTooltipTitle)
+    }
+    table.insert(
+      sideTooltip.body,
+      {
+        L["Time Left:"],
+        Exlist.TimeLeftColor(calling.endTime - time(), {36000, 72000})
+      }
+    )
 
     info.colOff = cellIndex - 2
     info.OnEnter = Exlist.CreateSideTooltip()
@@ -75,8 +93,10 @@ local function Linegenerator(tooltip,data,character)
     table.insert(infoTables, Exlist.copyTable(info))
   end
   for i, t in ipairs(infoTables) do
-        if i >= #infoTables then t.dontResize = false end
-        Exlist.AddData(t)
+    if i >= #infoTables then
+      t.dontResize = false
+    end
+    Exlist.AddData(t)
   end
 end
 
@@ -85,13 +105,11 @@ local function GlobalLineGenerator(tooltip,data)
 
 end
 ]]
-
 --[[
 local function customGenerator(tooltip, data)
 
 end
 ]]
-
 --[[
 local function Modernize(data)
   -- data is table of module table from character
@@ -99,18 +117,19 @@ local function Modernize(data)
   return data
 end
 ]]
-
 local function init()
   -- code that will run before any other function
-  C_Timer.After(0.5, function() 
-    if UIParentLoadAddOn("Blizzard_CovenantCallings") then
-      if (C_CovenantCallings.AreCallingsUnlocked()) then
-        C_CovenantCallings.RequestCallings()
-      end   
+  C_Timer.After(
+    0.5,
+    function()
+      if UIParentLoadAddOn("Blizzard_CovenantCallings") then
+        if (C_CovenantCallings.AreCallingsUnlocked()) then
+          C_CovenantCallings.RequestCallings()
+        end
+      end
     end
-  end)
+  )
 end
-
 
 --[[
 local function ResetHandler(resetType)
@@ -119,7 +138,6 @@ local function ResetHandler(resetType)
   -- by this module key
 end
 ]]
-
 --[[
 local function AddOptions()
   local options = {
@@ -131,9 +149,8 @@ local function AddOptions()
 end
 Exlist.ModuleToBeAdded(AddOptions)
 ]]
-
 local data = {
-  name = L['Currency'],
+  name = L["Currency"],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
@@ -145,10 +162,9 @@ local data = {
   -- globallgenerator = GlobalLineGenerator,
   -- type = 'customTooltip'
   -- modernize = Modernize,
-  init = init,
+  init = init
   -- override = true,
   -- specialResetHandle = ResetHandler
-
 }
 
 Exlist.RegisterModule(data)

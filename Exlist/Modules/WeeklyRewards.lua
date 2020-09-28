@@ -6,12 +6,12 @@ local colors = Exlist.Colors
 -- local strings = Exlist.Strings
 
 local rewardTypes = {
-    [Enum.WeeklyRewardChestThresholdType.Raid] = {title = 'Raid', prio = 1},
+    [Enum.WeeklyRewardChestThresholdType.Raid] = {title = "Raid", prio = 1},
     [Enum.WeeklyRewardChestThresholdType.MythicPlus] = {
         title = "Mythic+",
         prio = 2
     },
-    [Enum.WeeklyRewardChestThresholdType.RankedPvP] = {title = 'PvP', prio = 3}
+    [Enum.WeeklyRewardChestThresholdType.RankedPvP] = {title = "PvP", prio = 3}
 }
 
 local function getActivitiesByType(type, activities)
@@ -22,7 +22,12 @@ local function getActivitiesByType(type, activities)
         end
     end
 
-    table.sort(sortedActivities, function(a, b) return a.index < b.index end)
+    table.sort(
+        sortedActivities,
+        function(a, b)
+            return a.index < b.index
+        end
+    )
     return sortedActivities
 end
 
@@ -36,20 +41,21 @@ end
 local function Updater(event)
     local t = {}
 
-    if event == "WEEKLY_REWARDS_UPDATE" or event ==
-        "PLAYER_ENTERING_WORLD_DELAYED" then
+    if event == "WEEKLY_REWARDS_UPDATE" or event == "PLAYER_ENTERING_WORLD_DELAYED" then
         t.activities = C_WeeklyRewards.GetActivities()
     elseif event == "CHALLENGE_MODE_COMPLETED" then
-        C_MythicPlus.RequestMapInfo();
+        C_MythicPlus.RequestMapInfo()
     end
 
-    if (#t.activities > 0) then
+    if (t.activities and #t.activities > 0) then
         Exlist.UpdateChar(key, t)
     end
 end
 
 local function Linegenerator(tooltip, data, character)
-    if (not data) then return end
+    if (not data) then
+        return
+    end
     local info = {
         character = character
         -- priority = prio,
@@ -65,35 +71,35 @@ local function Linegenerator(tooltip, data, character)
         -- OnLeaveData = {},
         -- OnClick = function() end,
         -- OnClickData = {},
-
     }
     local infoTables = {}
     local priority = prio
-    for rewardType, reward in Exlist.spairs(rewardTypes, function(t, a, b)
-        return t[a].prio < t[b].prio
-    end) do
+    for rewardType, reward in Exlist.spairs(
+        rewardTypes,
+        function(t, a, b)
+            return t[a].prio < t[b].prio
+        end
+    ) do
         priority = priority + 0.1
         local activityName = reward.title
         info.priority = priority
         info.moduleName = activityName
-        info.titleName = WrapTextInColorCode(activityName or "",
-                                             colors.questTitle)
+        info.titleName = WrapTextInColorCode(activityName or "", colors.questTitle)
         local cellIndex = 1
-        for _, activity in ipairs(getActivitiesByType(rewardType,
-                                                      data.activities)) do
+        for _, activity in ipairs(getActivitiesByType(rewardType, data.activities)) do
             info.celOff = cellIndex - 2
             info.dontResize = true
-            local color = 'ffffffff';
+            local color = "ffffffff"
             if (activity.progress >= activity.threshold) then
                 color = colors.available
             end
-            info.data = string.format("|c%s%s/%s|r", color,
-                                      Exlist.ShortenNumber(activity.progress),
-                                      Exlist.ShortenNumber(activity.threshold)) ..
-                            (activity.level > 0 and
-                                string.format(" (%s)", formatLevel(
-                                                  activity.type, activity.level)) or
-                                "")
+            info.data =
+                string.format(
+                "|c%s%s/%s|r",
+                color,
+                Exlist.ShortenNumber(activity.progress),
+                Exlist.ShortenNumber(activity.threshold)
+            ) .. (activity.level > 0 and string.format(" (%s)", formatLevel(activity.type, activity.level)) or "")
             infoTables[info.moduleName] = infoTables[info.moduleName] or {}
             table.insert(infoTables[info.moduleName], Exlist.copyTable(info))
             cellIndex = cellIndex + 1
@@ -102,7 +108,9 @@ local function Linegenerator(tooltip, data, character)
 
     for _, t in pairs(infoTables) do
         for i = 1, #t do
-            if i >= #t then t[i].dontResize = false end
+            if i >= #t then
+                t[i].dontResize = false
+            end
             Exlist.AddData(t[i])
         end
     end
@@ -113,13 +121,11 @@ local function GlobalLineGenerator(tooltip,data)
 
 end
 ]]
-
 --[[
 local function customGenerator(tooltip, data)
 
 end
 ]]
-
 --[[
 local function Modernize(data)
   -- data is table of module table from character
@@ -127,7 +133,6 @@ local function Modernize(data)
   return data
 end
 ]]
-
 -- local function init() end
 
 --[[
@@ -137,7 +142,6 @@ local function ResetHandler(resetType)
   -- by this module key
 end
 ]]
-
 --[[
 local function AddOptions()
   local options = {
@@ -149,27 +153,26 @@ local function AddOptions()
 end
 Exlist.ModuleToBeAdded(AddOptions)
 ]]
-
 local data = {
-    name = L['Weekly Rewards'],
+    name = L["Weekly Rewards"],
     key = key,
     linegenerator = Linegenerator,
     priority = prio,
     updater = Updater,
     event = {
-        "WEEKLY_REWARDS_UPDATE", "CHALLENGE_MODE_COMPLETED",
+        "WEEKLY_REWARDS_UPDATE",
+        "CHALLENGE_MODE_COMPLETED",
         "PLAYER_ENTERING_WORLD_DELAYED"
     },
     weeklyReset = true,
     dailyReset = false,
-    description = L["Tracks Shadowlands Weekly Rewards"],
+    description = L["Tracks Shadowlands Weekly Rewards"]
     -- globallgenerator = GlobalLineGenerator,
     -- type = 'customTooltip'
     -- modernize = Modernize,
     -- init = init
     -- override = true,
     -- specialResetHandle = ResetHandler
-
 }
 
 Exlist.RegisterModule(data)

@@ -20,9 +20,8 @@ local function configureTooltip(self, tooltip, parentTooltip)
 
     tooltip:SetBackdrop(Exlist.DEFAULT_BACKDROP)
     local c = settings.backdrop
-    tooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
-    tooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g,
-                                   c.borderColor.b, c.borderColor.a)
+    tooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
+    tooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
 
     local toolHeight = tooltip:GetHeight()
     local calcHeight = GetScreenHeight() - toolHeight
@@ -55,19 +54,19 @@ local function positionTooltip(self, tooltip, parentTooltip)
 end
 
 local function showTooltip(self, tooltip)
-    if (not tooltip) then return end
+    if (not tooltip) then
+        return
+    end
     if settings.showExtraInfoTooltip then
         local gData = db.global and db.global.global or nil
         if gData then
-            local gTip = QTip:Acquire("Exlist_Tooltip_Global", 5, "LEFT",
-                                      "LEFT", "LEFT", "LEFT", "LEFT")
+            local gTip = QTip:Acquire("Exlist_Tooltip_Global", 5, "LEFT", "LEFT", "LEFT", "LEFT", "LEFT")
             gTip:SetScale(settings.tooltipScale or 1)
             gTip:SetFont(fonts.smallFont)
             tooltip.globalTooltip = gTip
             local added = false
             for _, data in ipairs(moduleDB.lineGenerators) do
-                if settings.allowedModules[data.key].enabled and data.type ==
-                    "global" then
+                if settings.allowedModules[data.key].enabled and data.type == "global" then
                     xpcall(data.func, geterrorhandler(), gTip, gData[data.key])
                     added = true
                 end

@@ -2,12 +2,19 @@ local QTip = LibStub("LibQTip-1.0")
 function Exlist.spairs(t, order)
     -- collect the keys
     local keys = {}
-    for k in pairs(t) do keys[#keys + 1] = k end
+    for k in pairs(t) do
+        keys[#keys + 1] = k
+    end
 
     -- if order function given, sort by it by passing the table and keys a, b,
     -- otherwise just sort the keys
     if order then
-        table.sort(keys, function(a, b) return order(t, a, b) end)
+        table.sort(
+            keys,
+            function(a, b)
+                return order(t, a, b)
+            end
+        )
     else
         table.sort(keys)
     end
@@ -16,12 +23,16 @@ function Exlist.spairs(t, order)
     local i = 0
     return function()
         i = i + 1
-        if keys[i] then return keys[i], t[keys[i]] end
+        if keys[i] then
+            return keys[i], t[keys[i]]
+        end
     end
 end
 
 local function AddMissingTableEntries(data, DEFAULT)
-    if not data or not DEFAULT then return data end
+    if not data or not DEFAULT then
+        return data
+    end
     local rv = data
     for k, v in pairs(DEFAULT) do
         if rv[k] == nil then
@@ -48,10 +59,14 @@ function Exlist.ClearFunctions(tooltip)
 end
 
 function Exlist.setIlvlColor(ilvl)
-    if not ilvl then return "ffffffff" end
+    if not ilvl then
+        return "ffffffff"
+    end
     local colors = Exlist.Colors.ilvlColors
     for i = 1, #colors do
-        if colors[i].ilvl > ilvl then return colors[i].str end
+        if colors[i].ilvl > ilvl then
+            return colors[i].str
+        end
     end
     return "fffffb26"
 end
@@ -76,10 +91,14 @@ function Exlist.GetPosition(frame)
     return xPos, vPos
 end
 
-function Exlist.ConvertColor(color) return (color / 255) end
+function Exlist.ConvertColor(color)
+    return (color / 255)
+end
 
 function Exlist.ColorHexToDec(hex)
-    if not hex or strlen(hex) < 6 then return end
+    if not hex or strlen(hex) < 6 then
+        return
+    end
     local values = {}
     for i = 1, 6, 2 do
         table.insert(values, tonumber(string.sub(hex, i, i + 1), 16))
@@ -91,16 +110,16 @@ function Exlist.ProfessionValueColor(value, isArch)
     local colors = Exlist.Colors.profColors
     local mod = isArch and 8 or 1
     for i = 1, #colors do
-        if value <= colors[i].val * mod then return colors[i].color end
+        if value <= colors[i].val * mod then
+            return colors[i].color
+        end
     end
     return "FFFFFF"
 end
 
 function Exlist.AttachStatusBar(frame)
-    local statusBar = CreateFrame("StatusBar", nil, frame,
-                                  BackdropTemplateMixin and "BackdropTemplate")
-    statusBar:SetStatusBarTexture(
-        "Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
+    local statusBar = CreateFrame("StatusBar", nil, frame, BackdropTemplateMixin and "BackdropTemplate")
+    statusBar:SetStatusBarTexture("Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
     statusBar:GetStatusBarTexture():SetHorizTile(false)
     local bg = {bgFile = "Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar"}
     statusBar:SetBackdrop(bg)
@@ -119,8 +138,7 @@ local pulseDelta = -(1 - pulseLowAlpha)
 function Exlist.AnimPulse(self)
     self.startTime = self.startTime or GetTime()
     local nowTime = GetTime()
-    local progress = mod((nowTime - self.startTime), pulseDuration) /
-                         pulseDuration
+    local progress = mod((nowTime - self.startTime), pulseDuration) / pulseDuration
     local angle = (progress * 2 * math.pi) - (math.pi / 2)
     local finalAlpha = 1 + (((math.sin(angle) + 1) / 2) * pulseDelta)
     self.fontString:SetAlpha(finalAlpha)
@@ -160,17 +178,14 @@ function Exlist.CreateSideTooltip(statusbar)
                 sideTooltip:AddLine(body[i])
             end
         end
-        local position, vPos = Exlist.GetPosition(
-                                   self:GetParent():GetParent():GetParent().parentFrame or
-                                       self:GetParent():GetParent():GetParent())
+        local position, vPos =
+            Exlist.GetPosition(
+            self:GetParent():GetParent():GetParent().parentFrame or self:GetParent():GetParent():GetParent()
+        )
         if position == "left" then
-            sideTooltip:SetPoint("TOPLEFT",
-                                 self:GetParent():GetParent():GetParent(),
-                                 "TOPRIGHT", -1, 0)
+            sideTooltip:SetPoint("TOPLEFT", self:GetParent():GetParent():GetParent(), "TOPRIGHT", -1, 0)
         else
-            sideTooltip:SetPoint("TOPRIGHT",
-                                 self:GetParent():GetParent():GetParent(),
-                                 "TOPLEFT", 1, 0)
+            sideTooltip:SetPoint("TOPRIGHT", self:GetParent():GetParent():GetParent(), "TOPLEFT", 1, 0)
         end
         sideTooltip:Show()
         sideTooltip:SetClampedToScreen(true)
@@ -178,16 +193,14 @@ function Exlist.CreateSideTooltip(statusbar)
         sideTooltip:SetFrameLevel(parentFrameLevel + 5)
         sideTooltip:SetBackdrop(Exlist.DEFAULT_BACKDROP)
         local c = settings.backdrop
-        sideTooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a);
-        sideTooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g,
-                                           c.borderColor.b, c.borderColor.a)
+        sideTooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
+        sideTooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
         if statusbar then
             statusbar.total = statusbar.total or 100
             statusbar.curr = statusbar.curr or 0
             local statusBar = CreateFrame("StatusBar", nil, sideTooltip)
             self.statusBar = statusBar
-            statusBar:SetStatusBarTexture(
-                "Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
+            statusBar:SetStatusBarTexture("Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
             statusBar:GetStatusBarTexture():SetHorizTile(false)
             local bg = {
                 bgFile = "Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar"
@@ -201,7 +214,6 @@ function Exlist.CreateSideTooltip(statusbar)
             statusBar:SetHeight(5)
             statusBar:SetPoint("TOPLEFT", sideTooltip, "BOTTOMLEFT", 1, 0)
         end
-
     end
     return sideTooltip
 end
@@ -230,7 +242,9 @@ end
 
 function Exlist.MouseOverTooltips()
     for _, tooltip in ipairs(Exlist.activeTooltips or {}) do
-        if (tooltip:IsMouseOver()) then return true end
+        if (tooltip:IsMouseOver()) then
+            return true
+        end
     end
     return false
 end
@@ -243,12 +257,16 @@ function Exlist.ReleaseActiveTooltips()
 end
 
 function Exlist.SeperateThousands(value)
-    if (not value) then return 0 end
+    if (not value) then
+        return 0
+    end
     local k
     local formatted = value
     while true do
-        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
-        if (k == 0) then break end
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", "%1,%2")
+        if (k == 0) then
+            break
+        end
     end
     return formatted
 end
@@ -259,13 +277,11 @@ function Exlist.FormatGold(coppers)
         silver = math.floor((coppers / 100) % 100),
         coppers = math.floor(coppers % 100)
     }
-    return Exlist.SeperateThousands(money.gold) .. "|cFFd8b21ag|r " ..
-               money.silver .. "|cFFadadads|r " .. money.coppers ..
-               "|cFF995813c|r"
+    return Exlist.SeperateThousands(money.gold) ..
+        "|cFFd8b21ag|r " .. money.silver .. "|cFFadadads|r " .. money.coppers .. "|cFF995813c|r"
 end
 
-local randCharSet =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+local randCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
 function Exlist.GenerateRandomString(length)
     length = length or 10
@@ -282,8 +298,12 @@ function Exlist.Switch(condition, cases)
 end
 
 local function copyTableInternal(source, seen)
-    if type(source) ~= "table" then return source end
-    if seen[source] then return seen[source] end
+    if type(source) ~= "table" then
+        return source
+    end
+    if seen[source] then
+        return seen[source]
+    end
     local rv = {}
     seen[source] = rv
     for k, v in pairs(source) do
@@ -292,7 +312,9 @@ local function copyTableInternal(source, seen)
     return rv
 end
 
-function Exlist.copyTable(source) return copyTableInternal(source, {}) end
+function Exlist.copyTable(source)
+    return copyTableInternal(source, {})
+end
 
 local function tableMerge(t1, t2)
     for k, v in pairs(t2) do
@@ -316,7 +338,7 @@ local function diffTable(t1, t2, result)
         local t2Type = type(t2[k])
         if (t1Type ~= t2Type) then
             result[k] = t2[k]
-        elseif (t1Type == 'table') then
+        elseif (t1Type == "table") then
             result[k] = diffTable(t1[k], t2[k], {})
         elseif (t1[k] ~= t2[k]) then
             result[k] = t2[k]
@@ -327,12 +349,16 @@ local function diffTable(t1, t2, result)
 end
 
 local function removeEmptyTable(t)
-    if (type(t) ~= 'table') then return t end
+    if (type(t) ~= "table") then
+        return t
+    end
     local i = 0
     for k, v in pairs(t) do
-        if (type(v) == 'table') then
+        if (type(v) == "table") then
             t[k] = removeEmptyTable(v)
-            if (t[k]) then i = i + 1 end
+            if (t[k]) then
+                i = i + 1
+            end
         else
             i = i + 1
         end
@@ -356,7 +382,12 @@ function Exlist.Fade(f, duration, from, to)
     fade:SetToAlpha(to or 1)
     fade:SetDuration(duration or 1)
     fade:SetSmoothing((from > to) and "OUT" or "IN")
-    ag:SetScript("OnFinished", function() f:SetAlpha(to) end)
+    ag:SetScript(
+        "OnFinished",
+        function()
+            f:SetAlpha(to)
+        end
+    )
     return ag
 end
 
@@ -365,7 +396,9 @@ function Exlist.AttachText(f, font, size, outline)
     local fs = textFrame:CreateFontString(nil, "OVERLAY")
     textFrame.text = fs
     textFrame:SetWidth(0)
-    textFrame.SetText = function(self, text) self.text:SetText(text) end
+    textFrame.SetText = function(self, text)
+        self.text:SetText(text)
+    end
     textFrame.SetFont = function(self, font, size, outline)
         self.text:SetFont(font, size, outline)
     end
@@ -377,8 +410,12 @@ function Exlist.AttachText(f, font, size, outline)
 end
 
 function Exlist.ShortenNumber(number)
-    if type(number) ~= "number" then number = tonumber(number) end
-    if not number then return end
+    if type(number) ~= "number" then
+        number = tonumber(number)
+    end
+    if not number then
+        return
+    end
     local affixes = {"", "k", "m", "b", "t"}
     local affix = 1
     local dec = 0
@@ -395,7 +432,9 @@ function Exlist.ShortenNumber(number)
             dec = dec - 1
         end
     end
-    if number < 0 then num1 = -num1 end
+    if number < 0 then
+        num1 = -num1
+    end
 
     return string.format("%." .. dec .. "f" .. affixes[affix], num1)
 end

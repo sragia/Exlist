@@ -6,8 +6,7 @@ local GetMoney, GetItemCount = GetMoney, GetItemCount
 local GetItemInfo = GetItemInfo
 local math, table, pairs = math, table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
-local GetCurrencyListSize, GetCurrencyListInfo = GetCurrencyListSize,
-                                                 GetCurrencyListInfo
+local GetCurrencyListSize, GetCurrencyListInfo = GetCurrencyListSize, GetCurrencyListInfo
 local print, string, ipairs = print, string, ipairs
 local Exlist = Exlist
 local colors = Exlist.Colors
@@ -23,12 +22,19 @@ local config_defaults = {
 local function spairs(t, order)
     -- collect the keys
     local keys = {}
-    for k in pairs(t) do keys[#keys + 1] = k end
+    for k in pairs(t) do
+        keys[#keys + 1] = k
+    end
 
     -- if order function given, sort by it by passing the table and keys a, b,
     -- otherwise just sort the keys
     if order then
-        table.sort(keys, function(a, b) return order(t, a, b) end)
+        table.sort(
+            keys,
+            function(a, b)
+                return order(t, a, b)
+            end
+        )
     else
         table.sort(keys)
     end
@@ -37,11 +43,14 @@ local function spairs(t, order)
     local i = 0
     return function()
         i = i + 1
-        if keys[i] then return keys[i], t[keys[i]] end
+        if keys[i] then
+            return keys[i], t[keys[i]]
+        end
     end
 end
 
-local function AddRefreshOptions() end
+local function AddRefreshOptions()
+end
 local function Updater(event)
     local t = {}
     local coppers = GetMoney()
@@ -79,21 +88,25 @@ local function Updater(event)
     for name, v in pairs(cur) do
         if v.type == "item" and v.enabled then
             local amount = GetItemCount(v.name, true)
-            table.insert(t.currency,
-                         {name = name, amount = amount, texture = v.icon})
+            table.insert(t.currency, {name = name, amount = amount, texture = v.icon})
         elseif v.enabled then
-            table.insert(t.currency, {
-                name = name,
-                amount = currencyAmount[name],
-                texture = v.icon
-            })
+            table.insert(
+                t.currency,
+                {
+                    name = name,
+                    amount = currencyAmount[name],
+                    texture = v.icon
+                }
+            )
         end
     end
     Exlist.UpdateChar(key, t)
 end
 local added = false
 local function AddRefreshOptions()
-    if not Exlist.ConfigDB then return end
+    if not Exlist.ConfigDB then
+        return
+    end
     local cur = Exlist.ConfigDB.settings.currencies
     local options = {
         type = "group",
@@ -123,17 +136,18 @@ local function AddRefreshOptions()
                 type = "input",
                 order = 1.06,
                 name = L[" Add Item (|cffffffffInput itemID or item name|r)"],
-                get = function() return "" end,
+                get = function()
+                    return ""
+                end,
                 set = function(self, v)
                     local iInfo = Exlist.GetCachedItemInfo(v)
                     if iInfo and iInfo.name then
-                        cur[iInfo.name] =
-                            {
-                                enabled = true,
-                                icon = iInfo.texture,
-                                name = iInfo.name,
-                                type = "item"
-                            }
+                        cur[iInfo.name] = {
+                            enabled = true,
+                            icon = iInfo.texture,
+                            name = iInfo.name,
+                            type = "item"
+                        }
                         AddRefreshOptions()
                     else
                         print(Exlist.debugString, L["Couldn't add item:"], v)
@@ -153,16 +167,14 @@ local function AddRefreshOptions()
                 order = 1.2,
                 fontSize = "medium",
                 width = "half",
-                name = WrapTextInColorCode(L["Enable"],
-                                           colors.config.tableColumn)
+                name = WrapTextInColorCode(L["Enable"], colors.config.tableColumn)
             },
             label3 = {
                 type = "description",
                 order = 1.3,
                 fontSize = "medium",
                 width = "normal",
-                name = WrapTextInColorCode(L["Show Separate"],
-                                           colors.config.tableColumn)
+                name = WrapTextInColorCode(L["Show Separate"], colors.config.tableColumn)
             },
             spacer1 = {
                 type = "description",
@@ -177,42 +189,45 @@ local function AddRefreshOptions()
     local n = 1
     for name, t in pairs(cur) do
         n = n + 1
-        options.args[name .. 'desc'] = {
+        options.args[name .. "desc"] = {
             type = "description",
             order = n,
             fontSize = "medium",
             name = string.format("|T%s:15|t %s", t.icon, name),
             width = "normal"
         }
-        options.args[name .. 'enable'] =
-            {
-                type = "toggle",
-                order = n + .1,
-                name = "  ",
-                descStyle = "inline",
-                width = "half",
-                get = function() return t.enabled end,
-                set = function(self, v)
-                    t.enabled = v
-                    AddRefreshOptions()
-                end
-            }
-        options.args[name .. 'showSeparate'] =
-            {
-                type = "toggle",
-                order = n + .2,
-                width = "half",
-                descStyle = "inline",
-                name = "  ",
-                disabled = function() return not t.enabled end,
-                get = function() return t.showSeparate end,
-                set = function(self, v)
-                    t.showSeparate = v
-                    AddRefreshOptions()
-                end
-            }
-        options.args[name .. 'spacer'] =
-            {type = "description", order = n + .3, width = "normal", name = ""}
+        options.args[name .. "enable"] = {
+            type = "toggle",
+            order = n + .1,
+            name = "  ",
+            descStyle = "inline",
+            width = "half",
+            get = function()
+                return t.enabled
+            end,
+            set = function(self, v)
+                t.enabled = v
+                AddRefreshOptions()
+            end
+        }
+        options.args[name .. "showSeparate"] = {
+            type = "toggle",
+            order = n + .2,
+            width = "half",
+            descStyle = "inline",
+            name = "  ",
+            disabled = function()
+                return not t.enabled
+            end,
+            get = function()
+                return t.showSeparate
+            end,
+            set = function(self, v)
+                t.showSeparate = v
+                AddRefreshOptions()
+            end
+        }
+        options.args[name .. "spacer"] = {type = "description", order = n + .3, width = "normal", name = ""}
     end
 
     if not added then
@@ -225,15 +240,16 @@ end
 Exlist.ModuleToBeAdded(AddRefreshOptions)
 
 local function Linegenerator(tooltip, data, character)
-    if not data or not data.money then return end
+    if not data or not data.money then
+        return
+    end
     local info = {
         character = character,
         moduleName = key,
         priority = prio,
         titleName = L["Currency"],
-        data = Exlist.SeperateThousands(data.money.gold) .. "|cFFd8b21ag|r " ..
-            data.money.silver .. "|cFFadadads|r " .. data.money.coppers ..
-            "|cFF995813c|r"
+        data = Exlist.SeperateThousands(data.money.gold) ..
+            "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r"
     }
     local extraInfos = {}
     local currency = data.currency
@@ -244,41 +260,44 @@ local function Linegenerator(tooltip, data, character)
         }
         local settings = Exlist.ConfigDB.settings
         for i = 1, #currency do
-            if not (settings.hideEmptyCurrency and
-                not (currency[i].amount and currency[i].amount > 0)) and
-                settings.currencies[currency[i].name].enabled then
+            if
+                not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0)) and
+                    settings.currencies[currency[i].name].enabled
+             then
                 if settings.currencies[currency[i].name].showSeparate then
-                    table.insert(extraInfos, {
-                        character = character,
-                        moduleName = key .. currency[i].name,
-                        priority = prio + i / 1000,
-                        titleName = "|T" .. (currency[i].texture or "") ..
-                            ":0|t " .. (currency[i].name or ""),
-                        data = currency[i].amount
-                    })
+                    table.insert(
+                        extraInfos,
+                        {
+                            character = character,
+                            moduleName = key .. currency[i].name,
+                            priority = prio + i / 1000,
+                            titleName = "|T" .. (currency[i].texture or "") .. ":0|t " .. (currency[i].name or ""),
+                            data = currency[i].amount
+                        }
+                    )
                 end
-                table.insert(sideTooltip.body, {
-                    "|T" .. (currency[i].texture or "") .. ":0|t " ..
-                        (currency[i].name or ""),
-                    currency[i].maxed and
-                        WrapTextInColorCode(currency[i].amount, "FFFF0000") or
-                        currency[i].amount
-                })
+                table.insert(
+                    sideTooltip.body,
+                    {
+                        "|T" .. (currency[i].texture or "") .. ":0|t " .. (currency[i].name or ""),
+                        currency[i].maxed and WrapTextInColorCode(currency[i].amount, "FFFF0000") or currency[i].amount
+                    }
+                )
             end
         end
-        table.insert(sideTooltip.body, "|cfff2b202" ..
-                         L["To add additional items/currency check out config!"] ..
-                         "|r")
+        table.insert(sideTooltip.body, "|cfff2b202" .. L["To add additional items/currency check out config!"] .. "|r")
         info.OnEnter = Exlist.CreateSideTooltip()
         info.OnEnterData = sideTooltip
         info.OnLeave = Exlist.DisposeSideTooltip()
     end
-    for i, t in ipairs(extraInfos) do Exlist.AddData(t) end
+    for i, t in ipairs(extraInfos) do
+        Exlist.AddData(t)
+    end
     Exlist.AddData(info)
 end
 
 local data = {
-    name = L['Currency'],
+    name = L["Currency"],
     key = key,
     linegenerator = Linegenerator,
     priority = prio,

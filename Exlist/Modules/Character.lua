@@ -7,7 +7,7 @@ local colors = Exlist.Colors
 
 local function toggleChatEvent(register)
     for i = 1, 10 do
-        local cf = _G['ChatFrame' .. i]
+        local cf = _G["ChatFrame" .. i]
         if (register) then
             cf:RegisterEvent("TIME_PLAYED_MSG")
         else
@@ -19,7 +19,7 @@ local function toggleChatEvent(register)
 end
 
 local function Updater(event, ...)
-    local name = UnitName('player')
+    local name = UnitName("player")
     local realm = GetRealmName()
     local t = Exlist.GetCharacterTableKey(realm, name, key) or {}
     if (event == "PLAYER_ENTERING_WORLD_DELAYED") then
@@ -27,7 +27,7 @@ local function Updater(event, ...)
         RequestTimePlayed()
         return
     end
-    if (event == 'TIME_PLAYED_MSG') then
+    if (event == "TIME_PLAYED_MSG") then
         local totalTimePlayed, timePlayedThisLevel = ...
         if (totalTimePlayed) then
             t.totalPlayed = totalTimePlayed
@@ -50,35 +50,40 @@ local function customGenerator(tooltip, db)
 
     for _, realm in pairs(db) do
         for _, char in pairs(realm) do
-            totalPlayed = totalPlayed +
-                              (char[key] and char[key].totalPlayed or 0)
-            totalGold = totalGold +
-                            (char.currency and char.currency.money.totalCoppers or
-                                0)
+            totalPlayed = totalPlayed + (char[key] and char[key].totalPlayed or 0)
+            totalGold = totalGold + (char.currency and char.currency.money.totalCoppers or 0)
         end
     end
 
-    Exlist.AddLine(tooltip, {
-        WrapTextInColorCode(L['Total Played'], colors.sideTooltipTitle),
-        SecondsToTime(totalPlayed)
-    })
-    Exlist.AddLine(tooltip, {
-        WrapTextInColorCode(L['Total Gold'], colors.sideTooltipTitle),
-        Exlist.FormatGold(totalGold)
-    })
-
+    Exlist.AddLine(
+        tooltip,
+        {
+            WrapTextInColorCode(L["Total Played"], colors.sideTooltipTitle),
+            SecondsToTime(totalPlayed)
+        }
+    )
+    Exlist.AddLine(
+        tooltip,
+        {
+            WrapTextInColorCode(L["Total Gold"], colors.sideTooltipTitle),
+            Exlist.FormatGold(totalGold)
+        }
+    )
 end
 
 local function init()
-    RequestTimePlayed();
-    C_Timer.NewTicker(120, function()
-        toggleChatEvent()
-        RequestTimePlayed()
-    end) -- temp
+    RequestTimePlayed()
+    C_Timer.NewTicker(
+        120,
+        function()
+            toggleChatEvent()
+            RequestTimePlayed()
+        end
+    ) -- temp
 end
 
 local data = {
-    name = L['Character'],
+    name = L["Character"],
     key = key,
     linegenerator = Linegenerator,
     priority = prio,
@@ -87,10 +92,9 @@ local data = {
     weeklyReset = false,
     dailyReset = false,
     description = L["Gathers various data about character"],
-    type = 'totals',
+    type = "totals",
     customGenerator = customGenerator,
     init = init
-
 }
 
 Exlist.RegisterModule(data)
