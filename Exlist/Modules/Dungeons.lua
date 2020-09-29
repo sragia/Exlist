@@ -9,19 +9,19 @@ local pairs, table, ipairs = pairs, table, ipairs
 local Exlist = Exlist
 local colors = Exlist.Colors
 local dungeonNames = {}
--- BFA
-local bfaDungeons = {
-  1669, -- Atal'Dazar
-  1710, -- Shrine of the Storm
-  1695, -- Temple of Sethraliss
-  1708, -- The MOTHERLODE!!
-  1712, -- The Underrot
-  1714, -- Tol Dagor
-  1704, -- Freehold
-  1706, -- Waycrest Manor
-  1701, -- Siege of Boralus
-  1785 -- Kings' Rest
+-- Shadowlands
+local dungeons = {
+  2116, -- Sanguine Depths ?? todo
+  2115, -- Theater of Pain
+  2114, -- The Necrotic Wake
+  2113, -- Spires of Ascension
+  2112, -- Sanguine Depths 2 ?? todo
+  2111, -- Plaguefall
+  2110, -- Mists of Tirna Scithe
+  2109, -- Halls of Atonement
+  2108 -- De Other Side
 }
+
 local function Updater(event, ...)
   local t = {
     ["done"] = 0,
@@ -72,10 +72,10 @@ local function Linegenerator(tooltip, data, character)
 end
 
 local function init()
-  for _, id in ipairs(bfaDungeons) do
+  for _, id in ipairs(dungeons) do
     local name = GetLFGDungeonInfo(id)
     if name then
-      dungeonNames[(GetLFGDungeonInfo(id))] = {locked = false, done = 0, max = 0}
+      dungeonNames[name] = {locked = false, done = 0, max = 0}
     end
   end
 end
