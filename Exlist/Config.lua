@@ -742,7 +742,6 @@ Exlist.SetupConfig = function(refresh)
          end
       }
    end
-   addedChars = true
    -- Extra Tooltip Options
    local etargs = options.args.extratooltip.args
    n = 0

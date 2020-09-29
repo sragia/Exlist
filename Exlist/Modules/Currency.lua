@@ -103,7 +103,7 @@ local function Updater(event)
    Exlist.UpdateChar(key, t)
 end
 local added = false
-local function AddRefreshOptions()
+AddRefreshOptions = function()
    if not Exlist.ConfigDB then
       return
    end

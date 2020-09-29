@@ -160,7 +160,7 @@ local function GearTooltip(self, info)
          }
       )
    end
-   local line = geartooltip:AddLine(WrapTextInColorCode(L["Last Updated"], colors.sideTooltipTitle))
+   line = geartooltip:AddLine(WrapTextInColorCode(L["Last Updated"], colors.sideTooltipTitle))
    geartooltip:SetCell(line, 2, info.updated, "LEFT", 3)
    local position, vPos = Exlist.GetPosition(self:GetParent():GetParent():GetParent().parentFrame)
    if position == "left" then

@@ -523,7 +523,6 @@ local function tickerFunc()
    local characters = getOnlineCharacters()
    local i = 1
    for _, char in ipairs(characters) do
-      local char = char
       local online = false
       C_Timer.After(
          i * 0.5,

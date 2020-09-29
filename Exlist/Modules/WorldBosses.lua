@@ -92,14 +92,13 @@ end
 
 local function GetWarfrontEnd(warfront)
    local faction = UnitFactionGroup("player")
-   local state, pctComplete, timeNext, timeStart = C_ContributionCollector.GetState(warfronts[warfront][faction])
+   local state, pctComplete, timeNext = C_ContributionCollector.GetState(warfronts[warfront][faction])
    if state == 2 then
       return {value = timeNext, type = "time"}
    elseif state == 1 and pctComplete < 1 then
       return {value = pctComplete, type = "pct"}
    else
-      state, pctComplete, timeNext, timeStart =
-         C_ContributionCollector.GetState(warfronts[warfront][OpossiteFacton(faction)])
+      state, pctComplete, timeNext = C_ContributionCollector.GetState(warfronts[warfront][OpossiteFacton(faction)])
       if state == 1 then
          return {value = pctComplete, type = "pct"}
       end

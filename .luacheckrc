@@ -2,10 +2,7 @@ std = "lua51"
 max_line_length = false
 exclude_files = {
 	"babelfish.lua",
-	"WeakAuras_Main.lua",
-	"WeakAuras_Options.lua",
-	"WeakAuras_Templates.lua",
-	"WeakAuras/Libs/",
+	"Exlist/Libs/",
 	".luacheckrc"
 }
 ignore = {
@@ -23,21 +20,22 @@ ignore = {
 	"314", -- Value of a field in a table literal is unused
 	"42.", -- Shadowing a local variable, an argument, a loop variable.
 	"43.", -- Shadowing an upvalue, an upvalue argument, an upvalue loop variable.
-	"542", -- An empty if branch
+	"542" -- An empty if branch
 }
 globals = {
 	"_G",
 	"bit",
-
 	-- misc custom
 	"AceGUIWeakAurasMultiLineEditBoxInsertLink",
 	"AceGUIWidgetLSMlists",
 	"CUSTOM_CLASS_COLORS",
 	"LibStub",
-
 	-- Exlist
 	"Exlist",
-
+	"Exlist_Config",
+	"ExlistTimers",
+	"Exlist_DB",
+	"ExlistScanningTooltipTextLeft1",
 	-- WeakAuras
 	"WeakAuras_DropDownMenu",
 	"WeakAuras_DropIndicator",
@@ -50,7 +48,6 @@ globals = {
 	"WeakAurasSaved",
 	"WeakAurasTimers",
 	"WeakAurasArchive",
-
 	-- Third Party Addons/Libs
 	"BigWigs",
 	"BigWigsLoader",
@@ -61,7 +58,6 @@ globals = {
 	"IndentationLib",
 	"KuiNameplatesCore",
 	"KuiNameplatesPlayerAnchor",
-
 	-- FrameXML misc
 	"C_Timer",
 	"ChatFrame_AddMessageEventFilter",
@@ -91,7 +87,6 @@ globals = {
 	"UIDropDownMenu_AddButton",
 	"UIDropDownMenu_Initialize",
 	"UISpecialFrames",
-
 	-- FrameXML frames
 	"GameTooltip",
 	"ItemRefTooltip",
@@ -101,7 +96,6 @@ globals = {
 	"UIParent",
 	"WorldFrame",
 	"WorldMapFrame",
-
 	-- FrameXML globals
 	"ChatFontNormal",
 	"GameFontNormal",
@@ -114,13 +108,11 @@ globals = {
 	"RED_FONT_COLOR_CODE",
 	"STANDARD_TEXT_FONT",
 	"MAX_BOSS_FRAMES",
-
 	-- ENUMS
 	"LOWER_LEFT_VERTEX",
 	"LOWER_RIGHT_VERTEX",
 	"UPPER_LEFT_VERTEX",
 	"UPPER_RIGHT_VERTEX",
-
 	-- API functions
 	"AbandonQuest",
 	"AbandonSkill",
@@ -210,6 +202,7 @@ globals = {
 	"BNSetAFK",
 	"BNSetBlocked",
 	"BNSetCustomMessage",
+	"BackdropTemplateMixin",
 	"BNSetDND",
 	"BNSetFriendNote",
 	"BNSetSelectedBlock",
@@ -232,6 +225,7 @@ globals = {
 	"BuyReagentBank",
 	"BuyTrainerService",
 	"BuybackItem",
+	"C_CurrencyInfo",
 	"C_ActionBar",
 	"C_AdventureJournal",
 	"C_AdventureJournal.ActivateEntry",
@@ -3904,7 +3898,6 @@ globals = {
 	"unpack",
 	"wipe",
 	"xpcall",
-
 	-- framexml functions
 	"AbbreviateLargeNumbers",
 	"AbbreviateNumbers",
@@ -4310,7 +4303,26 @@ globals = {
 	"tContains",
 	"tDeleteItem",
 	"tostringall",
-
+	"StaticPopup_Hide",
+	"InterfaceOptionsFrame_Show",
+	"GetDetailedItemLevelInfo",
+	"InterfaceOptionsFrame_OpenToCategory",
+	"C_DateAndTime",
+	"C_MythicPlus",
+	"C_Calendar",
+	"C_QuestLog",
+	"C_Reputation",
+	"Enum",
+	"C_WeeklyRewards",
+	"C_WorldMap",
+	"C_ContributionCollector",
+	"ToggleWorldMap",
+	"BonusObjectiveTracker_TrackWorldQuest",
+	"ToggleWorldMap",
+	"ChatEdit_GetActiveWindow",
+	"ChatFrame_OpenChat",
+	"ChatEdit_InsertLink",
+	"IsPlayerAtEffectiveMaxLevel",
 	-- Constants.lua
 	"EXPANSION_LEVEL_CLASSIC",
 	"EXPANSION_LEVEL_BURNING_CRUSADE",
@@ -4672,7 +4684,6 @@ globals = {
 	"FIRST_NUMBER_CAP_VALUE",
 	"GARRISON_HIGH_THREAT_VALUE",
 	"WOW_TOKEN_ITEM_ID",
-
 	-- GlobalStrings.lua
 	"ABANDON_PET",
 	"ABANDON_QUEST",
@@ -19443,5 +19454,5 @@ globals = {
 	"ZOOM_IN",
 	"ZOOM_OUT",
 	"ZOOM_OUT_BUTTON_TEXT",
-	"_RECORDING_WARNING_CORRUPTED",
+	"_RECORDING_WARNING_CORRUPTED"
 }
