@@ -71,26 +71,29 @@ local function Linegenerator(tooltip, data, character)
          return a.endTime < b.endTime
       end
    )
-   for i, calling in ipairs(data) do
-      info.data = string.format("|T%s:45:45:::256:256:58:198:51:197|t %s", calling.icon, GetClockIcon(calling.endTime))
-      local sideTooltip = {
-         body = {},
-         title = WrapTextInColorCode(calling.questTitle or "", colors.sideTooltipTitle)
-      }
-      table.insert(
-         sideTooltip.body,
-         {
-            L["Time Left:"],
-            Exlist.TimeLeftColor(calling.endTime - time(), {36000, 72000})
+   for _, calling in ipairs(data) do
+      if (calling.endTime and time() <= calling.endTime) then
+         info.data =
+            string.format("|T%s:45:45:::256:256:58:198:51:197|t %s", calling.icon, GetClockIcon(calling.endTime))
+         local sideTooltip = {
+            body = {},
+            title = WrapTextInColorCode(calling.questTitle or "", colors.sideTooltipTitle)
          }
-      )
+         table.insert(
+            sideTooltip.body,
+            {
+               L["Time Left:"],
+               Exlist.TimeLeftColor(calling.endTime - time(), {36000, 72000})
+            }
+         )
 
-      info.colOff = cellIndex - 2
-      info.OnEnter = Exlist.CreateSideTooltip()
-      info.OnEnterData = sideTooltip
-      info.OnLeave = Exlist.DisposeSideTooltip()
+         info.colOff = cellIndex - 2
+         info.OnEnter = Exlist.CreateSideTooltip()
+         info.OnEnterData = sideTooltip
+         info.OnLeave = Exlist.DisposeSideTooltip()
 
-      table.insert(infoTables, Exlist.copyTable(info))
+         table.insert(infoTables, Exlist.copyTable(info))
+      end
    end
    for i, t in ipairs(infoTables) do
       if i >= #infoTables then
