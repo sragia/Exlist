@@ -22,7 +22,8 @@ local expansions = {
   L["Mists of Pandaria"],
   L["Warlords of Draenor"],
   L["Legion"],
-  L["Battle for Azeroth"]
+  L["Battle for Azeroth"],
+  L["Shadowlands"]
 }
 
 local defaultSettings = {}
@@ -333,6 +334,8 @@ end
 
 local function init()
   defaultSettings = {
+    -- Shadowlands
+    [GetLFGDungeonInfo(2093) or "Castle Nathria"] = {enabled = true, expansion = 9, order = 10},
     -- BFA
     [GetLFGDungeonInfo(2033) or "Ny'alotha, the Waking City"] = {enabled = true, expansion = 8, order = 5},
     [GetLFGDungeonInfo(2014) or "The Eternal Palace"] = {enabled = true, expansion = 8, order = 6},
@@ -402,7 +405,7 @@ local function init()
         saveId = 416
       }, -- Alt Id for DS wing 1
       [417] = {name = "Fall of Deathwing", totalEncounters = 4, order = 2, firstBoss = 5},
-       -- DS Wing 2
+      -- DS Wing 2
       [844] = {
         name = "Fall of Deathwing",
         totalEncounters = 4,
@@ -411,7 +414,7 @@ local function init()
         dontCount = true,
         saveId = 417
       }
-     -- Alt DS Wing 2
+      -- Alt DS Wing 2
     },
     -- Mogu'shan Vaults
     [GetLFGDungeonInfo(531) or "Mogu'shan Vaults"] = {
@@ -548,6 +551,12 @@ local function init()
       [2037] = {name = "Ny'alotha: Halls of Devotion", totalEncounters = 4, order = 2},
       [2038] = {name = "Ny'alotha: Halls of Devotion", totalEncounters = 3, order = 3},
       [2039] = {name = "Ny'alotha: The Waking Dream", totalEncounters = 2, order = 4}
+    },
+    [GetLFGDungeonInfo(2093) or "Castle Nathria"] = {
+      [2090] = {name = "The Leeching Vaults", totalEncounters = 3, order = 1},
+      [2091] = {name = "Reliquary of Opulence", totalEncounters = 3, order = 2},
+      [2092] = {name = "Blood from Stone", totalEncounters = 3, order = 3},
+      [2093] = {name = "An Audience with Arrogance", totalEncounters = 1, order = 4}
     }
   }
 
