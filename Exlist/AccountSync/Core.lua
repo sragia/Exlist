@@ -393,7 +393,7 @@ end
 --[[
     ---------------------- MSG RECEIVE -------------------------------
 ]]
-local function messageReceive(prefix, message, distribution, sender)
+local function messageReceive(_, message, distribution, sender)
     if not Exlist.ConfigDB.accountSync.enabled then
         return
     end
@@ -417,7 +417,7 @@ local function messageReceive(prefix, message, distribution, sender)
                 local cb = callbacks[data.resTime]
                 if (cb) then
                     cb(data, sender)
-                    cb = nil
+                    callbacks[data.resTime] = nil
                 end
             end,
             [MSG_TYPE.pairRequest] = function()

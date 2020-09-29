@@ -1,4 +1,7 @@
 {
   "editor.tabSize": 2,
-  "Lua.diagnostics.disable": ["undefined-global"]
+  "Lua.diagnostics.disable": [
+    "undefined-global",
+    112
+  ]
 }
