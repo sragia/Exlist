@@ -559,8 +559,7 @@ local function tickerFunc()
 end
 
 local function getTickerFrequency()
-   print(Exlist.ConfigDB.accountSync.tickerFrequency)
-   return Exlist.ConfigDB.accountSync.tickerFrequency or 60 * 3
+   return Exlist.ConfigDB.accountSync.tickerFrequency or (60 * 3)
 end
 
 accountSync.refreshTicker = function()

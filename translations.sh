@@ -10,7 +10,7 @@ fi
 [ -z "$cf_token" ] && cf_token=$CF_API_KEY
 
 declare -A locale_files=(
-  ["Base Namespace"]="SavedInstances_Main.lua"
+  ["Base Namespace"]="Exlist_Translations.lua"
 )
 
 tempfile=$( mktemp )

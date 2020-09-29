@@ -670,7 +670,7 @@ local function GetCachedQuestTitle(questId)
          config_db.quest_cache = config_db.quest_cache or {}
          config_db.quest_cache[questId] = name
       end
-      return name or "Unknown (" .. questId .. ")"
+      return name or ("Unknown (" .. questId .. ")")
    end
 end
 Exlist.GetCachedQuestTitle = GetCachedQuestTitle
