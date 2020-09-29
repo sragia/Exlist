@@ -28,6 +28,7 @@ ignore:
   - README.md
   - ISSUE_TEMPLATE.md
   - TODO.txt
+  - translations.sh
 
 manual-changelog:
  filename: CHANGELOG.md

@@ -1,0 +1,27 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 3
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[{babelfish.lua,ForAllIndentsAndPurposes.lua}]
+indent_style = space
+indent_size = 4
+
+[.luacheckrc]
+indent_style = tab
+indent_size = 4
+
+[{.mailmap,.env,*.sh}]
+end_of_line = lf
+
+[{*.pkgmeta,*.pkgmeta-classic}]
+indent_style = space
+indent_size = 2
