@@ -28,5 +28,8 @@ jobs:
          - name: Update CF Translations
            run: ./translations.sh
 
+         - name: Generate Changelog
+           run: ./generate_changelog.sh
+
          - name: Package And Release
            uses: BigWigsMods/packager@master
