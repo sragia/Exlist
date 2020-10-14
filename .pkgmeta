@@ -21,6 +21,10 @@ externals:
  Exlist/Libs/LibDBIcon-1.0:
   url: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
  Exlist/Libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
+ Exlist/Libs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
+ Exlist/Libs/LibSerialize:
+    url: https://github.com/rossnichols/LibSerialize
+    tag: v1.0.0
 
 enable-nolib-creation: no
 
