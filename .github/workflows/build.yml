@@ -27,7 +27,7 @@ jobs:
               /home/runner/.luarocks/bin/luacheck . --no-color -q
 
          - name: Update CF Translations
-           run: ./translations.sh
+           run: sudo ./translations.sh
 
          - name: Package And Release
            uses: BigWigsMods/packager@master

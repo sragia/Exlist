@@ -1,7 +1,7 @@
 local L = Exlist.L
 
 -- CONSTANTS
-local MAX_CHARACTER_LEVEL = 120
+local MAX_CHARACTER_LEVEL = 50
 local MAX_PROFESSION_LEVEL = 150
 if GetExpansionLevel() == 6 then
    MAX_CHARACTER_LEVEL = 110
