@@ -4,6 +4,7 @@ local files = {
     "Config",
     "Exlist",
     "Init",
+    "Modules/Coins",
     "Modules/Currency",
     "Modules/Dungeons",
     "Modules/Callings",
