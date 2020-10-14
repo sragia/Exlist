@@ -1,3 +1,5 @@
-Exlist/Libs
+!Exlist/Libs
+Exlist/Libs/*
+!Exlist/Libs/LibDeflate
 createchangelog.sh
 Exlist_Translations.lua

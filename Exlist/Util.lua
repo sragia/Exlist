@@ -198,7 +198,7 @@ function Exlist.CreateSideTooltip(statusbar)
       if statusbar then
          statusbar.total = statusbar.total or 100
          statusbar.curr = statusbar.curr or 0
-         local statusBar = CreateFrame("StatusBar", nil, sideTooltip)
+         local statusBar = CreateFrame("StatusBar", nil, sideTooltip, BackdropTemplateMixin and "BackdropTemplate")
          self.statusBar = statusBar
          statusBar:SetStatusBarTexture("Interface\\AddOns\\Exlist\\Media\\Texture\\statusBar")
          statusBar:GetStatusBarTexture():SetHorizTile(false)
