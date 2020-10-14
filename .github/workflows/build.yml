@@ -21,13 +21,12 @@ jobs:
               fetch-depth: 150
 
          - name: Install and run Luacheck
-           run: |
-              sudo apt-get install luarocks
-              luarocks install --local luacheck
-              /home/runner/.luarocks/bin/luacheck . --no-color -q
+           uses: nebularg/actions-luacheck@v1
+           with:
+              args: "--no-color -q"
 
          - name: Update CF Translations
-           run: sudo ./translations.sh
+           run: ./translations.sh
 
          - name: Package And Release
            uses: BigWigsMods/packager@master
