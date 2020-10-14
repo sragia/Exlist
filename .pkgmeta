@@ -5,9 +5,7 @@ externals:
   url: https://repos.wowace.com/wow/libstub/trunk
  Exlist/Libs/CallbackHandler-1.0:
   url: https://repos.wowace.com/wow/callbackhandler/trunk/CallbackHandler-1.0
- Exlist/Libs/LibQTip-1.0:
-     url: svn://svn.wowace.com/wow/libqtip-1-0/mainline/trunk
-     tag: latest
+ Exlist/Libs/LibQTip-1.0: https://repos.wowace.com/wow/libqtip-1-0
  Exlist/Libs/AceTimer-3.0:
   url: https://repos.wowace.com/wow/ace3/trunk/AceTimer-3.0
  Exlist/Libs/AceGUI-3.0:
@@ -22,8 +20,7 @@ externals:
   url: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
  Exlist/Libs/LibDBIcon-1.0:
   url: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
- Exlist/Libs/LibDataBroker-1.1:
-  url: git://github.com/tekkub/libdatabroker-1-1.git
+ Exlist/Libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
 
 enable-nolib-creation: no
 
@@ -31,6 +28,7 @@ ignore:
   - README.md
   - ISSUE_TEMPLATE.md
   - TODO.txt
+  - translations.sh
 
 manual-changelog:
  filename: CHANGELOG.md

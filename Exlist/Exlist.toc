@@ -1,4 +1,4 @@
-## Interface: 80300
+## Interface: 90002
 ## Title: Exlist
 ## Notes: Shows various information about your characters
 ## Author: Exality
@@ -19,6 +19,9 @@ Libs\LibSharedMedia-3.0\lib.xml
 Libs\AceTimer-3.0\AceTimer-3.0.xml
 Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+Libs\LibDeflate\LibDeflate.lua
+Libs\AceComm-3.0\AceComm-3.0.xml
+Libs\LibSerialize\lib.xml
 
 Init.lua
 locales.xml
@@ -27,5 +30,7 @@ Exlist.lua
 Consts.lua
 Util.lua
 Config.lua
+AccountSync\Config.lua
+AccountSync\Core.lua
 Modules\modules.xml
 Tooltips\Tooltips.xml

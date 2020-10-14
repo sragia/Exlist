@@ -1,0 +1,33 @@
+name: Build Release
+
+on:
+   push:
+      branches:
+         - master
+      tags:
+         - "*"
+
+jobs:
+   build:
+      runs-on: ubuntu-latest
+
+      env:
+         CF_API_KEY: ${{ secrets.CF_API_KEY }}
+         GITHUB_OAUTH: ${{ secrets.OAUTH_TOKEN }}
+
+      steps:
+         - uses: actions/checkout@v1
+           with:
+              fetch-depth: 150
+
+         - name: Install and run Luacheck
+           run: |
+              sudo apt-get install luarocks
+              luarocks install --local luacheck
+              /home/runner/.luarocks/bin/luacheck . --no-color -q
+
+         - name: Update CF Translations
+           run: ./translations.sh
+
+         - name: Package And Release
+           uses: BigWigsMods/packager@master
