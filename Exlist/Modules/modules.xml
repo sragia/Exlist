@@ -3,6 +3,7 @@
 
   <Script file="Worldquests.lua"/>
   <Script file="Character.lua" />
+  <Script file="Emissaries.lua" />
   <Script file="Coins.lua" />
   <Script file="Currency.lua"/>
   <Script file="Dungeons.lua"/>

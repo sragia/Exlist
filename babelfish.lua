@@ -7,6 +7,7 @@ local files = {
     "Modules/Coins",
     "Modules/Currency",
     "Modules/Dungeons",
+    "Modules/Emissaries",
     "Modules/Callings",
     "Modules/Mail",
     "Modules/Missions",
