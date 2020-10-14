@@ -26,8 +26,7 @@ jobs:
               args: "--no-color -q"
 
          - name: Update CF Translations
-           run: |
-              sudo ./translations.sh
+           run: ./translations.sh
 
          - name: Package And Release
            uses: BigWigsMods/packager@master
