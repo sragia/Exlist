@@ -251,6 +251,7 @@ end
 
 function Exlist.ReleaseActiveTooltips()
    for _, tooltip in ipairs(Exlist.activeTooltips or {}) do
+      Exlist.ClearFunctions(tooltip)
       QTip:Release(tooltip)
    end
    Exlist.activeTooltips = {}
