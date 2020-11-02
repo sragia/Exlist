@@ -22,60 +22,60 @@ local GetSpellInfo = GetSpellInfo
 local GameTooltip = GameTooltip
 
 local worldBossIDs = {
+   -- MoP
+   [32099] = {eid = 691, expansion = 5, enabled = false}, -- Sha of Anger
+   [32098] = {eid = 725, expansion = 5, enabled = false}, -- Galleon
+   [32518] = {eid = 814, expansion = 5, enabled = false}, -- Nalak
+   [32519] = {eid = 826, expansion = 5, enabled = false}, -- Oondasta
+   [33117] = {eid = 857, expansion = 5, enabled = false, name = L["The Four Celestials"]}, -- Chi-Ji
+   -- WoD
+   [37462] = {
+      eid = 1211,
+      expansion = 6,
+      name = select(2, EJ_GetCreatureInfo(1, 1291)):match("^[^ ]+") ..
+         " / " .. select(2, EJ_GetCreatureInfo(1, 1211)):match("^[^ ]+"),
+      enabled = false
+   }, -- Drov/Tarlna share a loot and quest atm
+   [37464] = {eid = 1262, expansion = 6, enabled = false}, -- Rukhmar
+   [39380] = {eid = 1452, expansion = 6, enabled = false}, -- Kazzak
+   -- Legion
+   [42270] = {eid = 1749, expansion = 7, enabled = false, wq = true}, -- Nithogg
+   [42269] = {eid = 1756, expansion = 7, name = EJ_GetEncounterInfo(1756), enabled = false, wq = true}, -- The Soultakers
+   [42779] = {eid = 1763, expansion = 7, enabled = false, wq = true}, -- Shar'thos
+   [43192] = {eid = 1769, expansion = 7, enabled = false, wq = true}, -- Levantus
+   [42819] = {eid = 1770, expansion = 7, enabled = false, wq = true}, -- Humongris
+   [43193] = {eid = 1774, expansion = 7, enabled = false, wq = true}, -- Calamir
+   [43513] = {eid = 1783, expansion = 7, enabled = false, wq = true}, -- Na'zak the Fiend
+   [43448] = {eid = 1789, expansion = 7, enabled = false, wq = true}, -- Drugon the Frostblood
+   [43512] = {eid = 1790, expansion = 7, enabled = false, wq = true}, -- Ana-Mouz
+   [43985] = {eid = 1795, expansion = 7, enabled = false, wq = true}, -- Flotsam
+   [44287] = {eid = 1796, expansion = 7, enabled = false, wq = true}, -- Withered Jim
+   [46947] = {eid = 1883, expansion = 7, enabled = false, wq = true}, -- Brutallus
+   [46948] = {eid = 1884, expansion = 7, enabled = false, wq = true}, -- Malificus
+   [46945] = {eid = 1885, expansion = 7, enabled = false, wq = true}, -- Si'vash
+   [47061] = {eid = 1956, expansion = 7, enabled = false, wq = true}, -- Apocron
    -- BFA
-   -- [52847] = {eid = 2213, warfront = 'Arathi'}, -- Doom's Howl
-   -- [52848] = {eid = 2212, warfront = 'Arathi'}, -- The Lion's Roar
-   -- [52196] = {eid = 2210}, -- Dunegorger Kraulok
-   -- [52181] = {eid = 2139}, -- T'zane
-   -- [52169] = {eid = 2141}, -- Ji'arak
-   -- [52157] = {eid = 2197}, -- Hailstone Construct
-   -- [52163] = {eid = 2199}, -- Azurethos, The Winged Typhoon
-   -- [52166] = {eid = 2198}, -- Warbringer Yenajz
-   -- [54896] = {eid = 2329, warfront = 'Darkshore'}, -- Ivus the Forest Lord
-   -- [54895] = {eid = 2345, warfront = 'Darkshore'} -- Ivus the Decayed
-
+   [52847] = {eid = 2213, warfront = "Arathi", expansion = 8, enabled = false, wq = true}, -- Doom's Howl
+   [52848] = {eid = 2212, warfront = "Arathi", expansion = 8, enabled = false, wq = true}, -- The Lion's Roar
+   [52196] = {eid = 2210, expansion = 8, enabled = false, wq = true}, -- Dunegorger Kraulok
+   [52181] = {eid = 2139, expansion = 8, enabled = false, wq = true}, -- T'zane
+   [52169] = {eid = 2141, expansion = 8, enabled = false, wq = true}, -- Ji'arak
+   [52157] = {eid = 2197, expansion = 8, enabled = false, wq = true}, -- Hailstone Construct
+   [52163] = {eid = 2199, expansion = 8, enabled = false, wq = true}, -- Azurethos, The Winged Typhoon
+   [52166] = {eid = 2198, expansion = 8, enabled = false, wq = true}, -- Warbringer Yenajz
+   [54896] = {eid = 2329, warfront = "Darkshore", expansion = 8, enabled = false, wq = true}, -- Ivus the Forest Lord
+   [54895] = {eid = 2345, warfront = "Darkshore", expansion = 8, enabled = false, wq = true}, -- Ivus the Decayed
    -- Shadowlands
-   [61813] = {eid = 2430}, -- Valinor, the Light of Eons
-   [61814] = {eid = 2433}, -- Nurgash Muckformed
-   [61815] = {eid = 2432}, -- Oranomonos the Everbanching
-   [61816] = {eid = 2431} -- Mortanis
+   [61813] = {eid = 2430, expansion = 9, enabled = true, wq = true}, -- Valinor, the Light of Eons
+   [61814] = {eid = 2433, expansion = 9, enabled = true, wq = true}, -- Nurgash Muckformed
+   [61815] = {eid = 2432, expansion = 9, enabled = true, wq = true}, -- Oranomonos the Everbanching
+   [61816] = {eid = 2431, expansion = 9, enabled = true, wq = true} -- Mortanis
 }
 local lastUpdate = 0
-local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 local warfronts = {
    Arathi = {Horde = 11, Alliance = 116},
    Darkshore = {Alliance = 117, Horde = 118}
 }
-
-local function spairs(t, order)
-   -- collect the keys
-   local keys = {}
-   for k in pairs(t) do
-      keys[#keys + 1] = k
-   end
-
-   -- if order function given, sort by it by passing the table and keys a, b,
-   -- otherwise just sort the keys
-   if order then
-      table.sort(
-         keys,
-         function(a, b)
-            return order(t, a, b)
-         end
-      )
-   else
-      table.sort(keys)
-   end
-
-   -- return the iterator function
-   local i = 0
-   return function()
-      i = i + 1
-      if keys[i] then
-         return keys[i], t[keys[i]]
-      end
-   end
-end
 
 local statusMarks = {
    [true] = [[Interface/Addons/Exlist/Media/Icons/ok-icon]],
@@ -142,6 +142,7 @@ local function GetWarfrontStatus()
 end
 
 local function Updater(e, info)
+   local wbSettings = Exlist.GetSettings("worldbosses")
    if e == "WORLD_QUEST_SPOTTED" and #info > 0 then
       -- got info from WQ module
       local t = Exlist.GetCharacterTableKey((GetRealmName()), (UnitName("player")), key)
@@ -149,8 +150,8 @@ local function Updater(e, info)
       gt.worldbosses = gt.worldbosses or {}
       local db = gt.worldbosses
       for _, wq in ipairs(info) do
-         local defaultInfo = worldBossIDs[wq.questId]
-         if defaultInfo then
+         local defaultInfo = wbSettings[wq.questId]
+         if defaultInfo and defaultInfo.enabled then
             local endTime = defaultInfo.warfront and GetWarfrontEnd(defaultInfo.warfront) or wq.endTime
             t[wq.questId] = {
                name = defaultInfo.name or select(2, EJ_GetCreatureInfo(1, defaultInfo.eid)),
@@ -214,14 +215,27 @@ local function Updater(e, info)
       end
    end
 
-   -- Warfronts
-   gt.warfronts = GetWarfrontStatus()
+   -- Check non WQ World Bosses that are enabled to track
+   for questId, wb in pairs(wbSettings) do
+      if (wb.enabled and not wb.wq) then
+         t[questId] = {
+            name = wb.name or select(2, EJ_GetCreatureInfo(1, wb.eid)),
+            defeated = C_QuestLog.IsQuestFlaggedCompleted(questId),
+            endTime = Exlist.GetNextWeeklyResetTime()
+         }
+      end
+   end
+
+   if (UnitLevel("player") == 50) then
+      -- Warfronts
+      gt.warfronts = GetWarfrontStatus()
+   end
 
    Exlist.UpdateChar(key, t)
    Exlist.UpdateChar(key, gt, "global", "global")
 end
 
-local function Linegenerator(tooltip, data, character)
+local function Linegenerator(_, data, character)
    if not data then
       return
    end
@@ -230,27 +244,48 @@ local function Linegenerator(tooltip, data, character)
    local killed = 0
    local strings = {}
    local timeNow = time()
-   for spellId, info in pairs(data) do
-      availableWB = availableWB + 1
-      killed = info.defeated and killed + 1 or killed
-      table.insert(
-         strings,
-         {
-            string.format(
-               "%s (%s)",
-               info.name,
-               info.endTime and (type(info.endTime) == "table" or info.endTime > timeNow) and
-                  FormatEndTime(info.endTime) or
-                  WrapTextInColorCode(L["Not Available"], colors.notavailable)
-            ),
-            info.defeated and WrapTextInColorCode(L["Defeated"], colors.completed) or
-               WrapTextInColorCode(L["Available"], colors.available)
-         }
-      )
+   local wbSettings = Exlist.GetSettings("worldbosses")
+   for questId, info in pairs(data) do
+      local default = wbSettings[questId]
+      if (default and default.enabled) then
+         availableWB = availableWB + 1
+         killed = info.defeated and killed + 1 or killed
+         strings[default.expansion] = strings[default.expansion] or {}
+         table.insert(
+            strings[default.expansion],
+            {
+               string.format(
+                  "%s (%s)",
+                  info.name,
+                  info.endTime and (type(info.endTime) == "table" or info.endTime > timeNow) and
+                     FormatEndTime(info.endTime) or
+                     WrapTextInColorCode(L["Not Available"], colors.notavailable)
+               ),
+               info.defeated and WrapTextInColorCode(L["Defeated"], colors.completed) or
+                  WrapTextInColorCode(L["Available"], colors.available)
+            }
+         )
+      end
    end
    if availableWB > 0 then
+      local body = {}
+      for expansion, data in Exlist.spairs(
+         strings,
+         function(t, a, b)
+            return a > b
+         end
+      ) do
+         table.insert(
+            body,
+            string.format("%s", WrapTextInColorCode(Exlist.Expansions[expansion], colors.sideTooltipTitle))
+         )
+         for _, s in ipairs(data) do
+            table.insert(body, s)
+         end
+      end
+
       local sideTooltip = {
-         body = strings,
+         body = body,
          title = WrapTextInColorCode(L["World Bosses"], colors.sideTooltipTitle)
       }
       local info = {
@@ -290,41 +325,44 @@ local function GlobalLineGenerator(tooltip, data)
    if not data then
       return
    end
+   local wbSettings = Exlist.GetSettings("worldbosses")
    if data.worldbosses and Exlist.ConfigDB.settings.extraInfoToggles.worldbosses.enabled then
       local added = false
       for questId, info in pairs(data.worldbosses) do
-         if type(info.endTime) == "table" or info.endTime > timeNow then
-            if not added then
-               added = true
-               Exlist.AddLine(
+         if (wbSettings[questId] and wbSettings[questId].enabled) then
+            if type(info.endTime) == "table" or info.endTime > timeNow then
+               if not added then
+                  added = true
+                  Exlist.AddLine(
+                     tooltip,
+                     {
+                        WrapTextInColorCode(L["World Bosses"], colors.sideTooltipTitle)
+                     },
+                     14
+                  )
+               end
+               local lineNum =
+                  Exlist.AddLine(
                   tooltip,
                   {
-                     WrapTextInColorCode(L["World Bosses"], colors.sideTooltipTitle)
-                  },
-                  14
+                     AddCheckmark(info.name, C_QuestLog.IsQuestFlaggedCompleted(questId)),
+                     FormatEndTime(info.endTime)
+                  }
+               )
+               Exlist.AddScript(
+                  tooltip,
+                  lineNum,
+                  nil,
+                  "OnMouseDown",
+                  function(self)
+                     if not WorldMapFrame:IsShown() then
+                        ToggleWorldMap()
+                     end
+                     WorldMapFrame:SetMapID(info.zoneId)
+                     BonusObjectiveTracker_TrackWorldQuest(questId)
+                  end
                )
             end
-            local lineNum =
-               Exlist.AddLine(
-               tooltip,
-               {
-                  AddCheckmark(info.name, C_QuestLog.IsQuestFlaggedCompleted(questId)),
-                  FormatEndTime(info.endTime)
-               }
-            )
-            Exlist.AddScript(
-               tooltip,
-               lineNum,
-               nil,
-               "OnMouseDown",
-               function(self)
-                  if not WorldMapFrame:IsShown() then
-                     ToggleWorldMap()
-                  end
-                  WorldMapFrame:SetMapID(info.zoneId)
-                  BonusObjectiveTracker_TrackWorldQuest(questId)
-               end
-            )
          end
       end
    end
@@ -336,9 +374,7 @@ local function GlobalLineGenerator(tooltip, data)
          },
          14
       )
-      local faction = UnitFactionGroup("player")
-      local addedWF = {}
-      for wf, wfData in pairs(data.warfronts) do
+      for _, wfData in pairs(data.warfronts) do
          local name, stateName, timeLeft, pct = GetWFCurrentStatus(wfData)
          Exlist.AddLine(
             tooltip,
@@ -352,12 +388,18 @@ local function GlobalLineGenerator(tooltip, data)
    end
 end
 
-local function init()
+local function RegisterWorldBossWQs()
    local t = {}
-   for questId in pairs(worldBossIDs) do
-      t[#t + 1] = questId
+   for questId, info in pairs(worldBossIDs) do
+      if (info.wq and info.enabled) then
+         t[#t + 1] = questId
+      end
    end
    Exlist.RegisterWorldQuests(t, true)
+end
+
+local function init()
+   RegisterWorldBossWQs()
    Exlist.ConfigDB.settings.extraInfoToggles.worldbosses =
       Exlist.ConfigDB.settings.extraInfoToggles.worldbosses or {name = L["World Bosses"], enabled = true}
    Exlist.ConfigDB.settings.extraInfoToggles.warfronts =
@@ -365,7 +407,6 @@ local function init()
    -- BFA Prepatch Retire
    Exlist.ConfigDB.settings.extraInfoToggles.invasions = nil
    Exlist.ConfigDB.settings.extraInfoToggles.brokenshore = nil
-
    local gt = Exlist.GetCharacterTableKey("global", "global", key)
    if gt.worldbosses and gt.worldbosses.argus then
       local t = {}
@@ -378,6 +419,57 @@ local function init()
       Exlist.UpdateChar(key, gt, "global", "global")
    end
 end
+
+local function AddWorldBossOptions()
+   local settings = Exlist.ConfigDB.settings
+   settings.worldbosses = settings.worldbosses or {}
+   -- add missing raids
+   settings.worldbosses = Exlist.AddMissingTableEntries(settings.worldbosses, worldBossIDs)
+   -- Options
+   local numExpansions = #Exlist.Expansions
+   local configOpt = {
+      type = "group",
+      name = "World Bosses",
+      args = {
+         desc = {
+            type = "description",
+            name = L["Enable world bosses you want to see\n"],
+            width = "full",
+            order = 0
+         }
+      }
+   }
+   -- add worldbosses
+   for questId, opt in pairs(settings.worldbosses) do
+      configOpt.args[questId] = {
+         type = "toggle",
+         order = (numExpansions - opt.expansion + 1.1),
+         width = "full",
+         name = opt.name or select(2, EJ_GetCreatureInfo(1, opt.eid)),
+         get = function()
+            return opt.enabled
+         end,
+         set = function(self, v)
+            opt.enabled = v
+            RegisterWorldBossWQs()
+            Updater()
+         end
+      }
+   end
+
+   -- add labels
+   for i = numExpansions, 5, -1 do
+      configOpt.args["wb" .. i] = {
+         type = "description",
+         name = WrapTextInColorCode(Exlist.Expansions[i], colors.config.heading1),
+         fontSize = "large",
+         width = "full",
+         order = numExpansions - i + 1
+      }
+   end
+   Exlist.AddModuleOptions(key, configOpt, L["World Bosses"])
+end
+Exlist.ModuleToBeAdded(AddWorldBossOptions)
 
 local data = {
    name = L["World Bosses"],

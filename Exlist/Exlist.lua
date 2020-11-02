@@ -85,6 +85,7 @@ local settings = {
    },
    currencies = {},
    worldQuests = {},
+   worldbosses = {},
    wqRules = {money = {}, currency = {}, item = {}, honor = {}},
    quests = {},
    extraInfoToggles = {},

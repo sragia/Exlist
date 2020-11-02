@@ -13,18 +13,6 @@ local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo,
    GetLFGDungeonEncounterInfo
 local table = table
 
-local expansions = {
-   L["Vanilla"],
-   L["The Burning Crusade"],
-   L["Wrath of The Lich King"],
-   L["Cataclysm"],
-   L["Mists of Pandaria"],
-   L["Warlords of Draenor"],
-   L["Legion"],
-   L["Battle for Azeroth"],
-   L["Shadowlands"]
-}
-
 local defaultSettings = {}
 
 local raidDifficultyIds = {
@@ -55,7 +43,7 @@ local function AddRaidOptions()
    -- add missing raids
    settings.raids = Exlist.AddMissingTableEntries(settings.raids, defaultSettings)
    -- Options
-   local numExpansions = #expansions
+   local numExpansions = #Exlist.Expansions
    local configOpt = {
       type = "group",
       name = "Raids",
@@ -72,7 +60,7 @@ local function AddRaidOptions()
    for i = numExpansions, 1, -1 do
       configOpt.args["expac" .. i] = {
          type = "description",
-         name = WrapTextInColorCode(expansions[i], colors.config.heading1),
+         name = WrapTextInColorCode(Exlist.Expansions[i], colors.config.heading1),
          fontSize = "large",
          width = "full",
          order = numExpansions - i + 1

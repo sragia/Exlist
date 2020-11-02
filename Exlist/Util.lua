@@ -439,3 +439,7 @@ function Exlist.ShortenNumber(number)
 
    return string.format("%." .. dec .. "f" .. affixes[affix], num1)
 end
+
+function Exlist.GetSettings(key)
+   return Exlist.ConfigDB.settings[key] or {}
+end
