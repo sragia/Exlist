@@ -59,6 +59,19 @@ local function setCharStatus(char, status, accountID)
    end
 end
 
+local function ToggleChatSystemEvent(register)
+   for i = 1, 10 do
+      local cf = _G["ChatFrame" .. i]
+      if (register) then
+         cf:RegisterEvent("CHAT_MSG_SYSTEM")
+      else
+         if (cf:IsEventRegistered("CHAT_MSG_SYSTEM")) then
+            cf:UnregisterEvent("CHAT_MSG_SYSTEM")
+         end
+      end
+   end
+end
+
 --[[
 ----------------- DB Data -------------------
 ]]
@@ -301,6 +314,7 @@ local function sendMessage(data, distribution, target, prio, callbackFn)
 end
 
 local function pingCharacter(characterName, callbackFn)
+   ToggleChatSystemEvent(false)
    local rqTime =
       sendMessage(
       {
@@ -308,7 +322,18 @@ local function pingCharacter(characterName, callbackFn)
          key = Exlist.ConfigDB.accountSync.userKey
       },
       "WHISPER",
-      characterName
+      characterName,
+      nil,
+      function(_, done, total)
+         if (done >= total) then
+            C_Timer.After(
+               0.4,
+               function()
+                  ToggleChatSystemEvent(true)
+               end
+            )
+         end
+      end
    )
    if (callbackFn) then
       callbacks[rqTime] = callbackFn
