@@ -179,3 +179,15 @@ Exlist.DEFAULT_BACKDROP = {
    edgeSize = 1,
    insets = {left = 0, right = 0, top = 0, bottom = 0}
 }
+
+Exlist.Expansions = {
+   L["Vanilla"],
+   L["The Burning Crusade"],
+   L["Wrath of The Lich King"],
+   L["Cataclysm"],
+   L["Mists of Pandaria"],
+   L["Warlords of Draenor"],
+   L["Legion"],
+   L["Battle for Azeroth"],
+   L["Shadowlands"]
+}

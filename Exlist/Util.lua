@@ -251,6 +251,7 @@ end
 
 function Exlist.ReleaseActiveTooltips()
    for _, tooltip in ipairs(Exlist.activeTooltips or {}) do
+      Exlist.ClearFunctions(tooltip)
       QTip:Release(tooltip)
    end
    Exlist.activeTooltips = {}
@@ -437,4 +438,8 @@ function Exlist.ShortenNumber(number)
    end
 
    return string.format("%." .. dec .. "f" .. affixes[affix], num1)
+end
+
+function Exlist.GetSettings(key)
+   return Exlist.ConfigDB.settings[key] or {}
 end
