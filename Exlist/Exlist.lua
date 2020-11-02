@@ -1621,11 +1621,22 @@ function Exlist.SendFakeEvent(event, ...)
    frame.OnEvent(nil, event, ...)
 end
 
-local function func(...)
-   Exlist.SendFakeEvent("WORLD_MAP_OPEN")
+-- Have to do this as Elvui hooks into WorldMapFrame, attaches some kind of animation that runs every frame
+-- and calls :Show() every time :)
+local mapOpen = false
+local function openMap(...)
+   if not mapOpen then
+      Exlist.SendFakeEvent("WORLD_MAP_OPEN")
+      mapOpen = true
+   end
 end
 
-hooksecurefunc(WorldMapFrame, "Show", func)
+local function closeMap()
+   mapOpen = false
+end
+
+hooksecurefunc(WorldMapFrame, "Show", openMap)
+hooksecurefunc(WorldMapFrame, "Hide", closeMap)
 
 function Exlist.PrintUpdates()
    local realms, numRealms = GetRealms()
