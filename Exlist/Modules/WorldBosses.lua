@@ -169,10 +169,7 @@ local function Updater(e, info)
       Exlist.UpdateChar(key, t)
       Exlist.UpdateChar(key, gt, "global", "global")
       return
-   elseif
-      not (IsPlayerAtEffectiveMaxLevel()) or GetTime() - lastUpdate < 5 or IsInRaid() or
-         select(2, IsInInstance()) ~= "none"
-    then
+   elseif GetTime() - lastUpdate < 5 then
       -- Check for cached WB kill status
       local t = Exlist.GetCharacterTableKey((GetRealmName()), (UnitName("player")), key)
       local changed = false
@@ -214,7 +211,6 @@ local function Updater(e, info)
          end
       end
    end
-
    -- Check non WQ World Bosses that are enabled to track
    for questId, wb in pairs(wbSettings) do
       if (wb.enabled and not wb.wq) then
