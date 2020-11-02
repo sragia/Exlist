@@ -418,7 +418,7 @@ local function messageReceive(_, message, distribution, sender)
       return
    end
    local msgType = data.type
-   print("Msg Received ", msgType, sender)
+   Exlist.Debug("Msg Received ", msgType, sender)
    Exlist.Switch(
       msgType,
       {
