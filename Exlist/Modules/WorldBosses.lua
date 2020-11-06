@@ -478,7 +478,8 @@ local data = {
       "PLAYER_ENTERING_WORLD",
       "EJ_DIFFICULTY_UPDATE",
       "PLAYER_ENTERING_WORLD_DELAYED",
-      "WORLD_QUEST_SPOTTED"
+      "WORLD_QUEST_SPOTTED",
+      "BOSS_KILL"
    },
    description = L["Tracks World Boss availability for each character."],
    weeklyReset = true,
