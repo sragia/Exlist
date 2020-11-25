@@ -13,11 +13,31 @@ local L = Exlist.L
 
 local unknownIcon = "Interface\\ICONS\\INV_Misc_QuestionMark"
 
+local followerTypes = {
+   {type = Enum.GarrisonFollowerType.FollowerType_6_2, level = 40},
+   {type = Enum.GarrisonFollowerType.FollowerType_7_0, level = 45},
+   {type = Enum.GarrisonFollowerType.FollowerType_8_0, level = 50},
+   {type = Enum.GarrisonFollowerType.FollowerType_9_0, level = 60}
+}
+
+local function GetFollowerType()
+   local level = UnitLevel("player")
+   local followerType = Enum.GarrisonFollowerType.FollowerType_9_0
+   for _, types in ipairs(followerTypes) do
+      if (level >= types.level) then
+         followerType = types.type
+      end
+   end
+   return followerType
+end
+
 local function Updater(event)
    if event == "Exlist_DELAY" then
       return
    end
-   local followerType = UnitLevel("player") <= 110 and LE_FOLLOWER_TYPE_GARRISON_7_0 or LE_FOLLOWER_TYPE_GARRISON_8_0
+
+   local followerType = GetFollowerType()
+
    local mission = CG.GetInProgressMissions(followerType)
    local availMissions = CG.GetAvailableMissions(followerType)
    local t = {}
@@ -160,7 +180,7 @@ local function missionStrings(source, hasSuccess)
             "%ix|T%s:15:15|t %s",
             reward.quantity or "",
             reward.icon or unknownIcon,
-            reward.name or L["Unknown"]
+            reward.name.name or L["Unknown"]
          )
       elseif type(reward.quantity) == "string" then
          rewardString = string.format("|T%s:15:15|t%s", reward.icon or unknownIcon, reward.quantity or "")
