@@ -215,4 +215,4 @@ local data = {
    init = init
 }
 
-Exlist.RegisterModule(data)
+-- Exlist.RegisterModule(data) -- Temporary disable
