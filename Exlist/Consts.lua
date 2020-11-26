@@ -123,18 +123,18 @@ local Colors = {
       }
    },
    ilvlColors = {
-      -- BFA --
-      {ilvl = 320, str = "ff26ff3f"},
-      {ilvl = 340, str = "ff26ffba"},
-      {ilvl = 350, str = "ff26e2ff"},
-      {ilvl = 360, str = "ff26a0ff"},
-      {ilvl = 380, str = "ff2663ff"},
-      {ilvl = 400, str = "ff8e26ff"},
-      {ilvl = 410, str = "ffe226ff"},
-      {ilvl = 420, str = "ffff2696"},
-      {ilvl = 430, str = "ffff2634"},
-      {ilvl = 440, str = "ffff7526"},
-      {ilvl = 460, str = "ffffc526"}
+      -- Shadowlands --
+      {ilvl = 140, str = "ff26ff3f"},
+      {ilvl = 150, str = "ff26ffba"},
+      {ilvl = 160, str = "ff26e2ff"},
+      {ilvl = 170, str = "ff26a0ff"},
+      {ilvl = 180, str = "ff2663ff"},
+      {ilvl = 190, str = "ff8e26ff"},
+      {ilvl = 200, str = "ffe226ff"},
+      {ilvl = 210, str = "ffff2696"},
+      {ilvl = 220, str = "ffff2634"},
+      {ilvl = 230, str = "ffff7526"},
+      {ilvl = 240, str = "ffffc526"}
    },
    profColors = {
       {val = 20, color = "c6c3b4"},
