@@ -1,7 +1,6 @@
 local key = "dungeons"
 local prio = 110
 local L = Exlist.L
-local NUMBER_OF_DUNGEONS_BFA = 10
 local GetNumSavedInstances, GetSavedInstanceInfo = GetNumSavedInstances, GetSavedInstanceInfo
 local GetLFGDungeonInfo = GetLFGDungeonInfo
 local WrapTextInColorCode = WrapTextInColorCode
@@ -21,10 +20,12 @@ local dungeons = {
    2108 -- De Other Side
 }
 
+local NUMBER_OF_DUNGEONS = #dungeons
+
 local function Updater(event, ...)
    local t = {
       ["done"] = 0,
-      ["max"] = NUMBER_OF_DUNGEONS_BFA,
+      ["max"] = NUMBER_OF_DUNGEONS,
       ["dungeonList"] = dungeonNames
    }
    for i = 1, GetNumSavedInstances() do
