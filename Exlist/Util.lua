@@ -303,18 +303,14 @@ local function isArray(table)
       return false
    end
 
-   -- objects always return empty size
-   if #table > 0 then
-      return true
+   local tableNum = 0
+   local arrayNum = #table
+
+   for _ in pairs(table) do
+      tableNum = tableNum + 1
    end
 
-   -- only object can have empty length with elements inside
-   for k, v in pairs(table) do
-      return false
-   end
-
-   -- if no elements it can be array and not at same time
-   return true
+   return tableNum == arrayNum
 end
 
 local function copyTableInternal(source, seen)
