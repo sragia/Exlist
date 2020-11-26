@@ -180,12 +180,17 @@ local function missionStrings(source, hasSuccess)
             "%ix|T%s:15:15|t %s",
             reward.quantity or "",
             reward.icon or unknownIcon,
-            reward.name.name or L["Unknown"]
+            reward.name and reward.name.name or L["Unknown"]
          )
       elseif type(reward.quantity) == "string" then
          rewardString = string.format("|T%s:15:15|t%s", reward.icon or unknownIcon, reward.quantity or "")
       else
-         rewardString = string.format("|T%s:15:15|t %s", reward.icon or unknownIcon, reward.name.name or L["Unknown"])
+         rewardString =
+            string.format(
+            "|T%s:15:15|t %s",
+            reward.icon or unknownIcon,
+            reward.name and reward.name.name or L["Unknown"]
+         )
       end
       table.insert(t, {L["Reward"] .. ": " .. rewardString, ""})
    end
