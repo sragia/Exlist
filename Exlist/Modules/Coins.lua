@@ -46,6 +46,13 @@ local function Linegenerator(tooltip, data, character)
    if not data or not data.max or data.max <= 0 then
       return
    end
+
+   -- Dont show for below BFA level
+   local char = Exlist.GetCharacterEssentials(character.realm, character.name)
+   if (not char or char.level > 50) then
+      return
+   end
+
    local settings = Exlist.ConfigDB.settings
    local availableCoins =
       data.available > 0 and

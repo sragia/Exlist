@@ -1122,6 +1122,21 @@ function Exlist.GetCharacterTableKey(realm, name, key)
    return t
 end
 
+function Exlist.GetCharacterEssentials(realm, name)
+   local t = Exlist.GetCharacterTable(realm, name)
+   if (t.class) then
+      return {
+         class = t.class,
+         ilvl = t.ilvl,
+         name = t.name,
+         realm = t.realm,
+         specId = t.specId,
+         level = t.level
+      }
+   end
+   return false
+end
+
 function Exlist.CharacterExists(realm, name)
    if db[realm] and db[realm][name] then
       return true
