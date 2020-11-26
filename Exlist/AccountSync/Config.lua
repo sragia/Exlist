@@ -36,7 +36,7 @@ local function getPairedCharOptions(startOrder)
             order = order + 0.2,
             type = "description",
             name = info.accountID or "",
-            width = 0.5
+            width = 0.4
          }
          options[character .. "status"] = {
             order = order + 0.3,
@@ -60,7 +60,6 @@ local function getPairedCharOptions(startOrder)
 end
 
 local function AddOptions(refresh)
-   local settings = configDB.settings
    local tmpConfigs = {}
    local options = {
       type = "group",

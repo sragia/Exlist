@@ -298,6 +298,25 @@ function Exlist.Switch(condition, cases)
    return (cases[condition] or cases.default)()
 end
 
+local function isArray(table)
+   if type(table) ~= "table" then
+      return false
+   end
+
+   -- objects always return empty size
+   if #table > 0 then
+      return true
+   end
+
+   -- only object can have empty length with elements inside
+   for k, v in pairs(table) do
+      return false
+   end
+
+   -- if no elements it can be array and not at same time
+   return true
+end
+
 local function copyTableInternal(source, seen)
    if type(source) ~= "table" then
       return source
@@ -317,11 +336,15 @@ function Exlist.copyTable(source)
    return copyTableInternal(source, {})
 end
 
-local function tableMerge(t1, t2)
+local function tableMerge(t1, t2, rewriteArrays)
    for k, v in pairs(t2) do
       if type(v) == "table" then
          if type(t1[k] or false) == "table" then
-            tableMerge(t1[k] or {}, t2[k] or {})
+            if (rewriteArrays and isArray(t1[k])) then
+               t1[k] = v
+            else
+               tableMerge(t1[k] or {}, t2[k] or {})
+            end
          else
             t1[k] = v
          end
@@ -333,14 +356,18 @@ local function tableMerge(t1, t2)
 end
 Exlist.tableMerge = tableMerge
 
-local function diffTable(t1, t2, result)
+local function diffTable(t1, t2, result, ignoreArrays)
    for k, v in pairs(t2) do
       local t1Type = type(t1[k])
       local t2Type = type(t2[k])
       if (t1Type ~= t2Type) then
          result[k] = t2[k]
       elseif (t1Type == "table") then
-         result[k] = diffTable(t1[k], t2[k], {})
+         if (ignoreArrays and isArray(t1[k])) then
+            result[k] = t2[k]
+         else
+            result[k] = diffTable(t1[k], t2[k], {})
+         end
       elseif (t1[k] ~= t2[k]) then
          result[k] = t2[k]
       end
