@@ -489,7 +489,7 @@ Exlist.AuraFromId = AuraFromId
 
 function Exlist.Debug(...)
    if debugMode then
-      local debugString = string.format("|c%s[Exlist Debug]|r", Exlist.Exlist.Colors.debug)
+      local debugString = string.format("|c%s[Exlist Debug]|r", Exlist.Colors.debug)
       print(debugString, ...)
    end
 end
@@ -1446,15 +1446,20 @@ local function SendDelayedEvents()
    end
 end
 
+local IGNORED_EVENTS = {
+   ["UPDATE_UI_WIDGET"] = true
+}
+
 local function IsEventEligible(event)
    if runEvents[event] then
       if GetTime() - runEvents[event] > 0.5 then
          runEvents[event] = nil
          return true
-      else
+      elseif (not IGNORED_EVENTS[event]) then
          Exlist.Debug("Denied running event(", event, ")")
          return false
       end
+      return true
    else
       runEvents[event] = GetTime()
       return true
@@ -1522,7 +1527,6 @@ function frame:OnEvent(event, ...)
       end
       return
    end
-   -- if InCombatLockdown() then return end -- Don't update in combat
 
    Exlist.Debug("Event ", event, ...)
    if Exlist.ModuleData.updaters[event] then
