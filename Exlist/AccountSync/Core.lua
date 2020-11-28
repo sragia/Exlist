@@ -116,7 +116,7 @@ end
 
 local function getDbChanges()
    local filteredDb = getFilteredDB()
-   local changeDb = Exlist.diffTable(dbState, filteredDb, true)
+   local changeDb = Exlist.diffTable(dbState, filteredDb)
    dbState = filteredDb
    return changeDb
 end
@@ -137,7 +137,7 @@ end
 local function mergeInChanges(changes, accountID)
    if (validateChanges(changes)) then
       addMissingPairCharacters(changes, accountID)
-      Exlist.tableMerge(Exlist.DB, changes, true)
+      Exlist.tableMerge(Exlist.DB, changes)
       Exlist.AddMissingCharactersToSettings()
       Exlist.ConfigDB.settings.reorder = true
    end
