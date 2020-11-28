@@ -225,6 +225,7 @@ globals = {
 	"BuyReagentBank",
 	"BuyTrainerService",
 	"BuybackItem",
+	"C_UIWidgetManager",
 	"C_CurrencyInfo",
 	"C_ActionBar",
 	"C_AdventureJournal",
