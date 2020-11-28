@@ -109,88 +109,7 @@ local settings = {
    azeriteWeekly = true
 }
 
-local Colors = {
-   -- default colors
-   questTitle = "ffffd200",
-   missionName = "ffffd200",
-   questTypeHeading = "ff42c8f4",
-   faded = "ffc1c1c1",
-   hardfaded = "ff494949",
-   note = "fff4c842",
-   sideTooltipTitle = "ffffd200",
-   available = "ff00ff00",
-   completed = "ffff0000",
-   incomplete = "fff49b42",
-   notavailable = "fff49e42",
-   enchantName = "ff98f907",
-   debug = "ffc73000",
-   debugTime = {
-      short = "FF00FF00",
-      medium = "ffe5f441",
-      almostlong = "FFf48c42",
-      long = "FFFF0000"
-   },
-   questTypeTitle = {daily = "ff70afd8", weekly = "ffe0a34e"},
-   config = {
-      heading1 = "ffffd200",
-      heading2 = "ffffb600",
-      tableColumn = "ffffd200"
-   },
-   time = {long = "fff44141", medium = "FFf4a142", short = "FF00FF00"},
-   missions = {
-      completed = "ff00ff00",
-      inprogress = "FFf48642",
-      available = "FFefe704"
-   },
-   mythicplus = {
-      key = "ffd541e2",
-      times = {
-         "ffbfbfbf", -- depleted
-         "fffaff00", -- +1
-         "fffbdb00", -- +2
-         "fffacd0c" -- +3
-      }
-   },
-   ilvlColors = {
-      -- BFA --
-      {ilvl = 320, str = "ff26ff3f"},
-      {ilvl = 340, str = "ff26ffba"},
-      {ilvl = 350, str = "ff26e2ff"},
-      {ilvl = 360, str = "ff26a0ff"},
-      {ilvl = 380, str = "ff2663ff"},
-      {ilvl = 400, str = "ff8e26ff"},
-      {ilvl = 410, str = "ffe226ff"},
-      {ilvl = 420, str = "ffff2696"},
-      {ilvl = 430, str = "ffff2634"},
-      {ilvl = 440, str = "ffff7526"},
-      {ilvl = 460, str = "ffffc526"}
-   },
-   profColors = {
-      {val = 20, color = "c6c3b4"},
-      {val = 30, color = "dbd3ab"},
-      {val = 40, color = "e2d388"},
-      {val = 50, color = "efd96b"},
-      {val = 70, color = "ffe254"},
-      {val = 90, color = "ffde3d"},
-      {val = 110, color = "ffd921"},
-      {val = 130, color = "ffd50c"},
-      {val = 150, color = "ffae00"}
-   },
-   -- REPUTATION --
-   repColors = {
-      [1] = "ffe00000", -- Hated
-      [2] = "ffff3700", -- Hostile
-      [3] = "ffff8300", -- Unfriendly
-      [4] = "ffffc300", -- Neutral
-      [5] = "fff7ff20", -- Friendly
-      [6] = "ff5fff20", -- Honored
-      [7] = "ff2096ff", -- Revered
-      [8] = "ffd220ff", -- Exiled
-      [100] = "ffff20ca" -- Paragon
-   },
-   paragonReward = "fff4f142"
-}
-Exlist.Colors = Colors
+local Colors = Exlist.Colors
 
 --[[ Module prio list
 0 - mail
@@ -354,7 +273,7 @@ local function TimeLeftColor(timeLeft, times, col)
       return
    end
    times = times or {3600, 18000} -- default
-   local colors = col or {Colors.time.long, Colors.time.medium, Colors.time.short} -- default
+   local colors = col or {Exlist.Colors.time.long, Exlist.Colors.time.medium, Exlist.Colors.time.short} -- default
    for i = 1, #times do
       if timeLeft < times[i] then
          return WrapTextInColorCode(SecondsToTime(timeLeft), colors[i])
@@ -434,7 +353,7 @@ local function GetItemGems(itemLink)
             table.insert(
                t,
                {
-                  name = WrapTextInColorCode(L["Empty Slot"], Colors.faded),
+                  name = WrapTextInColorCode(L["Empty Slot"], Exlist.Colors.faded),
                   icon = tex
                }
             )
@@ -481,10 +400,10 @@ local function GetTimeLeftColor(time, inverse)
    local colorKeys = {"long", "medium", "short"}
    for i = 1, #times do
       if time > times[i] then
-         return inverse and Colors.time[colorKeys[4 - i]] or Colors.time[colorKeys[i]]
+         return inverse and Exlist.Colors.time[colorKeys[4 - i]] or Exlist.Colors.time[colorKeys[i]]
       end
    end
-   return inverse and Colors.time[colorKeys[1]] or Colors.time[colorKeys[3]]
+   return inverse and Exlist.Colors.time[colorKeys[1]] or Exlist.Colors.time[colorKeys[3]]
 end
 Exlist.GetTimeLeftColor = GetTimeLeftColor
 
@@ -570,7 +489,7 @@ Exlist.AuraFromId = AuraFromId
 
 function Exlist.Debug(...)
    if debugMode then
-      local debugString = string.format("|c%s[Exlist Debug]|r", Exlist.Colors.debug)
+      local debugString = string.format("|c%s[Exlist Debug]|r", Exlist.Exlist.Colors.debug)
       print(debugString, ...)
    end
 end
@@ -1544,13 +1463,13 @@ end
 
 local function DebugTimeColors(timeSpent)
    if timeSpent < 0.2 then
-      return WrapTextInColorCode(string.format("%.6f", timeSpent), Colors.debugTime.short)
+      return WrapTextInColorCode(string.format("%.6f", timeSpent), Exlist.Colors.debugTime.short)
    elseif timeSpent <= 1 then
-      return WrapTextInColorCode(string.format("%.6f", timeSpent), Colors.debugTime.medium)
+      return WrapTextInColorCode(string.format("%.6f", timeSpent), Exlist.Colors.debugTime.medium)
    elseif timeSpent <= 2 then
-      return WrapTextInColorCode(string.format("%.6f", timeSpent), Colors.debugTime.almostlong)
+      return WrapTextInColorCode(string.format("%.6f", timeSpent), Exlist.Colors.debugTime.almostlong)
    end
-   return WrapTextInColorCode(string.format("%.6f", timeSpent), Colors.debugTime.long)
+   return WrapTextInColorCode(string.format("%.6f", timeSpent), Exlist.Colors.debugTime.long)
 end
 
 function frame:OnEvent(event, ...)

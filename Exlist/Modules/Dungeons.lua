@@ -43,7 +43,7 @@ local function Updater(event, ...)
 end
 
 local function Linegenerator(tooltip, data, character)
-   if not data or data.done < 1 then
+   if not data then
       return
    end
    local info = {

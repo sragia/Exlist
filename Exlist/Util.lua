@@ -336,10 +336,10 @@ local function tableMerge(t1, t2, rewriteArrays)
    for k, v in pairs(t2) do
       if type(v) == "table" then
          if type(t1[k] or false) == "table" then
-            if (rewriteArrays and isArray(t1[k])) then
+            if (rewriteArrays and isArray(t2[k])) then
                t1[k] = v
             else
-               tableMerge(t1[k] or {}, t2[k] or {})
+               tableMerge(t1[k] or {}, t2[k] or {}, rewriteArrays)
             end
          else
             t1[k] = v
@@ -362,7 +362,7 @@ local function diffTable(t1, t2, result, ignoreArrays)
          if (ignoreArrays and isArray(t1[k])) then
             result[k] = t2[k]
          else
-            result[k] = diffTable(t1[k], t2[k], {})
+            result[k] = diffTable(t1[k], t2[k], {}, ignoreArrays)
          end
       elseif (t1[k] ~= t2[k]) then
          result[k] = t2[k]

@@ -26,8 +26,8 @@ Libs\LibSerialize\lib.xml
 Init.lua
 locales.xml
 
-Exlist.lua
 Consts.lua
+Exlist.lua
 Util.lua
 Config.lua
 AccountSync\Config.lua
