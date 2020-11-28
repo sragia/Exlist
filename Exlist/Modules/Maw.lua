@@ -36,10 +36,17 @@ end
 local function GetEyeOfTheJailerProgress(widgetId)
   local info = C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(widgetId)
   local stage = EOJ_STAGES[widgetId] or 0
+  if (info.barValue == 0) then
+    -- Returns as 0 when returning to Oribos
+    -- Cant catch it by zoneId as we are still in maw theoretically
+    return false
+  end
+  local stageProgress = info.barValue - info.barMin
   return {
     stage = stage or 0,
-    stageProgress = info.barValue - info.barMin,
-    stageMax = info.barMax - info.barMin
+    stageProgress = stageProgress > 0 and stageProgress or 0,
+    stageMax = info.barMax - info.barMin,
+    tooltip = info.tooltip
   }
 end
 
@@ -64,7 +71,7 @@ local function Updater(event, widgetInfo)
       local widget = MAW_WIDGETS[widgetId]
       local widgetInfo = C_UIWidgetManager.GetTextureWithAnimationVisualizationInfo(widget)
       if (widgetInfo.shownState == 1) then
-        data.eoj = GetEyeOfTheJailerProgress(widgetId)
+        data.eoj = GetEyeOfTheJailerProgress(widgetId) or data.eoj
       end
     end
   else
@@ -94,13 +101,20 @@ local function Linegenerator(tooltip, data, character)
     -- colOff = 0,
     -- dontResize = false,
     -- pulseAnim = false,
-    -- OnEnter = function() end,
-    -- OnEnterData = {},
-    -- OnLeave = function() end,
-    -- OnLeaveData = {},
     -- OnClick = function() end,
     -- OnClickData = {},
   }
+
+  if (data.eoj.tooltip) then
+    info.OnEnter = Exlist.CreateSideTooltip()
+    info.OnEnterData = {
+      body = {
+        data.eoj.tooltip
+      },
+      title = GetStageString(data.eoj.stage)
+    }
+    info.OnLeave = Exlist.DisposeSideTooltip()
+  end
 
   Exlist.AddData(info)
 end
