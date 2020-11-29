@@ -29,6 +29,7 @@ local function Linegenerator(tooltip, data, character)
       data = WrapTextInColorCode(L["Got Mail!"], colors.available)
    }
    local t = {title = WrapTextInColorCode(L["Senders"], colors.sideTooltipTitle), body = {}}
+   data.senders = data.senders or {}
    for i = 1, #data.senders do
       table.insert(t.body, {data.senders[i]})
    end
