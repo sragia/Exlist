@@ -54,7 +54,7 @@ local function FindEyeOfTheJailerWidget()
   for widgetId, shownWidgetId in pairs(MAW_WIDGETS) do
     local info = C_UIWidgetManager.GetTextureWithAnimationVisualizationInfo(shownWidgetId)
 
-    if (info.shownState == 1) then
+    if (info and info.shownState == 1) then
       return GetEyeOfTheJailerProgress(widgetId)
     end
   end
@@ -70,7 +70,7 @@ local function Updater(event, widgetInfo)
     if (widgetInfo and MAW_WIDGETS[widgetId]) then
       local widget = MAW_WIDGETS[widgetId]
       local widgetInfo = C_UIWidgetManager.GetTextureWithAnimationVisualizationInfo(widget)
-      if (widgetInfo.shownState == 1) then
+      if (widgetInfo and widgetInfo.shownState == 1) then
         data.eoj = GetEyeOfTheJailerProgress(widgetId) or data.eoj
       end
     end
