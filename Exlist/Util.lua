@@ -394,8 +394,8 @@ local function removeEmptyTable(t)
    end
 end
 
-function Exlist.diffTable(t1, t2)
-   local diff = diffTable(t1, t2, {})
+function Exlist.diffTable(t1, t2, ignoreArrays)
+   local diff = diffTable(t1, t2, {}, ignoreArrays)
    return removeEmptyTable(diff)
 end
 

@@ -31,6 +31,37 @@ local function GetFollowerType()
    return followerType
 end
 
+local function GetMissionRewards(rewards)
+   local reward = {}
+   for i = 1, #rewards do
+      reward[i] = {}
+      local r = reward[i]
+      if rewards[i].currencyID and rewards[i].currencyID == 0 then
+         -- gold
+         r.icon = rewards[i].icon
+         r.quantity = GetMoneyString(rewards[i].quantity)
+         r.name = rewards[i].title
+      elseif rewards[i].itemID then
+         -- item
+         local itemInfo = Exlist.GetCachedItemInfo(rewards[i].itemID)
+         r.quantity = rewards[i].quantity
+         r.name = itemInfo.name
+         r.icon = itemInfo.texture
+      elseif rewards[i].currencyID then
+         local info = C_CurrencyInfo.GetCurrencyInfo(rewards[i].currencyID)
+         r.quantity = rewards[i].quantity
+         r.name = info.name
+         r.icon = info.iconFileID
+      elseif rewards[i].followerXP then
+         r.quantity = 1
+         r.icon = rewards[i].icon
+         r.name = rewards[i].title
+      end
+   end
+
+   return reward
+end
+
 local function Updater(event)
    if event == "Exlist_DELAY" then
       return
@@ -47,33 +78,11 @@ local function Updater(event)
       for i = 1, #mission do
          local endTime = mission[i].missionEndTime
          local successChance = CG.GetMissionSuccessChance(mission[i].missionID)
-         -- rewards
-         local r = mission[i].rewards
-         local reward = {}
-         for i = 1, #r do
-            if r[i].currencyID and r[i].currencyID == 0 then
-               -- gold
-               reward.icon = r[i].icon
-               reward.quantity = GetMoneyString(r[i].quantity)
-               reward.name = r[i].title
-            elseif r[i].itemID then
-               -- item
-               local itemInfo = Exlist.GetCachedItemInfo(r[i].itemID)
-               reward.quantity = r[i].quantity
-               reward.name = itemInfo.name
-               reward.icon = itemInfo.texture
-            elseif r[i].currencyID then
-               local name, _, icon = C_CurrencyInfo.GetCurrencyInfo(r[i].currencyID)
-               reward.quantity = r[i].quantity
-               reward.name = name
-               reward.icon = icon
-            end
-         end
+         local reward = GetMissionRewards(mission[i].rewards)
          local mis = {
             ["name"] = mission[i].name,
             ["endTime"] = endTime,
-            ["rewards"] = reward,
-            ["successChance"] = successChance
+            ["rewards"] = reward
          }
          table.insert(t, mis)
       end
@@ -81,32 +90,7 @@ local function Updater(event)
    if availMissions then
       -- available
       for i = 1, #availMissions do
-         -- rewards
-         local r = availMissions[i].rewards
-         local reward = {}
-         for i = 1, #r do
-            if r[i].currencyID and r[i].currencyID == 0 then
-               -- gold
-               reward.icon = r[i].icon
-               reward.quantity = GetMoneyString(r[i].quantity)
-               reward.name = r[i].title
-            elseif r[i].itemID then
-               -- item
-               local itemInfo = Exlist.GetCachedItemInfo(r[i].itemID)
-               reward.quantity = r[i].quantity
-               reward.name = itemInfo.name
-               reward.icon = itemInfo.texture
-            elseif r[i].currencyID then
-               local name, _, icon = C_CurrencyInfo.GetCurrencyInfo(r[i].currencyID)
-               reward.quantity = r[i].quantity
-               reward.name = name
-               reward.icon = icon
-            elseif r[i].followerXP then
-               reward.quantity = 1
-               reward.icon = r[i].icon
-               reward.name = r[i].title
-            end
-         end
+         local reward = GetMissionRewards(availMissions[i].rewards)
          local offer = availMissions[i].offerEndTime
          if offer then
             offer = currTime + (offer - GetTime())
@@ -124,36 +108,59 @@ local function Updater(event)
    end
 end
 
-local function missionStrings(source, hasSuccess)
+local function GetRewardsString(rewards)
+   local rewardString = ""
+
+   for _, reward in ipairs(rewards) do
+      if (rewardString ~= "") then
+         rewardString = rewardString .. " / "
+      end
+      if type(reward.quantity) == "number" and reward.quantity > 1 then
+         rewardString =
+            string.format(
+            "%s%ix|T%s:15:15|t %s",
+            rewardString,
+            reward.quantity or "",
+            reward.icon or unknownIcon,
+            reward.name or L["Unknown"]
+         )
+      elseif type(reward.quantity) == "string" then
+         rewardString =
+            string.format("%s|T%s:15:15|t%s", rewardString, reward.icon or unknownIcon, reward.quantity or "")
+      else
+         rewardString =
+            string.format("%s|T%s:15:15|t %s", rewardString, reward.icon or unknownIcon, reward.name or L["Unknown"])
+      end
+   end
+   return rewardString
+end
+
+local function missionStrings(source, hasTime)
    local t = {}
    if type(source) ~= "table" then
       return
    end
    local ti = time()
    for i = 1, #source do
-      if hasSuccess then
+      if hasTime then
          if source[i].endTime > ti then
             table.insert(
                t,
                {
                   WrapTextInColorCode(source[i].name, colors.missionName),
                   string.format(
-                     "%s: %s (%i%%)",
+                     "%s: %s",
                      L["Time Left"],
                      Exlist.TimeLeftColor(
                         (source[i].endTime - ti) or 0,
                         {1800, 7200},
                         {colors.time.short, colors.time.medium, colors.time.long}
-                     ),
-                     source[i].successChance
+                     )
                   )
                }
             )
          else
-            table.insert(
-               t,
-               {WrapTextInColorCode(source[i].name, colors.missionName), string.format("%i%%", source[i].successChance)}
-            )
+            table.insert(t, {WrapTextInColorCode(source[i].name, colors.missionName)})
          end
       else
          table.insert(
@@ -172,27 +179,7 @@ local function missionStrings(source, hasSuccess)
             }
          )
       end
-      local reward = source[i].rewards
-      local rewardString = ""
-      if type(reward.quantity) == "number" and reward.quantity > 1 then
-         rewardString =
-            string.format(
-            "%ix|T%s:15:15|t %s",
-            reward.quantity or "",
-            reward.icon or unknownIcon,
-            reward.name and reward.name.name or L["Unknown"]
-         )
-      elseif type(reward.quantity) == "string" then
-         rewardString = string.format("|T%s:15:15|t%s", reward.icon or unknownIcon, reward.quantity or "")
-      else
-         rewardString =
-            string.format(
-            "|T%s:15:15|t %s",
-            reward.icon or unknownIcon,
-            reward.name and reward.name.name or L["Unknown"]
-         )
-      end
-      table.insert(t, {L["Reward"] .. ": " .. rewardString, ""})
+      table.insert(t, {L["Reward"] .. ": " .. GetRewardsString(source[i].rewards), ""})
    end
    return t
 end
