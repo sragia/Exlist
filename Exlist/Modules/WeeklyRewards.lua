@@ -34,6 +34,10 @@ end
 local function formatLevel(type, level)
    if type == Enum.WeeklyRewardChestThresholdType.MythicPlus then
       return string.format("+%s", level)
+   elseif type == Enum.WeeklyRewardChestThresholdType.Raid then
+      return DifficultyUtil.GetDifficultyName(level)
+   elseif type == Enum.WeeklyRewardChestThresholdType.RankedPvP then
+      return PVPUtil.GetTierName(level)
    end
    return level
 end

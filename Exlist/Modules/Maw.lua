@@ -23,13 +23,17 @@ local EOJ_STAGES = {
 
 local STAGE_COLORS = {
   [0] = "ffffffff",
-  [1] = "fffbffb5",
-  [2] = "fffce914",
-  [3] = "ffff8000",
-  [4] = "ffff0000"
+  [1] = "fff5ff82",
+  [2] = "fff5dd42",
+  [3] = "fff5aa42",
+  [4] = "fff56642",
+  [5] = "ffff0000"
 }
 
-local function GetStageString(stage)
+local function GetStageString(stage, stageProgress)
+  if (stageProgress >= 100) then
+    stage = stage + 1
+  end
   return string.format("|c%s%s %i|r", STAGE_COLORS[stage or 0], L["Tier"], stage)
 end
 
@@ -88,6 +92,7 @@ local function Linegenerator(tooltip, data, character)
   if (not data or not data.eoj) then
     return
   end
+  local stageProgress = (data.eoj.stageProgress / data.eoj.stageMax) * 100
   local info = {
     character = character,
     priority = prio,
@@ -95,8 +100,8 @@ local function Linegenerator(tooltip, data, character)
     titleName = L["Eye of the Jailer"],
     data = string.format(
       "%s %.1f%%",
-      GetStageString(data.eoj.stage),
-      (data.eoj.stageProgress / data.eoj.stageMax) * 100
+      GetStageString(data.eoj.stage, stageProgress),
+      stageProgress >= 100 and 0 or stageProgress
     )
     -- colOff = 0,
     -- dontResize = false,
@@ -111,7 +116,7 @@ local function Linegenerator(tooltip, data, character)
       body = {
         data.eoj.tooltip
       },
-      title = GetStageString(data.eoj.stage)
+      title = GetStageString(data.eoj.stage, stageProgress)
     }
     info.OnLeave = Exlist.DisposeSideTooltip()
   end
