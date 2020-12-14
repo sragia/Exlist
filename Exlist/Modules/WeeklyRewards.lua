@@ -42,6 +42,47 @@ local function formatLevel(type, level)
    return level
 end
 
+local function getCurrentIlvl(id)
+   local exampleItem, upgradeItem = C_WeeklyRewards.GetExampleRewardItemHyperlinks(id)
+   local data = {}
+
+   if exampleItem then
+      data.ilvl = GetDetailedItemLevelInfo(exampleItem)
+   end
+   if upgradeItem then
+      data.upgradeIlvl = GetDetailedItemLevelInfo(upgradeItem)
+   end
+
+   return data
+end
+
+local function getActivityTooltip(id, type, progress, threshold)
+   local sideTooltip = {body = {}}
+   local ilvls = getCurrentIlvl(id)
+
+   if ilvls.ilvl then
+      table.insert(sideTooltip.body, {L["Current"], string.format("%s %s", ilvls.ilvl, L["ilvl"])})
+   end
+   if ilvls.upgradeIlvl then
+      table.insert(sideTooltip.body, {L["Upgrade"], string.format("%s %s", ilvls.upgradeIlvl, L["ilvl"])})
+   end
+
+   local typeName = ""
+
+   if type == Enum.WeeklyRewardChestThresholdType.MythicPlus then
+      typeName = L["Mythic+"]
+   elseif type == Enum.WeeklyRewardChestThresholdType.Raid then
+      typeName = L["Raid"]
+   elseif type == Enum.WeeklyRewardChestThresholdType.RankedPvP then
+      typeName = L["PvP"]
+   end
+
+   sideTooltip.title =
+      WrapTextInColorCode(string.format("%s %i/%i", typeName, progress, threshold), colors.sideTooltipTitle)
+
+   return sideTooltip
+end
+
 local function Updater(event)
    local t = {}
 
@@ -104,6 +145,10 @@ local function Linegenerator(tooltip, data, character)
             Exlist.ShortenNumber(activity.progress),
             Exlist.ShortenNumber(activity.threshold)
          ) .. (activity.level > 0 and string.format(" (%s)", formatLevel(activity.type, activity.level)) or "")
+
+         info.OnEnter = Exlist.CreateSideTooltip()
+         info.OnEnterData = getActivityTooltip(activity.id, activity.type, activity.progress, activity.threshold)
+         info.OnLeave = Exlist.DisposeSideTooltip()
          infoTables[info.moduleName] = infoTables[info.moduleName] or {}
          table.insert(infoTables[info.moduleName], Exlist.copyTable(info))
          cellIndex = cellIndex + 1
