@@ -34,7 +34,16 @@ local mapTimes = {
    [227] = {2340, 1872, 1404}, -- Kara: Lower
    [233] = {2100, 1680, 1260}, -- Cath
    [234] = {2100, 1680, 1260}, -- Kara: Upper
-   [239] = {2100, 1680, 1260} -- Seat
+   [239] = {2100, 1680, 1260}, -- Seat
+   -- SL
+   [375] = {1800, 1440, 1080}, -- Mists of Tirna Scithe
+   [376] = {2160, 1728, 1296}, -- Necrotic Wake
+   [377] = {2340, 1872, 1404}, -- De Other Side
+   [378] = {1860, 1488, 1116}, -- Halls of Atonement
+   [379] = {2280, 1824, 1358}, -- Plaguefall
+   [380] = {2460, 1944, 1476}, -- Sanguine Depths
+   [381] = {2340, 1872, 1404}, -- Spires of Ascension
+   [382] = {2220, 1776, 1332} -- Theater of Pain
 }
 local mapIds = {}
 
@@ -128,14 +137,6 @@ local function Updater(event)
          available = false
       }
    }
-   -- check for available weekly chest
-   if C_MythicPlus.IsWeeklyRewardAvailable() then
-      local _, level = C_MythicPlus.GetLastWeeklyBestInformation()
-      t.chest = {
-         available = true,
-         level = level
-      }
-   end
 
    Exlist.UpdateChar(key, t)
 end
@@ -175,8 +176,6 @@ local function Linegenerator(tooltip, data, character)
    if data.chest and data.chest.available then
       info.data = WrapTextInColorCode(string.format("+%i %s", data.chest.level, L["Chest Available"]), colors.available)
       info.pulseAnim = true
-   elseif data.bestLvl and data.bestLvl >= 2 then
-      info.data = "+" .. (data.bestLvl or "") .. " " .. dungeonName
    else
       return
    end
