@@ -137,14 +137,6 @@ local function Updater(event)
          available = false
       }
    }
-   -- check for available weekly chest
-   if C_MythicPlus.IsWeeklyRewardAvailable() then
-      local _, level = C_MythicPlus.GetLastWeeklyBestInformation()
-      t.chest = {
-         available = true,
-         level = level
-      }
-   end
 
    Exlist.UpdateChar(key, t)
 end
@@ -184,8 +176,6 @@ local function Linegenerator(tooltip, data, character)
    if data.chest and data.chest.available then
       info.data = WrapTextInColorCode(string.format("+%i %s", data.chest.level, L["Chest Available"]), colors.available)
       info.pulseAnim = true
-   elseif data.bestLvl and data.bestLvl >= 2 then
-      info.data = "+" .. (data.bestLvl or "") .. " " .. dungeonName
    else
       return
    end
