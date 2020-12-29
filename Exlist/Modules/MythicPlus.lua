@@ -173,9 +173,8 @@ local function Linegenerator(tooltip, data, character)
       priority = prio,
       titleName = L["Best Mythic+"]
    }
-   if data.chest and data.chest.available then
-      info.data = WrapTextInColorCode(string.format("+%i %s", data.chest.level, L["Chest Available"]), colors.available)
-      info.pulseAnim = true
+   if data.bestLvl and data.bestLvl >= 2 then
+      info.data = "+" .. (data.bestLvl or "") .. " " .. dungeonName
    else
       return
    end
