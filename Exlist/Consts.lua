@@ -1,7 +1,7 @@
 local L = Exlist.L
 
 -- CONSTANTS
-local MAX_CHARACTER_LEVEL = 50
+local MAX_CHARACTER_LEVEL = 60
 local MAX_PROFESSION_LEVEL = 150
 if GetExpansionLevel() == 6 then
    MAX_CHARACTER_LEVEL = 110
@@ -90,6 +90,7 @@ local Colors = {
    note = "fff4c842",
    sideTooltipTitle = "ffffd200",
    available = "ff00ff00",
+   torghastAvailable = "ffffd200",
    completed = "ffff0000",
    incomplete = "fff49b42",
    notavailable = "fff49e42",

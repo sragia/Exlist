@@ -2,7 +2,7 @@ local key = "maw"
 local prio = 15
 local Exlist = Exlist
 local L = Exlist.L
---local colors = Exlist.Colors
+local colors = Exlist.Colors
 --local strings = Exlist.Strings
 
 local MAW_WIDGETS = {
@@ -28,6 +28,15 @@ local STAGE_COLORS = {
   [3] = "fff5aa42",
   [4] = "fff56642",
   [5] = "ffff0000"
+}
+
+local TORGHAST_WIDGETS = {
+  {name = 2925, level = 2930}, -- Fracture Chambers
+  {name = 2926, level = 2932}, -- Skoldus Hall
+  {name = 2924, level = 2934}, -- Soulforges
+  {name = 2927, level = 2936}, -- Coldheart Interstitia
+  {name = 2928, level = 2938}, -- Mort'regar
+  {name = 2929, level = 2940} -- The Upper Reaches
 }
 
 local function GetStageString(stage, stageProgress)
@@ -65,10 +74,36 @@ local function FindEyeOfTheJailerWidget()
   return false
 end
 
+local function GetTorghastProgress()
+  local data = {}
+  for _, widgets in ipairs(TORGHAST_WIDGETS) do
+    local nameData = C_UIWidgetManager.GetTextWithStateWidgetVisualizationInfo(widgets.name)
+    if (nameData.shownState == 1) then
+      -- Available this week
+      local levelData = C_UIWidgetManager.GetTextWithStateWidgetVisualizationInfo(widgets.level)
+      if (levelData) then
+        table.insert(
+          data,
+          {
+            name = nameData.text,
+            level = levelData.shownState == 1 and levelData.text or
+              string.format("|c%s%s|r", colors.torghastAvailable, L["Available"])
+          }
+        )
+      end
+    end
+  end
+
+  return data
+end
+
 local function Updater(event, widgetInfo)
   local character = UnitName("player")
   local realm = GetRealmName()
   local data = Exlist.GetCharacterTableKey(realm, character, key)
+  if (UnitLevel("player") < Exlist.constants.MAX_CHARACTER_LEVEL) then
+    return
+  end
   if (event == "UPDATE_UI_WIDGET") then
     local widgetId = widgetInfo and widgetInfo.widgetID
     if (widgetInfo and MAW_WIDGETS[widgetId]) then
@@ -79,49 +114,66 @@ local function Updater(event, widgetInfo)
       end
     end
   else
-    local data = FindEyeOfTheJailerWidget()
+    local eojData = FindEyeOfTheJailerWidget()
 
-    if (data) then
-      data.eoj = data
+    if (eojData) then
+      data.eoj = eojData
     end
   end
+  data.torghast = GetTorghastProgress() or data.torghast
   Exlist.UpdateChar(key, data)
 end
 
 local function Linegenerator(tooltip, data, character)
-  if (not data or not data.eoj) then
+  if (not data) then
     return
   end
-  local stageProgress = (data.eoj.stageProgress / data.eoj.stageMax) * 100
-  local info = {
-    character = character,
-    priority = prio,
-    moduleName = key,
-    titleName = L["Eye of the Jailer"],
-    data = string.format(
-      "%s %.1f%%",
-      GetStageString(data.eoj.stage, stageProgress),
-      stageProgress >= 100 and 0 or stageProgress
-    )
-    -- colOff = 0,
-    -- dontResize = false,
-    -- pulseAnim = false,
-    -- OnClick = function() end,
-    -- OnClickData = {},
-  }
-
-  if (data.eoj.tooltip) then
-    info.OnEnter = Exlist.CreateSideTooltip()
-    info.OnEnterData = {
-      body = {
-        data.eoj.tooltip
-      },
-      title = GetStageString(data.eoj.stage, stageProgress)
+  -- Maw - Eye of the Jailer
+  if (data.eoj) then
+    local stageProgress = (data.eoj.stageProgress / data.eoj.stageMax) * 100
+    local info = {
+      character = character,
+      priority = prio,
+      moduleName = key,
+      titleName = L["Eye of the Jailer"],
+      data = string.format(
+        "%s %.1f%%",
+        GetStageString(data.eoj.stage, stageProgress),
+        stageProgress >= 100 and 0 or stageProgress
+      )
+      -- colOff = 0,
+      -- dontResize = false,
+      -- pulseAnim = false,
+      -- OnClick = function() end,
+      -- OnClickData = {},
     }
-    info.OnLeave = Exlist.DisposeSideTooltip()
+
+    if (data.eoj.tooltip) then
+      info.OnEnter = Exlist.CreateSideTooltip()
+      info.OnEnterData = {
+        body = {
+          data.eoj.tooltip
+        },
+        title = GetStageString(data.eoj.stage, stageProgress)
+      }
+      info.OnLeave = Exlist.DisposeSideTooltip()
+    end
+    Exlist.AddData(info)
   end
 
-  Exlist.AddData(info)
+  -- Torghast
+  if (data.torghast) then
+    for i, data in ipairs(data.torghast) do
+      local info = {
+        character = character,
+        priority = prio + (i / 10),
+        moduleName = key .. data.name,
+        titleName = data.name:gsub("|n", ""),
+        data = data.level
+      }
+      Exlist.AddData(info)
+    end
+  end
 end
 
 --[[
@@ -170,10 +222,6 @@ local function ResetHandler(resetType)
       end
     end
   end
-  -- reset Bonus quest
-  if resetType == "weekly" then
-    Exlist.ConfigDB.settings.unsortedFolder.weekly.bonusQuestId = nil
-  end
 end
 
 --[[
@@ -188,15 +236,15 @@ end
 Exlist.ModuleToBeAdded(AddOptions)
 ]]
 local data = {
-  name = L["Currency"],
+  name = L["Maw"],
   key = key,
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
   event = {"UPDATE_UI_WIDGET", "PLAYER_ENTERING_WORLD"},
-  weeklyReset = false,
+  weeklyReset = true,
   dailyReset = true,
-  description = L["Track eye of the jailer buff for the player"],
+  description = L["Track eye of the jailer buff for the player and Torghast"],
   -- globallgenerator = GlobalLineGenerator,
   -- type = 'customTooltip'
   -- modernize = Modernize,

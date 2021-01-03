@@ -153,7 +153,7 @@ end
 Exlist.ModuleToBeAdded(AddOptions)
 ]]
 local data = {
-   name = L["Currency"],
+   name = L["Callings"],
    key = key,
    linegenerator = Linegenerator,
    priority = prio,
@@ -161,7 +161,7 @@ local data = {
    event = {"COVENANT_CALLINGS_UPDATED"},
    weeklyReset = false,
    dailyReset = false,
-   description = L[""],
+   description = L["Tracks characters available callings"],
    -- globallgenerator = GlobalLineGenerator,
    -- type = 'customTooltip'
    -- modernize = Modernize,
