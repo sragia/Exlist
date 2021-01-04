@@ -4313,6 +4313,8 @@ globals = {
 	"C_DateAndTime",
 	"C_MythicPlus",
 	"C_Calendar",
+	"C_Covenants",
+	"C_CovenantSanctumUI",
 	"C_QuestLog",
 	"C_Reputation",
 	"Enum",

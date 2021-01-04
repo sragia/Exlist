@@ -123,6 +123,12 @@ local Colors = {
          "fffacd0c" -- +3
       }
    },
+   covenant = {
+      "ff0ad5f5", -- Kyrian
+      "fff50a0a", -- Venthyr
+      "ffb007e3", -- NightFae
+      "ff00b837" -- Necrolord
+   },
    ilvlColors = {
       -- Shadowlands --
       {ilvl = 140, str = "ff26ff3f"},

@@ -19,5 +19,6 @@
   <Script file="WeeklyRewards.lua" />
   <Script file="Callings.lua" />
   <Script file="Maw.lua" />
+  <Script file="Covenant.lua" />
 
 </Ui>
