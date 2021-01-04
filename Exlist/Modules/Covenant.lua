@@ -106,8 +106,9 @@ local function Linegenerator(tooltip, data, character)
         local remaining = feature.endTime - time()
         upgradeString =
           string.format(
-          " (%s |c%s%s|r)",
+          " (%s%s|c%s%s|r)",
           remaining > 0 and L["Upgrading"] or "",
+          remaining > 0 and " " or "",
           remaining > 0 and Exlist.GetTimeLeftColor(remaining) or colors.available,
           remaining > 0 and Exlist.FormatTime(remaining) or L["Upgrade Ready"]
         )
