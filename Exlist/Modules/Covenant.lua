@@ -48,7 +48,8 @@ local function GetFeatureData(features)
     if (data.treeId) then
       local treeInfo = C_Garrison.GetTalentTreeInfo(data.treeId)
       data.name = treeInfo.title
-      data.tier = GetCurrentTier(treeInfo.talents)
+      local tier = GetCurrentTier(treeInfo.talents)
+      data.tier = data.tier and data.tier > tier and data.tier or tier -- Make Sure data has been loaded?
       local remainingTime = GetRemainingUpgradeTime(treeInfo.talents)
       data.endTime = remainingTime and time() + remainingTime
     end
@@ -69,11 +70,8 @@ local function Updater(event)
 
   if (event == "COVENANT_SANCTUM_INTERACTION_STARTED") then
     -- Get TreeIds for sanctum upgrades
-    data.features = GetFeatureIds()
+    data.features = GetFeatureData(GetFeatureIds())
   end
-
-  -- Can get data without having ui open
-  data.features = GetFeatureData(data.features)
 
   Exlist.UpdateChar(key, data)
 end
