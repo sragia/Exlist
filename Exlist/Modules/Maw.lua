@@ -217,7 +217,9 @@ local function ResetHandler(resetType)
             stageMax = 1000
           }
         end
-
+        if (resetType == "weekly") then
+          data.torghast = {}
+        end
         Exlist.UpdateChar(key, data, character, realm)
       end
     end
