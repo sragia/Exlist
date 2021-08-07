@@ -5,6 +5,21 @@ local L = Exlist.L
 local colors = Exlist.Colors
 --local strings = Exlist.Strings
 
+local ANIMA_QUESTS = {61984, 61981, 61982, 61983}
+
+local function colorProgress(curr, target)
+  local perc = curr / target
+  if (perc < 0.3) then
+    return "fffc3503"
+  elseif (perc < 0.7) then
+    return "FFfc8403"
+  elseif (perc < 0.99) then
+    return "ffa1fc03"
+  else
+    return "ff00ff00"
+  end
+end
+
 local function GetCurrentTier(talents)
   local currentTier = 0
   for i, talentInfo in ipairs(talents) do
@@ -57,10 +72,62 @@ local function GetFeatureData(features)
   return features
 end
 
+local function GetWeeklyRenownQuestProgress()
+  local data = {}
+  -- Shaping Fate (63949)
+  if (C_TaskQuest.IsActive(63949)) then
+    table.insert(
+      data,
+      {
+        completed = false,
+        progress = string.format("%i%%", GetQuestProgressBarPercent(63949)),
+        progressColor = colorProgress(GetQuestProgressBarPercent(63949), 100),
+        name = L["Korthia"]
+      }
+    )
+  elseif (C_QuestLog.IsQuestFlaggedCompleted(63949)) then
+    table.insert(
+      data,
+      {
+        completed = true,
+        name = L["Korthia"]
+      }
+    )
+  end
+
+  -- Anima
+  for _, questId in ipairs(ANIMA_QUESTS) do
+    if (C_QuestLog.IsOnQuest(questId)) then
+      local objective = C_QuestLog.GetQuestObjectives(questId)[1]
+      table.insert(
+        data,
+        {
+          completed = false,
+          progress = string.format("%i/%i", objective.numFulfilled, objective.numRequired),
+          progressColor = colorProgress(objective.numFulfilled, objective.numRequired),
+          name = L["Anima"]
+        }
+      )
+    elseif (C_QuestLog.IsQuestFlaggedCompleted(questId)) then
+      table.insert(
+        data,
+        {
+          completed = true,
+          name = L["Anima"]
+        }
+      )
+    end
+  end
+
+  return data
+end
+
 local function Updater(event)
   local character = UnitName("player")
   local realm = GetRealmName()
-  if (UnitLevel('player') < Exlist.constants.MAX_CHARACTER_LEVEL) then return end
+  if (UnitLevel("player") < Exlist.constants.MAX_CHARACTER_LEVEL) then
+    return
+  end
   local data = Exlist.GetCharacterTableKey(realm, character, key)
   local covenantId = C_Covenants.GetActiveCovenantID()
   local covenantData = C_Covenants.GetCovenantData(covenantId)
@@ -68,6 +135,7 @@ local function Updater(event)
   data.id = covenantId
   data.name = covenantData.name
   data.renownLevel = renownLevel
+  data.quests = GetWeeklyRenownQuestProgress()
 
   if (event == "COVENANT_SANCTUM_INTERACTION_STARTED") then
     -- Get TreeIds for sanctum upgrades
@@ -120,6 +188,28 @@ local function Linegenerator(tooltip, data, character)
   end
 
   Exlist.AddData(info)
+
+  if (data.quests) then
+    for index, value in ipairs(data.quests) do
+      Exlist.AddData(
+        {
+          character = character,
+          priority = prio + 0.1,
+          moduleName = key .. "quests",
+          titleName = L["Renown Quests"],
+          colOff = index - 1,
+          dontResize = true,
+          data = string.format(
+            "|c%s%s:|r |c%s%s|r",
+            colors.faded,
+            value.name,
+            value.completed and "ffffffff" or value.progressColor,
+            value.completed and string.format("|T%s:0|t", Exlist.OKMark) or value.progress
+          )
+        }
+      )
+    end
+  end
 end
 
 --[[
