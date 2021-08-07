@@ -6,6 +6,7 @@
 ## Version: @project-version@
 ## X-Curse-Project-ID: 284907
 ## X-WoWI-ID: 24636
+## X-Wago-ID: pkNMj6z9
 
 #Libs
 Libs\LibStub\LibStub.lua
