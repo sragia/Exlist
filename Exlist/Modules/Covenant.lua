@@ -60,6 +60,7 @@ end
 local function Updater(event)
   local character = UnitName("player")
   local realm = GetRealmName()
+  if (UnitLevel('player') < Exlist.constants.MAX_CHARACTER_LEVEL) then return end
   local data = Exlist.GetCharacterTableKey(realm, character, key)
   local covenantId = C_Covenants.GetActiveCovenantID()
   local covenantData = C_Covenants.GetCovenantData(covenantId)
