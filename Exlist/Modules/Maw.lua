@@ -110,7 +110,7 @@ local function Linegenerator(tooltip, data, character)
           priority = prio + 0.1,
           moduleName = key .. "korthia",
           titleName = L["Korthia"],
-          data = string.format("%s: %s", L["Assault"], data.korthia.assaults.icon),
+          data = string.format("|c%s%s|r: %s", colors.faded, L["Assault"], data.korthia.assaults.icon),
           colOff = 0,
           dontResize = true
         }
@@ -124,7 +124,8 @@ local function Linegenerator(tooltip, data, character)
           moduleName = key .. "korthia",
           titleName = L["Korthia"],
           data = string.format(
-            "%s: |T%s:0|t",
+            "|c%s%s:|r |T%s:0|t",
+            colors.faded,
             L["Tormentors"],
             data.korthia.tormentors.isComplete and Exlist.OKMark or Exlist.CancelMark
           ),
