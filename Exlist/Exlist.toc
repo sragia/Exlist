@@ -1,4 +1,4 @@
-## Interface: 90002
+## Interface: 90100
 ## Title: Exlist
 ## Notes: Shows various information about your characters
 ## Author: Exality
