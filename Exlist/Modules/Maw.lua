@@ -13,6 +13,13 @@ local TORGHAST_WIDGETS = {
   {name = 2929, level = 2940} -- The Upper Reaches
 }
 
+local ASSAULT_QUESTS = {
+  [63823] = {icon = "|TInterface\\ICONS\\UI_Sigil_NightFae:0:0:0:0:100:100:12:88:12:88|t"}, -- NF
+  [63824] = {icon = "|TInterface\\ICONS\\UI_Sigil_Kyrian:0:0:0:0:100:100:12:88:12:88|t"}, -- Kyrian
+  [63822] = {icon = "|TInterface\\ICONS\\UI_Sigil_Venthyr:0:0:0:0:100:100:12:88:12:88|t"}, -- Vethyr
+  [63543] = {icon = "|TInterface\\ICONS\\UI_Sigil_Necrolord:0:0:0:0:100:100:12:88:12:88|t"} -- Necro
+}
+
 local function GetTorghastProgress()
   local data = {}
   for _, widgets in ipairs(TORGHAST_WIDGETS) do
@@ -36,6 +43,31 @@ local function GetTorghastProgress()
   return data
 end
 
+local function GetAssaultStatus()
+  if (not C_QuestLog.IsQuestFlaggedCompleted(64556)) then
+    -- Assaults are not available
+    return
+  end
+  for questId, value in pairs(ASSAULT_QUESTS) do
+    local data = {}
+    if (C_TaskQuest.IsActive(questId)) then
+      data.isComplete = false
+      data.icon = value.icon
+      return data
+    elseif (C_QuestLog.IsQuestFlaggedCompleted(questId)) then
+      data.isComplete = true
+      data.icon = string.format("|T%s:0|t", Exlist.OKMark)
+      return data
+    end
+  end
+end
+
+local function GetTormentorsStatus()
+  return {
+    isComplete = C_QuestLog.IsQuestFlaggedCompleted(63854)
+  }
+end
+
 local function Updater(event, widgetInfo)
   local character = UnitName("player")
   local realm = GetRealmName()
@@ -43,6 +75,10 @@ local function Updater(event, widgetInfo)
   if (UnitLevel("player") < Exlist.constants.MAX_CHARACTER_LEVEL) then
     return
   end
+  data.korthia = {
+    assaults = GetAssaultStatus(),
+    tormentors = GetTormentorsStatus()
+  }
   data.torghast = GetTorghastProgress() or data.torghast
   Exlist.UpdateChar(key, data)
 end
@@ -57,12 +93,45 @@ local function Linegenerator(tooltip, data, character)
     for i, data in ipairs(data.torghast) do
       local info = {
         character = character,
-        priority = prio + (i / 10),
+        priority = prio + (i / 100),
         moduleName = key .. data.name,
         titleName = data.name:gsub("|n", ""),
         data = data.level
       }
       Exlist.AddData(info)
+    end
+  end
+
+  if (data.korthia) then
+    if (data.korthia.assaults) then
+      Exlist.AddData(
+        {
+          character = character,
+          priority = prio + 0.1,
+          moduleName = key .. "korthia",
+          titleName = L["Korthia"],
+          data = string.format("%s: %s", L["Assault"], data.korthia.assaults.icon),
+          colOff = 0,
+          dontResize = true
+        }
+      )
+    end
+    if (data.korthia.tormentors) then
+      Exlist.AddData(
+        {
+          character = character,
+          priority = prio + 0.1,
+          moduleName = key .. "korthia",
+          titleName = L["Korthia"],
+          data = string.format(
+            "%s: |T%s:0|t",
+            L["Tormentors"],
+            data.korthia.tormentors.isComplete and Exlist.OKMark or Exlist.CancelMark
+          ),
+          colOff = 1,
+          dontResize = true
+        }
+      )
     end
   end
 end
@@ -123,7 +192,7 @@ local data = {
   linegenerator = Linegenerator,
   priority = prio,
   updater = Updater,
-  event = {"UPDATE_UI_WIDGET", "PLAYER_ENTERING_WORLD"},
+  event = {"UPDATE_UI_WIDGET", "PLAYER_ENTERING_WORLD", "QUEST_TURNED_IN", "QUEST_REMOVED"},
   weeklyReset = true,
   dailyReset = true,
   description = L["Track eye of the jailer buff for the player and Torghast"],

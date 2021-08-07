@@ -198,3 +198,6 @@ Exlist.Expansions = {
    L["Battle for Azeroth"],
    L["Shadowlands"]
 }
+
+Exlist.OKMark = [[Interface/Addons/Exlist/Media/Icons/ok-icon]]
+Exlist.CancelMark = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]]
