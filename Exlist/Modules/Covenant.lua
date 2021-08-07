@@ -227,7 +227,8 @@ local data = {
     "COVENANT_CHOSEN",
     "COVENANT_SANCTUM_INTERACTION_STARTED",
     "QUEST_TURNED_IN",
-    "QUEST_REMOVED"
+    "QUEST_REMOVED",
+    "QUEST_ACCEPTED"
   },
   weeklyReset = false,
   dailyReset = false,
