@@ -69,7 +69,8 @@ local worldBossIDs = {
    [61813] = {eid = 2430, expansion = 9, enabled = true, wq = true}, -- Valinor, the Light of Eons
    [61814] = {eid = 2433, expansion = 9, enabled = true, wq = true}, -- Nurgash Muckformed
    [61815] = {eid = 2432, expansion = 9, enabled = true, wq = true}, -- Oranomonos the Everbanching
-   [61816] = {eid = 2431, expansion = 9, enabled = true, wq = true} -- Mortanis
+   [61816] = {eid = 2431, expansion = 9, enabled = true, wq = true}, -- Mortanis
+   [64531] = {eid = 2456, expansion = 9, enabled = true, wq = true}  -- Mor'geth
 }
 local lastUpdate = 0
 local warfronts = {
