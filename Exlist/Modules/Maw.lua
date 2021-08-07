@@ -89,7 +89,7 @@ local function init()
   -- code that will run before any other function
 end
 ]]
-local function ResetHandler(resetType)\
+local function ResetHandler(resetType)
   local realms = Exlist.GetRealmNames()
   for _, realm in ipairs(realms) do
     local characters = Exlist.GetRealmCharacters(realm)
