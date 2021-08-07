@@ -9,7 +9,7 @@ local colors = Exlist.Colors
 local const = Exlist.constants
 local tooltipColCoords = {}
 
-local hasEnchantSlot = {Ring = true, ["Main Hand"] = true, ["Off Hand"] = true}
+local hasEnchantSlot = {}
 
 local function init()
    settings = Exlist.ConfigDB.settings
