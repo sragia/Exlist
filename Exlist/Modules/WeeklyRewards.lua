@@ -3,7 +3,6 @@ local prio = 12
 local Exlist = Exlist
 local L = Exlist.L
 local colors = Exlist.Colors
--- local strings = Exlist.Strings
 
 local rewardTypes = {
    [Enum.WeeklyRewardChestThresholdType.Raid] = {title = "Raid", prio = 1},
@@ -165,43 +164,6 @@ local function Linegenerator(tooltip, data, character)
    end
 end
 
---[[
-local function GlobalLineGenerator(tooltip,data)
-
-end
-]]
---[[
-local function customGenerator(tooltip, data)
-
-end
-]]
---[[
-local function Modernize(data)
-  -- data is table of module table from character
-  -- always return table or don't use at all
-  return data
-end
-]]
--- local function init() end
-
---[[
-local function ResetHandler(resetType)
-  -- code that will be run at reset for this module
-  -- instead of just wiping all data that is keyed
-  -- by this module key
-end
-]]
---[[
-local function AddOptions()
-  local options = {
-    type = "group",
-    name = L["Reputations"],
-    args = {}
-  }
-  Exlist.AddModuleOptions(key,options,L["Reputation"])
-end
-Exlist.ModuleToBeAdded(AddOptions)
-]]
 local data = {
    name = L["Weekly Rewards"],
    key = key,
@@ -216,12 +178,6 @@ local data = {
    weeklyReset = true,
    dailyReset = false,
    description = L["Tracks Shadowlands Weekly Rewards"]
-   -- globallgenerator = GlobalLineGenerator,
-   -- type = 'customTooltip'
-   -- modernize = Modernize,
-   -- init = init
-   -- override = true,
-   -- specialResetHandle = ResetHandler
 }
 
 Exlist.RegisterModule(data)

@@ -136,28 +136,6 @@ local function Linegenerator(tooltip, data, character)
   end
 end
 
---[[
-local function GlobalLineGenerator(tooltip,data)
-
-end
-]]
---[[
-local function customGenerator(tooltip, data)
-
-end
-]]
---[[
-local function Modernize(data)
-  -- data is table of module table from character
-  -- always return table or don't use at all
-  return data
-end
-]]
---[[
-local function init()
-  -- code that will run before any other function
-end
-]]
 local function ResetHandler(resetType)
   local realms = Exlist.GetRealmNames()
   for _, realm in ipairs(realms) do
@@ -175,17 +153,6 @@ local function ResetHandler(resetType)
   end
 end
 
---[[
-local function AddOptions()
-  local options = {
-    type = "group",
-    name = L["Reputations"],
-    args = {}
-  }
-  Exlist.AddModuleOptions(key,options,L["Reputation"])
-end
-Exlist.ModuleToBeAdded(AddOptions)
-]]
 local data = {
   name = L["Maw"],
   key = key,
@@ -196,11 +163,6 @@ local data = {
   weeklyReset = true,
   dailyReset = true,
   description = L["Track Torghast and Korthia/Maw weeklies"],
-  -- globallgenerator = GlobalLineGenerator,
-  -- type = 'customTooltip'
-  -- modernize = Modernize,
-  -- init = init,
-  -- override = true,
   specialResetHandle = ResetHandler
 }
 

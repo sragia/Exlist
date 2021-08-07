@@ -3,7 +3,6 @@ local prio = 1
 local Exlist = Exlist
 local L = Exlist.L
 local colors = Exlist.Colors
---local strings = Exlist.Strings
 
 local ANIMA_QUESTS = {61984, 61981, 61982, 61983}
 
@@ -82,7 +81,8 @@ local function GetWeeklyRenownQuestProgress()
         completed = false,
         progress = string.format("%i%%", GetQuestProgressBarPercent(63949)),
         progressColor = colorProgress(GetQuestProgressBarPercent(63949), 100),
-        name = L["Korthia"]
+        name = L["Korthia"],
+        turnIn = GetQuestProgressBarPercent(63949) / 100 == 1
       }
     )
   elseif (C_QuestLog.IsQuestFlaggedCompleted(63949)) then
@@ -105,7 +105,8 @@ local function GetWeeklyRenownQuestProgress()
           completed = false,
           progress = string.format("%i/%i", objective.numFulfilled, objective.numRequired),
           progressColor = colorProgress(objective.numFulfilled, objective.numRequired),
-          name = L["Anima"]
+          name = L["Anima"],
+          turnIn = objective.numFulfilled / objective.numRequired == 1
         }
       )
     elseif (C_QuestLog.IsQuestFlaggedCompleted(questId)) then
@@ -199,6 +200,7 @@ local function Linegenerator(tooltip, data, character)
           titleName = L["Renown Quests"],
           colOff = index - 1,
           dontResize = true,
+          pulseAnim = value.turnIn,
           data = string.format(
             "|c%s%s:|r |c%s%s|r",
             colors.faded,
@@ -212,46 +214,6 @@ local function Linegenerator(tooltip, data, character)
   end
 end
 
---[[
-local function GlobalLineGenerator(tooltip,data)
-
-end
-]]
---[[
-local function customGenerator(tooltip, data)
-
-end
-]]
---[[
-local function Modernize(data)
-  -- data is table of module table from character
-  -- always return table or don't use at all
-  return data
-end
-]]
---[[
-local function init()
-  -- code that will run before any other function
-end
-]]
---[[
-local function ResetHandler(resetType)
-  -- code that will be run at reset for this module
-  -- instead of just wiping all data that is keyed
-  -- by this module key
-end
-]]
---[[
-local function AddOptions()
-  local options = {
-    type = "group",
-    name = L["Reputations"],
-    args = {}
-  }
-  Exlist.AddModuleOptions(key,options,L["Reputation"])
-end
-Exlist.ModuleToBeAdded(AddOptions)
-]]
 local data = {
   name = L["Covenant"],
   key = key,
@@ -268,12 +230,6 @@ local data = {
   weeklyReset = false,
   dailyReset = false,
   description = L["Tracks various information about characters covnenant"]
-  -- globallgenerator = GlobalLineGenerator,
-  -- type = 'customTooltip'
-  -- modernize = Modernize,
-  -- init = init,
-  -- override = true,
-  -- specialResetHandle = ResetHandler
 }
 
 Exlist.RegisterModule(data)

@@ -242,31 +242,12 @@ local function Linegenerator(tooltip, data, character)
    end
 end
 
---[[
-local function GlobalLineGenerator(tooltip,data)
-
-end
-]]
---[[
-local function Modernize(data)
--- data is table of module table from character
--- always return table or don't use at all
-return data
-end
-]]
 local function init()
    -- code that will run before any other function
    settings = Exlist.ConfigDB.settings
    UpdateReputationCache()
 end
 
---[[
-local function ResetHandler(resetType)
--- code that will be run at reset for this module
--- instead of just wiping all data that is keyed
--- by this module key
-end
-]]
 local selectedFaction = 0
 local function AddOptions(refresh)
    -- Make reputation list
@@ -462,11 +443,7 @@ local data = {
    weeklyReset = false,
    dailyReset = false,
    description = L["Allows to select different reputation progress for your characters"],
-   -- globallgenerator = GlobalLineGenerator,
-   -- modernize = Modernize,
    init = init
-   -- override = true,
-   -- specialResetHandle = ResetHandler
 }
 
 Exlist.RegisterModule(data)
