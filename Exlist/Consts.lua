@@ -166,6 +166,15 @@ local Colors = {
       [8] = "ffd220ff", -- Exiled
       [100] = "ffff20ca" -- Paragon
    },
+   friendColors = {
+      [1] = "ffff8300", -- Unfriendly
+      [2] = "ffffc300", -- Neutral
+      [3] = "fff7ff20", -- Friendly
+      [4] = "ff5fff20", -- Honored
+      [5] = "ff2096ff", -- Revered
+      [6] = "ffd220ff", -- Exiled
+      [100] = "ffff20ca" -- Paragon
+   },
    paragonReward = "fff4f142"
 }
 Exlist.Colors = Colors
