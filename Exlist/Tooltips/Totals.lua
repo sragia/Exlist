@@ -16,7 +16,7 @@ end
 
 local function configureTooltip(self, tooltip, parentTooltip)
    local parentFrameLevel = parentTooltip:GetFrameLevel(parentTooltip)
-   tooltip:SetFrameLevel(parentFrameLevel) 
+   tooltip:SetFrameLevel(parentFrameLevel)
    Mixin(tooltip.NineSlice, BackdropTemplateMixin);
    SharedTooltip_SetBackdropStyle(tooltip, nil, tooltip.IsEmbedded);
    tooltip.NineSlice:SetScript("OnSizeChanged", tooltip.NineSlice.OnBackdropSizeChanged);
@@ -24,7 +24,6 @@ local function configureTooltip(self, tooltip, parentTooltip)
    local c = settings.backdrop
    tooltip.NineSlice:SetCenterColor(c.color.r, c.color.g, c.color.b, c.color.a)
    tooltip.NineSlice:SetBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
-
    local toolHeight = tooltip:GetHeight()
    local calcHeight = GetScreenHeight() - toolHeight
    tooltip:UpdateScrolling(calcHeight)

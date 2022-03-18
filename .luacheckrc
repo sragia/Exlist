@@ -68,6 +68,7 @@ globals = {
 	"CooldownFrame_Set",
 	"CreateFromMixins",
 	"CreateObjectPool",
+	"SharedTooltip_SetBackdropStyle",
 	"DEFAULT_CHAT_FRAME",
 	"GameTooltip_Hide",
 	"GameTooltip_SetDefaultAnchor",

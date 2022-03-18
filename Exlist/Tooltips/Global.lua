@@ -17,7 +17,6 @@ end
 local function configureTooltip(self, tooltip, parentTooltip)
    local parentFrameLevel = parentTooltip:GetFrameLevel(parentTooltip)
    tooltip:SetFrameLevel(parentFrameLevel)
-   
    Mixin(tooltip.NineSlice, BackdropTemplateMixin);
    SharedTooltip_SetBackdropStyle(tooltip, nil, tooltip.IsEmbedded);
    tooltip.NineSlice:SetScript("OnSizeChanged", tooltip.NineSlice.OnBackdropSizeChanged);
