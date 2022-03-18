@@ -136,7 +136,6 @@ local function Updater(event)
   data.id = covenantId
   data.name = covenantData.name
   data.renownLevel = renownLevel
-  data.quests = GetWeeklyRenownQuestProgress()
 
   if (event == "COVENANT_SANCTUM_INTERACTION_STARTED") then
     -- Get TreeIds for sanctum upgrades
@@ -189,29 +188,6 @@ local function Linegenerator(tooltip, data, character)
   end
 
   Exlist.AddData(info)
-
-  if (data.quests) then
-    for index, value in ipairs(data.quests) do
-      Exlist.AddData(
-        {
-          character = character,
-          priority = prio + 0.1,
-          moduleName = key .. "quests",
-          titleName = L["Renown Quests"],
-          colOff = index - 1,
-          dontResize = true,
-          pulseAnim = value.turnIn,
-          data = string.format(
-            "|c%s%s:|r |c%s%s|r",
-            colors.faded,
-            value.name,
-            value.completed and "ffffffff" or value.progressColor,
-            value.completed and string.format("|T%s:0|t", Exlist.OKMark) or value.progress
-          )
-        }
-      )
-    end
-  end
 end
 
 local data = {
