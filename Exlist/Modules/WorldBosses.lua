@@ -244,7 +244,7 @@ local function Linegenerator(_, data, character)
    local wbSettings = Exlist.GetSettings("worldbosses")
    for questId, info in pairs(data) do
       local default = wbSettings[questId]
-      if (default and default.enabled) then
+      if (default and default.enabled and info.name) then
          availableWB = availableWB + 1
          killed = info.defeated and killed + 1 or killed
          strings[default.expansion] = strings[default.expansion] or {}

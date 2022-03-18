@@ -370,10 +370,14 @@ end
 
 local function configureTooltip(self, tooltip)
    tooltip:SmartAnchorTo(self)
-   tooltip:SetBackdrop(Exlist.DEFAULT_BACKDROP)
+
+   Mixin(tooltip.NineSlice, BackdropTemplateMixin);
+   SharedTooltip_SetBackdropStyle(tooltip, nil, tooltip.IsEmbedded);
+   tooltip.NineSlice:SetScript("OnSizeChanged", tooltip.NineSlice.OnBackdropSizeChanged);
+   tooltip.NineSlice:SetBackdrop(Exlist.DEFAULT_BACKDROP);
    local c = settings.backdrop
-   tooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
-   tooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+   tooltip.NineSlice:SetCenterColor(c.color.r, c.color.g, c.color.b, c.color.a)
+   tooltip.NineSlice:SetBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
    tooltip:UpdateScrolling(settings.tooltipHeight)
 end
 
