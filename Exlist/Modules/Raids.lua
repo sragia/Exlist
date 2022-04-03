@@ -326,6 +326,7 @@ end
 local function init()
    defaultSettings = {
       -- Shadowlands
+      [GetLFGDungeonInfo(2288) or "Sepulcher of the First Ones"] = {enabled = true, expansion = 9, order = 8},
       [GetLFGDungeonInfo(2226) or "Sanctum of Domination"] = {enabled = true, expansion = 9, order = 9},
       [GetLFGDungeonInfo(2093) or "Castle Nathria"] = {enabled = true, expansion = 9, order = 10},
       -- BFA
@@ -555,6 +556,12 @@ local function init()
          [2222] = {name = "The Dark Bastille", totalEncounters = 3, order = 2},
          [2223] = {name = "Shackles of Fate", totalEncounters = 3, order = 3},
          [2224] = {name = "The Reckoning", totalEncounters = 1, order = 4}
+      },
+      [GetLFGDungeonInfo(2288) or "Sepulcher of the First Ones"] = {
+         [2292] = {name = "Ephemeral Plains", totalEncounters = 4, order = 1},
+         [2291] = {name = "Cornerstone of Creation", totalEncounters = 3, order = 2},
+         [2293] = {name = "Domination's Grasp", totalEncounters = 3, order = 3},
+         [2294] = {name = "The Grand Design", totalEncounters = 1, order = 4}
       }
    }
 
