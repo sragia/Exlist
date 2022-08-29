@@ -470,3 +470,12 @@ end
 function Exlist.GetSettings(key)
    return Exlist.ConfigDB.settings[key] or {}
 end
+
+local statusMarks = {
+   [true] = [[Interface/Addons/Exlist/Media/Icons/ok-icon]],
+   [false] = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]]
+}
+
+function Exlist.AddCheckmark(text, status)
+   return string.format("|T%s:0|t %s", statusMarks[status], text)
+end

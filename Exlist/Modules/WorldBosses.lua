@@ -70,7 +70,9 @@ local worldBossIDs = {
    [61814] = {eid = 2433, expansion = 9, enabled = true, wq = true}, -- Nurgash Muckformed
    [61815] = {eid = 2432, expansion = 9, enabled = true, wq = true}, -- Oranomonos the Everbanching
    [61816] = {eid = 2431, expansion = 9, enabled = true, wq = true}, -- Mortanis
-   [64531] = {eid = 2456, expansion = 9, enabled = true, wq = true} -- Mor'geth
+   [64531] = {eid = 2456, expansion = 9, enabled = true, wq = true}, -- Mor'geth
+   [65143] = {eid = 2468, expansion = 9, enabled = true, wq = true}, -- Antros
+
 }
 local lastUpdate = 0
 local warfronts = {

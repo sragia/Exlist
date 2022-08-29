@@ -77,7 +77,15 @@ Exlist.ShortenedMPlus = {
    [250] = L["ToS"], -- Temple of Sethraliss
    [251] = L["URot"], -- The Underrot
    [252] = L["SotS"], -- Shrine of the Storm
-   [353] = L["SoB"] -- Siege of Boralus
+   [353] = L["SoB"], -- Siege of Boralus
+   -- SL
+   -- S4
+   [370] = L["Work"], -- Workshop
+   [391] = L["Streets"], -- Streets of Wonder
+   [169] = L["ID"], -- Iron Docks
+   [166] = L["GD"], -- Grimrail Depot
+   [369] = L["Junk"], -- Junkyard
+   [392] = L['Gambit'], -- Gambit
 }
 
 local Colors = {

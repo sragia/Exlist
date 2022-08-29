@@ -133,17 +133,17 @@ local function Linegenerator(tooltip, data, character)
       for _, activity in ipairs(getActivitiesByType(rewardType, data.activities)) do
          info.celOff = cellIndex - 2
          info.dontResize = true
-         local color = "ffffffff"
-         if (activity.progress >= activity.threshold) then
-            color = colors.available
-         end
          info.data =
             string.format(
             "|c%s%s/%s|r",
-            color,
+            activity.progress >= activity.threshold and colors.available or colors.faded,
             Exlist.ShortenNumber(activity.progress),
             Exlist.ShortenNumber(activity.threshold)
          ) .. (activity.level > 0 and string.format(" (%s)", formatLevel(activity.type, activity.level)) or "")
+
+         if (activity.progress >= activity.threshold) then
+            info.data = Exlist.AddCheckmark(info.data, true);
+         end
 
          info.OnEnter = Exlist.CreateSideTooltip()
          info.OnEnterData = getActivityTooltip(activity.id, activity.type, activity.progress, activity.threshold)

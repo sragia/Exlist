@@ -20,29 +20,6 @@ local ASSAULT_QUESTS = {
   [63543] = {icon = "|TInterface\\ICONS\\UI_Sigil_Necrolord:0:0:0:0:100:100:12:88:12:88|t"} -- Necro
 }
 
-local function GetTorghastProgress()
-  local data = {}
-  for _, widgets in ipairs(TORGHAST_WIDGETS) do
-    local nameData = C_UIWidgetManager.GetTextWithStateWidgetVisualizationInfo(widgets.name)
-    if (nameData.shownState == 1) then
-      -- Available this week
-      local levelData = C_UIWidgetManager.GetTextWithStateWidgetVisualizationInfo(widgets.level)
-      if (levelData) then
-        table.insert(
-          data,
-          {
-            name = nameData.text,
-            level = levelData.shownState == 1 and levelData.text or
-              string.format("|c%s%s|r", colors.torghastAvailable, L["Available"])
-          }
-        )
-      end
-    end
-  end
-
-  return data
-end
-
 local function GetAssaultStatus()
   if (not C_QuestLog.IsQuestFlaggedCompleted(64556)) then
     -- Assaults are not available
@@ -79,7 +56,7 @@ local function Updater(event, widgetInfo)
     assaults = GetAssaultStatus(),
     tormentors = GetTormentorsStatus()
   }
-  data.torghast = GetTorghastProgress() or data.torghast
+
   Exlist.UpdateChar(key, data)
 end
 
@@ -154,6 +131,14 @@ local function ResetHandler(resetType)
   end
 end
 
+local function Modernize(data)
+  if (data and data.torghast) then
+    data.torghast = nil
+  end
+
+  return data
+end
+
 local data = {
   name = L["Maw"],
   key = key,
@@ -164,7 +149,8 @@ local data = {
   weeklyReset = true,
   dailyReset = true,
   description = L["Track Torghast and Korthia/Maw weeklies"],
-  specialResetHandle = ResetHandler
+  specialResetHandle = ResetHandler,
+  modernize = Modernize
 }
 
 Exlist.RegisterModule(data)
