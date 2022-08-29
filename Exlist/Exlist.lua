@@ -1419,6 +1419,7 @@ function ResetHandling()
 end
 
 local function AnnounceReset(msg)
+   if not settings.announceReset then return end
    local channel = IsInRaid() and "raid" or "party"
    if IsInGroup() then
       SendChatMessage(string.format("[%s] %s", addonName, msg), channel)
