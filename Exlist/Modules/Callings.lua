@@ -63,7 +63,7 @@ local function Linegenerator(tooltip, data, character)
    )
    for _, calling in ipairs(data) do
       if (calling.endTime and time() <= calling.endTime) then
-         info.data = settings.shortenInfo and GetClockIcon(calling.endTime) or 
+         info.data = settings.shortenInfo and GetClockIcon(calling.endTime) or
             string.format("|T%s:45:45:::256:256:58:198:51:197|t %s", calling.icon or "", GetClockIcon(calling.endTime))
          local sideTooltip = {
             body = {},
