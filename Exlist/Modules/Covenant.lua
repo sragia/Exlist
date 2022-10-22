@@ -134,7 +134,9 @@ local function Updater(event)
   local covenantData = C_Covenants.GetCovenantData(covenantId)
   local renownLevel = C_CovenantSanctumUI.GetRenownLevel()
   data.id = covenantId
-  data.name = covenantData.name
+  if (covenantData) then
+    data.name = covenantData.name
+  end
   data.renownLevel = renownLevel
 
   if (event == "COVENANT_SANCTUM_INTERACTION_STARTED") then
@@ -146,7 +148,7 @@ local function Updater(event)
 end
 
 local function Linegenerator(tooltip, data, character)
-  if not data then
+  if not data or data.id == 0 then
     return
   end
   local covenantString =
