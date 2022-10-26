@@ -228,6 +228,7 @@ globals = {
 	"BuybackItem",
 	"C_UIWidgetManager",
 	"C_CurrencyInfo",
+	"C_GossipInfo",
 	"C_ActionBar",
 	"C_AdventureJournal",
 	"C_AdventureJournal.ActivateEntry",
