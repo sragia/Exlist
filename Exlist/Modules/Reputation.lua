@@ -48,14 +48,6 @@ local function spairs(t, order)
    end
 end
 
-local statusMarks = {
-   [true] = [[Interface/Addons/Exlist/Media/Icons/ok-icon]],
-   [false] = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]]
-}
-local function AddCheckmark(text, status)
-   return string.format("|T%s:0|t %s", statusMarks[status], text)
-end
-
 local function AddReputationToCache(name, factionID)
    if not name or not factionID then
       return
@@ -107,25 +99,16 @@ local function Updater(event)
    end
    for _, faction in ipairs(settings.reputation.cache) do
       local name, description, standingID, barMin, barMax, barValue = GetFactionInfoByID(faction.factionID)
-      local friendshipID = GetFriendshipReputation(faction.factionID)
+      local friendshipReputation = C_GossipInfo.GetFriendshipReputation(faction.factionID)
       if name then
          local curr = barValue - barMin -- current
          local max = barMax - barMin -- max
          local paragonReward, friendStandingLevel
          local isFriend = false
-         if (friendshipID) then
+         if (friendshipReputation) then
             -- Friendship
-            local friendID,
-               friendRep,
-               friendMaxRep,
-               friendName,
-               friendText,
-               friendTexture,
-               friendTextLevel,
-               friendThreshold,
-               nextFriendThreshold = GetFriendshipReputation(faction.factionID)
             isFriend = true
-            friendStandingLevel = friendTextLevel
+            friendStandingLevel = friendshipReputation.reaction
          end
          if standingID >= (isFriend and 6 or 8) and C_Reputation.IsFactionParagon(faction.factionID) then
             -- Paragon stuff
@@ -193,7 +176,7 @@ local function Linegenerator(tooltip, data, character)
          )
       )
       if factionInfo.paragonReward then
-         text = AddCheckmark(text, true)
+         text = Exlist.AddCheckmark(text, true)
       end
       info.data = text
    else
@@ -227,7 +210,7 @@ local function Linegenerator(tooltip, data, character)
             end
             if r.paragonReward then
                paragonAvailable = true
-               text2 = AddCheckmark(text2, true)
+               text2 = Exlist.AddCheckmark(text2, true)
             end
             table.insert(sideTooltip.body, {text1, text2})
          end

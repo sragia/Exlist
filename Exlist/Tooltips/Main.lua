@@ -180,10 +180,14 @@ local function GearTooltip(self, info)
       edgeSize = 1,
       insets = {left = 0, right = 0, top = 0, bottom = 0}
    }
-   geartooltip:SetBackdrop(backdrop)
+
+   Mixin(geartooltip.NineSlice, BackdropTemplateMixin);
+   SharedTooltip_SetBackdropStyle(geartooltip, nil, geartooltip.IsEmbedded);
+   geartooltip.NineSlice:SetScript("OnSizeChanged", geartooltip.NineSlice.OnBackdropSizeChanged);
+   geartooltip.NineSlice:SetBackdrop(backdrop);
    local c = settings.backdrop
-   geartooltip:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
-   geartooltip:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+   geartooltip.NineSlice:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
+   geartooltip.NineSlice:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
    local tipWidth = geartooltip:GetWidth()
    for i = 1, #geartooltip.statusBars do
       geartooltip.statusBars[i]:SetWidth(tipWidth + tipWidth / 3)
