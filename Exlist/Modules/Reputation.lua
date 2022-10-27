@@ -105,7 +105,7 @@ local function Updater(event)
          local max = barMax - barMin -- max
          local paragonReward, friendStandingLevel
          local isFriend = false
-         if (friendshipReputation) then
+         if (friendshipReputation and friendshipReputation.friendshipFactionID ~= 0) then
             -- Friendship
             isFriend = true
             friendStandingLevel = friendshipReputation.reaction

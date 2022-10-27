@@ -1,4 +1,4 @@
-## Interface: 90207
+## Interface: 100000
 ## Title: Exlist
 ## Notes: Shows various information about your characters
 ## Author: Exality
@@ -35,3 +35,4 @@ AccountSync\Config.lua
 AccountSync\Core.lua
 Modules\modules.xml
 Tooltips\Tooltips.xml
+Tracking\Tracking.xml
