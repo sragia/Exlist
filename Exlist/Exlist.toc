@@ -35,4 +35,3 @@ AccountSync\Config.lua
 AccountSync\Core.lua
 Modules\modules.xml
 Tooltips\Tooltips.xml
-Tracking\Tracking.xml
