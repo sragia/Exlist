@@ -66,6 +66,11 @@ local zones = {
    1525, -- Revendreth
    1543, -- The Maw
    1970, -- Zereth Mortis
+   -- Dragonflight
+   2022, -- The Walking Shores
+   2025, -- Thaldraszus
+   2023, -- Ohn'ahran Plains
+   2023 -- The Azure Span
 }
 
 local rewardRules = {}
@@ -805,7 +810,7 @@ local function SetupWQConfig(refresh)
       Exlist.RefreshModuleOptions(key, options, L["World Quests"])
    end
 end
-Exlist.ModuleToBeAdded(SetupWQConfig)
+--Exlist.ModuleToBeAdded(SetupWQConfig)
 
 local function init()
    local gt = Exlist.GetCharacterTableKey("global", "global", key)
