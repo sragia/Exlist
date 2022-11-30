@@ -185,6 +185,7 @@ local Colors = {
       [6] = "ffd220ff", -- Exiled
       [100] = "ffff20ca" -- Paragon
    },
+   majorFaction = "ff00bef2",
    paragonReward = "fff4f142"
 }
 Exlist.Colors = Colors

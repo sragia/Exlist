@@ -408,6 +408,7 @@ globals = {
 	"C_Commentator.SetMode",
 	"C_Commentator.SetMoveSpeed",
 	"C_Container",
+	"C_MajorFactions",
 	"C_Commentator.SetMsToHoldForHorizontalMovement",
 	"C_Commentator.SetMsToHoldForVerticalMovement",
 	"C_Commentator.SetMsToSmoothHorizontalChange",
