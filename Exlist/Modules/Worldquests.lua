@@ -810,7 +810,7 @@ local function SetupWQConfig(refresh)
       Exlist.RefreshModuleOptions(key, options, L["World Quests"])
    end
 end
-Exlist.ModuleToBeAdded(SetupWQConfig)
+--Exlist.ModuleToBeAdded(SetupWQConfig)
 
 local function init()
    local gt = Exlist.GetCharacterTableKey("global", "global", key)
