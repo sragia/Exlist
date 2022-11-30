@@ -378,7 +378,7 @@ local function AddOptions(refresh)
             fontSize = "medium",
             order = order + 1,
             name = info.name,
-            width = 3.2
+            width = 3.4
          }
          order = order + 2
       end
