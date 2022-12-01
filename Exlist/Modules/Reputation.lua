@@ -106,10 +106,15 @@ local function Updater(event)
          local max = barMax - barMin -- max
          local paragonReward, friendStandingLevel
          local isFriend = false
+         local isMax = false
          if ( not isMajorFaction and friendshipReputation and friendshipReputation.friendshipFactionID ~= 0 ) then
             -- Friendship
             curr = friendshipReputation.standing - friendshipReputation.reactionThreshold
-            max = friendshipReputation.nextThreshold - friendshipReputation.reactionThreshold
+            if ( friendshipReputation.nextThreshold ) then
+               max = friendshipReputation.nextThreshold - friendshipReputation.reactionThreshold
+            else
+               isMax = true
+            end
             isFriend = true
             friendStandingLevel = friendshipReputation.reaction
          end
@@ -128,8 +133,8 @@ local function Updater(event)
 
          if ( isMajorFaction ) then
             local majorFactionData = C_MajorFactions.GetMajorFactionData(faction.factionID);
-            local isCapped = C_MajorFactions.HasMaximumRenown(faction.factionID);
-		      local barValue = isCapped and majorFactionData.renownLevelThreshold or majorFactionData.renownReputationEarned or 0;
+            isMax = C_MajorFactions.HasMaximumRenown(faction.factionID);
+		      local barValue = isMax and majorFactionData.renownLevelThreshold or majorFactionData.renownReputationEarned or 0;
             local barMax = majorFactionData.renownLevelThreshold;
             curr = barValue
             max = barMax
@@ -141,6 +146,7 @@ local function Updater(event)
             standing = standingID,
             curr = curr,
             isFriend = isFriend,
+            isMax = isMax,
             isMajorFaction = isMajorFaction,
             friendStandingLevel = friendStandingLevel,
             max = max,
@@ -205,10 +211,10 @@ local function Linegenerator(tooltip, data, character)
          if r then
             local text1 = r.name
             local text2 = ""
-            if r.standing == 8 then
+            if r.standing == 8 or r.isMax then
                text2 =
                   WrapTextInColorCode(
-                  standingNames[r.standing],
+                  r.isFriend and r.friendStandingLevel or standingNames[r.standing],
                   r.isFriend and colors.friendColors[r.standing] or colors.repColors[r.standing]
                )
             else
