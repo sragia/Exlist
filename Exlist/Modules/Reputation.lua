@@ -211,11 +211,11 @@ local function Linegenerator(tooltip, data, character)
          if r then
             local text1 = r.name
             local text2 = ""
-            if r.standing == 8 or r.isMax then
+            if (not r.isMajorFaction and r.standing == 8) or r.isMax then
                text2 =
                   WrapTextInColorCode(
-                  r.isFriend and r.friendStandingLevel or standingNames[r.standing],
-                  r.isFriend and colors.friendColors[r.standing] or colors.repColors[r.standing]
+                  r.isMajorFaction and string.format(L["Renown %s"], r.standing) or r.isFriend and r.friendStandingLevel or standingNames[r.standing],
+                  r.isMajorFaction and colors.majorFaction or r.isFriend and colors.friendColors[r.standing] or colors.repColors[r.standing]
                )
             else
                text2 =
