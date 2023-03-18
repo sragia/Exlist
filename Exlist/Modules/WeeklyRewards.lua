@@ -57,23 +57,29 @@ end
 
 local function getBestMythicPlusRuns(threshold)
    local history = C_MythicPlus.GetRunHistory(false, true)
-   table.sort(history, function(a,b) 
-      if (a.level == b.level) then
-         return a.mapChallengeModeID < b.mapChallengeModeID
-      else
-         return a.level > b.level
+   table.sort(
+      history,
+      function(a, b)
+         if (a.level == b.level) then
+            return a.mapChallengeModeID < b.mapChallengeModeID
+         else
+            return a.level > b.level
+         end
       end
-   end)
+   )
 
    local runs = {}
 
    for i = 1, threshold do
       if (history[i]) then
-         table.insert(runs, {
-            name = C_ChallengeMode.GetMapUIInfo(history[i].mapChallengeModeID),
-            level = history[i].level,
-            score = history[i].runScore
-         })
+         table.insert(
+            runs,
+            {
+               name = C_ChallengeMode.GetMapUIInfo(history[i].mapChallengeModeID),
+               level = history[i].level,
+               score = history[i].runScore
+            }
+         )
       end
    end
 
@@ -95,13 +101,26 @@ local function getActivityTooltip(activity)
 
    if activity.type == Enum.WeeklyRewardChestThresholdType.MythicPlus then
       typeName = L["Mythic+"]
-      
+
       if (activity.runs) then
          table.insert(sideTooltip.body, {})
          table.insert(sideTooltip.body, {WrapTextInColorCode(L["Best Mythic+ Runs"], colors.sideTooltipTitle)})
-         table.insert(sideTooltip.body, {WrapTextInColorCode(L["Dungeon"], colors.faded), WrapTextInColorCode(L["Score"], colors.faded)})
+         table.insert(
+            sideTooltip.body,
+            {WrapTextInColorCode(L["Dungeon"], colors.faded), WrapTextInColorCode(L["Score"], colors.faded)}
+         )
          for _, run in ipairs(activity.runs) do
-            table.insert(sideTooltip.body, {string.format('[%s] %s', WrapTextInColorCode(run.level, Exlist.GetMythicPlusLevelColor(run.level)), run.name), run.score})
+            table.insert(
+               sideTooltip.body,
+               {
+                  string.format(
+                     "[%s] %s",
+                     WrapTextInColorCode(run.level, Exlist.GetMythicPlusLevelColor(run.level)),
+                     run.name
+                  ),
+                  run.score
+               }
+            )
          end
       end
    elseif activity.type == Enum.WeeklyRewardChestThresholdType.Raid then
@@ -111,7 +130,10 @@ local function getActivityTooltip(activity)
    end
 
    sideTooltip.title =
-      WrapTextInColorCode(string.format("%s %i/%i", typeName, activity.progress, activity.threshold), colors.sideTooltipTitle)
+      WrapTextInColorCode(
+      string.format("%s %i/%i", typeName, activity.progress, activity.threshold),
+      colors.sideTooltipTitle
+   )
 
    return sideTooltip
 end
@@ -169,7 +191,7 @@ local function Linegenerator(tooltip, data, character)
          ) .. (activity.level > 0 and string.format(" (%s)", formatLevel(activity.type, activity.level)) or "")
 
          if (activity.progress >= activity.threshold) then
-            info.data = Exlist.AddCheckmark(info.data, true);
+            info.data = Exlist.AddCheckmark(info.data, true)
          end
 
          info.OnEnter = Exlist.CreateSideTooltip()

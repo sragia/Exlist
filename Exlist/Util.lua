@@ -192,10 +192,10 @@ function Exlist.CreateSideTooltip(statusbar)
       local parentFrameLevel = self:GetFrameLevel(self)
       sideTooltip:SetFrameLevel(parentFrameLevel + 5)
 
-      Mixin(sideTooltip.NineSlice, BackdropTemplateMixin);
-      SharedTooltip_SetBackdropStyle(sideTooltip, nil, sideTooltip.IsEmbedded);
-      sideTooltip.NineSlice:SetScript("OnSizeChanged", sideTooltip.NineSlice.OnBackdropSizeChanged);
-      sideTooltip.NineSlice:SetBackdrop(Exlist.DEFAULT_BACKDROP);
+      Mixin(sideTooltip.NineSlice, BackdropTemplateMixin)
+      SharedTooltip_SetBackdropStyle(sideTooltip, nil, sideTooltip.IsEmbedded)
+      sideTooltip.NineSlice:SetScript("OnSizeChanged", sideTooltip.NineSlice.OnBackdropSizeChanged)
+      sideTooltip.NineSlice:SetBackdrop(Exlist.DEFAULT_BACKDROP)
       local c = settings.backdrop
       sideTooltip.NineSlice:SetCenterColor(c.color.r, c.color.g, c.color.b, c.color.a)
       sideTooltip.NineSlice:SetBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
@@ -484,6 +484,6 @@ function Exlist.GetMythicPlusLevelColor(level)
    for _, color in ipairs(Exlist.Colors.mythicplus.level) do
       if (color.level <= level) then
          return color.color
-      end 
+      end
    end
 end

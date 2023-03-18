@@ -652,8 +652,8 @@ local function UpdateCharacterGear()
          local enchant = GetItemEnchant(iLink)
          local gem = GetItemGems(iLink)
          if (not itemName) then
-            -- Sometimes there might be item info missing 
-            -- Don't pollute db with broken data in these cases and abort 
+            -- Sometimes there might be item info missing
+            -- Don't pollute db with broken data in these cases and abort
             -- gear update
             return
          end
