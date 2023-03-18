@@ -4,7 +4,6 @@ local Exlist = Exlist
 local L = Exlist.L
 local settings
 local colors = Exlist.Colors
---local strings = Exlist.Strings
 
 local standingNames = {
    [1] = L["Hated"],
@@ -166,17 +165,8 @@ local function Linegenerator(tooltip, data, character)
       priority = prio,
       moduleName = key,
       titleName = L["Reputation"]
-      -- data = "",
-      -- colOff = 0,
-      -- dontResize = false,
-      -- pulseAnim = false,
-      -- OnEnter = function() end,
-      -- OnEnterData = {},
-      -- OnLeave = function() end,
-      -- OnLeaveData = {},
-      -- OnClick = function() end,
-      -- OnClickData = {},
    }
+   
    local ret = false
    local paragonAvailable = false
    local charKey = character.name .. "-" .. character.realm

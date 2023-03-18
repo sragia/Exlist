@@ -142,19 +142,6 @@ local function Linegenerator(tooltip, data, character)
    end
    local info = {
       character = character
-      -- priority = prio,
-      -- moduleName = key,
-      -- titleName = L["Weekly Rewards"],
-      -- data = "",
-      -- colOff = 0,
-      -- dontResize = false,
-      -- pulseAnim = false,
-      -- OnEnter = function() end,
-      -- OnEnterData = {},
-      -- OnLeave = function() end,
-      -- OnLeaveData = {},
-      -- OnClick = function() end,
-      -- OnClickData = {},
    }
    local infoTables = {}
    local priority = prio
