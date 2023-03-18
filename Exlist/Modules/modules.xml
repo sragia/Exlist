@@ -17,4 +17,5 @@
   <Script file="Note.lua"/>
   <Script file="Reputation.lua"/>
   <Script file="WeeklyRewards.lua" />
+  <Script file="Professions.lua" />
 </Ui>
