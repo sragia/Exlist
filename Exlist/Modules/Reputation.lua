@@ -4,7 +4,6 @@ local Exlist = Exlist
 local L = Exlist.L
 local settings
 local colors = Exlist.Colors
---local strings = Exlist.Strings
 
 local standingNames = {
    [1] = L["Hated"],
@@ -107,10 +106,10 @@ local function Updater(event)
          local paragonReward, friendStandingLevel
          local isFriend = false
          local isMax = false
-         if ( not isMajorFaction and friendshipReputation and friendshipReputation.friendshipFactionID ~= 0 ) then
+         if (not isMajorFaction and friendshipReputation and friendshipReputation.friendshipFactionID ~= 0) then
             -- Friendship
             curr = friendshipReputation.standing - friendshipReputation.reactionThreshold
-            if ( friendshipReputation.nextThreshold ) then
+            if (friendshipReputation.nextThreshold) then
                max = friendshipReputation.nextThreshold - friendshipReputation.reactionThreshold
             else
                isMax = true
@@ -118,7 +117,10 @@ local function Updater(event)
             isFriend = true
             friendStandingLevel = friendshipReputation.reaction
          end
-         if ( not isMajorFaction and standingID >= (isFriend and 6 or 8) and C_Reputation.IsFactionParagon(faction.factionID) ) then
+         if
+            (not isMajorFaction and standingID >= (isFriend and 6 or 8) and
+               C_Reputation.IsFactionParagon(faction.factionID))
+          then
             -- Paragon stuff
             standingID = 100
             local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon =
@@ -131,11 +133,12 @@ local function Updater(event)
             end
          end
 
-         if ( isMajorFaction ) then
-            local majorFactionData = C_MajorFactions.GetMajorFactionData(faction.factionID);
-            isMax = C_MajorFactions.HasMaximumRenown(faction.factionID);
-		      local barValue = isMax and majorFactionData.renownLevelThreshold or majorFactionData.renownReputationEarned or 0;
-            local barMax = majorFactionData.renownLevelThreshold;
+         if (isMajorFaction) then
+            local majorFactionData = C_MajorFactions.GetMajorFactionData(faction.factionID)
+            isMax = C_MajorFactions.HasMaximumRenown(faction.factionID)
+            local barValue =
+               isMax and majorFactionData.renownLevelThreshold or majorFactionData.renownReputationEarned or 0
+            local barMax = majorFactionData.renownLevelThreshold
             curr = barValue
             max = barMax
             standingID = majorFactionData.renownLevel
@@ -166,17 +169,8 @@ local function Linegenerator(tooltip, data, character)
       priority = prio,
       moduleName = key,
       titleName = L["Reputation"]
-      -- data = "",
-      -- colOff = 0,
-      -- dontResize = false,
-      -- pulseAnim = false,
-      -- OnEnter = function() end,
-      -- OnEnterData = {},
-      -- OnLeave = function() end,
-      -- OnLeaveData = {},
-      -- OnClick = function() end,
-      -- OnClickData = {},
    }
+
    local ret = false
    local paragonAvailable = false
    local charKey = character.name .. "-" .. character.realm
@@ -191,9 +185,17 @@ local function Linegenerator(tooltip, data, character)
          "%s %s",
          Exlist.ShortenText(factionInfo.name, "", true),
          WrapTextInColorCode(
-            factionInfo.isMajorFaction and string.format(L["R-%s %s/%s"], factionInfo.standing, Exlist.ShortenNumber(factionInfo.curr), Exlist.ShortenNumber(factionInfo.max)) or
-            string.format("%s/%s", Exlist.ShortenNumber(factionInfo.curr), Exlist.ShortenNumber(factionInfo.max)),
-            factionInfo.isMajorFaction and colors.majorFaction or factionInfo.isFriend and colors.friendColors[factionInfo.standing] or colors.repColors[factionInfo.standing]
+            factionInfo.isMajorFaction and
+               string.format(
+                  L["R-%s %s/%s"],
+                  factionInfo.standing,
+                  Exlist.ShortenNumber(factionInfo.curr),
+                  Exlist.ShortenNumber(factionInfo.max)
+               ) or
+               string.format("%s/%s", Exlist.ShortenNumber(factionInfo.curr), Exlist.ShortenNumber(factionInfo.max)),
+            factionInfo.isMajorFaction and colors.majorFaction or
+               factionInfo.isFriend and colors.friendColors[factionInfo.standing] or
+               colors.repColors[factionInfo.standing]
          )
       )
       if factionInfo.paragonReward then
@@ -214,16 +216,21 @@ local function Linegenerator(tooltip, data, character)
             if (not r.isMajorFaction and r.standing == 8) or r.isMax then
                text2 =
                   WrapTextInColorCode(
-                  r.isMajorFaction and string.format(L["Renown %s"], r.standing) or r.isFriend and r.friendStandingLevel or standingNames[r.standing],
-                  r.isMajorFaction and colors.majorFaction or r.isFriend and colors.friendColors[r.standing] or colors.repColors[r.standing]
+                  r.isMajorFaction and string.format(L["Renown %s"], r.standing) or r.isFriend and r.friendStandingLevel or
+                     standingNames[r.standing],
+                  r.isMajorFaction and colors.majorFaction or r.isFriend and colors.friendColors[r.standing] or
+                     colors.repColors[r.standing]
                )
             else
                text2 =
                   string.format(
                   "%s (%s/%s)",
                   WrapTextInColorCode(
-                     r.isMajorFaction and string.format(L["Renown %s"], r.standing) or r.isFriend and r.friendStandingLevel or standingNames[r.standing],
-                     r.isMajorFaction and colors.majorFaction or r.isFriend and colors.friendColors[r.standing] or colors.repColors[r.standing]
+                     r.isMajorFaction and string.format(L["Renown %s"], r.standing) or
+                        r.isFriend and r.friendStandingLevel or
+                        standingNames[r.standing],
+                     r.isMajorFaction and colors.majorFaction or r.isFriend and colors.friendColors[r.standing] or
+                        colors.repColors[r.standing]
                   ),
                   Exlist.ShortenNumber(r.curr),
                   Exlist.ShortenNumber(r.max)
@@ -443,7 +450,15 @@ local data = {
    linegenerator = Linegenerator,
    priority = prio,
    updater = Updater,
-   event = {"PLAYER_ENTERING_WORLD", "UPDATE_FACTION", "UPDATE_FACTION_DELAY", "QUEST_TURNED_IN", "QUEST_REMOVED", "MAJOR_FACTION_RENOWN_LEVEL_CHANGED", "MAJOR_FACTION_UNLOCKED"},
+   event = {
+      "PLAYER_ENTERING_WORLD",
+      "UPDATE_FACTION",
+      "UPDATE_FACTION_DELAY",
+      "QUEST_TURNED_IN",
+      "QUEST_REMOVED",
+      "MAJOR_FACTION_RENOWN_LEVEL_CHANGED",
+      "MAJOR_FACTION_UNLOCKED"
+   },
    weeklyReset = false,
    dailyReset = false,
    description = L["Allows to select different reputation progress for your characters"],
