@@ -131,6 +131,13 @@ local Colors = {
          "fffaff00", -- +1
          "fffbdb00", -- +2
          "fffacd0c" -- +3
+      },
+      level = {
+         { level = 24, color = 'ffe6cc80' },
+         { level = 20, color = 'ffff8000' },
+         { level = 15, color = 'ff870af5' },
+         { level = 8, color = 'ff005dd6' },
+         { level = 0, color = 'ff19d600' }
       }
    },
    covenant = {

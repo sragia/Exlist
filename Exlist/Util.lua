@@ -479,3 +479,11 @@ local statusMarks = {
 function Exlist.AddCheckmark(text, status)
    return string.format("|T%s:0|t %s", statusMarks[status], text)
 end
+
+function Exlist.GetMythicPlusLevelColor(level)
+   for _, color in ipairs(Exlist.Colors.mythicplus.level) do
+      if (color.level <= level) then
+         return color.color
+      end 
+   end
+end
