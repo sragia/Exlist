@@ -645,6 +645,14 @@ local function getWeeklyTooltipData(profession, data)
 end
 
 local function Updater(event)
+  if (event == "CURRENCY_DISPLAY_UPDATE") then
+    C_Timer.After(
+      0.5,
+      function()
+        Exlist.SendFakeEvent("REFRESH_PROFESSION")
+      end
+    )
+  end
   local t = {}
   local prof1, prof2 = GetProfessions()
   for _, id in ipairs({prof1, prof2}) do
@@ -702,7 +710,9 @@ local data = {
     "QUEST_TURNED_IN",
     "PLAYER_ENTERING_WORLD",
     "QUEST_REMOVED",
-    "PLAYER_ENTERING_WORLD_DELAYED"
+    "PLAYER_ENTERING_WORLD_DELAYED",
+    "CURRENCY_DISPLAY_UPDATE",
+    "REFRESH_PROFESSION"
   },
   weeklyReset = true,
   dailyReset = false,
