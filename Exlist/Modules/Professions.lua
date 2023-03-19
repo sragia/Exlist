@@ -56,7 +56,7 @@ local professionWeeklies = {
     },
     {
       questId = 74108,
-      name = L["Treatise"],
+      name = L["Draconic Treatise"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
     }
@@ -104,6 +104,12 @@ local professionWeeklies = {
       name = L["Crafting Weekly"],
       points = 3,
       type = WEEKLY_TYPE.QUEST
+    },
+    {
+      questId = 74109,
+      name = L["Draconic Treatise"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
     }
   },
   [333] = {
@@ -141,6 +147,12 @@ local professionWeeklies = {
     {
       questId = 70514,
       name = L["Primordial Aether"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74110,
+      name = L["Draconic Treatise"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
     }
@@ -188,6 +200,12 @@ local professionWeeklies = {
       name = L["Keeper's Mark"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74111,
+      name = L["Draconic Treatise"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
     }
   },
   [773] = {
@@ -231,6 +249,12 @@ local professionWeeklies = {
     {
       questId = 70518,
       name = L["Curious Djaradin Rune"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74105,
+      name = L["Draconic Treatise"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
     }
@@ -278,6 +302,12 @@ local professionWeeklies = {
       name = L["Elegantly Engraved.."],
       points = 1,
       type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74112,
+      name = L["Draconic Treatise"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
     }
   },
   [165] = {
@@ -321,6 +351,12 @@ local professionWeeklies = {
     {
       questId = 70522,
       name = L["Ossified Hide"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74113,
+      name = L["Draconic Treatise"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
     }
@@ -368,6 +404,12 @@ local professionWeeklies = {
       name = L["Ohn'arhan Weave"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74115,
+      name = L["Draconic Treatise"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
     }
   },
   [182] = {
@@ -407,6 +449,12 @@ local professionWeeklies = {
       name = L["Dreambloom"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74107,
+      name = L["Draconic Treatise"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
     }
   },
   [186] = {
@@ -444,6 +492,12 @@ local professionWeeklies = {
     {
       questId = 72165,
       name = L["Iridescent Ore"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74106,
+      name = L["Draconic Treatise"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
     }
@@ -489,6 +543,12 @@ local professionWeeklies = {
     {
       questId = 70389,
       name = L["Curious Hide"],
+      points = 1,
+      type = WEEKLY_TYPE.ITEM
+    },
+    {
+      questId = 74114,
+      name = L["Draconic Treatise"],
       points = 1,
       type = WEEKLY_TYPE.ITEM
     }
