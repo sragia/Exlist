@@ -6,8 +6,8 @@ local colors = Exlist.Colors
 
 local rewardTypes = {
    [Enum.WeeklyRewardChestThresholdType.Raid] = { title = "Raid", prio = 1 },
-   [Enum.WeeklyRewardChestThresholdType.MythicPlus] = {
-      title = "Mythic+",
+   [Enum.WeeklyRewardChestThresholdType.Activities] = {
+      title = L["Dungeons"],
       prio = 2
    },
    [Enum.WeeklyRewardChestThresholdType.RankedPvP] = { title = "PvP", prio = 3 }
@@ -38,7 +38,7 @@ local function getActivitiesByType(type, activities)
 end
 
 local function formatLevel(type, level, isSlim)
-   if type == Enum.WeeklyRewardChestThresholdType.MythicPlus then
+   if type == Enum.WeeklyRewardChestThresholdType.Activities then
       return string.format("+%s", level)
    elseif type == Enum.WeeklyRewardChestThresholdType.Raid then
       local diff = DifficultyUtil.GetDifficultyName(level)
@@ -107,7 +107,7 @@ local function getActivityTooltip(activity)
 
    local typeName = ""
 
-   if activity.type == Enum.WeeklyRewardChestThresholdType.MythicPlus then
+   if activity.type == Enum.WeeklyRewardChestThresholdType.Activities then
       typeName = L["Mythic+"]
 
       if (activity.runs) then
@@ -157,7 +157,7 @@ local function Updater(event)
 
    if (t.activities and #t.activities > 0) then
       for _, activity in pairs(t.activities) do
-         if (activity.type == Enum.WeeklyRewardChestThresholdType.MythicPlus) then
+         if (activity.type == Enum.WeeklyRewardChestThresholdType.Activities) then
             activity.runs = getBestMythicPlusRuns(activity.threshold)
          end
       end

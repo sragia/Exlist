@@ -326,6 +326,7 @@ end
 local function init()
    defaultSettings = {
       -- Dragonflight
+      [GetLFGDungeonInfo(2502) or "Amirdrassil, the Dream's Hope"] = { enabled = true, expansion = 10, order = 8 },
       [GetLFGDungeonInfo(2403) or "Aberrus, the Shadowed Crucible"] = { enabled = true, expansion = 10, order = 9 },
       [GetLFGDungeonInfo(2388) or "Vault of the Incarnates"] = { enabled = true, expansion = 10, order = 10 },
       -- Shadowlands
@@ -506,15 +507,15 @@ local function init()
       --Tomb of Sargeras
       [GetLFGDungeonInfo(1527) or "Tomb of Sargeras"] = {
          [1494] = { name = "The Gates of Hell", totalEncounters = 3, order = 1 },
-         [1495] = { name = "Wailing Halls", totalEncounters = 3, order = 2 },       --?? inq +sist + deso
+         [1495] = { name = "Wailing Halls", totalEncounters = 3, order = 2 }, --?? inq +sist + deso
          [1496] = { name = "Chamber of the Avatar", totalEncounters = 2, order = 3 }, --?? maid + ava
-         [1497] = { name = "Deceiver’s Fall", totalEncounters = 1, order = 4 }    --?? KJ
+         [1497] = { name = "Deceiver’s Fall", totalEncounters = 1, order = 4 } --?? KJ
       },
       -- Antorus
       [GetLFGDungeonInfo(1640) or "Antorus, the Burning Throne"] = {
-         [1610] = { name = "Light's Breach", totalEncounters = 3, order = 1 },    -- Light's Breach
-         [1611] = { name = "Forbidden Descent", totalEncounters = 3, order = 2 }, -- Forbidden Descent
-         [1612] = { name = "Hope's End", totalEncounters = 3, order = 3 },        -- Hope's End
+         [1610] = { name = "Light's Breach", totalEncounters = 3, order = 1 },      -- Light's Breach
+         [1611] = { name = "Forbidden Descent", totalEncounters = 3, order = 2 },   -- Forbidden Descent
+         [1612] = { name = "Hope's End", totalEncounters = 3, order = 3 },          -- Hope's End
          [1613] = { name = "Seat of the Pantheon", totalEncounters = 2, order = 4 } -- Seat of the Pantheon
       },
       -- BFA
@@ -575,7 +576,13 @@ local function init()
          [2399] = { name = "Discarded Works", totalEncounters = 3, order = 1 },
          [2400] = { name = "Fury of Giants", totalEncounters = 3, order = 2 },
          [2401] = { name = "Neltharion's Shadow", totalEncounters = 2, order = 3 },
-         [2402] = { name = "Edge of the Void", totalEncounters = 1, order = 3 },
+         [2402] = { name = "Edge of the Void", totalEncounters = 1, order = 4 },
+      },
+      [GetLFGDungeonInfo(2502) or "Aberrus, the Shadowed Crucible"] = {
+         [2466] = { name = "Incarnate's Wake", totalEncounters = 3, order = 1 },
+         [2467] = { name = "The Viridian Weave", totalEncounters = 2, order = 2 },
+         [2468] = { name = "Molten Incursion", totalEncounters = 2, order = 3 },
+         [2469] = { name = "Fate of Amirdrassil", totalEncounters = 2, order = 4 },
       }
    }
 
