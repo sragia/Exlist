@@ -1188,7 +1188,6 @@ local function OnEnter(self)
             self.time = self.time + elapsed
             if self.time > 0.1 then
                if Exlist.MouseOverTooltips() or button:IsMouseOver() then
-                  print(Exlist.MouseOverTooltips(), button:IsMouseOver())
                   self.elapsed = 0
                else
                   self.elapsed = self.elapsed + self.time
