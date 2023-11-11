@@ -24,9 +24,9 @@ local GetCVar = GetCVar
 local WrapTextInColorCode, SecondsToTime = WrapTextInColorCode, SecondsToTime
 local UnitClass, UnitLevel = UnitClass, UnitLevel
 local GetAverageItemLevel, GetSpecialization, GetSpecializationInfo =
-   GetAverageItemLevel,
-   GetSpecialization,
-   GetSpecializationInfo
+    GetAverageItemLevel,
+    GetSpecialization,
+    GetSpecializationInfo
 local C_Timer = C_Timer
 local C_ArtifactUI = C_ArtifactUI
 local HasArtifactEquipped = HasArtifactEquipped
@@ -37,18 +37,18 @@ local InCombatLockdown = InCombatLockdown
 local strsplit = strsplit
 local UIParent, WorldMapFrame = UIParent, WorldMapFrame
 local GetItemGem, UnitAura, GetTalentInfo, GetProfessions, GetProfessionInfo, IsInRaid =
-   GetItemGem,
-   UnitAura,
-   GetTalentInfo,
-   GetProfessions,
-   GetProfessionInfo,
-   IsInRaid
+    GetItemGem,
+    UnitAura,
+    GetTalentInfo,
+    GetProfessions,
+    GetProfessionInfo,
+    IsInRaid
 local GetScreenWidth, GetScreenHeight, GetCurrentRegion, CalendarGetDate, GetQuestResetTime =
-   GetScreenWidth,
-   GetScreenHeight,
-   GetCurrentRegion,
-   CalendarGetDate,
-   GetQuestResetTime
+    GetScreenWidth,
+    GetScreenHeight,
+    GetCurrentRegion,
+    CalendarGetDate,
+    GetQuestResetTime
 local hooksecurefunc, SendChatMessage = hooksecurefunc, SendChatMessage
 -- lua api
 local tonumber = _G.tonumber
@@ -66,7 +66,7 @@ LSM:Register("font", "PT_Sans_Narrow", [[Interface\Addons\Exlist\Media\Font\font
 local settings = {
    -- default settings
    minLevel = 80,
-   fonts = {big = {size = 15}, medium = {size = 13}, small = {size = 11}},
+   fonts = { big = { size = 15 }, medium = { size = 13 }, small = { size = 11 } },
    Font = "PT_Sans_Narrow",
    tooltipHeight = 600,
    delay = 0.2,
@@ -80,13 +80,13 @@ local settings = {
    lockIcon = false,
    iconAlpha = 1,
    backdrop = {
-      color = {r = 0, g = 0, b = 0, a = .9},
-      borderColor = {r = .2, b = .2, g = .2, a = 1}
+      color = { r = 0, g = 0, b = 0, a = .9 },
+      borderColor = { r = .2, b = .2, g = .2, a = 1 }
    },
    currencies = {},
    worldQuests = {},
    worldbosses = {},
-   wqRules = {money = {}, currency = {}, item = {}, honor = {}},
+   wqRules = { money = {}, currency = {}, item = {}, honor = {} },
    quests = {},
    extraInfoToggles = {},
    announceReset = false,
@@ -105,7 +105,7 @@ local settings = {
       ["daily"] = {},
       ["weekly"] = {}
    },
-   reputation = {cache = {}, charOption = {}, enabled = {}},
+   reputation = { cache = {}, charOption = {}, enabled = {} },
    azeriteWeekly = true
 }
 
@@ -138,10 +138,10 @@ local hugeFont = CreateFont("Exlist_HugeFont")
 hugeFont:SetFont(font, fontSet.big.size, "OUTLINE")
 hugeFont:SetTextColor(1, 1, 1)
 local smallFont = CreateFont("Exlist_SmallFont")
-smallFont:SetFont(font, fontSet.small.size,"OUTLINE")
+smallFont:SetFont(font, fontSet.small.size, "OUTLINE")
 smallFont:SetTextColor(1, 1, 1)
 local mediumFont = CreateFont("Exlist_MediumFont")
-mediumFont:SetFont(font, fontSet.medium.size,"OUTLINE")
+mediumFont:SetFont(font, fontSet.medium.size, "OUTLINE")
 mediumFont:SetTextColor(1, 1, 1)
 
 Exlist.Fonts = {
@@ -213,7 +213,7 @@ local function ShortenNumber(number)
    if not number then
       return
    end
-   local affixes = {"", "k", "m", "b", "t"}
+   local affixes = { "", "k", "m", "b", "t" }
    local affix = 1
    local dec = 0
    local num1 = math.abs(number)
@@ -272,8 +272,8 @@ local function TimeLeftColor(timeLeft, times, col)
    if not timeLeft then
       return
    end
-   times = times or {3600, 18000} -- default
-   local colors = col or {Exlist.Colors.time.long, Exlist.Colors.time.medium, Exlist.Colors.time.short} -- default
+   times = times or { 3600, 18000 }                                                                       -- default
+   local colors = col or { Exlist.Colors.time.long, Exlist.Colors.time.medium, Exlist.Colors.time.short } -- default
    for i = 1, #times do
       if timeLeft < times[i] then
          return WrapTextInColorCode(SecondsToTime(timeLeft), colors[i])
@@ -297,22 +297,22 @@ function MyScanningTooltip.ClearTooltip(self)
 end
 
 Exlist.QuestTitleFromID =
-   setmetatable(
-   {},
-   {
-      __index = function(t, id)
-         MyScanningTooltip:ClearTooltip()
-         MyScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-         MyScanningTooltip:SetHyperlink("quest:" .. id)
-         local title = ExlistScanningTooltipTextLeft1:GetText()
-         MyScanningTooltip:Hide()
-         if title and title ~= RETRIEVING_DATA then
-            t[id] = title
-            return title
-         end
-      end
-   }
-)
+    setmetatable(
+       {},
+       {
+          __index = function(t, id)
+             MyScanningTooltip:ClearTooltip()
+             MyScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+             MyScanningTooltip:SetHyperlink("quest:" .. id)
+             local title = ExlistScanningTooltipTextLeft1:GetText()
+             MyScanningTooltip:Hide()
+             if title and title ~= RETRIEVING_DATA then
+                t[id] = title
+                return title
+             end
+          end
+       }
+    )
 
 local function GetItemEnchant(itemLink)
    MyScanningTooltip:ClearTooltip()
@@ -321,9 +321,9 @@ local function GetItemEnchant(itemLink)
    local enchantKey = ENCHANTED_TOOLTIP_LINE:gsub("%%s", "(.+)")
    for i = 1, MyScanningTooltip:NumLines() do
       if
-         _G["ExlistScanningTooltipTextLeft" .. i]:GetText() and
-            _G["ExlistScanningTooltipTextLeft" .. i]:GetText():match(enchantKey)
-       then
+          _G["ExlistScanningTooltipTextLeft" .. i]:GetText() and
+          _G["ExlistScanningTooltipTextLeft" .. i]:GetText():match(enchantKey)
+      then
          -- name,id
          local name = _G["ExlistScanningTooltipTextLeft" .. i]:GetText()
          name = name:match("^%w+: (.*)")
@@ -339,7 +339,7 @@ local function GetItemGems(itemLink)
       local name, iLink = GetItemGem(itemLink, i)
       if iLink then
          local icon = select(10, GetItemInfo(iLink))
-         table.insert(t, {name = name, icon = icon})
+         table.insert(t, { name = name, icon = icon })
       end
    end
    MyScanningTooltip:ClearTooltip()
@@ -396,8 +396,8 @@ local function GetTimeLeftColor(time, inverse)
    end
    -- long
    -- long,medium,short
-   local times = {18000, 3600}
-   local colorKeys = {"long", "medium", "short"}
+   local times = { 18000, 3600 }
+   local colorKeys = { "long", "medium", "short" }
    for i = 1, #times do
       if time > times[i] then
          return inverse and Exlist.Colors.time[colorKeys[4 - i]] or Exlist.Colors.time[colorKeys[i]]
@@ -430,7 +430,7 @@ Exlist.FormatTime = FormatTime
 local sTextCache = {}
 local function ShortenText(s, separator, full)
    wipe(sTextCache)
-   sTextCache = {strsplit(" ", s)}
+   sTextCache = { strsplit(" ", s) }
    separator = separator or "."
    local offset = full and 0 or 1
    for i = 1, #sTextCache - offset do
@@ -456,26 +456,28 @@ local function AuraFromId(unit, ID, filter)
    -- Already Preparing for BFA
    for i = 1, 40 do
       local name,
-         icon,
-         count,
-         debuffType,
-         duration,
-         expirationTime,
-         unitCaster,
-         canStealOrPurge,
-         nameplateShowPersonal,
-         spellId,
-         canApplyAura,
-         isBossDebuff,
-         isCastByPlayer,
-         nameplateShowAll,
-         timeMod,
-         value1,
-         value2,
-         value3 = UnitAura(unit, i, filter)
+      icon,
+      count,
+      debuffType,
+      duration,
+      expirationTime,
+      unitCaster,
+      canStealOrPurge,
+      nameplateShowPersonal,
+      spellId,
+      canApplyAura,
+      isBossDebuff,
+      isCastByPlayer,
+      nameplateShowAll,
+      timeMod,
+      value1,
+      value2,
+      value3 = UnitAura(unit, i, filter)
       if name then
          if spellId and spellId == ID then
-            return name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3
+            return name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge,
+                nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod,
+                value1, value2, value3
          end
       else
          -- afaik auras always are in list w/o gaps ie 1,2,3,4,5,6 instead of 1,2,4,5,8...
@@ -508,8 +510,8 @@ local function AddMissingCharactersToSettings()
                   name = name,
                   order = 70,
                   classClr = values.class and RAID_CLASS_COLORS[values.class].colorStr or
-                     name == UnitName("player") and RAID_CLASS_COLORS[select(2, UnitClass("player"))].colorStr or
-                     "FFFFFFFF",
+                      name == UnitName("player") and RAID_CLASS_COLORS[select(2, UnitClass("player"))].colorStr or
+                      "FFFFFFFF",
                   ilvl = values.iLvl or 0
                }
             end
@@ -528,7 +530,7 @@ local function AddModulesToSettings()
    for key, data in pairs(Exlist.ModuleData.modules) do
       if t[key] == nil then
          -- first time
-         newT[key] = {enabled = data.defaultEnable, name = data.name}
+         newT[key] = { enabled = data.defaultEnable, name = data.name }
       else
          newT[key] = t[key]
          newT[key].name = data.name
@@ -565,7 +567,7 @@ local function GetCachedItemInfo(itemId)
       return config_db.item_cache[itemId]
    else
       local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(itemId)
-      local t = {name = name, texture = texture}
+      local t = { name = name, texture = texture }
       if name and texture then
          -- only save if GetItemInfo actually gave info
          config_db.item_cache = config_db.item_cache or {}
@@ -642,7 +644,7 @@ local slotNames = {
 
 local function UpdateCharacterGear()
    local t = {}
-   local order = {1, 2, 3, 15, 5, 9, 10, 6, 7, 8, 11, 12, 13, 14, 16, 17, 18}
+   local order = { 1, 2, 3, 15, 5, 9, 10, 6, 7, 8, 11, 12, 13, 14, 16, 17, 18 }
    for i = 1, #order do
       local iLink = GetInventoryItemLink("player", order[i])
       if iLink then
@@ -693,7 +695,7 @@ local function UpdateCharacterGear()
 end
 
 local function UpdateCharacterProfessions()
-   local profIndexes = {GetProfessions()}
+   local profIndexes = { GetProfessions() }
    local t = {}
    for i = 1, #profIndexes do
       if profIndexes[i] then
@@ -849,7 +851,7 @@ function Exlist.AddData(info)
    end
    info.colOff = info.colOff or 0
    local char = info.character.name .. info.character.realm
-   Exlist.tooltipData[char] = Exlist.tooltipData[char] or {modules = {}, num = 0}
+   Exlist.tooltipData[char] = Exlist.tooltipData[char] or { modules = {}, num = 0 }
    local t = Exlist.tooltipData[char]
    if t.modules[info.moduleName] then
       table.insert(t.modules[info.moduleName].data, info)
@@ -859,7 +861,7 @@ function Exlist.AddData(info)
          t.num = t.num + 1
       end
       t.modules[info.moduleName] = {
-         data = {info},
+         data = { info },
          priority = info.priority,
          name = info.titleName,
          num = 1
@@ -1176,26 +1178,30 @@ local function OnEnter(self)
       end
       table.insert(Exlist.activeTooltips, tooltip)
    end
-   self.time = 0
-   self.elapsed = 0
-   self:SetScript(
-      "OnUpdate",
-      function(self, elapsed)
-         self.time = self.time + elapsed
-         if self.time > 0.1 then
-            if Exlist.MouseOverTooltips() or self:IsMouseOver() then
-               self.elapsed = 0
-            else
-               self.elapsed = self.elapsed + self.time
-               if self.elapsed > settings.delay then
-                  Exlist.ReleaseActiveTooltips()
-                  self:SetScript("OnUpdate", nil)
+   local button = self;
+   if (mainTooltip) then
+      mainTooltip.time = 0
+      mainTooltip.elapsed = 0
+      mainTooltip:SetScript(
+         "OnUpdate",
+         function(self, elapsed)
+            self.time = self.time + elapsed
+            if self.time > 0.1 then
+               if Exlist.MouseOverTooltips() or button:IsMouseOver() then
+                  print(Exlist.MouseOverTooltips(), button:IsMouseOver())
+                  self.elapsed = 0
+               else
+                  self.elapsed = self.elapsed + self.time
+                  if self.elapsed > settings.delay then
+                     Exlist.ReleaseActiveTooltips()
+                     self:SetScript("OnUpdate", nil)
+                  end
                end
+               self.time = 0
             end
-            self.time = 0
          end
-      end
-   )
+      )
+   end
 end
 
 butTool:SetScript("OnEnter", OnEnter)
@@ -1208,16 +1214,16 @@ end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
 local LDB_Exlist =
-   LDB:NewDataObject(
-   "Exlist",
-   {
-      type = "data source",
-      text = "Exlist",
-      icon = "Interface\\AddOns\\Exlist\\Media\\Icons\\logo",
-      OnClick = OpenConfig,
-      OnEnter = OnEnter
-   }
-)
+    LDB:NewDataObject(
+       "Exlist",
+       {
+          type = "data source",
+          text = "Exlist",
+          icon = "Interface\\AddOns\\Exlist\\Media\\Icons\\logo",
+          OnClick = OpenConfig,
+          OnEnter = OnEnter
+       }
+    )
 
 -- refresh
 function Exlist.RefreshAppearance()
@@ -1227,7 +1233,7 @@ function Exlist.RefreshAppearance()
    butTool:SetScript(
       "OnDragStart",
       not settings.lockIcon and butTool.StartMoving or function()
-         end
+      end
    )
    local font = LSM:Fetch("font", settings.Font)
    hugeFont:SetFont(font, settings.fonts.big.size, "OUTLINE")
@@ -1266,7 +1272,7 @@ local function Modernize()
       if type(value) ~= "table" then
          for key, t in pairs(Exlist.ModuleData.modules) do
             if t.name == name then
-               settings.allowedModules[t.key] = {enabled = value, name = name}
+               settings.allowedModules[t.key] = { enabled = value, name = name }
                break
             end
          end
@@ -1560,6 +1566,7 @@ function frame:OnEvent(event, ...)
       end
    end
 end
+
 frame:SetScript("OnEvent", frame.OnEvent)
 
 function Exlist.SendFakeEvent(event, ...)
@@ -1597,7 +1604,7 @@ end
 
 SLASH_CHARINF1, SLASH_CHARINF2 = "/EXL", "/Exlist"
 function SlashCmdList.CHARINF(msg, editbox)
-   local args = {strsplit(" ", msg)}
+   local args = { strsplit(" ", msg) }
    if args[1] == "" then
       OpenConfig()
    elseif args[1] == "refresh" then
