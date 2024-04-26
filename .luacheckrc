@@ -769,6 +769,7 @@ globals = {
 	"C_MountJournal.SetSourceFilter",
 	"C_MountJournal.SummonByID",
 	"C_NamePlate",
+	"C_ModifiedInstance",
 	"C_NamePlate.GetNamePlateForUnit",
 	"C_NamePlate.GetNamePlateOtherSize",
 	"C_NamePlate.GetNamePlateSelfSize",
