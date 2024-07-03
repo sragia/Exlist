@@ -201,6 +201,21 @@ Exlist.SetupConfig = function(refresh)
                      Exlist.RefreshAppearance()
                   end
                },
+               minLevelToTrack = {
+                  order = 2.1,
+                  type = "range",
+                  name = L["Min Level to track"],
+                  min = 1,
+                  max = 100,
+                  step = 1,
+                  get = function(self)
+                     return Exlist.ConfigDB.settings.minLevelToTrack or 70
+                  end,
+                  set = function(self, v)
+                     Exlist.ConfigDB.settings.minLevelToTrack = v
+                     Exlist.RefreshAppearance()
+                  end
+               },
                announceReset = {
                   order = 4,
                   name = L["Announce instance reset"],
