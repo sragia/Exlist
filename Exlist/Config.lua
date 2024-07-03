@@ -5,7 +5,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 local AceConfReg = LibStub("AceConfigRegistry-3.0")
 local AceConfDia = LibStub("AceConfigDialog-3.0")
 
-local addonVersion = GetAddOnMetadata(name, "version")
+local addonVersion = C_AddOns.GetAddOnMetadata(name, "version")
 -- @debug@
 if addonVersion == "@project-version@" then
    addonVersion = "Development"
