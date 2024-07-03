@@ -30,25 +30,16 @@ local GetAverageItemLevel, GetSpecialization, GetSpecializationInfo =
 local C_Timer = C_Timer
 local C_ArtifactUI = C_ArtifactUI
 local HasArtifactEquipped = HasArtifactEquipped
-local GetItemInfo, GetInventoryItemLink = GetItemInfo, GetInventoryItemLink
+local GetItemInfo, GetInventoryItemLink = C_Item.GetItemInfo, GetInventoryItemLink
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local GetGameTime, GetTime, debugprofilestop = GetGameTime, GetTime, debugprofilestop
-local InCombatLockdown = InCombatLockdown
 local strsplit = strsplit
 local UIParent, WorldMapFrame = UIParent, WorldMapFrame
-local GetItemGem, UnitAura, GetTalentInfo, GetProfessions, GetProfessionInfo, IsInRaid =
-    GetItemGem,
-    UnitAura,
-    GetTalentInfo,
+local GetItemGem, GetProfessions, GetProfessionInfo, IsInRaid =
+    C_Item.GetItemGem,
     GetProfessions,
     GetProfessionInfo,
     IsInRaid
-local GetScreenWidth, GetScreenHeight, GetCurrentRegion, CalendarGetDate, GetQuestResetTime =
-    GetScreenWidth,
-    GetScreenHeight,
-    GetCurrentRegion,
-    CalendarGetDate,
-    GetQuestResetTime
 local hooksecurefunc, SendChatMessage = hooksecurefunc, SendChatMessage
 -- lua api
 local tonumber = _G.tonumber
@@ -472,7 +463,7 @@ local function AuraFromId(unit, ID, filter)
       timeMod,
       value1,
       value2,
-      value3 = UnitAura(unit, i, filter)
+      value3 = C_UnitAuras.GetAuraDataByIndex(unit, i, filter)
       if name then
          if spellId and spellId == ID then
             return name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge,
@@ -649,7 +640,7 @@ local function UpdateCharacterGear()
       local iLink = GetInventoryItemLink("player", order[i])
       if iLink then
          local itemName, itemLink, itemRarity, _, _, _, _, _, _, itemTexture, _ = GetItemInfo(iLink)
-         local ilvl = GetDetailedItemLevelInfo(iLink)
+         local ilvl = C_Item.GetDetailedItemLevelInfo(iLink)
          local relics = {}
          local enchant = GetItemEnchant(iLink)
          local gem = GetItemGems(iLink)
@@ -677,7 +668,7 @@ local function UpdateCharacterGear()
       for i = 1, 3 do
          local name, icon, slotTypeName, link = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
          if name then
-            local ilvl = GetDetailedItemLevelInfo(link)
+            local ilvl = C_Item.GetDetailedItemLevelInfo(link)
             table.insert(
                t,
                {
@@ -1207,8 +1198,7 @@ butTool:SetScript("OnEnter", OnEnter)
 
 -- config --
 local function OpenConfig(self, button)
-   InterfaceOptionsFrame_OpenToCategory(addonName)
-   InterfaceOptionsFrame_OpenToCategory(addonName)
+   Settings.OpenToCategory(addonName)
 end
 butTool:SetScript("OnMouseUp", OpenConfig)
 

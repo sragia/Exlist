@@ -54,10 +54,10 @@ local function getCurrentIlvl(id)
    local data = {}
 
    if exampleItem then
-      data.ilvl = GetDetailedItemLevelInfo(exampleItem)
+      data.ilvl = C_Item.GetDetailedItemLevelInfo(exampleItem)
    end
    if upgradeItem then
-      data.upgradeIlvl = GetDetailedItemLevelInfo(upgradeItem)
+      data.upgradeIlvl = C_Item.GetDetailedItemLevelInfo(upgradeItem)
    end
 
    return data
