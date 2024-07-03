@@ -56,7 +56,7 @@ local timer = Exlist.timers
 LSM:Register("font", "PT_Sans_Narrow", [[Interface\Addons\Exlist\Media\Font\font.ttf]])
 local settings = {
    -- default settings
-   minLevel = 80,
+   minLevelToTrack = 60,
    fonts = { big = { size = 15 }, medium = { size = 13 }, small = { size = 11 } },
    Font = "PT_Sans_Narrow",
    tooltipHeight = 600,
@@ -531,7 +531,8 @@ local function AddModulesToSettings()
 end
 
 local function UpdateChar(key, data, charname, charrealm)
-   if not data then
+   print(UnitLevel('player'))
+   if not data or (UnitLevel('player') < (Exlist.ConfigDB.minLevelToTrack or settings.minLevelToTrack)) then
       return
    end
    charrealm = charrealm or GetRealmName()
@@ -1453,6 +1454,9 @@ local IGNORED_EVENTS = {
 }
 
 local function IsEventEligible(event)
+   if (UnitLevel('player') < (Exlist.ConfigDB.minLevelToTrack or settings.minLevelToTrack)) then
+      return false
+   end
    if runEvents[event] then
       if GetTime() - runEvents[event] > 0.5 then
          runEvents[event] = nil
@@ -1480,9 +1484,6 @@ local function DebugTimeColors(timeSpent)
 end
 
 function frame:OnEvent(event, ...)
-   if not IsEventEligible(event) then
-      return
-   end
    if event == "PLAYER_LOGOUT" then
       -- save things
       if db and next(db) ~= nil then
@@ -1505,6 +1506,9 @@ function frame:OnEvent(event, ...)
             Exlist.accountSync.init()
          end
       )
+      return
+   end
+   if not IsEventEligible(event) then
       return
    end
    -- Delays
