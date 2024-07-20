@@ -73,6 +73,11 @@ local zones = {
    2023, -- The Azure Span
    2133, -- Zaralek Caverns
    2200, -- Emerald Dream
+   -- The War Within
+   2248, -- Isle of Dorn
+   2214, -- Ringing Deeps
+   2215, -- Hallowfall
+   2270, -- Azj'kahet
 }
 
 local rewardRules = {}
