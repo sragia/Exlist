@@ -79,6 +79,12 @@ local worldBossIDs = {
    [69928] = { eid = 2518, expansion = 10, enabled = true, wq = true },                                   -- Liskanoth
    [74892] = { eid = 2531, expansion = 10, enabled = true, wq = true },                                   -- Zaqali Elders
    [76367] = { eid = 2562, expansion = 10, enabled = true, wq = true },                                   -- Aurostor
+   -- The War Within
+   [81624] = { eid = 2625, expansion = 11, enabled = true, wq = true },                                   -- Orta
+   [81653] = { eid = 2636, expansion = 11, enabled = true, wq = true },                                   -- Shurrai
+   [82653] = { eid = 2635, expansion = 11, enabled = true, wq = true },                                   -- Aggregation
+   [81630] = { eid = 2625, expansion = 11, enabled = true, wq = true },                                   -- Kordac
+
 
 }
 local lastUpdate = 0

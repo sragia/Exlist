@@ -328,10 +328,12 @@ end
 
 local function init()
    defaultSettings = {
+      -- The War Within
+      [GetLFGDungeonInfo(2645) or "Nerub-ar Palace"] = { enabled = true, expansion = 11, order = 10 },
       -- Dragonflight
-      [GetLFGDungeonInfo(2502) or "Amirdrassil, the Dream's Hope"] = { enabled = true, expansion = 10, order = 8 },
-      [GetLFGDungeonInfo(2403) or "Aberrus, the Shadowed Crucible"] = { enabled = true, expansion = 10, order = 9 },
-      [GetLFGDungeonInfo(2388) or "Vault of the Incarnates"] = { enabled = true, expansion = 10, order = 10 },
+      [GetLFGDungeonInfo(2502) or "Amirdrassil, the Dream's Hope"] = { enabled = false, expansion = 10, order = 8 },
+      [GetLFGDungeonInfo(2403) or "Aberrus, the Shadowed Crucible"] = { enabled = false, expansion = 10, order = 9 },
+      [GetLFGDungeonInfo(2388) or "Vault of the Incarnates"] = { enabled = false, expansion = 10, order = 10 },
       -- Shadowlands
       [GetLFGDungeonInfo(2288) or "Sepulcher of the First Ones"] = { enabled = false, expansion = 9, order = 8 },
       [GetLFGDungeonInfo(2226) or "Sanctum of Domination"] = { enabled = false, expansion = 9, order = 9 },
