@@ -531,7 +531,6 @@ local function AddModulesToSettings()
 end
 
 local function UpdateChar(key, data, charname, charrealm)
-   print(UnitLevel('player'))
    if not data or (UnitLevel('player') < (Exlist.ConfigDB.minLevelToTrack or settings.minLevelToTrack)) then
       return
    end
