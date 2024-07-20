@@ -136,18 +136,21 @@ end
 local function GetQuestRewards(questId)
    local rewards = {}
    C_TaskQuest.RequestPreloadRewardData(questId)
-   local name, texture, numItems, quality, isUsable, itemId = GetQuestLogRewardInfo(1, questId)
+   local name, texture, numItems = GetQuestLogRewardInfo(1, questId)
    if name then
       local itemType = "item"
       table.insert(rewards, { name = name, amount = numItems, texture = texture, type = itemType })
    end
-   local numQuestCurrencies = GetNumQuestLogRewardCurrencies(questId)
-   if numQuestCurrencies > 0 then
-      for i = 1, numQuestCurrencies do
-         local name, texture, numItems = GetQuestLogRewardCurrencyInfo(i, questId)
-         if name then
-            table.insert(rewards, { name = name, amount = numItems, texture = texture, type = "currency" })
-         end
+   for _, currencyReward in ipairs(C_QuestLog.GetQuestRewardCurrencies(questId)) do
+      if currencyReward.name then
+         table.insert(rewards,
+            {
+               name = currencyReward.name,
+               amount = currencyReward.totalRewardAmount,
+               texture = currencyReward.texture,
+               type =
+               "currency"
+            })
       end
    end
    local coppers = GetQuestLogRewardMoney(questId)
