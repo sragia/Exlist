@@ -141,7 +141,7 @@ local function Updater(event)
             local barMax = majorFactionData.renownLevelThreshold
             curr = barValue
             max = barMax
-            standingID = majorFactionData.renownLevel
+            factionData.reaction = majorFactionData.renownLevel
          end
          t[faction.factionID] = {
             name = factionData.name,
