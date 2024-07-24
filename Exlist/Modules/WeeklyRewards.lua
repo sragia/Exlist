@@ -10,6 +10,7 @@ local rewardTypes = {
       title = L["Dungeons"],
       prio = 2
    },
+   [Enum.WeeklyRewardChestThresholdType.RankedPvP] = { title = "PvP", prio = 3 },
    [Enum.WeeklyRewardChestThresholdType.World] = { title = "World", prio = 3 }
 }
 
@@ -135,6 +136,8 @@ local function getActivityTooltip(activity)
       typeName = L["Raid"]
    elseif activity.type == Enum.WeeklyRewardChestThresholdType.World then
       typeName = L["World"]
+   elseif activity.type == Enum.WeeklyRewardChestThresholdType.RankedPvP then
+      typeName = L["PvP"]
    end
 
    sideTooltip.title =

@@ -30,7 +30,7 @@ local function Updater(event)
       C_Timer.After(
          1,
          function()
-            Exlist.SendFakeEvent("FUCK_YOU_BLIZZARD")
+            Exlist.SendFakeEvent("BLIZZARD_THANKS_SMILE")
          end
       )
    end
@@ -209,7 +209,7 @@ local data = {
       "PLAYER_ENTERING_WORLD",
       "LOOT_CLOSED",
       "MYTHIC_PLUS_REFRESH_INFO",
-      "FUCK_YOU_BLIZZARD"
+      "BLIZZARD_THANKS_SMILE"
    },
    description = L["Tracks highest completed mythic+ in a week and all highest level runs per dungeon"],
    weeklyReset = true,

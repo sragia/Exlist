@@ -595,6 +595,10 @@ local function DeleteCharacterKey(name, realm, key)
    db[realm][name][key] = nil
 end
 
+local function WipeAll()
+   db = {}
+end
+
 local function WipeKey(key)
    -- ... yea
    -- if i need to delete 1 key info from all characters on all realms
@@ -1453,6 +1457,23 @@ local IGNORED_EVENTS = {
 }
 
 local function IsEventEligible(event)
+   if (not Exlist.ConfigDB) then
+      if (delay) then
+         if not running then
+            C_Timer.After(
+               4,
+               function()
+                  Exlist.SendFakeEvent("Exlist_DELAY")
+               end
+            )
+            delayedEvents[event] = 1
+            running = true
+         else
+            delayedEvents[event] = 1
+         end
+      end
+      return
+   end
    if (UnitLevel('player') < (Exlist.ConfigDB.minLevelToTrack or settings.minLevelToTrack)) then
       return false
    end
@@ -1615,6 +1636,8 @@ function SlashCmdList.CHARINF(msg, editbox)
          -- testing purposes
          WipeKey(args[2])
       end
+   elseif args[1] == "wipeall" then
+      WipeAll()
    elseif args[1] == "triggerreset" then
       if args[2] then
          WipeKeysForReset(args[2])
