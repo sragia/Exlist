@@ -72,15 +72,15 @@ local function UpdateReputationCache(factionID)
    local ret = false
    factionID = tonumber(factionID)
    if factionID and type(factionID) == "number" then
-      local name = GetFactionInfoByID(factionID)
-      AddReputationToCache(name, factionID)
-      ret = name
+      local factionData = C_Reputation.GetFactionDataByID(factionID)
+      AddReputationToCache(factionData.name, factionID)
+      ret = factionData.name
    end
    local numFactions = C_Reputation.GetNumFactions()
    for i = 1, numFactions do
-      local name, _, _, _, _, _, _, _, isHeader, _, _, _, _, factionID = GetFactionInfo(i)
-      if not isHeader and factionID ~= 1168 then -- 1168 = guild rep
-         AddReputationToCache(name, factionID)
+      local factionData = C_Reputation.GetFactionDataByIndex(i)
+      if not factionData.isHeader and factionData.factionID ~= 1168 then -- 1168 = guild rep
+         AddReputationToCache(factionData.name, factionData.factionID)
       end
    end
    return ret
@@ -97,12 +97,12 @@ local function Updater(event)
       )
    end
    for _, faction in ipairs(settings.reputation.cache) do
-      local name, description, standingID, barMin, barMax, barValue = GetFactionInfoByID(faction.factionID)
+      local factionData = C_Reputation.GetFactionDataByID(faction.factionID)
       local friendshipReputation = C_GossipInfo.GetFriendshipReputation(faction.factionID)
       local isMajorFaction = faction.factionID and C_Reputation.IsMajorFaction(faction.factionID)
-      if name then
-         local curr = barValue - barMin -- current
-         local max = barMax - barMin    -- max
+      if factionData then
+         local curr = factionData.currentStanding - factionData.currentReactionThreshold      -- current
+         local max = factionData.nextReactionThreshold - factionData.currentReactionThreshold -- max
          local paragonReward, friendStandingLevel
          local isFriend = false
          local isMax = false
@@ -118,11 +118,11 @@ local function Updater(event)
             friendStandingLevel = friendshipReputation.reaction
          end
          if
-             (not isMajorFaction and standingID >= (isFriend and 6 or 8) and
+             (not isMajorFaction and factionData.reaction >= (isFriend and 6 or 8) and
                 C_Reputation.IsFactionParagon(faction.factionID))
          then
             -- Paragon stuff
-            standingID = 100
+            factionData.reaction = 100
             local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon =
                 C_Reputation.GetFactionParagonInfo(faction.factionID)
             paragonReward = hasRewardPending
@@ -144,9 +144,9 @@ local function Updater(event)
             standingID = majorFactionData.renownLevel
          end
          t[faction.factionID] = {
-            name = name,
-            description = description,
-            standing = standingID,
+            name = factionData.name,
+            description = factionData.description,
+            standing = factionData.reaction,
             curr = curr,
             isFriend = isFriend,
             isMax = isMax,
