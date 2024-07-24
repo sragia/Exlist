@@ -55,8 +55,10 @@ local function UpdateCharOrder()
    local chars = Exlist.ConfigDB.settings.allowedCharacters
    local order = 0
    for _, char in ipairs(charOrder) do
-      chars[char].order = order
-      order = order + 1
+      if (chars[char]) then
+         chars[char].order = order
+         order = order + 1
+      end
    end
 end
 local function GetCharPosition(char)

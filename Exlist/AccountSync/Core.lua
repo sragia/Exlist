@@ -82,11 +82,13 @@ local function getFilteredDB()
    -- Filter out all other account characters
    for dbRealm, realmData in pairs(db) do
       for dbChar in pairs(realmData) do
-         for char in pairs(paired) do
-            local name, realm = strsplit("-", char)
-            if (name == dbChar and getFormattedRealm(dbRealm) == realm) then
-               db[dbRealm][dbChar] = nil
-               break
+         for char, info in pairs(paired) do
+            if (info.accountID ~= Exlist.ConfigDB.accountSync.accountName) then
+               local name, realm = strsplit("-", char)
+               if (name == dbChar and getFormattedRealm(dbRealm) == realm) then
+                  db[dbRealm][dbChar] = nil
+                  break
+               end
             end
          end
       end
