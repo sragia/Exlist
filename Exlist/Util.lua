@@ -29,19 +29,21 @@ function Exlist.spairs(t, order)
    end
 end
 
-local function AddMissingTableEntries(data, DEFAULT)
+local function AddMissingTableEntries(data, DEFAULT, forceKeys)
    if not data or not DEFAULT then
       return data
    end
    local rv = data
    for k, v in pairs(DEFAULT) do
-      if rv[k] == nil then
+      if (forceKeys and tContains(forceKeys, k)) then
+         rv[k] = v
+      elseif rv[k] == nil then
          rv[k] = v
       elseif type(v) == "table" then
          if type(rv[k]) == "table" then
-            rv[k] = AddMissingTableEntries(rv[k], v)
+            rv[k] = AddMissingTableEntries(rv[k], v, forceKeys)
          else
-            rv[k] = AddMissingTableEntries({}, v)
+            rv[k] = AddMissingTableEntries({}, v, forceKeys)
          end
       end
    end

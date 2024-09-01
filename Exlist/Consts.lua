@@ -236,7 +236,8 @@ Exlist.Expansions = {
    L["Legion"],
    L["Battle for Azeroth"],
    L["Shadowlands"],
-   L["Dragonflight"]
+   L["Dragonflight"],
+   L["The War Within"]
 }
 
 Exlist.OKMark = [[Interface/Addons/Exlist/Media/Icons/ok-icon]]
