@@ -644,7 +644,7 @@ local function Linegenerator(tooltip, data, character)
          info.data = WrapTextInColorCode(info.data, colors.incomplete)
       end
    end
-   DevTool:AddData(info, character)
+
    info.OnEnter = Exlist.CreateSideTooltip()
    info.OnEnterData = tooltipData
    info.OnLeave = Exlist.DisposeSideTooltip()
