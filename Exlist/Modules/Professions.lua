@@ -525,7 +525,6 @@ local function getProfessionData(profId)
                   end
                end
             end
-
             table.insert(
                data.weeklies,
                {
@@ -616,7 +615,6 @@ local function Linegenerator(tooltip, data, character)
    if (not data) then
       return
    end
-
    local info = {
       character = character,
       priority = prio,
@@ -638,14 +636,15 @@ local function Linegenerator(tooltip, data, character)
       tooltipData.body = getWeeklyTooltipData(prof, tooltipData.body)
    end
 
-   if (profKPCurr > 0 and profKPMax > 0) then
+   if (profKPMax > 0) then
       info.data = string.format(L["%i/%i (KP)"], profKPCurr, profKPMax)
       if (profKPCurr / profKPMax == 1) then
          info.data = Exlist.AddCheckmark(info.data, true)
-      elseif (profKPCurr / profKPMax > 0.3) then
+      elseif (profKPCurr / profKPMax > 0.3 or profKPCurr == 0) then
          info.data = WrapTextInColorCode(info.data, colors.incomplete)
       end
    end
+   DevTool:AddData(info, character)
    info.OnEnter = Exlist.CreateSideTooltip()
    info.OnEnterData = tooltipData
    info.OnLeave = Exlist.DisposeSideTooltip()
