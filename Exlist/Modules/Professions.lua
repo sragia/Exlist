@@ -491,16 +491,18 @@ local professionWeeklies = {
 }
 
 local function isDFup()
-   local i = 1
-   local date = C_DateAndTime.GetCurrentCalendarTime();
-   repeat
-      local holidayInfo = C_Calendar.GetHolidayInfo(0, date.monthDay, i)
-      if (holidayInfo and holidayInfo.texture == 235448) then
-         return true
-      end
-   until holidayInfo == nil
+   -- Temp Quick Fix
+   return true
+   -- local i = 1
+   -- local date = C_DateAndTime.GetCurrentCalendarTime();
+   -- repeat
+   --    local holidayInfo = C_Calendar.GetHolidayInfo(0, date.monthDay, i)
+   --    if (holidayInfo and holidayInfo.texture == 235448) then
+   --       return true
+   --    end
+   -- until holidayInfo == nil
 
-   return false
+   -- return false
 end
 
 local function getProfessionData(profId)
