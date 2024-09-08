@@ -492,7 +492,7 @@ local professionWeeklies = {
 
 local function isDFup()
    -- Temp Quick Fix
-   return true
+   return false
    -- local i = 1
    -- local date = C_DateAndTime.GetCurrentCalendarTime();
    -- repeat
