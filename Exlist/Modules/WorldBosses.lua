@@ -84,7 +84,7 @@ local worldBossIDs = {
    [81653] = { eid = 2636, expansion = 11, enabled = true, wq = true },                                   -- Shurrai
    [82653] = { eid = 2635, expansion = 11, enabled = true, wq = true },                                   -- Aggregation
    [81630] = { eid = 2637, expansion = 11, enabled = true, wq = true },                                   -- Kordac
-
+   [85088] = { eid = 2683, expansion = 11, enabled = true, wq = true },                                   -- The Gobfather
 
 }
 local lastUpdate = 0
