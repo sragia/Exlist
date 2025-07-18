@@ -329,6 +329,7 @@ end
 local function init()
    defaultSettings = {
       -- The War Within
+      [GetLFGDungeonInfo(2805) or "Manaforge Omega"] = { enabled = true, expansion = 11, order = 7 },
       [GetLFGDungeonInfo(2779) or "Liberation of Undermine"] = { enabled = true, expansion = 11, order = 9 },
       [GetLFGDungeonInfo(2645) or "Nerub-ar Palace"] = { enabled = true, expansion = 11, order = 10 },
       -- Dragonflight

@@ -99,7 +99,15 @@ Exlist.ShortenedMPlus = {
    [168] = L["EB"],      -- Everbloom
    [456] = L["TotT"],    -- Throne of the Tides
    [463] = L["DotI:GF"], -- Dawn of the Infinite: Galagrond's Fall
-   [464] = L["DOTI:MR"]  -- Dawn of the Infinite: Murozond's Rise
+   [464] = L["DOTI:MR"], -- Dawn of the Infinite: Murozond's Rise
+
+   [499] = L["Priory"],
+   [542] = L["Eco-Dome"],
+   [378] = L["Halls"],
+   [525] = L["Flood"],
+   [503] = L["Ara-Kara"],
+   [505] = L["Dawn"],
+
 }
 
 local Colors = {
