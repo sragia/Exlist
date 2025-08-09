@@ -78,6 +78,8 @@ local zones = {
    2214, -- Ringing Deeps
    2215, -- Hallowfall
    2270, -- Azj'kahet
+   2346, -- Undermine
+   2371, -- Kare'sh
 }
 
 local rewardRules = {}
