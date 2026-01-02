@@ -328,10 +328,15 @@ end
 
 local function init()
    defaultSettings = {
+      -- Midnight
+      [GetLFGDungeonInfo(3163) or "March on Quel'Danas"] = { enabled = true, expansion = 12, order = 8 },
+      [GetLFGDungeonInfo(3165) or "The Dreamrift"] = { enabled = true, expansion = 12, order = 9 },
+      [GetLFGDungeonInfo(3162) or "The Voidspire"] = { enabled = true, expansion = 12, order = 10 },
+
       -- The War Within
-      [GetLFGDungeonInfo(2805) or "Manaforge Omega"] = { enabled = true, expansion = 11, order = 7 },
-      [GetLFGDungeonInfo(2779) or "Liberation of Undermine"] = { enabled = true, expansion = 11, order = 9 },
-      [GetLFGDungeonInfo(2645) or "Nerub-ar Palace"] = { enabled = true, expansion = 11, order = 10 },
+      [GetLFGDungeonInfo(2805) or "Manaforge Omega"] = { enabled = false, expansion = 11, order = 7 },
+      [GetLFGDungeonInfo(2779) or "Liberation of Undermine"] = { enabled = false, expansion = 11, order = 9 },
+      [GetLFGDungeonInfo(2645) or "Nerub-ar Palace"] = { enabled = false, expansion = 11, order = 10 },
       -- Dragonflight
       [GetLFGDungeonInfo(2502) or "Amirdrassil, the Dream's Hope"] = { enabled = false, expansion = 10, order = 8 },
       [GetLFGDungeonInfo(2403) or "Aberrus, the Shadowed Crucible"] = { enabled = false, expansion = 10, order = 9 },
