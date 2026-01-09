@@ -136,10 +136,10 @@ Exlist.SetupConfig = function(refresh)
             order = 0,
             type = "description",
             image = function()
-               return [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]], 150, 150
+               return [[Interface/Addons/Exlist/Media/Icons/logo2026_full.png]], 100, 50
             end,
             name = "",
-            width = "normal"
+            width = 0.7
          },
          version = {
             order = 0.1,
@@ -799,10 +799,10 @@ function Exlist.InitConfig()
             order = 0,
             type = "description",
             image = function()
-               return [[Interface/Addons/Exlist/Media/Icons/ExlistLogo.tga]], 150, 150
+               return [[Interface/Addons/Exlist/Media/Icons/logo2026_full.png]], 100, 50
             end,
             name = "",
-            width = "normal"
+            width = 0.7
          },
          version = {
             order = 0.1,
@@ -835,7 +835,11 @@ function Exlist.InitConfig()
    }
    SetupOrder()
    AceConfReg:RegisterOptionsTable(name, options)
-   AceConfDia:AddToBlizOptions(name)
+   local _, optionsId = AceConfDia:AddToBlizOptions(name)
+
+   if (optionsId) then
+      Exlist.OptionsID = optionsId
+   end
 end
 
 Exlist.AddModuleOptions = RegisterAdditionalOptions

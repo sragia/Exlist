@@ -1,6 +1,8 @@
 -- GLOBALS: Exlist Exlist_Db Exlist_Config
-local addonName, addonTable = ...
-local QTip = LibStub("LibQTip-1.0")
+local addonName = ...
+--- @class Exlist
+local EXL = select(2, ...)
+
 local LSM = LibStub("LibSharedMedia-3.0")
 local LDB = LibStub:GetLibrary("LibDataBroker-1.1")
 local LDBI = LibStub("LibDBIcon-1.0")
@@ -97,8 +99,6 @@ local settings = {
     reputation = { cache = {}, charOption = {}, enabled = {} },
     azeriteWeekly = true
 }
-
-local Colors = Exlist.Colors
 
 --[[ Module prio list
 0 - mail
@@ -973,7 +973,7 @@ end
 butTool = CreateFrame("Frame", "Exlist_Tooltip", UIParent)
 local bg = butTool:CreateTexture(nil, "ARTWORK")
 butTool:SetSize(32, 32)
-bg:SetTexture("Interface\\AddOns\\Exlist\\Media\\Icons\\logo")
+bg:SetTexture("Interface\\AddOns\\Exlist\\Media\\Icons\\logo2026.png")
 bg:SetSize(32, 32)
 butTool:SetScale(settings.iconScale)
 bg:SetAllPoints()
@@ -1059,7 +1059,9 @@ end
 butTool:SetScript("OnEnter", OnEnter)
 
 -- config --
-local function OpenConfig(self, button) Settings.OpenToCategory(addonName) end
+local function OpenConfig(self, button)
+    Settings.OpenToCategory(Exlist.OptionsID)
+end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
 local LDB_Exlist = LDB:NewDataObject("Exlist", {
