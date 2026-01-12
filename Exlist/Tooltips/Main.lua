@@ -373,12 +373,17 @@ end
 
 local function configureTooltip(self, tooltip)
    tooltip:SmartAnchorTo(self)
-   Mixin(tooltip.NineSlice, BackdropTemplateMixin);
-   tooltip.NineSlice:SetScript("OnSizeChanged", tooltip.NineSlice.OnBackdropSizeChanged)
-   tooltip.NineSlice:SetBackdrop(Exlist.DEFAULT_BACKDROP);
+   tooltip.NineSlice:Hide()
+   if (not tooltip.ExlistBackdrop) then
+      tooltip.ExlistBackdrop = CreateFrame("Frame", nil, tooltip, "BackdropTemplate")
+      tooltip.ExlistBackdrop:SetBackdrop(Exlist.DEFAULT_BACKDROP)
+      tooltip.ExlistBackdrop:SetAllPoints()
+      tooltip.ExlistBackdrop:SetFrameLevel(tooltip:GetFrameLevel() - 1)
+   end
    local c = settings.backdrop
-   tooltip.NineSlice:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
-   tooltip.NineSlice:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+   tooltip.ExlistBackdrop:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
+   tooltip.ExlistBackdrop:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+   tooltip.ExlistBackdrop:Show()
    tooltip:UpdateScrolling(settings.tooltipHeight)
 end
 
@@ -489,7 +494,7 @@ local function showTooltip(self)
    PopulateTooltip(tooltip)
    -- Tooltip visuals
    tooltip:SmartAnchorTo(self)
-   -- configureTooltip(self, tooltip)
+   configureTooltip(self, tooltip)
 
    DevTool:AddData(tooltip)
 

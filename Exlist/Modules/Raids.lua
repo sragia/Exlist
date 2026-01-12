@@ -599,6 +599,7 @@ raidsModule.GetOptions = function(self)
       table.insert(options, {
          type = 'title',
          size = 14,
+         width = 100,
          label = Exlist.Expansions[i]
       })
       for raid, opt in pairs(settings.raids) do

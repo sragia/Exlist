@@ -61,6 +61,10 @@ function Exlist.ClearFunctions(tooltip)
          frame.fontString:SetAlpha(1)
       end
    end
+   if (tooltip.ExlistBackdrop) then
+      tooltip.ExlistBackdrop:Hide()
+      tooltip.NineSlice:Show()
+   end
 end
 
 function Exlist.setIlvlColor(ilvl)
