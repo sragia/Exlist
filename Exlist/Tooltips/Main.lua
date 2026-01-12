@@ -496,8 +496,6 @@ local function showTooltip(self)
    tooltip:SmartAnchorTo(self)
    configureTooltip(self, tooltip)
 
-   DevTool:AddData(tooltip)
-
    tooltip:Show()
    return tooltip
 end

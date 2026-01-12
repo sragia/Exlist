@@ -871,7 +871,7 @@ EXL.utils = {
    formatTime = function(seconds, excludeSeconds)
       local hours = math.floor(seconds / 3600)
       local minutes = math.floor((seconds % 3600) / 60)
-      local seconds = seconds % 60
+      seconds = seconds % 60
       if (hours > 0) then
          if (excludeSeconds) then
             return string.format('%dh %dm', hours, minutes)
@@ -904,6 +904,7 @@ EXL.utils = {
    end,
    formatNumberWithCommas = function(number)
       local formatted = number
+      local k = 0
       while true do
          formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
          if (k == 0) then

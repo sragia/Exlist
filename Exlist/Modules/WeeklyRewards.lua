@@ -251,7 +251,7 @@ local data = {
    },
    weeklyReset = true,
    dailyReset = false,
-   description = L["Tracks Shadowlands Weekly Rewards"]
+   description = L["Tracks Weekly Vault Rewards"]
 }
 
 Exlist.RegisterModule(data)

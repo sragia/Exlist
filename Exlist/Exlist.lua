@@ -1282,14 +1282,6 @@ end
 
 local IGNORED_EVENTS = { ["UPDATE_UI_WIDGET"] = true }
 
-local function packEventArgs(...)
-    for _ = 1, select('#', ...) do
-        local arg = select(_, _)
-        table.insert(args, arg)
-    end
-    return args
-end
-
 local function IsEventEligible(event, ...)
     if (not Exlist.ConfigDB) then
         if (delay) then

@@ -579,7 +579,7 @@ raidsModule.GetOptions = function(self)
    local settings = Exlist.ConfigDB.settings
    settings.raids = settings.raids or {}
    -- add missing raids
-   settings.raids = Exlist.AddMissingTableEntries(settings.raids, defaultSettings)
+   settings.raids = Exlist.AddMissingTableEntries(settings.raids, raidsModule.defaultSettings)
    -- Options
    local numExpansions = #Exlist.Expansions
    local options = {

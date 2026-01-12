@@ -229,7 +229,7 @@ currency.GetOptions = function(self)
                t.enabled = false
                t.showSeparate = false
             end
-            optionsFields:RefreshFields()
+            self.Updater()
          end
       })
       table.insert(options, {

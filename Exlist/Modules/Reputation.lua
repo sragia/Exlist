@@ -296,7 +296,6 @@ reputationModule.GetOptions = function(self)
             self.dialog:SetOnSuccess(function(value)
                local name = UpdateReputationCache(value)
                if name then
-                  DevTool:AddData(settings)
                   settings.reputation.enabled[tonumber(value)] = { name = name, enabled = true }
                end
                optionsFields:RefreshFields()
