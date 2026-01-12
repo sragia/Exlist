@@ -2,12 +2,9 @@ local key = "mythicKey"
 local prio = 40
 local C_ChallengeMode = C_ChallengeMode
 local C_MythicPlus = C_MythicPlus
-local NUM_BAG_SLOTS = NUM_BAG_SLOTS
-local UnitName, GetRealmName = UnitName, GetRealmName
 local ItemRefTooltip, UIParent, ShowUIPanel = ItemRefTooltip, UIParent, ShowUIPanel
-local string, strsplit, time, tonumber = string, strsplit, time, tonumber
+local string, strsplit, tonumber = string, strsplit, tonumber
 local WrapTextInColorCode = WrapTextInColorCode
-local GetTime = GetTime
 local IsShiftKeyDown = IsShiftKeyDown
 local ChatEdit_GetActiveWindow, ChatEdit_InsertLink, ChatFrame_OpenChat =
     ChatEdit_GetActiveWindow,

@@ -25,6 +25,9 @@ externals:
  Exlist/Libs/LibSerialize:
     url: https://github.com/rossnichols/LibSerialize
     tag: v1.0.0
+ Exlist/ExalityFrames:
+    url: https://github.com/sragia/ExalityFrames
+    tag: 1.0.0
 
 enable-nolib-creation: no
 

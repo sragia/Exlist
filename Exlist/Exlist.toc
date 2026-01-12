@@ -26,13 +26,28 @@ Libs\LibDeflate\LibDeflate.lua
 Libs\AceComm-3.0\AceComm-3.0.xml
 Libs\LibSerialize\lib.xml
 
+ExalityFrames/ExalityFrames.xml
+
 Init.lua
 locales.xml
 
 Consts.lua
-Exlist.lua
+Core.lua
 Util.lua
-Config.lua
+
+# Options
+Options/Controller.lua
+Options/Main.lua
+Options/ModuleSelector.lua
+Options/Fields.lua
+
+Options/Elements/CharacterRow.lua
+
+Options/General.lua
+Options/Modules.lua
+Options/Characters.lua
+
+Exlist.lua
 AccountSync\Config.lua
 AccountSync\Core.lua
 Modules\modules.xml

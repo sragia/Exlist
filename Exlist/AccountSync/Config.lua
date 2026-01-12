@@ -1,3 +1,6 @@
+---@class Exlist
+local EXL = select(2, ...)
+
 local configDB = Exlist.ConfigDB
 local L = Exlist.L
 Exlist.accountSync = {
@@ -14,194 +17,148 @@ Exlist.accountSync = {
                 tickerFrequency = 180
              }
           )
-      Exlist.accountSync.coreInit()
    end,
-   coreInit = function()
-   end
 }
 
-local function getPairedCharOptions(startOrder)
-   local configDB = Exlist.ConfigDB
-   local pairedCharacters = configDB.accountSync.pairedCharacters
-   local options = {}
-   if (pairedCharacters) then
-      local order = startOrder
-      for character, info in pairs(pairedCharacters) do
-         options[character .. "name"] = {
-            order = order + 0.1,
-            type = "description",
-            name = character,
-            width = 1
-         }
-         options[character .. "account"] = {
-            order = order + 0.2,
-            type = "description",
-            name = info.accountID or "",
-            width = 0.4
-         }
-         options[character .. "status"] = {
-            order = order + 0.3,
-            type = "description",
-            name = info.status or "",
-            width = 0.4
-         }
-         options[character .. "syncbtn"] = {
-            order = order + 0.4,
-            type = "execute",
-            name = L["Sync"],
-            func = function()
-               Exlist.accountSync.syncCompleteData(character)
-            end,
-            width = 0.5
-         }
-         order = order + 1
-      end
-   end
-   return options
+---@class EXLOptionsController
+local optionsController = EXL:GetModule('options-controller')
+
+---@class EXLOptionsFields
+local optionsFields = EXL:GetModule('options-fields')
+
+--------------------
+
+local config = EXL:GetModule('account-sync-config')
+
+config.useTabs = false
+config.useSplitView = false
+config.tmpConfigs = {}
+
+config.Init = function(self)
+   optionsController:RegisterModule(self)
 end
 
-local function AddOptions(refresh)
-   local tmpConfigs = {}
-   local options = {
-      type = "group",
-      name = L["Account Sync"],
-      args = {
-         desc2 = {
-            type = "description",
-            order = 1,
-            width = "full",
-            fontSize = "medium",
-            name = L["Allow sharing character data across multiple accounts"]
-         },
-         toggle = {
-            type = "toggle",
-            name = L["Enable"],
-            order = 2,
-            width = "full",
-            get = function()
-               return configDB.accountSync.enabled
-            end,
-            set = function(_, value)
-               configDB.accountSync.enabled = value
+config.GetName = function(self)
+   return L['Account Sync']
+end
+
+config.GetOrder = function(self)
+   return 4
+end
+
+config.GetOptions = function(self)
+   return {
+      {
+         type = 'title',
+         width = 100,
+         label = L['Account Sync']
+      },
+      {
+         type = 'description',
+         width = 100,
+         label = L['Allow sharing character data across multiple accounts']
+      },
+      {
+         type = 'toggle',
+         width = 100,
+         label = L['Enable'],
+         currentValue = function()
+            return configDB.accountSync.enabled
+         end,
+         onChange = function(value)
+            configDB.accountSync.enabled = value
+         end
+      },
+      {
+         type = 'toggle',
+         width = 100,
+         label = L['Display Sync Progress'],
+         currentValue = function()
+            return configDB.accountSync.displaySyncProgress
+         end,
+         onChange = function(value)
+            configDB.accountSync.displaySyncProgress = value
+         end
+      },
+      {
+         type = 'editbox',
+         width = 30,
+         label = L['User Key'],
+         currentValue = function()
+            return configDB.accountSync.userKey or ''
+         end,
+         onChange = function(value)
+            configDB.accountSync.userKey = value
+         end
+      },
+      {
+         type = 'button',
+         width = 20,
+         label = L['Generate User Key'],
+         onClick = function()
+            configDB.accountSync.userKey = Exlist.GenerateRandomString(6)
+            optionsFields:RefreshFields()
+         end,
+         color = { 249 / 255, 95 / 255, 9 / 255, 1 }
+      },
+      {
+         type = 'spacer',
+         width = 50
+      },
+      {
+         type = 'editbox',
+         width = 30,
+         label = L['Account Name'],
+         currentValue = function()
+            return configDB.accountSync.accountName or ''
+         end,
+         onChange = function(value)
+            configDB.accountSync.accountName = value
+         end
+      },
+      {
+         type = 'spacer',
+         width = 70
+      },
+      {
+         type = 'editbox',
+         width = 30,
+         label = L['Update Frequency (in seconds)'],
+         currentValue = function()
+            return configDB.accountSync.tickerFrequency or 180
+         end,
+         onChange = function(value)
+            local num = tonumber(value)
+            if (num) then
+               configDB.accountSync.tickerFrequency = num
             end
-         },
-         displayProgress = {
-            type = "toggle",
-            name = L["Display Sync Progress"],
-            order = 2.5,
-            width = "full",
-            get = function()
-               return configDB.accountSync.displaySyncProgress
-            end,
-            set = function(_, value)
-               configDB.accountSync.displaySyncProgress = value
+         end
+      },
+      {
+         type = 'spacer',
+         width = 70
+      },
+      {
+         type = 'editbox',
+         width = 30,
+         label = L['Character To Sync With'],
+         currentValue = function()
+            return config.tmpConfigs.charToSync or ''
+         end,
+         onChange = function(value)
+            config.tmpConfigs.charToSync = value
+         end
+      },
+      {
+         type = 'button',
+         width = 20,
+         label = L['Sync'],
+         onClick = function()
+            if (config.tmpConfigs.charToSync and config.tmpConfigs.charToSync ~= "") and configDB.accountSync.userKey then
+               Exlist.accountSync.pairAccount(config.tmpConfigs.charToSync, configDB.accountSync.userKey)
             end
-         },
-         userKey = {
-            type = "input",
-            order = 3.1,
-            name = L["User Key"],
-            get = function()
-               return configDB.accountSync.userKey
-            end,
-            set = function(_, v)
-               configDB.accountSync.userKey = v
-            end,
-            width = "normal"
-         },
-         generateUserKey = {
-            type = "execute",
-            order = 3.2,
-            name = L["Generate User Key"],
-            func = function()
-               configDB.accountSync.userKey = Exlist.GenerateRandomString(6)
-            end,
-            width = "normal"
-         },
-         spacer1 = {
-            type = "description",
-            order = 3.9,
-            name = "",
-            width = "normal"
-         },
-         accountName = {
-            type = "input",
-            order = 4.1,
-            name = L["Account Name"],
-            get = function()
-               return configDB.accountSync.accountName
-            end,
-            set = function(_, v)
-               configDB.accountSync.accountName = v
-            end,
-            width = "normal"
-         },
-         spacer2 = {
-            type = "description",
-            order = 4.9,
-            name = "",
-            width = "double"
-         },
-         tickerFreq = {
-            type = "input",
-            order = 5.1,
-            name = L["Update Frequency (in seconds)"],
-            get = function()
-               return tostring(configDB.accountSync.tickerFrequency)
-            end,
-            set = function(_, v)
-               local num = tonumber(v)
-               if (num) then
-                  configDB.accountSync.tickerFrequency = num
-                  Exlist.accountSync.refreshTicker()
-               end
-            end,
-            width = "normal"
-         },
-         spacer3 = {
-            type = "description",
-            order = 5.9,
-            name = "",
-            width = "double"
-         },
-         characterName = {
-            type = "input",
-            order = 10.1,
-            name = L["Character To Sync With"],
-            get = function()
-               return tmpConfigs.charToSync
-            end,
-            set = function(_, value)
-               tmpConfigs.charToSync = value
-            end,
-            width = "normal"
-         },
-         characterNameExecute = {
-            type = "execute",
-            order = 10.2,
-            name = L["Sync"],
-            disabled = function()
-               return not (tmpConfigs.charToSync and tmpConfigs.charToSync ~= "") or not configDB.accountSync.userKey
-            end,
-            func = function()
-               Exlist.accountSync.pairAccount(tmpConfigs.charToSync, configDB.accountSync.userKey)
-            end,
-            width = "normal"
-         },
-         pairedCharGroup = {
-            type = "group",
-            order = 1000,
-            name = L["Paired Characters"],
-            args = getPairedCharOptions(1)
-         }
+         end,
+         color = { 249 / 255, 95 / 255, 9 / 255, 1 },
       }
    }
-   if refresh then
-      Exlist.RefreshModuleOptions("accountsync", options, L["Account Sync"])
-   else
-      Exlist.AddModuleOptions("accountsync", options, L["Account Sync"])
-   end
 end
-Exlist.ModuleToBeAdded(AddOptions)
-
-Exlist.accountSync.AddOptions = AddOptions

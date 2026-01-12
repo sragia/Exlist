@@ -1,3 +1,6 @@
+---@class Exlist
+local EXL = select(2, ...)
+
 local QTip = LibStub("LibQTip-1.0")
 function Exlist.spairs(t, order)
    -- collect the keys
@@ -489,3 +492,420 @@ function Exlist.GetMythicPlusLevelColor(level)
       end
    end
 end
+
+local rowFramePool = CreateFramePool('Frame', UIParent)
+local rowFrames = {}
+
+local function CreateRowFrame(parent)
+   local frame = rowFramePool:Acquire()
+   frame.Destroy = function(self)
+      rowFramePool:Release(self)
+   end
+   frame:SetParent(parent)
+
+   return frame
+end
+
+EXL.utils = {
+   isEmpty = function(t)
+      for _ in pairs(t) do
+         return false
+      end
+      return true
+   end,
+   spairs = function(t, order)
+      -- collect the keys
+      local keys = {}
+      for k in pairs(t) do
+         keys[#keys + 1] = k
+      end
+
+      -- if order function given, sort by it by passing the table and keys a, b,
+      -- otherwise just sort the keys
+      if order then
+         table.sort(
+            keys,
+            function(a, b)
+               return order(t, a, b)
+            end
+         )
+      else
+         table.sort(keys)
+      end
+
+      -- return the iterator function
+      local i = 0
+      return function()
+         i = i + 1
+         if keys[i] then
+            return keys[i], t[keys[i]]
+         end
+      end
+   end,
+   getKeys = function(t)
+      local keys = {}
+      for k in pairs(t) do
+         keys[#keys + 1] = k
+      end
+      return keys
+   end,
+   degToRad = function(degrees)
+      return degrees * math.pi / 180
+   end,
+   animation = {
+      getAnimationGroup = function(f)
+         return f:CreateAnimationGroup();
+      end,
+      fade = function(f, duration, from, to, ag)
+         ag = ag or f:CreateAnimationGroup()
+         local fade = ag:CreateAnimation('Alpha')
+         fade:SetFromAlpha(from or 0)
+         fade:SetToAlpha(to or 1)
+         fade:SetDuration(duration or 1)
+         fade:SetSmoothing((from > to) and 'OUT' or 'IN')
+         local finishScript = ag:GetScript('OnFinished')
+         ag:SetScript(
+            'OnFinished',
+            function(...)
+               if (finishScript) then finishScript(...) end
+               f:SetAlpha(to)
+            end
+         )
+         return ag
+      end,
+      diveIn = function(f, duration, xOff, yOff, smoothing, ag)
+         ag = ag or f:CreateAnimationGroup()
+         local translate = ag:CreateAnimation('Translation')
+         translate:SetOffset(xOff, -yOff)
+         translate:SetDuration(duration)
+         translate:SetSmoothing(smoothing)
+         ag:SetScript('OnPlay', function()
+            if (smoothing == 'OUT') then
+               return
+            end
+
+            for i = 1, f:GetNumPoints() do
+               local point, relativeTo, relativePoint, xOfs, yOfs = f:GetPoint(i)
+               f:SetPoint(point, relativeTo, relativePoint, xOfs + xOff, yOfs + yOff)
+            end
+         end)
+         local finishScript = ag:GetScript('OnFinished')
+         ag:SetScript('OnFinished', function(...)
+            if (finishScript) then finishScript(...) end
+
+            if (smoothing == 'OUT') then
+               return
+            end
+
+            for i = 1, f:GetNumPoints() do
+               local point, relativeTo, relativePoint, xOfs, yOfs = f:GetPoint(i)
+               f:SetPoint(point, relativeTo, relativePoint, xOfs - xOff, yOfs - yOff)
+            end
+         end)
+
+         return ag
+      end,
+      move = function(f, duration, xOff, yOff, ag)
+         ag = ag or f:CreateAnimationGroup()
+         local translate = ag:CreateAnimation('Translation')
+         translate:SetOffset(xOff, yOff)
+         translate:SetDuration(duration)
+         local finishScript = ag:GetScript('OnFinished')
+         ag:SetScript('OnFinished', function(...)
+            if (finishScript) then finishScript(...) end
+
+            for i = 1, f:GetNumPoints() do
+               local point, relativeTo, relativePoint, xOfs, yOfs = f:GetPoint(i)
+               f:SetPoint(point, relativeTo, relativePoint, xOfs + xOff, yOfs + yOff)
+            end
+         end)
+
+         return ag
+      end
+   },
+   addObserver = function(t, force)
+      if (t.observable and not force) then
+         return t
+      end
+
+      t.observable = {}
+      t.Observe = function(_, key, onChangeFunc)
+         if (type(key) == 'table') then
+            for _, k in ipairs(key) do
+               t.observable[k] = t.observable[k] or {}
+               table.insert(t.observable[k], onChangeFunc)
+            end
+         else
+            t.observable[key] = t.observable[key] or {}
+            table.insert(t.observable[key], onChangeFunc)
+         end
+      end
+      t.SetValue = function(self, key, value)
+         local oldValue = t[key]
+         t[key] = value
+         if (t.observable[key]) then
+            for _, func in ipairs(t.observable[key]) do
+               func(value, oldValue, key, self)
+            end
+         end
+         if (t.observable['']) then
+            for _, func in ipairs(t.observable['']) do
+               func(value, oldValue, key, self)
+            end
+         end
+      end
+      t.ObserveAll = function(_, onChangeFunc)
+         t.observable[''] = t.observable[''] or {}
+         table.insert(t.observable[''], onChangeFunc)
+      end
+
+      t.ClearObservable = function(self)
+         self.observable = {}
+      end
+
+      return t
+   end,
+   printOut = function(outputString)
+      print("|cffc334eb[Exlist]|r " .. outputString)
+   end,
+   debugWithDevTools = function(data)
+      C_Timer.After(1, function()
+         if (not DevTool) then
+            print('DEBUG no devtool')
+            return
+         end
+         if (DevTool.AddData) then
+            DevTool:AddData(data)
+         elseif (DevTool_AddData) then
+            DevTool_AddData(data)
+         else
+            print('Devtool Available but no AddData function')
+         end
+      end)
+   end,
+   suggestMatch = function(userInput, source)
+      local suggestions = {}
+      for _, data in pairs(source) do
+         local matchinString = (data.id or '')
+         local matchStart, matchEnd = string.find(string.lower(matchinString), string.lower(userInput), 1, true)
+         if matchStart ~= nil then
+            table.insert(suggestions,
+               {
+                  str = matchinString,
+                  score = matchEnd - matchStart + 1 + (matchStart - 1) / #matchinString,
+                  data = data
+               })
+         else
+            local words = {}
+            for word in string.gmatch(string.lower(userInput), '%S+') do
+               table.insert(words, word)
+            end
+            local pattern = ''
+            for j = 1, #words do
+               pattern = pattern .. words[j] .. '%S*'
+            end
+            local phraseStart, phraseEnd = string.find(string.lower(matchinString), pattern, 1, true)
+            if phraseStart ~= nil then
+               table.insert(suggestions, {
+                  str = matchinString,
+                  score = phraseEnd - phraseStart + 1 +
+                      (phraseStart - 1) / #matchinString,
+                  data = data
+               })
+            end
+         end
+      end
+      table.sort(suggestions, function(a, b) return a.score < b.score end)
+      return suggestions
+   end,
+   switch = function(condition, cases)
+      return (cases[condition] or cases.default)()
+   end,
+   generateRandomString = function(length)
+      length = length or 10
+      local output = ""
+      for i = 1, length do
+         local rand = math.random(#randCharSet)
+         output = output .. string.sub(randCharSet, rand, rand)
+      end
+      return output
+   end,
+   arrayIndexForvalue = function(arr, value)
+      for index, val in ipairs(arr) do
+         if val == value then
+            return index + 1
+         end
+      end
+      return nil
+   end,
+   organizeFramesInList = function(children, gap, parentContainer)
+      local prev = nil
+
+      for _, child in ipairs_reverse(children) do
+         child:ClearAllPoints()
+      end
+
+      for indx, child in ipairs(children) do
+         if (not prev) then
+            child:SetPoint('TOPLEFT', parentContainer, 'TOPLEFT', 0, -gap)
+            child:SetPoint('TOPRIGHT', parentContainer, 'TOPRIGHT', 0, -gap)
+         else
+            child:SetPoint('TOPLEFT', prev, 'BOTTOMLEFT', 0, -gap)
+            child:SetPoint('TOPRIGHT', prev, 'BOTTOMRIGHT', 0, -gap)
+         end
+         child:Show()
+         prev = child
+      end
+   end,
+   organizeFramesInGrid = function(gridId, children, gap, parentContainer, startOffsetX, startOffsetY)
+      local maxWidth = parentContainer:GetWidth() - startOffsetX * 2
+
+      if (rowFrames[gridId]) then
+         for _, frame in ipairs(rowFrames[gridId]) do
+            frame:Destroy()
+         end
+         rowFrames[gridId] = {}
+      else
+         rowFrames[gridId] = {}
+      end
+      for _, child in ipairs_reverse(children) do
+         child:ClearAllPoints()
+      end
+
+      local rows = { {} }
+      local runningPerc = 100
+      for _, child in ipairs(children) do
+         local childPerc = child.optionData and child.optionData.width or 25
+         if ((runningPerc - childPerc) < 0) then
+            table.insert(rows, { child })
+            runningPerc = 100 - childPerc
+         else
+            table.insert(rows[#rows], child)
+            runningPerc = runningPerc - childPerc
+         end
+      end
+      local prevRowFrame = nil
+
+      for _, row in ipairs(rows) do
+         local rowFrame = CreateRowFrame(parentContainer)
+         table.insert(rowFrames[gridId], rowFrame)
+         if (prevRowFrame) then
+            rowFrame:SetPoint('TOPLEFT', prevRowFrame, 'BOTTOMLEFT', 0, -gap)
+            rowFrame:SetPoint('TOPRIGHT', prevRowFrame, 'BOTTOMRIGHT', 0, -gap)
+         else
+            rowFrame:SetPoint('TOPLEFT', startOffsetX, -startOffsetY)
+            rowFrame:SetPoint('TOPRIGHT', -startOffsetX, -startOffsetY)
+         end
+         local rowFrames = #row
+         local rowMaxWidth = maxWidth - (rowFrames * gap)
+         local rowMaxHeight = 0
+         local prev = nil
+         for _, child in ipairs(row) do
+            child:SetParent(rowFrame)
+            local perc = child.optionData and child.optionData.width or 25
+            child:SetFrameWidth(perc / 100 * rowMaxWidth)
+            if (prev) then
+               child:SetPoint('TOPLEFT', prev, 'TOPRIGHT', gap, 0)
+            else
+               child:SetPoint('TOPLEFT', rowFrame, 'TOPLEFT', 0, 0)
+            end
+            local childHeight = child:GetHeight()
+            if (childHeight > rowMaxHeight) then
+               rowMaxHeight = childHeight
+            end
+            prev = child
+         end
+
+         -- center child in row vertically
+         local prevPad = 0
+         for _, child in ipairs(row) do
+            local childHeight = child:GetHeight()
+            local topPad = (rowMaxHeight - childHeight) / 2
+            if (prevPad > 0) then
+               topPad = topPad - prevPad
+            end
+            prevPad = topPad
+            local point, relativeTo, relativePoint, xOfs, yOfs = child:GetPoint(1)
+            child:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs - topPad)
+         end
+         rowFrame:SetHeight(rowMaxHeight)
+         rowFrame:Show()
+         prevRowFrame = rowFrame
+      end
+   end,
+   getJustifyHFromAnchor = function(anchor)
+      if (string.find(anchor, 'LEFT')) then
+         return 'LEFT'
+      elseif (string.find(anchor, 'RIGHT')) then
+         return 'RIGHT'
+      elseif (string.find(anchor, 'CENTER')) then
+         return 'CENTER'
+      end
+      return 'LEFT'
+   end,
+   capitalize = function(str)
+      return str:gsub('^%l', string.upper)
+   end,
+   combineArrays = function(...)
+      local output = {}
+      for _, array in ipairs(...) do
+         tAppendAll(output, array)
+      end
+      return output
+   end,
+   getTexCoords = function(width, height, zoom)
+      zoom = zoom or 0
+      local zoomReduction = (zoom / 100) / 2
+      if (width > height) then
+         local ratio = 1 - (height / width)
+         return 0 + zoomReduction, 1 - zoomReduction, 0 + zoomReduction + ratio / 2, 1 - zoomReduction - ratio / 2
+      else
+         local ratio = 1 - (width / height)
+         return 0 + zoomReduction + ratio / 2, 1 - zoomReduction - ratio / 2, 0 + zoomReduction, 1 - zoomReduction
+      end
+   end,
+   formatTime = function(seconds, excludeSeconds)
+      local hours = math.floor(seconds / 3600)
+      local minutes = math.floor((seconds % 3600) / 60)
+      local seconds = seconds % 60
+      if (hours > 0) then
+         if (excludeSeconds) then
+            return string.format('%dh %dm', hours, minutes)
+         else
+            return string.format('%dh %dm %ds', hours, minutes, seconds)
+         end
+      elseif (minutes > 0) then
+         if (excludeSeconds) then
+            return string.format('%dm', minutes)
+         else
+            return string.format('%dm %ds', minutes, seconds)
+         end
+      else
+         -- Ignore excludeseconds as that's all we have left
+         return string.format('%ds', seconds)
+      end
+   end,
+   formatNumber = function(number)
+      if not number then return "0" end
+      local absNum = math.abs(number)
+      if absNum >= 1e9 then
+         return string.format("%.2fB", number / 1e9)
+      elseif absNum >= 1e6 then
+         return string.format("%.2fM", number / 1e6)
+      elseif absNum >= 1e3 then
+         return string.format("%.2fK", number / 1e3)
+      else
+         return tostring(math.floor(number + 0.5))
+      end
+   end,
+   formatNumberWithCommas = function(number)
+      local formatted = number
+      while true do
+         formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+         if (k == 0) then
+            break
+         end
+      end
+      return formatted
+   end
+}

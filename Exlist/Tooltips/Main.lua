@@ -374,8 +374,7 @@ end
 local function configureTooltip(self, tooltip)
    tooltip:SmartAnchorTo(self)
    Mixin(tooltip.NineSlice, BackdropTemplateMixin);
-   SharedTooltip_SetBackdropStyle(tooltip, nil, tooltip.IsEmbedded);
-   tooltip.NineSlice:SetScript("OnSizeChanged", tooltip.NineSlice.OnBackdropSizeChanged);
+   tooltip.NineSlice:SetScript("OnSizeChanged", tooltip.NineSlice.OnBackdropSizeChanged)
    tooltip.NineSlice:SetBackdrop(Exlist.DEFAULT_BACKDROP);
    local c = settings.backdrop
    tooltip.NineSlice:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
@@ -384,7 +383,7 @@ local function configureTooltip(self, tooltip)
 end
 
 local function showTooltip(self)
-   if QTip:IsAcquired("Exlist_Tooltip") then
+   if QTip:IsAcquired("Exlist_Tooltip_Main") then
       return
    end
 
@@ -409,9 +408,9 @@ local function showTooltip(self)
    charOrder = tmp
    local tooltip
    if settings.horizontalMode then
-      tooltip = QTip:Acquire("Exlist_Tooltip", (#charOrder * 4) + 1)
+      tooltip = QTip:Acquire("Exlist_Tooltip_Main", (#charOrder * 4) + 1)
    else
-      tooltip = QTip:Acquire("Exlist_Tooltip", 5)
+      tooltip = QTip:Acquire("Exlist_Tooltip_Main", 5)
    end
 
    tooltip.parentFrame = self
@@ -489,7 +488,10 @@ local function showTooltip(self)
    -- Add Data to tooltip
    PopulateTooltip(tooltip)
    -- Tooltip visuals
-   configureTooltip(self, tooltip)
+   tooltip:SmartAnchorTo(self)
+   -- configureTooltip(self, tooltip)
+
+   DevTool:AddData(tooltip)
 
    tooltip:Show()
    return tooltip

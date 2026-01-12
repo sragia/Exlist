@@ -1,3 +1,6 @@
+---@class Exlist
+local EXL = select(2, ...)
+
 local L = Exlist.L
 
 -- CONSTANTS
@@ -251,3 +254,88 @@ Exlist.Expansions = {
 
 Exlist.OKMark = [[Interface/Addons/Exlist/Media/Icons/ok-icon]]
 Exlist.CancelMark = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]]
+
+EXL.const = {
+   textures = {
+      frame = {
+         bg = [[Interface/Addons/Exlist/Assets/Images/Frames/window-bg]],
+         resizeBtn = [[Interface/Addons/Exlist/Assets/Images/Frames/expand-btn]],
+         resizeBtnHighlight = [[Interface/Addons/Exlist/Assets/Images/Frames/expand-highlight]],
+         closeBtn = [[Interface/Addons/Exlist/Assets/Images/Frames/close-btn]],
+         closeIcon = [[Interface/Addons/Exlist/Assets/Images/Frames/close-icon.png]],
+         statusBar = [[Interface/Addons/Exlist/Assets/Images/Frames/statusBar]],
+         iconMask = [[Interface/Addons/Exlist/Assets/Images/Frames/icon-mask]],
+         titleBg = [[Interface/Addons/Exlist/Assets/Images/Frames/title-bg.png]],
+         roundedSquare = [[Interface/Addons/Exlist/Assets/Images/Frames/rounded-square.png]],
+         settingsIcon = [[Interface/Addons/Exlist/Assets/Images/Frames/settings-icon.png]],
+         inputs = {
+            toggle = [[Interface/Addons/Exlist/Assets/Images/Frames/toggle]],
+            editboxBg = [[Interface/Addons/Exlist/Assets/Images/Frames/editbox-bg]],
+            editboxHover = [[Interface/Addons/Exlist/Assets/Images/Frames/editbox-hover]],
+            buttonBg = [[Interface/Addons/Exlist/Assets/Images/Frames/button-bg.png]],
+            buttonHover = [[Interface/Addons/Exlist/Assets/Images/Frames/button-hover.png]],
+            chevronDown = [[Interface/Addons/Exlist/Assets/Images/Frames/chevronDown]],
+         },
+         range = {
+            editbox = [[Interface/Addons/Exlist/Assets/Images/Frames/range-input/editbox.png]],
+            dot = [[Interface/Addons/Exlist/Assets/Images/Frames/range-input/dot.png]],
+            dotActive = [[Interface/Addons/Exlist/Assets/Images/Frames/range-input/dot-active.png]],
+            leftArrow = [[Interface/Addons/Exlist/Assets/Images/Frames/range-input/left-arrow.png]],
+            rightArrow = [[Interface/Addons/Exlist/Assets/Images/Frames/range-input/right-arrow.png]],
+            leftArrowActive = [[Interface/Addons/Exlist/Assets/Images/Frames/range-input/left-arrow-active.png]],
+            rightArrowActive = [[Interface/Addons/Exlist/Assets/Images/Frames/range-input/right-arrow-active.png]],
+            track = [[Interface/Addons/Exlist/Assets/Images/Frames/range-input/track.png]],
+         },
+         editor = {
+            arrowActive = [[Interface/Addons/Exlist/Assets/Images/Frames/editor/arrow-active.png]],
+            arrowInactive = [[Interface/Addons/Exlist/Assets/Images/Frames/editor/arrow-inactive.png]],
+         },
+         tabs = {
+            active = [[Interface/Addons/Exlist/Assets/Images/Frames/tabs/active.png]],
+            inactive = [[Interface/Addons/Exlist/Assets/Images/Frames/tabs/inactive.png]],
+         },
+         solidBg = [[Interface/Addons/Exlist/Assets/Images/Frames/white.png]],
+      },
+      logo = [[Interface/Addons/Exlist/Media/Icons/logo2026.png]],
+   },
+   fonts = {
+      DEFAULT = [[Interface/Addons/Exlist/Media/Font/DMSans.ttf]],
+   },
+   backdrop = {
+      DEFAULT = {
+         bgFile = "Interface\\BUTTONS\\WHITE8X8.blp",
+         edgeFile = "Interface\\BUTTONS\\WHITE8X8.blp",
+         tile = false,
+         tileSize = 0,
+         edgeSize = 1,
+         insets = { left = 0, right = 0, top = 0, bottom = 0 }
+      },
+   },
+   anchorPoints = {
+      TOPLEFT = 'TOPLEFT',
+      TOPRIGHT = 'TOPRIGHT',
+      BOTTOMLEFT = 'BOTTOMLEFT',
+      BOTTOMRIGHT = 'BOTTOMRIGHT',
+      CENTER = 'CENTER',
+      TOP = 'TOP',
+      BOTTOM = 'BOTTOM',
+      LEFT = 'LEFT',
+      RIGHT = 'RIGHT',
+   },
+   frameStrata = {
+      BACKGROUND = 'BACKGROUND',
+      LOW = 'LOW',
+      MEDIUM = 'MEDIUM',
+      HIGH = 'HIGH',
+      DIALOG = 'DIALOG',
+      FULLSCREEN = 'FULLSCREEN',
+      FULLSCREEN_DIALOG = 'FULLSCREEN_DIALOG',
+      TOOLTIP = 'TOOLTIP',
+   },
+   fontFlags = {
+      OUTLINE = 'OUTLINE',
+      THICKOUTLINE = 'THICKOUTLINE',
+      MONOCHROME = 'MONOCHROME',
+      [""] = 'NONE',
+   }
+}

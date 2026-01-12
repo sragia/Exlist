@@ -1,3 +1,9 @@
+---@class Exlist
+local EXL = select(2, ...)
+
+---@class EXLOptionsController
+local optionsController = EXL:GetModule('options-controller')
+
 local key = "worldboss"
 local prio = 120
 local Exlist = Exlist
@@ -7,19 +13,12 @@ local EJ_GetEncounterInfo = EJ_GetEncounterInfo
 local UnitLevel, GetRealmName, UnitName = UnitLevel, GetRealmName, UnitName
 local WrapTextInColorCode = WrapTextInColorCode
 local string, table = string, table
-local C_TaskQuest, C_WorldMap, EJ_GetCreatureInfo, C_ContributionCollector, C_Timer =
-    C_TaskQuest,
-    C_WorldMap,
+local EJ_GetCreatureInfo, C_ContributionCollector, C_Timer =
     EJ_GetCreatureInfo,
     C_ContributionCollector,
     C_Timer
 local pairs, ipairs, time, select = pairs, ipairs, time, select
 local GetTime = GetTime
-local IsInRaid, IsInInstance = IsInRaid, IsInInstance
-local GetCurrentMapAreaID, SetMapByID, GetMapNameByID = GetCurrentMapAreaID, SetMapByID, GetMapNameByID
-local GetNumMapLandmarks, GetMapLandmarkInfo = GetNumMapLandmarks, GetMapLandmarkInfo
-local GetSpellInfo = GetSpellInfo
-local GameTooltip = GameTooltip
 
 local worldBossIDs = {
    -- MoP
@@ -158,7 +157,21 @@ local function GetWarfrontStatus()
    return t
 end
 
-local function Updater(e, info)
+local worldBossesModule = EXL:GetModule('module-worldbosses')
+
+worldBossesModule.Init = function(self)
+   optionsController:RegisterModule(self)
+end
+
+worldBossesModule.GetName = function(self)
+   return L["World Bosses"]
+end
+
+worldBossesModule.GetOrder = function(self)
+   return prio
+end
+
+worldBossesModule.Updater = function(e, info)
    local wbSettings = Exlist.GetSettings("worldbosses")
    if e == "WORLD_QUEST_SPOTTED" and #info > 0 then
       -- got info from WQ module
@@ -248,7 +261,7 @@ local function Updater(e, info)
    Exlist.UpdateChar(key, gt, "global", "global")
 end
 
-local function Linegenerator(_, data, character)
+worldBossesModule.Linegenerator = function(_, data, character)
    if not data then
       return
    end
@@ -333,7 +346,7 @@ local function GetWFCurrentStatus(wf)
    return tmp.name, stateName, tmp.timeNext and tmp.timeNext - time(), tmp.contributed
 end
 
-local function GlobalLineGenerator(tooltip, data)
+worldBossesModule.GlobalLineGenerator = function(tooltip, data)
    local timeNow = time()
    if not data then
       return
@@ -433,65 +446,54 @@ local function init()
    end
 end
 
-local function AddWorldBossOptions()
-   local settings = Exlist.ConfigDB.settings
-   settings.worldbosses = settings.worldbosses or {}
-   -- add missing raids
-   settings.worldbosses = Exlist.AddMissingTableEntries(settings.worldbosses, worldBossIDs, { 'eid' })
-   -- Options
-   local numExpansions = #Exlist.Expansions
-   local configOpt = {
-      type = "group",
-      name = "World Bosses",
-      args = {
-         desc = {
-            type = "description",
-            name = L["Enable world bosses you want to see\n"],
-            width = "full",
-            order = 0
-         }
+worldBossesModule.GetOptions = function(self)
+   local options = {
+      {
+         type = 'title',
+         width = 100,
+         label = L['World Bosses']
+      },
+      {
+         type = 'description',
+         width = 100,
+         label = L['Enable world bosses you want to see']
       }
    }
-   -- add worldbosses
-   for questId, opt in pairs(settings.worldbosses) do
-      configOpt.args[questId] = {
-         type = "toggle",
-         order = (numExpansions - opt.expansion + 1.1),
-         width = "full",
-         name = opt.name or select(2, EJ_GetCreatureInfo(1, opt.eid)),
-         get = function()
-            return opt.enabled
-         end,
-         set = function(self, v)
-            opt.enabled = v
-            RegisterWorldBossWQs()
-            Updater()
+
+   for i = #Exlist.Expansions, 5, -1 do
+      table.insert(options, {
+         type = 'title',
+         size = 14,
+         width = 100,
+         label = Exlist.Expansions[i]
+      })
+      for questId, opt in pairs(worldBossIDs) do
+         if (opt.expansion == i) then
+            table.insert(options, {
+               type = 'toggle',
+               width = 100,
+               label = opt.name or select(2, EJ_GetCreatureInfo(1, opt.eid)),
+               currentValue = function()
+                  return opt.enabled
+               end,
+               onChange = function(value)
+                  opt.enabled = value
+               end
+            })
          end
-      }
+      end
    end
 
-   -- add labels
-   for i = numExpansions, 5, -1 do
-      configOpt.args["wb" .. i] = {
-         type = "description",
-         name = WrapTextInColorCode(Exlist.Expansions[i], colors.config.heading1),
-         fontSize = "large",
-         width = "full",
-         order = numExpansions - i + 1
-      }
-   end
-
-   Exlist.AddModuleOptions(key, configOpt, L["World Bosses"])
+   return options
 end
-Exlist.ModuleToBeAdded(AddWorldBossOptions)
 
 local data = {
    name = L["World Bosses"],
    key = key,
-   linegenerator = Linegenerator,
-   globallgenerator = GlobalLineGenerator,
+   linegenerator = worldBossesModule.Linegenerator,
+   globallgenerator = worldBossesModule.GlobalLineGenerator,
    priority = prio,
-   updater = Updater,
+   updater = worldBossesModule.Updater,
    event = {
       "PLAYER_ENTERING_WORLD",
       "EJ_DIFFICULTY_UPDATE",

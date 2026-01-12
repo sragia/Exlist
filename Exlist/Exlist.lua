@@ -1060,14 +1060,15 @@ butTool:SetScript("OnEnter", OnEnter)
 
 -- config --
 local function OpenConfig(self, button)
-    Settings.OpenToCategory(Exlist.OptionsID)
+    -- Settings.OpenToCategory(Exlist.OptionsID)
+    EXL:GetModule('options-main'):Show()
 end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
 local LDB_Exlist = LDB:NewDataObject("Exlist", {
     type = "data source",
     text = "Exlist",
-    icon = "Interface\\AddOns\\Exlist\\Media\\Icons\\logo",
+    icon = "Interface\\AddOns\\Exlist\\Media\\Icons\\logo2026.png",
     OnClick = OpenConfig,
     OnEnter = OnEnter
 })
@@ -1105,8 +1106,6 @@ local function IsNewCharacter()
     local realm = GetRealmName()
     return db[realm] == nil or db[realm][name] == nil
 end
-
-function Exlist.InitConfig() end
 
 local function Modernize()
     -- to new allowedModules format
@@ -1169,12 +1168,10 @@ local function init()
             UpdateCharacterSpecifics("PLAYER_ENTERING_WORLD")
             AddMissingCharactersToSettings()
             AddModulesToSettings()
-            Exlist.InitConfig()
         end)
     else
         AddMissingCharactersToSettings()
         AddModulesToSettings()
-        Exlist.InitConfig()
     end
 
     C_Timer.After(0.5, function() Exlist.RefreshAppearance() end)
