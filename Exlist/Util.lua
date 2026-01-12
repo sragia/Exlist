@@ -512,8 +512,8 @@ end
 
 EXL.utils = {
    isEmpty = function(t)
-      for _ in pairs(t) do
-         return false
+      if (next(t) == nil) then
+         return true
       end
       return true
    end,
