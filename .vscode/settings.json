@@ -17,7 +17,7 @@
     "utf8": "disable"
   },
   "Lua.workspace.library": [
-    "c:\\Users\\abede\\.cursor\\extensions\\ketho.wow-api-0.20.8\\Annotations\\Core"
+    "c:\\Users\\aigars\\.cursor\\extensions\\ketho.wow-api-0.21.0\\Annotations\\Core"
   ],
   "Lua.diagnostics.globals": [],
   "Lua.type.weakUnionCheck": true

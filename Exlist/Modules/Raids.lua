@@ -1,3 +1,9 @@
+---@class Exlist
+local EXL = select(2, ...)
+
+---@class EXLOptionsController
+local optionsController = EXL:GetModule('options-controller')
+
 local key = "raids"
 local prio = 100
 local Exlist = Exlist
@@ -5,16 +11,12 @@ local colors = Exlist.Colors
 local L = Exlist.L
 local pairs, ipairs, type = pairs, ipairs, type
 local WrapTextInColorCode = WrapTextInColorCode
-local LFRencounters = {}
-local RaidMapIDs = {}
 local GetNumSavedInstances, GetSavedInstanceInfo, GetSavedInstanceEncounterInfo, GetLFGDungeonEncounterInfo =
     GetNumSavedInstances,
     GetSavedInstanceInfo,
     GetSavedInstanceEncounterInfo,
     GetLFGDungeonEncounterInfo
 local table = table
-
-local defaultSettings = {}
 
 local raidDifficultyIds = {
    -- in order too
@@ -38,300 +40,25 @@ local diffShort = {
    [15] = L[" HC"],
    [16] = L[" M"]
 }
-local function AddRaidOptions()
-   local settings = Exlist.ConfigDB.settings
-   settings.raids = settings.raids or {}
-   -- add missing raids
-   settings.raids = Exlist.AddMissingTableEntries(settings.raids, defaultSettings)
-   -- Options
-   local numExpansions = #Exlist.Expansions
-   local configOpt = {
-      type = "group",
-      name = "Raids",
-      args = {
-         desc = {
-            type = "description",
-            name = L["Enable raids you want to see\n"],
-            width = "full",
-            order = 0
-         }
-      }
-   }
-   -- add labels
-   for i = numExpansions, 1, -1 do
-      configOpt.args["expac" .. i] = {
-         type = "description",
-         name = WrapTextInColorCode(Exlist.Expansions[i], colors.config.heading1),
-         fontSize = "large",
-         width = "full",
-         order = numExpansions - i + 1
-      }
-   end
 
-   -- add raids
-   for raid, opt in pairs(settings.raids) do
-      configOpt.args[raid] = {
-         type = "toggle",
-         order = (numExpansions - opt.expansion + 1) + opt.order / 100,
-         width = "full",
-         name = raid,
-         get = function()
-            return opt.enabled
-         end,
-         set = function(self, v)
-            opt.enabled = v
-         end
-      }
-   end
-   Exlist.AddModuleOptions(key, configOpt, L["Raids"])
-end
-Exlist.ModuleToBeAdded(AddRaidOptions)
+local raidsModule = EXL:GetModule('module-raids')
 
-local function spairs(t, order)
-   -- collect the keys
-   local keys = {}
-   for k in pairs(t) do
-      keys[#keys + 1] = k
-   end
 
-   -- if order function given, sort by it by passing the table and keys a, b,
-   -- otherwise just sort the keys
-   if order then
-      table.sort(
-         keys,
-         function(a, b)
-            return order(t, a, b)
-         end
-      )
-   else
-      table.sort(keys)
-   end
+raidsModule.defaultSettings = {}
+raidsModule.LFRencounters = {}
+raidsModule.RaidMapIDs = {}
 
-   -- return the iterator function
-   local i = 0
-   return function()
-      i = i + 1
-      if keys[i] then
-         return keys[i], t[keys[i]]
-      end
-   end
-end
+raidsModule.Init = function(self)
+   self.defaultSettings = {
+      -- Midnight
+      [GetLFGDungeonInfo(3163) or "March on Quel'Danas"] = { enabled = true, expansion = 12, order = 8 },
+      [GetLFGDungeonInfo(3165) or "The Dreamrift"] = { enabled = true, expansion = 12, order = 9 },
+      [GetLFGDungeonInfo(3162) or "The Voidspire"] = { enabled = true, expansion = 12, order = 10 },
 
-local function Updater(event, ...)
-   if event == "ENCOUNTER_END" then
-      RequestRaidInfo()
-      return
-   end
-   local t = {}
-   local raids = Exlist.ConfigDB.settings.raids or {}
-   for i = 1, GetNumSavedInstances() do
-      local name, _, _, _, locked, extended, _, isRaid, _, difficultyName, numEncounters, encounterProgress =
-          GetSavedInstanceInfo(i)
-      if isRaid then
-         t[name] = t[name] or {}
-         t[name][difficultyName] = {
-            ["done"] = encounterProgress,
-            ["max"] = numEncounters,
-            ["locked"] = locked,
-            ["extended"] = extended,
-            ["bosses"] = {}
-         }
-         if locked then
-            local tt = t[name][difficultyName]
-            -- add info about killed bosses too
-            for j = 1, numEncounters do
-               local bName, _, isKilled = GetSavedInstanceEncounterInfo(i, j)
-               table.insert(tt.bosses, { name = bName, killed = isKilled })
-               --t.bosses[bName] = isKilled
-            end
-         end
-      end
-   end
-   -- lfr
-   local isHorde = UnitFactionGroup("player") == "Horde"
-   for raid, c in pairs(LFRencounters) do
-      if raids[raid] and raids[raid].enabled then
-         local isModifiedActive = RaidMapIDs[raid] and
-             C_ModifiedInstance.GetModifiedInstanceInfoFromMapID(RaidMapIDs[raid]) ~= nil
-         Exlist.Debug("Scanning ", raid)
-         local killed = 0
-         local total = 0
-         t[raid] = t[raid] or {}
-         t[raid].LFR = t[raid].LFR or {}
-         t[raid].LFR = { bosses = {} }
-         for id, lfr in spairs(
-            c,
-            function(t, a, b)
-               return t[a].order < t[b].order
-            end
-         ) do
-            if (lfr.horde == nil or lfr.horde == isHorde) and (not isModifiedActive or lfr.isModified) then
-               total = not lfr.dontCount and total + lfr.totalEncounters or total
-               local saveId = lfr.saveId or id
-               if lfr.map then
-                  for index, i in ipairs(lfr.map) do
-                     local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
-                     killed = isKilled and killed + 1 or killed
-                     t[raid].LFR.bosses[saveId] = t[raid].LFR.bosses[saveId] or {}
-                     t[raid].LFR.bosses[saveId].order = lfr.order
-                     t[raid].LFR.bosses[saveId][lfr.name] = t[raid].LFR.bosses[saveId][lfr.name] or {}
-                     if
-                         (t[raid].LFR.bosses[saveId][lfr.name][index] and isKilled) or
-                         not t[raid].LFR.bosses[saveId][lfr.name][index]
-                     then
-                        t[raid].LFR.bosses[saveId][lfr.name][index] = { name = bossName, killed = isKilled }
-                     end
-                  end
-               else
-                  local index = 1
-                  local offset = lfr.firstBoss or 1
-                  for i = offset, (offset + lfr.totalEncounters - 1) do
-                     local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
-                     killed = isKilled and killed + 1 or killed
-                     t[raid].LFR.bosses[saveId] = t[raid].LFR.bosses[saveId] or {}
-                     t[raid].LFR.bosses[saveId].order = lfr.order
-                     t[raid].LFR.bosses[saveId][lfr.name] = t[raid].LFR.bosses[saveId][lfr.name] or {}
-                     if
-                         (t[raid].LFR.bosses[saveId][lfr.name][index] and isKilled) or
-                         not t[raid].LFR.bosses[saveId][lfr.name][index]
-                     then
-                        t[raid].LFR.bosses[saveId][lfr.name][index] = { name = bossName, killed = isKilled }
-                     end
-                     index = index + 1
-                  end
-               end
-            end
-         end
-         t[raid].LFR.done = killed
-         t[raid].LFR.max = total
-         t[raid].LFR.locked = killed > 0
-      end
-      Exlist.UpdateChar(key, t)
-   end
-end
-
-local function Linegenerator(tooltip, data, character)
-   if not data then
-      return
-   end
-   local raids = Exlist.ConfigDB.settings.raids or {}
-   local info = { character = character }
-   local infoTables = {}
-   -- setup order
-   local raidOrder = {}
-   for raid in pairs(data) do
-      if raids[raid] and raids[raid].enabled then
-         raidOrder[#raidOrder + 1] = raid
-      end
-   end
-   table.sort(
-      raidOrder,
-      function(a, b)
-         local aValue = (raids[a].expansion or 0) * 100 + (50 - (raids[a].order or 0))
-         local bValue = (raids[b].expansion or 0) * 100 + (50 - (raids[b].order or 0))
-         return aValue > bValue
-      end
-   )
-   for index = 1, #raidOrder do
-      if data[raidOrder[index]] then
-         -- Raid
-         info.priority =
-             prio + (index / 100) +
-             ((20 - raids[raidOrder[index]].expansion) + 50 - raids[raidOrder[index]].order) / 1000
-         local added = false
-         local cellIndex = 1
-         local line
-         for difIndex = 1, #diffOrder do
-            -- difficulties
-            local raidInfo = data[raidOrder[index]][diffOrder[difIndex]]
-            if raidInfo and raidInfo.locked then
-               --killed something
-               if not added then
-                  -- raid shows up first time
-                  info.moduleName = raidOrder[index]
-                  info.titleName = WrapTextInColorCode(raidOrder[index], colors.faded)
-                  added = true
-                  cellIndex = cellIndex + 1
-               end
-               local sideTooltipTable = {
-                  title = WrapTextInColorCode(
-                     raidOrder[index] .. " (" .. diffOrder[difIndex] .. ")",
-                     colors.sideTooltipTitle
-                  ),
-                  body = {}
-               }
-
-               -- Side Tooltip Data
-               if difIndex == 1 then
-                  -- LFR
-                  for id in spairs(
-                     raidInfo.bosses,
-                     function(t, a, b)
-                        return t[a].order < t[b].order
-                     end
-                  ) do
-                     Exlist.Debug("Adding LFR id:", id, " -", key)
-                     for name, b in pairs(raidInfo.bosses[id]) do
-                        if type(b) == "table" then
-                           table.insert(sideTooltipTable.body, { WrapTextInColorCode(name, colors.faded), "" })
-                           for i = 1, #b do
-                              table.insert(
-                                 sideTooltipTable.body,
-                                 {
-                                    b[i].name,
-                                    b[i].killed and WrapTextInColorCode(L["Defeated"], colors.completed) or
-                                    WrapTextInColorCode(L["Available"], colors.available)
-                                 }
-                              )
-                           end
-                        end
-                     end
-                  end
-               else
-                  -- normal people difficulties
-                  for boss = 1, #raidInfo.bosses do
-                     table.insert(
-                        sideTooltipTable.body,
-                        {
-                           raidInfo.bosses[boss].name,
-                           raidInfo.bosses[boss].killed and WrapTextInColorCode(L["Defeated"], colors.completed) or
-                           WrapTextInColorCode(L["Available"], colors.available)
-                        }
-                     )
-                  end
-               end
-
-               local statusbar = { curr = raidInfo.done, total = raidInfo.max, color = "9b016a" }
-               info.data = raidInfo.done .. "/" .. (raidInfo.max or '?') .. diffShortened[diffOrder[difIndex]]
-
-               info.colOff = cellIndex - 2
-               info.OnEnter = Exlist.CreateSideTooltip(statusbar)
-               info.OnEnterData = sideTooltipTable
-               info.dontResize = true
-               info.OnLeave = Exlist.DisposeSideTooltip()
-               infoTables[info.moduleName] = infoTables[info.moduleName] or {}
-               table.insert(infoTables[info.moduleName], Exlist.copyTable(info))
-               cellIndex = cellIndex + 1
-            end
-         end
-      end
-   end
-   for raid, t in pairs(infoTables) do
-      for i = 1, #t do
-         if i >= #t then
-            t[i].dontResize = false
-         end
-         Exlist.AddData(t[i])
-      end
-   end
-end
-
-local function init()
-   defaultSettings = {
       -- The War Within
-      [GetLFGDungeonInfo(2805) or "Manaforge Omega"] = { enabled = true, expansion = 11, order = 7 },
-      [GetLFGDungeonInfo(2779) or "Liberation of Undermine"] = { enabled = true, expansion = 11, order = 9 },
-      [GetLFGDungeonInfo(2645) or "Nerub-ar Palace"] = { enabled = true, expansion = 11, order = 10 },
+      [GetLFGDungeonInfo(2805) or "Manaforge Omega"] = { enabled = false, expansion = 11, order = 7 },
+      [GetLFGDungeonInfo(2779) or "Liberation of Undermine"] = { enabled = false, expansion = 11, order = 9 },
+      [GetLFGDungeonInfo(2645) or "Nerub-ar Palace"] = { enabled = false, expansion = 11, order = 10 },
       -- Dragonflight
       [GetLFGDungeonInfo(2502) or "Amirdrassil, the Dream's Hope"] = { enabled = false, expansion = 10, order = 8 },
       [GetLFGDungeonInfo(2403) or "Aberrus, the Shadowed Crucible"] = { enabled = false, expansion = 10, order = 9 },
@@ -395,7 +122,7 @@ local function init()
       [GetLFGDungeonInfo(48) or "Molten Core"] = { enabled = false, expansion = 1, order = 4 }
    }
 
-   LFRencounters = {
+   self.LFRencounters = {
       -- [dungeonID] = {name = "", totalEncounters = 2}
       -- Dragon Soul
       [GetLFGDungeonInfo(447) or "Dragon Soul"] = {
@@ -614,7 +341,7 @@ local function init()
       },
    }
 
-   RaidMapIDs = {
+   self.RaidMapIDs = {
       [GetLFGDungeonInfo(2388) or "Vault of the Incarnates"] = 2522,
       [GetLFGDungeonInfo(2403) or "Aberrus, the Shadowed Crucible"] = 2569,
       [GetLFGDungeonInfo(2502) or "Amirdrassil, the Dream's Hope"] = 2549
@@ -626,18 +353,284 @@ local function init()
       table.insert(diffOrder, name)
       diffShortened[name] = diffShort[id]
    end
+
+
+   optionsController:RegisterModule(self)
+end
+
+raidsModule.GetName = function(self)
+   return L["Raids"]
+end
+
+raidsModule.GetOrder = function(self)
+   return prio
+end
+
+raidsModule.Updater = function(event, ...)
+   if event == "ENCOUNTER_END" then
+      RequestRaidInfo()
+      return
+   end
+   local t = {}
+   local raids = Exlist.ConfigDB.settings.raids or {}
+   for i = 1, GetNumSavedInstances() do
+      local name, _, _, _, locked, extended, _, isRaid, _, difficultyName, numEncounters, encounterProgress =
+          GetSavedInstanceInfo(i)
+      if isRaid then
+         t[name] = t[name] or {}
+         t[name][difficultyName] = {
+            ["done"] = encounterProgress,
+            ["max"] = numEncounters,
+            ["locked"] = locked,
+            ["extended"] = extended,
+            ["bosses"] = {}
+         }
+         if locked then
+            local tt = t[name][difficultyName]
+            -- add info about killed bosses too
+            for j = 1, numEncounters do
+               local bName, _, isKilled = GetSavedInstanceEncounterInfo(i, j)
+               table.insert(tt.bosses, { name = bName, killed = isKilled })
+               --t.bosses[bName] = isKilled
+            end
+         end
+      end
+   end
+   -- lfr
+   local isHorde = UnitFactionGroup("player") == "Horde"
+   for raid, c in pairs(raidsModule.LFRencounters) do
+      if raids[raid] and raids[raid].enabled then
+         local isModifiedActive = raidsModule.RaidMapIDs[raid] and
+             C_ModifiedInstance.GetModifiedInstanceInfoFromMapID(raidsModule.RaidMapIDs[raid]) ~= nil
+         Exlist.Debug("Scanning ", raid)
+         local killed = 0
+         local total = 0
+         t[raid] = t[raid] or {}
+         t[raid].LFR = t[raid].LFR or {}
+         t[raid].LFR = { bosses = {} }
+         for id, lfr in EXL.utils.spairs(
+            c,
+            function(t, a, b)
+               return t[a].order < t[b].order
+            end
+         ) do
+            if (lfr.horde == nil or lfr.horde == isHorde) and (not isModifiedActive or lfr.isModified) then
+               total = not lfr.dontCount and total + lfr.totalEncounters or total
+               local saveId = lfr.saveId or id
+               if lfr.map then
+                  for index, i in ipairs(lfr.map) do
+                     local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
+                     killed = isKilled and killed + 1 or killed
+                     t[raid].LFR.bosses[saveId] = t[raid].LFR.bosses[saveId] or {}
+                     t[raid].LFR.bosses[saveId].order = lfr.order
+                     t[raid].LFR.bosses[saveId][lfr.name] = t[raid].LFR.bosses[saveId][lfr.name] or {}
+                     if
+                         (t[raid].LFR.bosses[saveId][lfr.name][index] and isKilled) or
+                         not t[raid].LFR.bosses[saveId][lfr.name][index]
+                     then
+                        t[raid].LFR.bosses[saveId][lfr.name][index] = { name = bossName, killed = isKilled }
+                     end
+                  end
+               else
+                  local index = 1
+                  local offset = lfr.firstBoss or 1
+                  for i = offset, (offset + lfr.totalEncounters - 1) do
+                     local bossName, _, isKilled = GetLFGDungeonEncounterInfo(id, i)
+                     killed = isKilled and killed + 1 or killed
+                     t[raid].LFR.bosses[saveId] = t[raid].LFR.bosses[saveId] or {}
+                     t[raid].LFR.bosses[saveId].order = lfr.order
+                     t[raid].LFR.bosses[saveId][lfr.name] = t[raid].LFR.bosses[saveId][lfr.name] or {}
+                     if
+                         (t[raid].LFR.bosses[saveId][lfr.name][index] and isKilled) or
+                         not t[raid].LFR.bosses[saveId][lfr.name][index]
+                     then
+                        t[raid].LFR.bosses[saveId][lfr.name][index] = { name = bossName, killed = isKilled }
+                     end
+                     index = index + 1
+                  end
+               end
+            end
+         end
+         t[raid].LFR.done = killed
+         t[raid].LFR.max = total
+         t[raid].LFR.locked = killed > 0
+      end
+      Exlist.UpdateChar(key, t)
+   end
+end
+
+raidsModule.Linegenerator = function(tooltip, data, character)
+   if not data then
+      return
+   end
+   local raids = Exlist.ConfigDB.settings.raids or {}
+   local info = { character = character }
+   local infoTables = {}
+   -- setup order
+   local raidOrder = {}
+   for raid in pairs(data) do
+      if raids[raid] and raids[raid].enabled then
+         raidOrder[#raidOrder + 1] = raid
+      end
+   end
+   table.sort(
+      raidOrder,
+      function(a, b)
+         local aValue = (raids[a].expansion or 0) * 100 + (50 - (raids[a].order or 0))
+         local bValue = (raids[b].expansion or 0) * 100 + (50 - (raids[b].order or 0))
+         return aValue > bValue
+      end
+   )
+   for index = 1, #raidOrder do
+      if data[raidOrder[index]] then
+         -- Raid
+         info.priority =
+             prio + (index / 100) +
+             ((20 - raids[raidOrder[index]].expansion) + 50 - raids[raidOrder[index]].order) / 1000
+         local added = false
+         local cellIndex = 1
+         local line
+         for difIndex = 1, #diffOrder do
+            -- difficulties
+            local raidInfo = data[raidOrder[index]][diffOrder[difIndex]]
+            if raidInfo and raidInfo.locked then
+               --killed something
+               if not added then
+                  -- raid shows up first time
+                  info.moduleName = raidOrder[index]
+                  info.titleName = WrapTextInColorCode(raidOrder[index], colors.faded)
+                  added = true
+                  cellIndex = cellIndex + 1
+               end
+               local sideTooltipTable = {
+                  title = WrapTextInColorCode(
+                     raidOrder[index] .. " (" .. diffOrder[difIndex] .. ")",
+                     colors.sideTooltipTitle
+                  ),
+                  body = {}
+               }
+
+               -- Side Tooltip Data
+               if difIndex == 1 then
+                  -- LFR
+                  for id in EXL.utils.spairs(
+                     raidInfo.bosses,
+                     function(t, a, b)
+                        return t[a].order < t[b].order
+                     end
+                  ) do
+                     Exlist.Debug("Adding LFR id:", id, " -", key)
+                     for name, b in pairs(raidInfo.bosses[id]) do
+                        if type(b) == "table" then
+                           table.insert(sideTooltipTable.body, { WrapTextInColorCode(name, colors.faded), "" })
+                           for i = 1, #b do
+                              table.insert(
+                                 sideTooltipTable.body,
+                                 {
+                                    b[i].name,
+                                    b[i].killed and WrapTextInColorCode(L["Defeated"], colors.completed) or
+                                    WrapTextInColorCode(L["Available"], colors.available)
+                                 }
+                              )
+                           end
+                        end
+                     end
+                  end
+               else
+                  -- normal people difficulties
+                  for boss = 1, #raidInfo.bosses do
+                     table.insert(
+                        sideTooltipTable.body,
+                        {
+                           raidInfo.bosses[boss].name,
+                           raidInfo.bosses[boss].killed and WrapTextInColorCode(L["Defeated"], colors.completed) or
+                           WrapTextInColorCode(L["Available"], colors.available)
+                        }
+                     )
+                  end
+               end
+
+               local statusbar = { curr = raidInfo.done, total = raidInfo.max, color = "9b016a" }
+               info.data = raidInfo.done .. "/" .. (raidInfo.max or '?') .. diffShortened[diffOrder[difIndex]]
+
+               info.colOff = cellIndex - 2
+               info.OnEnter = Exlist.CreateSideTooltip(statusbar)
+               info.OnEnterData = sideTooltipTable
+               info.dontResize = true
+               info.OnLeave = Exlist.DisposeSideTooltip()
+               infoTables[info.moduleName] = infoTables[info.moduleName] or {}
+               table.insert(infoTables[info.moduleName], Exlist.copyTable(info))
+               cellIndex = cellIndex + 1
+            end
+         end
+      end
+   end
+   for raid, t in pairs(infoTables) do
+      for i = 1, #t do
+         if i >= #t then
+            t[i].dontResize = false
+         end
+         Exlist.AddData(t[i])
+      end
+   end
+end
+
+raidsModule.GetOptions = function(self)
+   local settings = Exlist.ConfigDB.settings
+   settings.raids = settings.raids or {}
+   -- add missing raids
+   settings.raids = Exlist.AddMissingTableEntries(settings.raids, raidsModule.defaultSettings)
+   -- Options
+   local numExpansions = #Exlist.Expansions
+   local options = {
+      {
+         type = 'title',
+         width = 100,
+         label = L['Raids']
+      },
+      {
+         type = 'description',
+         width = 100,
+         label = L['Enable/Disable raids you want to see']
+      },
+   }
+
+   for i = numExpansions, 1, -1 do
+      table.insert(options, {
+         type = 'title',
+         size = 14,
+         width = 100,
+         label = Exlist.Expansions[i]
+      })
+      for raid, opt in pairs(settings.raids) do
+         if (opt.expansion == i) then
+            table.insert(options, {
+               type = 'toggle',
+               width = 100,
+               label = raid,
+               currentValue = function()
+                  return opt.enabled
+               end,
+               onChange = function(value)
+                  opt.enabled = value
+               end
+            })
+         end
+      end
+   end
+
+   return options
 end
 
 local data = {
    name = L["Raids"],
    key = key,
-   linegenerator = Linegenerator,
+   linegenerator = raidsModule.Linegenerator,
    priority = prio,
-   updater = Updater,
+   updater = raidsModule.Updater,
    event = { "UPDATE_INSTANCE_INFO", "PLAYER_ENTERING_WORLD", "ENCOUNTER_END" },
    description = L["Tracks lockouts for current expansion raids"],
    weeklyReset = true,
-   init = init
 }
 
 Exlist.RegisterModule(data)

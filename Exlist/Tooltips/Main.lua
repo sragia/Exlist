@@ -76,10 +76,10 @@ local function GearTooltip(self, info)
    local specIcon = info.specId and iconPaths[info.specId] or iconPaths[0]
    -- character name header
    local header =
-      "|T" ..
-      specIcon ..
-         ":25:25|t " ..
-            "|c" .. RAID_CLASS_COLORS[info.class].colorStr .. info.name .. "|r " .. (info.level or 0) .. " level"
+       "|T" ..
+       specIcon ..
+       ":25:25|t " ..
+       "|c" .. RAID_CLASS_COLORS[info.class].colorStr .. info.name .. "|r " .. (info.level or 0) .. " level"
    local line = geartooltip:AddHeader()
    geartooltip:SetCell(line, 1, header, "LEFT", 3)
    geartooltip:SetCell(line, 7, string.format("%i " .. L["ilvl"], (info.iLvl or 0)), "CENTER")
@@ -98,7 +98,7 @@ local function GearTooltip(self, info)
                for b = 1, #gear[i].gem do
                   if enchantements ~= "" then
                      enchantements =
-                        string.format("%s\n|T%s:20|t%s", enchantements, gear[i].gem[b].icon, gear[i].gem[b].name)
+                         string.format("%s\n|T%s:20|t%s", enchantements, gear[i].gem[b].icon, gear[i].gem[b].name)
                   else
                      enchantements = string.format("|T%s:20|t%s", gear[i].gem[b].icon, gear[i].gem[b].name)
                   end
@@ -178,7 +178,7 @@ local function GearTooltip(self, info)
       tile = false,
       tileSize = 0,
       edgeSize = 1,
-      insets = {left = 0, right = 0, top = 0, bottom = 0}
+      insets = { left = 0, right = 0, top = 0, bottom = 0 }
    }
 
    Mixin(geartooltip.NineSlice, BackdropTemplateMixin);
@@ -197,8 +197,8 @@ end
 local function PopulateTooltip(tooltip)
    -- Setup Tooltip (Add appropriate amounts of rows)
    tooltip.animations = {}
-   local modulesAdded = {} -- for horizontal
-   local moduleLine = {} -- for horizontal
+   local modulesAdded = {}   -- for horizontal
+   local moduleLine = {}     -- for horizontal
    local charHeaderRows = {} -- for vertical
    local charOrder = GetCharacterOrder()
    for i = 1, #charOrder do
@@ -208,7 +208,7 @@ local function PopulateTooltip(tooltip)
          if settings.horizontalMode then
             for module, info in pairs(t.modules) do
                if not modulesAdded[module] and (module ~= "_Header" and module ~= "_HeaderSmall") then
-                  modulesAdded[module] = {prio = info.priority, name = info.name}
+                  modulesAdded[module] = { prio = info.priority, name = info.name }
                end
             end
          else
@@ -253,15 +253,14 @@ local function PopulateTooltip(tooltip)
          local headerCol = settings.horizontalMode and col or 1
          local headerWidth = settings.horizontalMode and 3 or 4
          local header = Exlist.tooltipData[character].modules["_Header"]
-         local logoTexSize = settings.shortenInfo and "30:60" or "40:80"
          if settings.horizontalMode then
             local headerText =
-               settings.shortenInfo and header.data[1].data .. " " .. header.data[2].data or
-               header.data[1].data .. "             " .. header.data[2].data
+                settings.shortenInfo and header.data[1].data .. " " .. header.data[2].data or
+                header.data[1].data .. "             " .. header.data[2].data
             tooltip:SetCell(
                1,
                1,
-               "|T" .. [[Interface/Addons/Exlist/Media/Icons/ExlistLogo2.tga]] .. ":" .. logoTexSize .. "|t",
+               "",
                "CENTER"
             )
             tooltip:SetCell(rowHeadNum - 1, headerCol, headerText, "CENTER", 4)
@@ -334,7 +333,7 @@ local function PopulateTooltip(tooltip)
                      local cell = tooltip.lines[row].cells[col + offsetCol]
                      cell:SetScript("OnUpdate", Exlist.AnimPulse)
                      table.insert(tooltip.animations, cell)
-                  -- ANIM TEST --
+                     -- ANIM TEST --
                   end
                   if data.lineColor then
                      tooltip:SetLineColor(row, Exlist.ColorHexToDec(data.lineColor))
@@ -374,19 +373,22 @@ end
 
 local function configureTooltip(self, tooltip)
    tooltip:SmartAnchorTo(self)
-
-   Mixin(tooltip.NineSlice, BackdropTemplateMixin);
-   SharedTooltip_SetBackdropStyle(tooltip, nil, tooltip.IsEmbedded);
-   tooltip.NineSlice:SetScript("OnSizeChanged", tooltip.NineSlice.OnBackdropSizeChanged);
-   tooltip.NineSlice:SetBackdrop(Exlist.DEFAULT_BACKDROP);
+   tooltip.NineSlice:Hide()
+   if (not tooltip.ExlistBackdrop) then
+      tooltip.ExlistBackdrop = CreateFrame("Frame", nil, tooltip, "BackdropTemplate")
+      tooltip.ExlistBackdrop:SetBackdrop(Exlist.DEFAULT_BACKDROP)
+      tooltip.ExlistBackdrop:SetAllPoints()
+      tooltip.ExlistBackdrop:SetFrameLevel(tooltip:GetFrameLevel() - 1)
+   end
    local c = settings.backdrop
-   tooltip.NineSlice:SetCenterColor(c.color.r, c.color.g, c.color.b, c.color.a)
-   tooltip.NineSlice:SetBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+   tooltip.ExlistBackdrop:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
+   tooltip.ExlistBackdrop:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+   tooltip.ExlistBackdrop:Show()
    tooltip:UpdateScrolling(settings.tooltipHeight)
 end
 
 local function showTooltip(self)
-   if QTip:IsAcquired("Exlist_Tooltip") then
+   if QTip:IsAcquired("Exlist_Tooltip_Main") then
       return
    end
 
@@ -411,9 +413,9 @@ local function showTooltip(self)
    charOrder = tmp
    local tooltip
    if settings.horizontalMode then
-      tooltip = QTip:Acquire("Exlist_Tooltip", (#charOrder * 4) + 1)
+      tooltip = QTip:Acquire("Exlist_Tooltip_Main", (#charOrder * 4) + 1)
    else
-      tooltip = QTip:Acquire("Exlist_Tooltip", 5)
+      tooltip = QTip:Acquire("Exlist_Tooltip_Main", 5)
    end
 
    tooltip.parentFrame = self
@@ -428,7 +430,7 @@ local function showTooltip(self)
    for i = 1, #charOrder do
       local name = charOrder[i].name
       local realm = charOrder[i].realm
-      local character = {name = name, realm = realm}
+      local character = { name = name, realm = realm }
       local charData = Exlist.GetCharacterTable(realm, name)
       charData.name = name
       -- header
@@ -439,9 +441,9 @@ local function showTooltip(self)
          subHeaderText = string.format("|c%s%s", colors.sideTooltipTitle, realm)
       elseif (charData.class) then
          headerText =
-            "|T" .. specIcon .. ":25:25|t " .. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
+             "|T" .. specIcon .. ":25:25|t " .. "|c" .. RAID_CLASS_COLORS[charData.class].colorStr .. name .. "|r "
          subHeaderText =
-            string.format("|c%s%s - " .. L["Level"] .. " %i", colors.sideTooltipTitle, realm, charData.level)
+             string.format("|c%s%s - " .. L["Level"] .. " %i", colors.sideTooltipTitle, realm, charData.level)
       end
       -- Header Info
       Exlist.AddData(
@@ -491,6 +493,7 @@ local function showTooltip(self)
    -- Add Data to tooltip
    PopulateTooltip(tooltip)
    -- Tooltip visuals
+   tooltip:SmartAnchorTo(self)
    configureTooltip(self, tooltip)
 
    tooltip:Show()

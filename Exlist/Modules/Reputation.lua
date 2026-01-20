@@ -1,3 +1,18 @@
+---@class Exlist
+local EXL = select(2, ...)
+
+---@class ExalityFrames
+local EXFrames = EXL.EXFrames
+
+---@class ExalityFramesInputDialogFrame
+local inputDialog = EXFrames:GetFrame('input-dialog-frame')
+
+---@class EXLOptionsController
+local optionsController = EXL:GetModule('options-controller')
+
+---@class EXLOptionsFields
+local optionsFields = EXL:GetModule('options-fields')
+
 local key = "reputation"
 local prio = 95
 local Exlist = Exlist
@@ -17,34 +32,24 @@ local standingNames = {
    [100] = L["Paragon"]
 }
 
-local function spairs(t, order)
-   -- collect the keys
-   local keys = {}
-   for k in pairs(t) do
-      keys[#keys + 1] = k
-   end
+local reputationModule = EXL:GetModule('module-reputation')
 
-   -- if order function given, sort by it by passing the table and keys a, b,
-   -- otherwise just sort the keys
-   if order then
-      table.sort(
-         keys,
-         function(a, b)
-            return order(t, a, b)
-         end
-      )
-   else
-      table.sort(keys)
-   end
+reputationModule.dialog = nil
 
-   -- return the iterator function
-   local i = 0
-   return function()
-      i = i + 1
-      if keys[i] then
-         return keys[i], t[keys[i]]
-      end
-   end
+reputationModule.Init = function(self)
+   optionsController:RegisterModule(self)
+
+   self.dialog = inputDialog:Create()
+   self.dialog:SetSuccessButtonText(L['Set'])
+   self.dialog:SetCancelButtonText(L['Cancel'])
+end
+
+reputationModule.GetName = function(self)
+   return L["Reputation"]
+end
+
+reputationModule.GetOrder = function(self)
+   return prio
 end
 
 local function AddReputationToCache(name, factionID)
@@ -261,7 +266,7 @@ local function init()
 end
 
 local selectedFaction = 0
-local function AddOptions(refresh)
+reputationModule.GetOptions = function(self)
    -- Make reputation list
    local reps = {}
    local repLookup = {}
@@ -272,178 +277,150 @@ local function AddOptions(refresh)
       reps[i] = reputation.name
    end
    local options = {
-      type = "group",
-      name = L["Reputations"],
-      args = {
-         moduleDesc = {
-            type = "description",
-            order = 0,
-            name = L["Pick and choose reputations you want to see."],
-            width = "full"
-         },
-         addFactionID = {
-            type = "input",
-            order = 10,
-            name = L["Add Faction ID to list"],
-            width = 1.5,
-            get = function()
-               return ""
-            end,
-            set = function(self, id)
-               local name = UpdateReputationCache(id)
+      {
+         type = 'title',
+         width = 100,
+         label = L['Reputation']
+      },
+      {
+         type = 'description',
+         width = 100,
+         label = L['Pick and choose reputations you want to see.']
+      },
+      {
+         type = 'button',
+         width = 30,
+         label = L['Add Faction ID to list'],
+         onClick = function()
+            self.dialog:SetLabel(L['Faction ID'])
+            self.dialog:SetOnSuccess(function(value)
+               local name = UpdateReputationCache(value)
                if name then
-                  settings.reputation.enabled[tonumber(id)] = { name = name, enabled = true }
+                  settings.reputation.enabled[tonumber(value)] = { name = name, enabled = true }
                end
-               AddOptions(true)
-            end
-         },
-         spacer1 = {
-            type = "description",
-            order = 11,
-            width = 1.9,
-            name = ""
-         },
-         selectFaction = {
-            type = "select",
-            order = 20,
-            name = L["Or Select Faction"],
-            width = 1.5,
-            values = reps,
-            get = function()
-               return selectedFaction
-            end,
-            set = function(self, value)
-               selectedFaction = value
-            end
-         },
-         enableFaction = {
-            type = "execute",
-            order = 30,
-            name = L["Enable"],
-            width = 0.5,
-            disabled = function()
-               return selectedFaction == 0
-            end,
-            func = function()
-               settings.reputation.enabled[repLookup[selectedFaction]] = { name = reps[selectedFaction], enabled = true }
-               selectedFaction = 0
-               AddOptions(true)
-            end,
-            image = [[Interface/Addons/Exlist/Media/Icons/ok-icon]],
-            imageWidth = 20,
-            imageHeight = 20
-         },
-         spacer2 = {
-            type = "description",
-            order = 31,
-            width = 1.4,
-            name = ""
-         },
-         enabledReps = {
-            type = "description",
-            order = 32,
-            width = "full",
-            fontSize = "medium",
-            name = L["Curently enabled reputations"]
-         },
-         characterSelection = {
-            type = "description",
-            order = 1000,
-            name = WrapTextInColorCode(L["\nCharacter Reputations"], colors.questTitle),
-            fontSize = "large",
-            width = "full"
-         },
-         characterSelectiondesc = {
-            type = "description",
-            fontSize = "medium",
-            order = 1010,
-            name = L["Pick reputation that are shown as main one for each character"],
-            width = "full"
-         }
+               optionsFields:RefreshFields()
+            end)
+            self.dialog:ShowDialog()
+         end,
+         color = { 249 / 255, 95 / 255, 9 / 255, 1 }
+      },
+      {
+         type = 'spacer',
+         width = 70,
+      },
+      {
+         type = 'dropdown',
+         width = 30,
+         label = L['Or Select Faction'],
+         getOptions = function()
+            return reps
+         end,
+         currentValue = function()
+            return selectedFaction
+         end,
+         onChange = function(value)
+            selectedFaction = value
+         end
+      },
+      {
+         type = 'button',
+         width = 10,
+         label = L['Enable'],
+         onClick = function()
+            settings.reputation.enabled[repLookup[selectedFaction]] = { name = reps[selectedFaction], enabled = true }
+            selectedFaction = 0
+            optionsFields:RefreshFields()
+         end,
+         color = { 249 / 255, 95 / 255, 9 / 255, 1 }
+      },
+      {
+         type = 'description',
+         label = L['Curently enabled reputations:'],
+         width = 100
       }
    }
+
    local enabledReps = {}
    enabledReps[0] = "None"
-   -- Populate enabled factions
-   local order = 50
+   local added = false
    for factionID, info in pairs(settings.reputation.enabled) do
       if info.enabled then
+         added = true
          enabledReps[factionID] = info.name
-         options.args[factionID .. "Disable"] = {
-            type = "execute",
-            order = order,
-            name = "",
-            width = 0.2,
-            func = function()
-               info.enabled = false
+         table.insert(options, {
+            type = 'toggle',
+            width = 100,
+            label = info.name,
+            currentValue = function()
+               return info.enabled
+            end,
+            onChange = function(value)
+               info.enabled = value
                for char, fID in pairs(settings.reputation.charOption) do
-                  if factionID == fID then
+                  if (factionID == fID) then
                      settings.reputation.charOption[char] = 0
                   end
                end
-               AddOptions(true)
-            end,
-            image = [[Interface/Addons/Exlist/Media/Icons/cancel-icon]],
-            imageWidth = 20,
-            imageHeight = 20
-         }
-         options.args[factionID .. "Name"] = {
-            type = "description",
-            fontSize = "medium",
-            order = order + 1,
-            name = info.name,
-            width = 3.4
-         }
-         order = order + 2
+               optionsFields:RefreshOptions()
+            end
+         })
       end
    end
+   if not added then
+      table.insert(options, {
+         type = 'description',
+         label = L['None'],
+         width = 100
+      })
+   end
 
-   -- Char Selection
-   order = 1011
-   for char, v in spairs(
+   table.insert(options, {
+      type = 'spacer',
+      width = 100
+   })
+
+   table.insert(options, {
+      type = 'title',
+      size = 14,
+      width = 100,
+      label = L['Character Reputations']
+   })
+   table.insert(options, {
+      type = 'description',
+      label = L['Pick reputation that are shown as main one for each character'],
+      width = 100
+   })
+
+   for char, v in EXL.utils.spairs(
       settings.allowedCharacters,
       function(t, a, b)
          return t[a].order < t[b].order
       end
    ) do
       if v.enabled then
-         options.args[char .. "name"] = {
-            type = "description",
-            name = string.format("|c%s%s", v.classClr, v.name),
-            order = order,
-            width = 0.6
-         }
-         options.args[char .. "factions"] = {
-            type = "select",
-            name = "",
-            values = enabledReps,
-            order = order + 1,
-            width = 1.2,
-            get = function()
+         table.insert(options, {
+            type = 'dropdown',
+            width = 30,
+            getOptions = function()
+               return enabledReps
+            end,
+            label = string.format("|c%s%s", v.classClr, v.name),
+            currentValue = function()
                return settings.reputation.charOption[char] or 0
             end,
-            set = function(self, v)
-               settings.reputation.charOption[char] = v
-               AddOptions(true)
+            onChange = function(value)
+               settings.reputation.charOption[char] = value
             end
-         }
-         options.args[char .. "spacer"] = {
-            type = "description",
-            name = "",
-            order = order + 2,
-            width = 1.6
-         }
-         order = order + 3
+         })
+         table.insert(options, {
+            type = 'spacer',
+            width = 70,
+         })
       end
    end
 
-   if not refresh then
-      Exlist.AddModuleOptions(key, options, L["Reputation"])
-   else
-      Exlist.RefreshModuleOptions(key, options, L["Reputation"])
-   end
+   return options
 end
-Exlist.ModuleToBeAdded(AddOptions)
 
 local data = {
    name = L["Reputation"],

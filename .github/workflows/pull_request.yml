@@ -4,7 +4,7 @@ on: [pull_request]
 
 jobs:
    build:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-22.04
 
       steps:
          - uses: actions/checkout@v1
@@ -14,17 +14,16 @@ jobs:
               luarocks install --local luacheck
               /home/runner/.luarocks/bin/luacheck . --no-color -q
 
-         - name: Create Retail Package
-           run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -d -z
-           env:
-              CF_API_KEY: ${{ secrets.CF_API_KEY }}
-              GITHUB_OAUTH: ${{ secrets.OAUTH_TOKEN }}
-              WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+         - name: Create Package
+           uses: BigWigsMods/packager@v2
+           with:
+              args: -d -z
 
          - uses: actions/upload-artifact@master
            with:
               name: Exlist-PR
               path: .release/
+              include-hidden-files: true
 
          - name: Send status to Discord
            uses: nebularg/actions-discord-webhook@v1

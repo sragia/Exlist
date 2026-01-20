@@ -1,12 +1,25 @@
+---@class Exlist
+local EXL = select(2, ...)
+
+---@class ExalityFrames
+local EXFrames = EXL.EXFrames
+
+---@class ExalityFramesInputDialogFrame
+local inputDialog = EXFrames:GetFrame('input-dialog-frame')
+
+---@class EXLOptionsController
+local optionsController = EXL:GetModule('options-controller')
+
+---@class EXLOptionsFields
+local optionsFields = EXL:GetModule('options-fields')
+
 local key = "currency"
 local L = Exlist.L
 local prio = 10
 local currencyAmount = {}
 local GetMoney, GetItemCount = GetMoney, GetItemCount
-local GetItemInfo = GetItemInfo
 local math, table, pairs = math, table, pairs
 local WrapTextInColorCode = WrapTextInColorCode
-local GetCurrencyListSize, GetCurrencyListInfo = GetCurrencyListSize, GetCurrencyListInfo
 local print, string, ipairs = print, string, ipairs
 local Exlist = Exlist
 local colors = Exlist.Colors
@@ -19,9 +32,40 @@ local config_defaults = {
    showSeparate = false
 }
 
-local function AddRefreshOptions()
+--------------------
+
+local currency = EXL:GetModule('module-currency')
+
+currency.useTabs = false
+currency.useSplitView = false
+currency.dialog = nil
+
+local statusMap = {
+   disabled = string.format('|cffdb0012%s|r', L['Disabled']),
+   enabled = string.format('|cff00fa11%s|r', L['Enabled']),
+   enabledSeparate = string.format('|cff00fa11%s|r', L['Enabled (and show separate)'])
+}
+
+currency.Init = function(self)
+   optionsController:RegisterModule(self)
+
+   self.dialog = inputDialog:Create()
+   self.dialog:SetSuccessButtonText(L['Set'])
+   self.dialog:SetCancelButtonText(L['Cancel'])
 end
-local function Updater(event)
+
+currency.GetName = function(self)
+   return L['Currency']
+end
+
+currency.GetOrder = function(self)
+   return prio
+end
+
+currency.Updater = function()
+   if (not Exlist.ConfigDB) then
+      return
+   end
    local t = {}
    local coppers = GetMoney()
    local money = {
@@ -58,7 +102,7 @@ local function Updater(event)
    for name, v in pairs(cur) do
       if v.type == "item" and v.enabled then
          local amount = GetItemCount(v.name, true)
-         table.insert(t.currency, {name = name, amount = amount, texture = v.icon})
+         table.insert(t.currency, { name = name, amount = amount, texture = v.icon })
       elseif v.enabled then
          table.insert(
             t.currency,
@@ -73,45 +117,39 @@ local function Updater(event)
    table.sort(t.currency, function(a, b) return a.name < b.name end)
    Exlist.UpdateChar(key, t)
 end
-local added = false
-AddRefreshOptions = function()
-   if not Exlist.ConfigDB then
-      return
-   end
+
+currency.GetOptions = function(self)
    local cur = Exlist.ConfigDB.settings.currencies
    local options = {
-      type = "group",
-      name = "Currency",
-      args = {
-         desc = {
-            type = "description",
-            order = 1,
-            width = "full",
-            name = L["Enable/Disable Currencies you want to see"]
-         },
-         hideCurrency = {
-            type = "toggle",
-            order = 1.04,
-            width = 1.5,
-            name = L["Hide empty currencies"],
-            desc = L["Hides currency if it's not present on character"],
-            get = function()
-               return Exlist.ConfigDB.settings.hideEmptyCurrency
-            end,
-            set = function(self, v)
-               Exlist.ConfigDB.settings.hideEmptyCurrency = v
-               AddRefreshOptions()
-            end
-         },
-         itemInput = {
-            type = "input",
-            order = 1.06,
-            name = L[" Add Item (|cffffffffInput itemID or item name|r)"],
-            get = function()
-               return ""
-            end,
-            set = function(self, v)
-               local iInfo = Exlist.GetCachedItemInfo(v)
+      {
+         type = 'title',
+         width = 100,
+         label = L['Currency']
+      },
+      {
+         type = 'description',
+         width = 100,
+         label = L['Enable/Disable Currencies you want to see']
+      },
+      {
+         type = 'toggle',
+         width = 100,
+         label = L['Hide Empty Currencies'],
+         currentValue = function()
+            return Exlist.ConfigDB.settings.hideEmptyCurrency
+         end,
+         onChange = function(value)
+            Exlist.ConfigDB.settings.hideEmptyCurrency = value
+         end
+      },
+      {
+         type = 'button',
+         width = 20,
+         label = L['Add Item'],
+         onClick = function()
+            self.dialog:SetLabel(L['Item ID or Item Name'])
+            self.dialog:SetOnSuccess(function(value)
+               local iInfo = Exlist.GetCachedItemInfo(value)
                if iInfo and iInfo.name then
                   cur[iInfo.name] = {
                      enabled = true,
@@ -119,127 +157,91 @@ AddRefreshOptions = function()
                      name = iInfo.name,
                      type = "item"
                   }
-                  AddRefreshOptions()
+                  optionsFields:RefreshFields()
                else
-                  print(Exlist.debugString, L["Couldn't add item:"], v)
+                  print(Exlist.debugString, L["Couldn't add item:"], value)
                end
-            end,
-            width = 1
+            end)
+            self.dialog:ShowDialog()
+         end,
+         tooltip = {
+            text = L['Add Item by item ID or item name'],
          },
-         currencyInput = {
-            type = "input",
-            order = 1.07,
-            name = L[" Add Currency (|cffffffffInput currency ID|r)"],
-            get = function()
-               return ""
-            end,
-            set = function(self, v)
-               local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(v)
+         color = { 249 / 255, 95 / 255, 9 / 255, 1 }
+      },
+      {
+         type = 'button',
+         width = 20,
+         label = L['Add Currency'],
+         onClick = function()
+            self.dialog:SetLabel(L['Currency ID'])
+            self.dialog:SetOnSuccess(function(value)
+               local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(value)
                if currencyInfo and currencyInfo.name then
                   cur[currencyInfo.name] = {
                      enabled = true,
                      icon = currencyInfo.iconFileID,
                      name = currencyInfo.name,
-                     id = v,
+                     id = value,
                      type = "currency"
                   }
-                  AddRefreshOptions()
+                  optionsFields:RefreshFields()
                else
-                  print(Exlist.debugString, L["Couldn't add currency:"], v)
+                  print(Exlist.debugString, L["Couldn't add currency:"], value)
                end
-            end,
-            width = 1
-         },
-         label1 = {
-            type = "description",
-            order = 1.1,
-            fontSize = "medium",
-            width = "normal",
-            name = WrapTextInColorCode(L["Name"], colors.config.tableColumn)
-         },
-         label2 = {
-            type = "description",
-            order = 1.2,
-            fontSize = "medium",
-            width = "half",
-            name = WrapTextInColorCode(L["Enable"], colors.config.tableColumn)
-         },
-         label3 = {
-            type = "description",
-            order = 1.3,
-            fontSize = "medium",
-            width = "normal",
-            name = WrapTextInColorCode(L["Show Separate"], colors.config.tableColumn)
-         },
-         spacer1 = {
-            type = "description",
-            order = 1.4,
-            width = "half",
-            name = ""
-         }
+            end)
+            self.dialog:ShowDialog()
+         end,
+         color = { 249 / 255, 95 / 255, 9 / 255, 1 }
+      },
+      {
+         type = 'spacer',
+         width = 60
       }
    }
-   -- update currencies
-   Updater()
-   local n = 1
-   for name, t in Exlist.spairs(
-      cur,
-      function(t, a, b)
-         return t[a].name < t[b].name
-      end
-   ) do
-      n = n + 1
-      options.args[name .. "desc"] = {
-         type = "description",
-         order = n,
-         fontSize = "medium",
-         name = string.format("|T%s:15|t %s", t.icon, name),
-         width = "normal"
-      }
-      options.args[name .. "enable"] = {
-         type = "toggle",
-         order = n + .1,
-         name = "  ",
-         descStyle = "inline",
-         width = "half",
-         get = function()
-            return t.enabled
+
+   self.Updater()
+
+   for name, t in EXL.utils.spairs(cur, function(t, a, b) return t[a].name < t[b].name end) do
+      table.insert(options, {
+         type = 'description',
+         width = 30,
+         label = string.format("|T%s:15|t %s", t.icon, name),
+      })
+      table.insert(options, {
+         type = 'dropdown',
+         label = L['Status'],
+         width = 20,
+         getOptions = function()
+            return statusMap
          end,
-         set = function(self, v)
-            t.enabled = v
-            AddRefreshOptions()
+         currentValue = function()
+            return t.enabled and t.showSeparate and 'enabledSeparate' or t.enabled and 'enabled' or 'disabled'
+         end,
+         onChange = function(value)
+            if (value == 'enabled') then
+               t.enabled = true
+               t.showSeparate = false
+            elseif (value == 'enabledSeparate') then
+               t.showSeparate = true
+               t.enabled = true
+            elseif (value == 'disabled') then
+               t.enabled = false
+               t.showSeparate = false
+            end
+            self.Updater()
          end
-      }
-      options.args[name .. "showSeparate"] = {
-         type = "toggle",
-         order = n + .2,
-         width = "half",
-         descStyle = "inline",
-         name = "  ",
-         disabled = function()
-            return not t.enabled
-         end,
-         get = function()
-            return t.showSeparate
-         end,
-         set = function(self, v)
-            t.showSeparate = v
-            AddRefreshOptions()
-         end
-      }
-      options.args[name .. "spacer"] = {type = "description", order = n + .3, width = "normal", name = ""}
+      })
+      table.insert(options, {
+         type = 'spacer',
+         width = 50
+      })
    end
 
-   if not added then
-      Exlist.AddModuleOptions(key, options, L["Currency"])
-      added = true
-   else
-      Exlist.RefreshModuleOptions(key, options, L["Currency"])
-   end
+   return options
 end
-Exlist.ModuleToBeAdded(AddRefreshOptions)
 
-local function Linegenerator(tooltip, data, character)
+currency.Linegenerator = function(tooltip, data, character)
    if not data or not data.money then
       return
    end
@@ -249,7 +251,7 @@ local function Linegenerator(tooltip, data, character)
       priority = prio,
       titleName = L["Currency"],
       data = Exlist.SeperateThousands(data.money.gold) ..
-         "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r"
+          "|cFFd8b21ag|r " .. data.money.silver .. "|cFFadadads|r " .. data.money.coppers .. "|cFF995813c|r"
    }
    local extraInfos = {}
    local currency = data.currency
@@ -261,10 +263,10 @@ local function Linegenerator(tooltip, data, character)
       local settings = Exlist.ConfigDB.settings
       for i = 1, #currency do
          if
-            not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0)) and
-               settings.currencies[currency[i].name] and
-               settings.currencies[currency[i].name].enabled
-          then
+             not (settings.hideEmptyCurrency and not (currency[i].amount and currency[i].amount > 0)) and
+             settings.currencies[currency[i].name] and
+             settings.currencies[currency[i].name].enabled
+         then
             if settings.currencies[currency[i].name].showSeparate then
                table.insert(
                   extraInfos,
@@ -300,10 +302,10 @@ end
 local data = {
    name = L["Currency"],
    key = key,
-   linegenerator = Linegenerator,
+   linegenerator = currency.Linegenerator,
    priority = prio,
-   updater = Updater,
-   event = {"CURRENCY_DISPLAY_UPDATE", "PLAYER_MONEY", "BAG_UPDATE"},
+   updater = currency.Updater,
+   event = { "CURRENCY_DISPLAY_UPDATE", "PLAYER_MONEY", "BAG_UPDATE" },
    description = L["Collects information about different currencies  and user specified item amounts in inventory"],
    weeklyReset = false
 }

@@ -17,13 +17,17 @@ end
 local function configureTooltip(self, tooltip, parentTooltip)
    local parentFrameLevel = parentTooltip:GetFrameLevel(parentTooltip)
    tooltip:SetFrameLevel(parentFrameLevel)
-   Mixin(tooltip.NineSlice, BackdropTemplateMixin);
-   SharedTooltip_SetBackdropStyle(tooltip, nil, tooltip.IsEmbedded);
-   tooltip.NineSlice:SetScript("OnSizeChanged", tooltip.NineSlice.OnBackdropSizeChanged);
-   tooltip.NineSlice:SetBackdrop(Exlist.DEFAULT_BACKDROP);
+   tooltip.NineSlice:Hide()
+   if (not tooltip.ExlistBackdrop) then
+      tooltip.ExlistBackdrop = CreateFrame("Frame", nil, tooltip, "BackdropTemplate")
+      tooltip.ExlistBackdrop:SetBackdrop(Exlist.DEFAULT_BACKDROP)
+      tooltip.ExlistBackdrop:SetAllPoints()
+      tooltip.ExlistBackdrop:SetFrameLevel(tooltip:GetFrameLevel() - 1)
+   end
    local c = settings.backdrop
-   tooltip.NineSlice:SetCenterColor(c.color.r, c.color.g, c.color.b, c.color.a)
-   tooltip.NineSlice:SetBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+   tooltip.ExlistBackdrop:SetBackdropColor(c.color.r, c.color.g, c.color.b, c.color.a)
+   tooltip.ExlistBackdrop:SetBackdropBorderColor(c.borderColor.r, c.borderColor.g, c.borderColor.b, c.borderColor.a)
+   tooltip.ExlistBackdrop:Show()
    local toolHeight = tooltip:GetHeight()
    local calcHeight = GetScreenHeight() - toolHeight
    tooltip:UpdateScrolling(calcHeight)
@@ -81,4 +85,4 @@ local function showTooltip(self, tooltip)
    end
 end
 
-Exlist.RegisterTooltip({showFunc = showTooltip, order = 20, init = init})
+Exlist.RegisterTooltip({ showFunc = showTooltip, order = 20, init = init })

@@ -3,15 +3,11 @@
 
   <Script file="Worldquests.lua"/>
   <Script file="Character.lua" />
-  <Script file="Emissaries.lua" />
   <Script file="Coins.lua" />
   <Script file="Currency.lua"/>
-  <!-- <Script file="Dungeons.lua"/> -->
   <Script file="Mail.lua"/>
-  <Script file="Missions.lua"/>
   <Script file="MythicKey.lua"/>
   <Script file="MythicPlus.lua"/>
-  <Script file="Quests.lua"/>
   <Script file="Raids.lua"/>
   <Script file="WorldBosses.lua"/>
   <Script file="Note.lua"/>
