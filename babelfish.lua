@@ -1,20 +1,19 @@
 local folder = "Exlist/"
 
 local files = {
-    "Config",
+    "Options/Characters",
+    "Options/General",
+    "Options/Modules",
     "Exlist",
     "Init",
     "Modules/Character",
     "Modules/Coins",
     "Modules/Currency",
     "Modules/Dungeons",
-    "Modules/Emissaries",
     "Modules/Mail",
-    "Modules/Missions",
     "Modules/MythicKey",
     "Modules/MythicPlus",
     "Modules/Note",
-    "Modules/Quests",
     "Modules/Raids",
     "Modules/Reputation",
     "Modules/WorldBosses",
