@@ -1396,7 +1396,7 @@ function frame:OnEvent(event, ...)
         if settings.announceReset and ... then
             local resetString = INSTANCE_RESET_SUCCESS:gsub("%%s", ".+")
             local msg = ...
-            if msg:match("^" .. resetString .. "$") then
+            if not issecretvalue(msg) and msg:match("^" .. resetString .. "$") then
                 AnnounceReset(msg)
             end
         end

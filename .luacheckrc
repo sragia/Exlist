@@ -3360,6 +3360,7 @@ globals = {
 	"SetOptOutOfLoot",
 	"FindInTable",
 	"DevTool",
+	"issecretvalue",
 	"DevTool_AddData",
 	"tAppendAll",
 	"CreateFramePool",
