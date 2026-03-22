@@ -17,7 +17,10 @@ Exlist.accountSync = {
                 tickerFrequency = 180
              }
           )
+      Exlist.accountSync.coreInit()
    end,
+   coreInit = function()
+   end
 }
 
 ---@class EXLOptionsController

@@ -173,7 +173,6 @@ local function mergePairedCharacters(accountChars, accountID)
    for _, char in ipairs(accountChars) do
       paired[char] = { status = CHAR_STATUS.OFFLINE, accountID = accountID }
    end
-   Exlist.accountSync.AddOptions(true)
 end
 
 local function gatherAccountCharacterNames()

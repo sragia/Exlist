@@ -85,6 +85,11 @@ local worldBossIDs = {
    [81630] = { eid = 2637, expansion = 11, enabled = true, wq = true },                                   -- Kordac
    [85088] = { eid = 2683, expansion = 11, enabled = true, wq = true },                                   -- The Gobfather
    [87354] = { eid = 2762, expansion = 11, enabled = true, wq = true },                                   -- Reshanor
+   -- Midnight
+   [92123] = { eid = 2782, expansion = 12, enabled = true, wq = true },                                   -- Cragpine
+   [92560] = { eid = 2827, expansion = 12, enabled = true, wq = true },                                   -- Lu'ashal
+   [92636] = { eid = 2828, expansion = 12, enabled = true, wq = true },                                   -- Predaxas
+   [92034] = { eid = 2829, expansion = 12, enabled = true, wq = true },                                   -- Thorm'belan
 
 }
 local lastUpdate = 0
@@ -444,6 +449,12 @@ local function init()
       gt.worldbosses = t
       Exlist.UpdateChar(key, gt, "global", "global")
    end
+
+
+   local settings = Exlist.ConfigDB.settings
+   settings.worldbosses = settings.worldbosses or {}
+   -- add missing raids
+   settings.worldbosses = Exlist.AddMissingTableEntries(settings.worldbosses, worldBossIDs, { 'eid' })
 end
 
 worldBossesModule.GetOptions = function(self)

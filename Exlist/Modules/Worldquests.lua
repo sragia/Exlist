@@ -6,14 +6,14 @@ local table, pairs, ipairs, type, math, time, GetTime, string, tonumber, print =
     table, pairs, ipairs, type, math, time, GetTime, string, tonumber, print
 local C_TaskQuest = C_TaskQuest
 local GetQuestLogRewardInfo, GetNumQuestLogRewardCurrencies,
-      GetQuestLogRewardCurrencyInfo, GetQuestLogRewardMoney =
+GetQuestLogRewardCurrencyInfo, GetQuestLogRewardMoney =
     GetQuestLogRewardInfo, GetNumQuestLogRewardCurrencies,
     GetQuestLogRewardCurrencyInfo, GetQuestLogRewardMoney
 local GetCurrentMapAreaID, SetMapByID, ToggleWorldMap = GetCurrentMapAreaID,
-                                                        SetMapByID,
-                                                        ToggleWorldMap
+    SetMapByID,
+    ToggleWorldMap
 local GetCurrencyInfo, GetSpellInfo, GetItemSpell = GetCurrencyInfo,
-                                                    GetSpellInfo, GetItemSpell
+    GetSpellInfo, GetItemSpell
 local BonusObjectiveTracker_TrackWorldQuest =
     BonusObjectiveTracker_TrackWorldQuest
 local loadstring = loadstring
@@ -30,29 +30,29 @@ local zones = {
     1355, -- Nazjatar
     1462, -- Mechagon
     -- EK
-    14, -- Arathi Highlands
+    14,   -- Arathi Highlands
     -- Kalimdor
-    62, -- Darkshore
+    62,   -- Darkshore
     -- Kultiras
-    895, -- Tiragarde Sound
-    896, -- Drustvar
-    942, -- Stormsong Valley
+    895,  -- Tiragarde Sound
+    896,  -- Drustvar
+    942,  -- Stormsong Valley
     -- Zandalar
-    864, -- Vol'dun
-    863, -- Nazmir
-    862, -- Zuldazar
+    864,  -- Vol'dun
+    863,  -- Nazmir
+    862,  -- Zuldazar
     -- Legion
     -- Broken Isles
-    630, -- Aszuna
-    641, -- Val'Sharah
-    650, -- Highmountain
-    634, -- Stormheim
-    680, -- Suramar
-    646, -- Broken Shore
+    630,  -- Aszuna
+    641,  -- Val'Sharah
+    650,  -- Highmountain
+    634,  -- Stormheim
+    680,  -- Suramar
+    646,  -- Broken Shore
     -- Argus
-    882, -- Mac'reee
-    830, -- Kro'kuun
-    885, -- Antoran Wastes
+    882,  -- Mac'reee
+    830,  -- Kro'kuun
+    885,  -- Antoran Wastes
     -- Shadowlands
     1533, -- Bastion
     1565, -- Ardenweald
@@ -73,7 +73,12 @@ local zones = {
     2215, -- Hallowfall
     2270, -- Azj'kahet
     2346, -- Undermine
-    2371 -- Kare'sh
+    2371, -- Kare'sh
+    -- Midnight
+    2395, -- Eversong Woods
+    2437, -- Zul'Aman
+    2413, -- Harandar
+    2405, -- Voidstorm
 }
 
 local rewardRules = {}
@@ -117,10 +122,10 @@ function Exlist.RegisterWorldQuests(quests, readOnly)
     -- quests = info
     -- readOnly = can't be removed in session
     if type(quests) == "number" then
-        trackedQuests[quests] = {enabled = true, readOnly = readOnly}
+        trackedQuests[quests] = { enabled = true, readOnly = readOnly }
     elseif type(quests) == "table" then
         for i, questId in ipairs(quests) do
-            trackedQuests[questId] = {enabled = true, readOnly = readOnly}
+            trackedQuests[questId] = { enabled = true, readOnly = readOnly }
         end
     end
 end
@@ -139,7 +144,7 @@ local function GetQuestRewards(questId)
         })
     end
     for _, currencyReward in
-        ipairs(C_QuestLog.GetQuestRewardCurrencies(questId)) do
+    ipairs(C_QuestLog.GetQuestRewardCurrencies(questId)) do
         if currencyReward.name then
             table.insert(rewards, {
                 name = currencyReward.name,
@@ -181,7 +186,7 @@ local function compare(current, target, comp)
     current = current / 1000
     target = target / 1000
     local ret = loadstring(string.format("return %f %s %f", current, comp,
-                                         target))
+        target))
     return ret()
 end
 
@@ -246,9 +251,9 @@ local function SetQuestRule(rewardId, rewardType, amount, compare)
     if rules[rewardType] and rules[rewardType][name] then
         RemoveRule(name, rewardType) -- remove previously set rule
     end
-    local id = GetTime() -- for cleaning up when removed
+    local id = GetTime()             -- for cleaning up when removed
     rules[rewardType] = rules[rewardType] or {}
-    rules[rewardType][name] = {amount = amount, compare = compare, id = id}
+    rules[rewardType][name] = { amount = amount, compare = compare, id = id }
 end
 
 function Exlist.ScanQuests()
@@ -258,7 +263,7 @@ function Exlist.ScanQuests()
     local rt = {}
     local tl = 500
     for questId, info in pairs(settings.worldQuests) do
-        trackedQuests[questId] = {enabled = info.enabled, readOnly = false}
+        trackedQuests[questId] = { enabled = info.enabled, readOnly = false }
     end
     for index, zoneId in ipairs(zones) do
         local wqs = C_TaskQuest.GetQuestsOnMap(zoneId)
@@ -268,7 +273,7 @@ function Exlist.ScanQuests()
             local rewards = GetQuestRewards(info.questID)
             local checkRules, ruleid, targetReward = CheckRewardRules(rewards)
             if (trackedQuests[info.questID] and
-                trackedQuests[info.questID].enabled) or checkRules then
+                    trackedQuests[info.questID].enabled) or checkRules then
                 local name = C_TaskQuest.GetQuestInfoByQuestID(info.questID)
                 local objectives = C_QuestLog.GetQuestObjectives(info.questID)
                 local endTime = time() + (timeLeft * 60)
@@ -322,10 +327,10 @@ local function GetFormatedRewardString(r, noColor)
     if r.name == "Gold" then
         if noColor then
             s = r.amount.gold .. "g " .. r.amount.silver .. "s " ..
-                    r.amount.coppers .. "c"
+                r.amount.coppers .. "c"
         else
             s = r.amount.gold .. "|cFFd8b21ag|r " .. r.amount.silver ..
-                    "|cFFadadads|r " .. r.amount.coppers .. "|cFF995813c|r"
+                "|cFFadadads|r " .. r.amount.coppers .. "|cFF995813c|r"
         end
     else
         if r.amount > 1 then
@@ -384,7 +389,7 @@ local function GlobalLineGenerator(tooltip, data)
                 if first then
                     Exlist.AddLine(tooltip, {
                         WrapTextInColorCode(L["World Quests"],
-                                            colors.sideTooltipTitle)
+                            colors.sideTooltipTitle)
                     }, 14)
                     first = false
                 end
@@ -394,7 +399,7 @@ local function GlobalLineGenerator(tooltip, data)
                 end
 
                 local timeLeft = Exlist.TimeLeftColor(info.endTime - timeNow,
-                                                      {3600, 14400})
+                    { 3600, 14400 })
                 local targetReward = ""
                 local sideTooltip = {
                     title = WrapTextInColorCode(info.name, colors.questTitle),
@@ -409,7 +414,7 @@ local function GlobalLineGenerator(tooltip, data)
                         targetReward = GetFormatedRewardString(reward, true)
                     end
                     table.insert(sideTooltip.body,
-                                 GetFormatedRewardString(reward))
+                        GetFormatedRewardString(reward))
                 end
                 if targetReward == "" then
                     targetReward =
@@ -418,41 +423,41 @@ local function GlobalLineGenerator(tooltip, data)
 
                 local lineNum = Exlist.AddLine(tooltip, {
                     AddCheckmark(info.name, C_QuestLog.IsQuestFlaggedCompleted(
-                                     info.questId)), timeLeft,
+                        info.questId)), timeLeft,
                     WrapTextInColorCode(string.format("%s  - %s", targetReward,
-                                                      C_Map.GetMapInfo(
-                                                          info.zoneId).name or
-                                                          ""), colors.faded)
+                        C_Map.GetMapInfo(
+                            info.zoneId).name or
+                        ""), colors.faded)
                 })
                 Exlist.AddScript(tooltip, lineNum, nil, "OnMouseDown",
-                                 function(self)
-                    if not WorldMapFrame:IsShown() then
-                        ToggleWorldMap()
-                    end
-                    WorldMapFrame:SetMapID(info.zoneId)
-                    BonusObjectiveTracker_TrackWorldQuest(questId)
-                end)
+                    function(self)
+                        if not WorldMapFrame:IsShown() then
+                            ToggleWorldMap()
+                        end
+                        WorldMapFrame:SetMapID(info.zoneId)
+                        BonusObjectiveTracker_TrackWorldQuest(questId)
+                    end)
 
                 -- Add Objectives to Side Tooltip
                 if info.objectives then
                     table.insert(sideTooltip.body, WrapTextInColorCode(
-                                     L["Objectives"], colors.questTitle))
+                        L["Objectives"], colors.questTitle))
                     for i, objective in ipairs(info.objectives) do
                         if objective.type == "progressbar" then
                             table.insert(sideTooltip.body,
-                                         string.format("%d/100%% %s",
-                                                       (objective.numFulfilled /
-                                                           objective.numRequired) *
-                                                           100, objective.text))
+                                string.format("%d/100%% %s",
+                                    (objective.numFulfilled /
+                                        objective.numRequired) *
+                                    100, objective.text))
                         else
                             table.insert(sideTooltip.body, objective.text)
                         end
                     end
                 end
                 Exlist.AddScript(tooltip, lineNum, nil, "OnEnter",
-                                 Exlist.CreateSideTooltip(), sideTooltip)
+                    Exlist.CreateSideTooltip(), sideTooltip)
                 Exlist.AddScript(tooltip, lineNum, nil, "OnLeave",
-                                 Exlist.DisposeSideTooltip())
+                    Exlist.DisposeSideTooltip())
             end
         end
     end
@@ -497,7 +502,7 @@ local function SetupWQConfig(refresh)
                         Exlist.ScanQuests()
                     else
                         print(Exlist.debugString, L["Invalid World Quest ID:"],
-                              v)
+                            v)
                     end
                 end,
                 width = "full"
@@ -574,14 +579,15 @@ local function SetupWQConfig(refresh)
         fontSize = "large",
         width = "full",
         name = WrapTextInColorCode(L["\nWorld Quest rules"],
-                                   colors.config.heading2)
+            colors.config.heading2)
     }
     n = n + 1
     options.args["WQRulesdesc"] = {
         type = "description",
         order = n,
         width = "full",
-        name = L["Add rules by which addon is going to track world quests. \nFor example, show all world quest that have more than 3 Bloods of Sargeras"]
+        name = L
+            ["Add rules by which addon is going to track world quests. \nFor example, show all world quest that have more than 3 Bloods of Sargeras"]
     }
     n = n + 1
     options.args["WQRulesType"] = {
@@ -672,11 +678,11 @@ local function SetupWQConfig(refresh)
         name = L["Save"],
         func = function()
             local name = rewardRules.DEFAULT[tmpConfigRule.ruleType]
-                             .customFieldValue == tmpConfigRule.rewardName and
-                             tmpConfigRule.customReward or
-                             tmpConfigRule.rewardName
+                .customFieldValue == tmpConfigRule.rewardName and
+                tmpConfigRule.customReward or
+                tmpConfigRule.rewardName
             SetQuestRule(name, tmpConfigRule.ruleType, tmpConfigRule.amount,
-                         tmpConfigRule.compareValue)
+                tmpConfigRule.compareValue)
             Exlist.ScanQuests()
             SetupWQConfig(true)
         end
@@ -752,26 +758,26 @@ local function SetupWQConfig(refresh)
                 width = 0.5,
                 func = function()
                     StaticPopupDialogs["DeleteWQRuleDataPopup_" .. rewardName] =
-                        {
-                            text = L["Do you really want to delete this rule?"],
-                            button1 = "Ok",
-                            button3 = "Cancel",
-                            hasEditBox = false,
-                            OnAccept = function(self)
-                                StaticPopup_Hide(
-                                    "DeleteWQRuleDataPopup_" .. rewardName)
-                                RemoveRule(rewardName, rewardType)
-                                SetupWQConfig(true)
-                                Exlist.NotifyOptionsChange(key)
-                            end,
-                            timeout = 0,
-                            cancels = "DeleteWQRuleDataPopup_" .. rewardName,
-                            whileDead = true,
-                            hideOnEscape = true,
-                            preferredIndex = 4,
-                            showAlert = 1,
-                            enterClicksFirstButton = 1
-                        }
+                    {
+                        text = L["Do you really want to delete this rule?"],
+                        button1 = "Ok",
+                        button3 = "Cancel",
+                        hasEditBox = false,
+                        OnAccept = function(self)
+                            StaticPopup_Hide(
+                                "DeleteWQRuleDataPopup_" .. rewardName)
+                            RemoveRule(rewardName, rewardType)
+                            SetupWQConfig(true)
+                            Exlist.NotifyOptionsChange(key)
+                        end,
+                        timeout = 0,
+                        cancels = "DeleteWQRuleDataPopup_" .. rewardName,
+                        whileDead = true,
+                        hideOnEscape = true,
+                        preferredIndex = 4,
+                        showAlert = 1,
+                        enterClicksFirstButton = 1
+                    }
                     StaticPopup_Show("DeleteWQRuleDataPopup_" .. rewardName)
                 end
             }
@@ -839,13 +845,13 @@ local function init()
                 customFieldValue = 0
             },
             money = {
-                values = {gold = L["Gold"]},
+                values = { gold = L["Gold"] },
                 defaultValue = "gold",
                 disableItems = true,
                 useCustom = false
             },
             honor = {
-                values = {honor = L["Honor"]},
+                values = { honor = L["Honor"] },
                 defaultValue = "honor",
                 disableItems = true,
                 useCustom = false
@@ -856,10 +862,10 @@ local function init()
     tmpConfigRule.ruleType = rewardRules.defaultType
 
     Exlist.ConfigDB.settings.extraInfoToggles.worldquests = Exlist.ConfigDB
-                                                                .settings
-                                                                .extraInfoToggles
-                                                                .worldquests or
-                                                                {
+        .settings
+        .extraInfoToggles
+        .worldquests or
+        {
             name = L["World Quests"],
             enabled = true
         }
@@ -872,9 +878,10 @@ local data = {
     globallgenerator = GlobalLineGenerator,
     priority = prio,
     updater = Updater,
-    event = {"WORLD_QUEST_SPOTTED", "PLAYER_ENTERING_WORLD", "WORLD_MAP_OPEN"},
+    event = { "WORLD_QUEST_SPOTTED", "PLAYER_ENTERING_WORLD", "WORLD_MAP_OPEN" },
     weeklyReset = false,
-    description = L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"],
+    description = L
+        ["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"],
     override = true,
     init = init
 }
